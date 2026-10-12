@@ -152,9 +152,6 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 #indLegend{padding:2px 10px 0;font-size:11.5px;gap:4px 10px}
 #indLegend:empty{display:none}
 #mainChart{flex:1 1 auto!important;height:auto!important;min-height:0!important}
-.ddpanel{position:fixed!important;left:12px!important;right:12px;top:auto!important;bottom:calc(var(--nav-h) + var(--safe-b) + 10px);max-height:60vh;min-width:0!important;z-index:40!important}
-.dd .ddpanel .opt{padding:10px 8px}
-.ddpanel label{padding:8px 0!important}
 
 /* ── 策略分析 ── */
 #stratView{flex-direction:column;overflow-y:auto}
@@ -234,7 +231,6 @@ details.fold>.in{padding:0 14px 12px}
   .stats{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important}
   .snap{grid-template-columns:repeat(4,minmax(0,1fr))}
   #newsView>.wrap{max-width:900px;margin:0 auto;width:100%}
-  .ddpanel{position:absolute!important;left:0!important;right:auto;top:110%!important;bottom:auto;min-width:220px!important}
 }
 #priceChart,#eqChart,#mainChart{overflow:hidden}
 #indLegend{flex-wrap:nowrap!important;overflow-x:auto;white-space:nowrap;scrollbar-width:none}#indLegend::-webkit-scrollbar{display:none}#indLegend>span{flex:none}
@@ -242,11 +238,44 @@ details.fold>.in{padding:0 14px 12px}
 #left .sdd{width:100%}
 #left .sdd .ddbtn{width:100%;text-align:left;padding:10px;font-size:15px;border-radius:10px;overflow:hidden;text-overflow:ellipsis}
 #left .field{margin-bottom:8px}
-#left .ddpanel .opt{white-space:normal}
 #stratView .legend{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:none;padding:4px 10px!important}
 #stratView .legend::-webkit-scrollbar{display:none}#stratView .legend>span{flex:none}
 .stats{padding:10px!important}
 .stat{padding:7px 9px!important}.stat .k{font-size:11px!important}
+
+/* ── 選項面板：一律從底部滑出的面板（有標題、遮罩、勾選記號），不會被工具列或底部導覽蓋住 ── */
+body.ddopen main{z-index:40}
+#ddMask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45;display:none;animation:fadeIn .15s}
+body.ddopen #ddMask{display:block}
+.dd .ddpanel{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;margin:0 auto;max-width:560px;min-width:0!important;
+  max-height:72vh;overflow-y:auto;z-index:50!important;border-radius:18px 18px 0 0!important;border:1px solid var(--line);border-bottom:0;
+  padding:0 0 calc(10px + var(--safe-b))!important;background:var(--panel)!important;box-shadow:0 -10px 30px rgba(0,0,0,.35)!important;animation:sheetUp .18s ease-out}
+.dd .ddpanel::before{content:attr(data-title);position:sticky;top:0;z-index:1;display:block;padding:18px 18px 10px;font-weight:700;font-size:15px;color:var(--text);
+  background:var(--panel);border-bottom:1px solid var(--line);
+  background-image:linear-gradient(var(--muted),var(--muted));background-size:36px 4px;background-position:center 7px;background-repeat:no-repeat}
+.dd .ddpanel .opt{padding:14px 18px!important;border-radius:0!important;border-bottom:1px solid var(--line);font-size:15px;white-space:normal!important;color:var(--text)}
+.dd .ddpanel .opt:last-child{border-bottom:0}
+.dd .ddpanel .opt.sel{color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.dd .ddpanel .opt.sel::after{content:"✓";margin-left:auto;font-weight:700}
+.dd .ddpanel .grip{display:none}
+.ddpanel label{padding:14px 18px!important;margin:0!important;border-bottom:1px solid var(--line);font-size:15px;align-items:center;gap:12px!important}
+.ddpanel label[style*="none"]{display:none!important}
+.ddpanel label .grip{display:none}
+.ddpanel input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:24px;border-radius:12px;background:var(--line);position:relative;margin:0 0 0 auto;order:2;cursor:pointer;transition:background .15s}
+.ddpanel input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s}
+.ddpanel input[type=checkbox]:checked{background:var(--acc)}
+.ddpanel input[type=checkbox]:checked::after{transform:translateX(18px)}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+/* 參數：兩欄、精簡 */
+#params{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px}
+#params .field{margin:0 0 6px}
+#params .field:has(select),#params .field:has(input[type=checkbox]){grid-column:1/-1}
+#params .field input,#params .field select{padding:8px 10px;font-size:14px;border-radius:8px}
+#params .field label{font-size:12px}
+#params .hint{font-size:11px;line-height:1.35}
+#params .field label:has(input[type=checkbox]){display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+#params input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 </style>
 </head>
 <body>
@@ -1917,6 +1946,14 @@ renderCoins();
 syncAll();
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastSync>25000)syncAll()});
+// 選項面板：加標題、遮罩；點遮罩就關閉
+(function(){const T={cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
+  const mask=document.createElement('div');mask.id='ddMask';document.querySelector('main').appendChild(mask);
+  const title=()=>{document.querySelectorAll('select').forEach(s=>{if(s._dd&&T[s.id])s._dd.querySelector('.ddpanel').dataset.title=T[s.id]});const ip=document.querySelector('#indPanel');if(ip)ip.dataset.title='指標（開關）'};
+  title();setTimeout(title,500);
+  const sync=()=>requestAnimationFrame(()=>title()||document.body.classList.toggle('ddopen',!!document.querySelector('.dd.open')));
+  document.addEventListener('click',sync,true);document.addEventListener('click',sync);
+  mask.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.dd.open').forEach(x=>x.classList.remove('open'));sync()})})();
 // 策略頁：價格圖和資金曲線中間的分隔條，上下拖動調整高度（記在這台裝置）
 (function(){const sp=$('#pSplit'),R=document.documentElement;if(!sp)return;
   const set=(ph,eh)=>{R.style.setProperty('--ph',ph+'px');R.style.setProperty('--eh',eh+'px')};
