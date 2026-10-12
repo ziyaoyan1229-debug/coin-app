@@ -1723,7 +1723,7 @@ const LIVE={};
 async function getJ(urls){for(const u of urls){try{const r=await fetch(u,{cache:'no-store'});if(r.ok)return await r.json()}catch(e){}}return null}
 async function fetchLive(){
   const j=await getJ(['https://fapi.binance.com/fapi/v1/ticker/24hr','https://data-api.binance.vision/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22%5D']);
-  if(!j)return false;(Array.isArray(j)?j:[j]).forEach(x=>{if(x.symbol==='BTCUSDT'||x.symbol==='ETHUSDT')LIVE[x.symbol.replace('USDT','')]={px:+x.lastPrice,ch:+x.priceChangePercent/100,t:x.closeTime}});return !!LIVE.BTC}
+  if(!j)return false;(Array.isArray(j)?j:[j]).forEach(x=>{if(/^(BTC|ETH|MSTR|MSTU)USDT$/.test(x.symbol))LIVE[x.symbol.replace('USDT','')]={px:+x.lastPrice,ch:+x.priceChangePercent/100,t:x.closeTime}});return !!LIVE.BTC}
 
 // ── 把內建資料之後到現在的 1 小時 K 補上（Binance 永續），之後每 30 秒更新最後一根 ──
 const BASE={};   // 內建資料原本的長度，每次都從這裡重新接
@@ -1744,12 +1744,22 @@ async function syncBars(sym){const d=window.DATA&&DATA[sym];if(!d)return false;
     const C=Math.round(+r[4]*sc);d.dc.push(C-c);c=C;d.o.push(Math.round(+r[1]*sc)-C);d.h.push(Math.round(+r[2]*sc)-C);d.l.push(Math.round(+r[3]*sc)-C);d.v.push(+r[5]);n++}
   for(const x of fr){const i=Math.round((Math.floor(x.fundingTime/3600000)*3600-d.t0)/3600);if(i>=n0&&i<n)d.f[i]=Math.round(+x.fundingRate*1e6)}
   d.n=n;return n>n0}
+// MSTR／MSTU：幣安有股票永續合約（MSTRUSDT、MSTUUSDT），用日 K 收盤接在內建日資料後面（只接週一～週五，跟美股日曆一致）
+const SBASE={};
+async function syncStk(sym){const S=window.STK&&STK[sym];if(!S)return false;
+  if(!SBASE[sym])SBASE[sym]=S.d.length;const n0=SBASE[sym];S.d.length=n0;S.c.length=n0;
+  const last=S.d[n0-1];const j=await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}USDT&interval=1d&startTime=${(last+1)*86400000}&limit=500`]);
+  if(!j||!j.length)return false;
+  for(const r of j){const d=Math.floor(r[0]/86400000),wd=new Date(d*86400000).getUTCDay();if(d<=last||wd===0||wd===6)continue;S.d.push(d);S.c.push(+(+r[4]).toFixed(2))}
+  return S.d.length>n0}
 let syncing=false,lastSync=0;
 async function syncAll(){if(syncing)return;syncing=true;
   try{const ok=(await Promise.all(['BTC','ETH'].map(syncBars))).some(Boolean);
     if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();
       const s=$('#cvSym').value;if((s==='BTC'||s==='ETH')&&window.__redraw)window.__redraw();
       const t=$('#liveTag');if(t)t.textContent='即時：Binance・'+new Date().toTimeString().slice(0,5)+' 更新'}
+    const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
+    if(sk){delete DD.MSTR;delete DD.MSTU;const s=$('#cvSym').value;if((s==='MSTR'||s==='MSTR_MSTU')&&window.__redraw)window.__redraw()}
     await fetchLive();renderCoins();if(started)$('#snapBox').innerHTML=snapCards()}
   finally{syncing=false}}
 
