@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="幣策略">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" href="favicon.svg">
 
 <title>幣策略</title>
 <style>
@@ -101,7 +101,8 @@ button{font:inherit}
 /* 頂列 */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:30;height:calc(var(--top-h) + var(--safe-t));padding:var(--safe-t) 14px 0;display:flex;align-items:center;gap:10px;
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.topbar .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;flex:none}
+.topbar .logo{width:32px;height:32px;flex:none;color:#b08d4f;display:grid;place-items:center}.topbar .logo svg{width:30px;height:30px;stroke-width:5.5}
+:root[data-theme="light"] .topbar .logo{color:#9a7a3e}
 .topbar .ttl{font-weight:700;font-size:16px;line-height:1.1}
 .topbar .sub{font-size:11px;color:var(--muted)}
 .topbar .sp{flex:1}
@@ -230,7 +231,7 @@ details.fold>.in{padding:0 14px 12px}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="logo">J</div><div><div class="ttl">幣策略</div><div class="sub">BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
+<header class="topbar"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><path d="M50 5 88.97 27.5v45L50 95 11.03 72.5v-45z"/><path d="M11.03 27.5 88.97 72.5M11.03 50h77.94M50 50v45"/></svg></div><div><div class="ttl">幣策略</div><div class="sub">BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
 <nav class="bnav"><button id="nav_chart" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>選擇幣種</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>重大消息</button></nav>
 <main>
 <!-- ───────── 走勢圖 ───────── -->
