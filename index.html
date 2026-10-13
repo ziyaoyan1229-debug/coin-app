@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0e14">
+<meta name="theme-color" content="#121722">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -307,6 +307,9 @@ body.ddopen #ddMask{display:block}
   body{min-height:calc(100% + env(safe-area-inset-top,0px))}
 }
 html{background:var(--panel)}
+/* Safari：底部導覽往下延伸蓋住工具列後面的區域 */
+.bnav::after{content:"";position:absolute;left:0;right:0;top:100%;height:120px;background:inherit}
+body{background:var(--bg)}
 </style>
 </head>
 <body>
@@ -2011,6 +2014,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   const end=()=>{if(!on)return;on=false;sp.classList.remove('on');try{localStorage.setItem('split_strat',JSON.stringify([$('#priceChart').clientHeight,$('#eqChart').clientHeight]))}catch(e){}};
   sp.addEventListener('pointerup',end);sp.addEventListener('pointercancel',end);
   sp.addEventListener('dblclick',()=>{R.style.removeProperty('--ph');R.style.removeProperty('--eh');try{localStorage.removeItem('split_strat')}catch(e){}})})();
+// Safari 上下工具列和頁面底色跟著主題變，底部不會露出一條黑邊
+(function(){const R=document.documentElement,m=document.querySelector('meta[name=theme-color]');if(!m)return;
+  const set=()=>{const v=getComputedStyle(R).getPropertyValue('--panel').trim();if(v)m.setAttribute('content',v)};
+  set();new MutationObserver(set).observe(R,{attributes:true,attributeFilter:['data-theme']})})();
 // 寬螢幕預設展開策略說明
 if(matchMedia('(min-width:960px)').matches){const f=$('#expFold');if(f)f.open=true}
 // 自己架站時註冊 Service Worker（可離線、可加到主畫面）
