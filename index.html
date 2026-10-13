@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#121722">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -162,7 +162,7 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 .simcard>*{flex:none}
 #stratView .tools{flex-wrap:nowrap;flex:none}
 #right{background:transparent!important;padding:0 10px 20px!important}
-.field input,.field select{padding:10px 10px;border-radius:10px;font-size:15px}
+.field input,.field select{padding:10px 10px;border-radius:10px;font-size:16px}
 .btnrow{display:flex;gap:8px;margin-top:8px}.btnrow .btn{margin:0;padding:11px 8px;border-radius:10px}
 .stats{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:10px!important;border:0!important;gap:6px!important}
 .stat{border-radius:12px!important;padding:8px 9px!important}
@@ -271,7 +271,7 @@ body.ddopen #ddMask{display:block}
 #params{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px}
 #params .field{margin:0 0 6px}
 #params .field:has(select),#params .field:has(input[type=checkbox]){grid-column:1/-1}
-#params .field input,#params .field select{padding:8px 10px;font-size:14px;border-radius:8px}
+#params .field input,#params .field select{padding:8px 10px;font-size:16px;border-radius:8px}
 #params .field label{font-size:12px}
 #params .hint{font-size:11px;line-height:1.35}
 #params .field label:has(input[type=checkbox]){display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
@@ -310,6 +310,24 @@ html{background:var(--panel)}
 /* Safari：底部導覽往下延伸蓋住工具列後面的區域 */
 .bnav::after{content:"";position:absolute;left:0;right:0;top:100%;height:120px;background:inherit}
 body{background:var(--bg)}
+
+/* 禁止整頁縮放：雙擊不放大、輸入框不自動放大（iOS 字小於 16px 會放大） */
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,select,textarea{font-size:16px}
+/* 策略頁：一行只有策略選單＋「細節」按鈕，其他收進細節 */
+#left .ctl{position:relative;padding:10px 12px}
+#left .ctl>.field:first-child{margin:0;padding-right:84px}
+#left .ctl>.field:first-child>label{display:none}
+details.sdet>summary{list-style:none;cursor:pointer;position:absolute;top:10px;right:12px;width:76px;height:var(--selh,44px);box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:4px;
+  background:var(--bg);border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:600;color:var(--text)}
+details.sdet>summary::-webkit-details-marker{display:none}
+details.sdet>summary #sDetSum{display:none}
+details.sdet>summary::after{content:"▾";color:var(--muted);font-size:12px;transition:transform .2s}
+details.sdet[open]>summary{border-color:var(--acc);color:var(--acc)}
+details.sdet[open]>summary::after{transform:rotate(180deg)}
+details.sdet>.in{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+details.sdet>.in .sum{font-size:12px;color:var(--muted);margin-bottom:6px}
+details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -376,6 +394,7 @@ body{background:var(--bg)}
         <option value="knifeB">7. BTC 日線飛刀＋量價出場</option>
         <option value="my">8. 我的系統：威科夫＋形態＋POC＋量能</option>
       </select></div>
+    <details class="sdet" id="sDet"><summary><span class="k">細節</span><span id="sDetSum"></span></summary><div class="in">
     <div class="row2">
       <div class="field"><label>標的</label><select id="sSym"><option>BTC</option><option>ETH</option></select></div>
       <div class="field"><label>起始資金（USDT）</label><input id="sCap" type="number" value="1000" min="10"></div>
@@ -394,7 +413,7 @@ body{background:var(--bg)}
       <div class="field"><label>開始</label><input id="sFrom" type="date" value="2024-01-01" min="2020-02-01" max="2026-09-30"></div>
       <div class="field"><label>結束</label><input id="sTo" type="date" value="2026-09-30" min="2020-02-01" max="2026-10-01"></div>
     </div>
-    <div class="btnrow"><button class="btn" id="runBtn">▶ 執行模擬</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div></div><details class="fold"><summary>⚙️ 調整參數</summary><div class="in"><div id="params"></div><button class="btn ghost" id="resetBtn">恢復最佳參數</button><p class="small">改參數會自動重算。成本：手續費＋滑價 0.07%（停損再加 0.03%）、真實資金費率、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p></div></details></div>
+    <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><p class="small">改參數會自動重算。成本：手續費＋滑價 0.07%（停損再加 0.03%）、真實資金費率、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div></div>
   <div class="col" id="center">
         <div class="simcard"><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
     <div class="legend" id="legend"></div><div id="priceChart" style="position:relative"></div>
@@ -2023,6 +2042,18 @@ if(matchMedia('(min-width:960px)').matches){const f=$('#expFold');if(f)f.open=tr
 // 自己架站時註冊 Service Worker（可離線、可加到主畫面）
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.host))navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
+
+// 禁止雙指縮放整頁（Safari 不理會 user-scalable=no）；圖表自己的縮放走 touch 事件不受影響
+(function(){const no=e=>e.preventDefault();['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,no,{passive:false}));
+  let last=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-last<300&&!e.target.closest('input,select,textarea,canvas'))e.preventDefault();last=n},{passive:false})})();
+// 策略「細節」摘要：標的・資金・期間
+(function(){const S=document.getElementById('sDetSum');if(!S)return;const $=id=>document.getElementById(id);
+  const upd=()=>{const p=$('sPeriod'),o=p&&p.options[p.selectedIndex];let per=o?o.textContent.replace(/（.*?）|\s*(牛市|熊市|連續)/g,'').trim():'';
+    if(p&&p.value==='custom')per=($('sFrom').value||'')+' → '+($('sTo').value||'');
+    S.textContent=[$('sSym')&&$('sSym').value,$('sCap')&&(Number($('sCap').value).toLocaleString()+' U'),per].filter(Boolean).join('・')};
+  ['sSym','sCap','sPeriod','sFrom','sTo'].forEach(id=>{const e=$(id);if(e){e.addEventListener('change',upd);e.addEventListener('input',upd)}});upd()})();
+(function(){const s=document.querySelector('#left .ctl>.field:first-child .ddbtn,#left .ctl>.field:first-child select'),c=document.querySelector('#left .ctl');
+  if(!s||!c)return;const f=()=>{const h=s.getBoundingClientRect().height;if(h)c.style.setProperty('--selh',h+'px')};f();addEventListener('resize',f);setTimeout(f,500)})();
 </script>
 </body>
 </html>
