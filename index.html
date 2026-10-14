@@ -1891,7 +1891,8 @@ function daily(sym){
   for(let i=0;i<b.n;i++){const d=Math.floor(b.T[i]/DAY);if(d!==cur){cur=d;T.push(d*DAY);C.push(b.C[i])}else C[C.length-1]=b.C[i]}
   return{T,C}}
 const DD={};const D=s=>DD[s]||(DD[s]=daily(s));
-const ago=(d,n)=>d.C[Math.max(0,d.C.length-1-n)];
+// n 個日曆天前的收盤（股票週末沒資料，不能直接倒數 n 根）
+const ago=(d,n)=>{const t=d.T[d.T.length-1]-n*DAY;let i=d.T.length-1;while(i>0&&d.T[i]>t)i--;return d.C[i]};
 const smaLast=(C,n)=>{if(C.length<n)return NaN;let s=0;for(let i=C.length-n;i<C.length;i++)s+=C[i];return s/n};
 
 // ── 即時價格（Binance 公開行情；被擋就用歷史資料）──
@@ -1928,10 +1929,16 @@ async function syncStk(sym){const S=window.STK&&STK[sym];if(!S)return false;
   if(!j||!j.length)return false;
   for(const r of j){const d=Math.floor(r[0]/86400000),wd=new Date(d*86400000).getUTCDay();if(d<=last||wd===0||wd===6)continue;S.d.push(d);S.c.push(+(+r[4]).toFixed(2))}
   return S.d.length>n0}
+// 「至今」的期間跟著最新 K 棒走：內建資料只到 9/30，補上即時資料後要延伸，不然回測停在 10/1
+function updNowEnd(){const b=E.load('BTC');if(!b||!b.n)return;const end=ymd(b.T[b.n-1]+DAY);let rerun=false;
+  document.querySelectorAll('#sPeriod option,#cvRange option').forEach(o=>{if(!o.textContent.includes('至今'))return;const[a,e]=o.value.split('|');
+    if(e!==end){o.value=a+'|'+end;if(o.selected&&o.parentNode.id==='sPeriod')rerun=true}});
+  ['#sFrom','#sTo'].forEach(s=>{const x=$(s);if(x)x.max=end});
+  const pc=$('#priceChart');if(rerun&&pc&&pc.childElementCount)$('#sPeriod').dispatchEvent(new Event('change'))}  // 策略頁已開過才重算
 let syncing=false,lastSync=0;
 async function syncAll(){if(syncing)return;syncing=true;
   try{const ok=(await Promise.all(['BTC','ETH'].map(syncBars))).some(Boolean);
-    if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();
+    if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();updNowEnd();
       const s=$('#cvSym').value;if((s==='BTC'||s==='ETH')&&window.__redraw)window.__redraw();
       const t=$('#liveTag');if(t)t.textContent='即時：Binance・'+new Date().toTimeString().slice(0,5)+' 更新'}
     const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
