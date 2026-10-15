@@ -366,6 +366,72 @@ details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
 /* 選單：用 Safari 實際可見高度（dvh），底部多留空間，最後一項不會被工具列擋住 */
 .dd .ddpanel{max-height:72vh;max-height:72dvh;overscroll-behavior:contain;padding-bottom:calc(28px + var(--safe-b))!important}
 </style>
+<style>
+/* ── HexStack 介面 E：預設（紫金）／深夜（純黑暖光）／白天（果凍感）。--accbg＝金色按鈕底、--on-acc＝金底上的字、--page＝頁面底、--navbg＝底部導覽底 ── */
+:root,:root[data-theme="dark"]{--bg:#0f0826;--panel:#1a0f3d;--panel2:#22144d;--line:#2e2158;--text:#f1eafe;--muted:#a998cf;--acc:#f6cf6a;--acc2:#9468e8;--chip:#241650;
+  --up:#34d399;--down:#fb7185;--warn:#f5b84b;--good:#34d399;--accbg:#f6cf6a;--on-acc:#140a33;--r:16px;
+  --page:radial-gradient(130% 55% at 50% 0%,#2a1460 0%,#140a33 50%,#0c0720 100%);--navbg:#0c0720;--cardsh:none}
+:root[data-theme="night"]{--bg:#0b0a08;--panel:#0d0c0a;--panel2:#15130f;--line:#24201a;--text:#e6d9bf;--muted:#8f826b;--acc:#c99a45;--acc2:#7a6a9e;--chip:#17140f;
+  --up:#3f9e7c;--down:#c25a66;--warn:#c99a45;--good:#3f9e7c;--accbg:#c99a45;--on-acc:#000;
+  --page:#000;--navbg:#000;--cardsh:none}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#ffffff;--panel2:#f4effd;--line:#e6dff7;--text:#24154f;--muted:#6b5c99;--acc:#a8740c;--acc2:#5b34c7;--chip:#efe9fc;
+  --up:#0f9f6e;--down:#e0445a;--warn:#c8921a;--good:#0f9f6e;--accbg:linear-gradient(160deg,#ffe08a,#e0aa38);--on-acc:#2a1a05;--r:20px;
+  --page:radial-gradient(260px 260px at 8% 4%,rgba(212,194,255,.55),transparent 70%),radial-gradient(240px 240px at 100% 22%,rgba(255,226,176,.5),transparent 70%),radial-gradient(130% 55% at 50% 0%,#ffffff 0%,#f4effd 50%,#e9e0fb 100%);--navbg:#ebe3fb;
+  --cardsh:0 8px 20px rgba(91,52,199,.10),inset 0 1px 0 #fff}
+html,html[data-theme]{background:var(--navbg)}
+body,body[class]{background:var(--page);background-attachment:fixed}
+.view{background:transparent}
+.topbar{background:color-mix(in srgb,var(--navbg) 70%,transparent);border-bottom-color:color-mix(in srgb,var(--line) 60%,transparent)}
+.iconbtn{background:var(--panel2);border-color:var(--line)}
+/* 數字用等寬字 */
+.coin .px,.coin .ch,.stat .v,#ohlc,.pbig .v,.snap .card .v,.fng .cmp b,table{font-family:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;letter-spacing:-.2px}
+/* 金色實心按鈕：字用深色 */
+.seg button.on,.chips button.on,.btn,.ddbtn.on,.badge,.tbadge,#busy,.tabs button.on,.ddpanel input[type=checkbox]:checked{background:var(--accbg);color:var(--on-acc);border-color:transparent}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.gbtn{background:var(--accbg);color:var(--on-acc)}
+/* 幣種卡片 */
+.coin{border-radius:14px;background:color-mix(in srgb,var(--panel) 70%,transparent)}
+.coin.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset;background:color-mix(in srgb,var(--acc) 10%,var(--panel))}
+/* K 線圖：圓角面板 */
+.chartcard{margin:0 10px 8px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--bg)}
+#chartView .toolbar{background:transparent;border-bottom:1px solid var(--line)}
+.simcard{margin:0 10px 12px;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+/* 卡片 */
+.card,.scard,.stat,#left .ctl,details.fold,.sgc{border-radius:var(--r);box-shadow:var(--cardsh)}
+.card,.scard,#left .ctl,details.fold{background:color-mix(in srgb,var(--panel) 85%,transparent)}
+/* 底部主題列（手機）：極簡底線，五個一次看得到，中間金字＋發光底線，兩邊漸小漸淡 */
+@media (max-width:959px){
+.bnav,.bnav.wheel{background:linear-gradient(color-mix(in srgb,var(--navbg) 0%,transparent),var(--navbg) 42%);border-top:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+.bnav::after{background:var(--navbg)}
+.bnav.wheel button{flex:0 0 20%;color:var(--muted);font-size:11px;letter-spacing:-.3px;white-space:nowrap;transform:scale(calc(1.08 - var(--d,1)*.13));opacity:calc(1 - var(--d,1)*.27)}
+.bnav.wheel button svg{width:20px;height:20px}
+.bnav.wheel button.on{color:var(--acc);font-weight:900;font-size:13px;text-shadow:0 0 12px color-mix(in srgb,var(--acc) 45%,transparent)}
+.bnav.wheel button.on svg{width:23px;height:23px;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--acc) 45%,transparent))}
+.bnav.wheel button.on::before{top:auto;bottom:5px;width:26px;height:3px;border-radius:2px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.wfade{width:9%}
+.wfade.l{background:linear-gradient(90deg,var(--navbg) 10%,transparent)}.wfade.r{background:linear-gradient(270deg,var(--navbg) 10%,transparent)}
+}
+@media (min-width:960px){.bnav button.on{color:var(--acc)}.bnav button.on::before{background:var(--acc);box-shadow:0 0 10px var(--acc)}}
+/* 切換模式時的小提示 */
+#themeToast{position:fixed;left:50%;top:calc(var(--top-h) + var(--safe-t) + 10px);transform:translateX(-50%);z-index:60;padding:6px 14px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-size:13px;font-weight:700;opacity:0;pointer-events:none}
+#themeToast.on{animation:tToast 1.4s ease-out}
+@keyframes tToast{0%{opacity:0;transform:translate(-50%,-6px)}15%,70%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+/* ── 白天：果凍感（光澤、柔陰影、按下回彈），K 線區只加立體邊框 ── */
+:root[data-theme="light"] .card,:root[data-theme="light"] .scard,:root[data-theme="light"] #left .ctl,:root[data-theme="light"] details.fold,:root[data-theme="light"] .sgc,:root[data-theme="light"] .stat{border-color:rgba(255,255,255,.95);background:rgba(255,255,255,.78)}
+:root[data-theme="light"] .coin{border-radius:18px;border-color:rgba(255,255,255,.95);background:rgba(255,255,255,.72);box-shadow:var(--cardsh)}
+:root[data-theme="light"] .coin.on{border-color:#e0aa38;background:#fff6dc;box-shadow:0 8px 18px rgba(200,146,26,.22),inset 0 -3px 6px rgba(200,146,26,.12)}
+:root[data-theme="light"] .chartcard,:root[data-theme="light"] .simcard{border:4px solid rgba(255,255,255,.85);outline:1px solid rgba(91,52,199,.14);border-radius:24px;
+  box-shadow:0 14px 30px rgba(91,52,199,.2),0 3px 6px rgba(91,52,199,.12),inset 0 2px 0 #fff,inset 0 -6px 12px rgba(91,52,199,.08)}
+:root[data-theme="light"] .seg{border-radius:999px;background:rgba(91,52,199,.07);border-color:transparent}
+:root[data-theme="light"] .seg button{border-radius:999px}
+:root[data-theme="light"] .seg button.on,:root[data-theme="light"] .chips button.on,:root[data-theme="light"] .btn:not(.ghost),:root[data-theme="light"] .gbtn{box-shadow:0 5px 12px rgba(200,146,26,.35),inset 0 -2px 4px rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.55)}
+:root[data-theme="light"] .ddbtn,:root[data-theme="light"] .chips button{border-radius:999px;background:rgba(255,255,255,.75);border-color:rgba(255,255,255,.95);box-shadow:0 4px 10px rgba(91,52,199,.10),inset 0 1px 0 #fff}
+:root[data-theme="light"] .coin,:root[data-theme="light"] .scard,:root[data-theme="light"] .sgc,:root[data-theme="light"] .seg button,:root[data-theme="light"] .chips button,:root[data-theme="light"] .ddbtn,:root[data-theme="light"] .btn,:root[data-theme="light"] .gbtn,:root[data-theme="light"] .iconbtn{transition:transform .45s cubic-bezier(.3,1.9,.45,1)}
+:root[data-theme="light"] .coin:active,:root[data-theme="light"] .scard:active,:root[data-theme="light"] .sgc:active,:root[data-theme="light"] .seg button:active,:root[data-theme="light"] .chips button:active,:root[data-theme="light"] .ddbtn:active,:root[data-theme="light"] .btn:active,:root[data-theme="light"] .gbtn:active,:root[data-theme="light"] .iconbtn:active{transform:scale(.93,.97);transition:transform .1s ease-out}
+:root[data-theme="light"] .iconbtn{border-radius:12px;background:rgba(255,255,255,.8);border-color:rgba(255,255,255,.95);box-shadow:0 4px 10px rgba(91,52,199,.12),inset 0 1px 0 #fff}
+@media (prefers-reduced-motion:reduce){#themeToast.on{animation:none}:root[data-theme="light"] *{transition:none!important}}
+</style>
+<script>try{var t=localStorage.getItem('theme3');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <!-- 開場畫面：logo 三層六角依序疊上；網頁載完、即時價格、市場分析、恐懼貪婪、模擬盤都抓完（至少 1.5 秒、最多 15 秒）才淡出 -->
@@ -1494,12 +1560,19 @@ const tw=t=>{const d=new Date((t+TZ)*1000);return d.toISOString().slice(0,16).re
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
 // ── 主題 ──
-const prefersLight=matchMedia('(prefers-color-scheme: light)').matches;
-let theme=localGet('theme')||(prefersLight?'light':'dark');
+// 三種模式：dark＝預設 HexStack（紫金）、night＝深夜（純黑暖光）、light＝白天（果凍感）；右上角按鈕依序切換
+const THEMES=['dark','night','light'],TNAME={dark:'預設',night:'深夜',light:'白天'};
+const TICON={dark:'<path d="M12 2.5 20.5 7.3v9.4L12 21.5l-8.5-4.8V7.3z"/>',night:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',light:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/>'};
+let theme=localGet('theme3');if(!THEMES.includes(theme))theme='dark';
 function localGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function localSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-function applyTheme(){document.documentElement.dataset.theme=theme;[chart,pChart,eChart].forEach(c=>c&&c.applyOptions(chartOpts()));}
-$('#themeBtn').onclick=()=>{theme=theme==='dark'?'light':'dark';localSet('theme',theme);applyTheme();};
+function applyTheme(){document.documentElement.dataset.theme=theme;
+  const b=$('#themeBtn');b.querySelector('svg').innerHTML=TICON[theme];b.setAttribute('aria-label','模式：'+TNAME[theme]+'（點一下切換）');b.title='模式：'+TNAME[theme];
+  [chart,pChart,eChart].forEach(c=>c&&c.applyOptions(chartOpts()));
+  const k={upColor:css('--up'),downColor:css('--down'),wickUpColor:css('--up'),wickDownColor:css('--down')};[cs,pcs].forEach(x=>{try{x&&x.applyOptions(k)}catch(e){}});}
+function themeToast(){let t=$('#themeToast');if(!t){t=document.createElement('div');t.id='themeToast';document.body.appendChild(t)}
+  t.textContent=TNAME[theme]+'模式';t.classList.remove('on');void t.offsetWidth;t.classList.add('on')}
+$('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length];localSet('theme3',theme);applyTheme();themeToast();};
 function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css('--muted'),fontFamily:'inherit'},grid:{vertLines:{color:css('--line')},horzLines:{color:css('--line')}},rightPriceScale:{borderColor:css('--line')},timeScale:{borderColor:css('--line'),timeVisible:true,secondsVisible:false,minBarSpacing:0.001},crosshair:{mode:0}}}
 
 // ── 分頁 ──
@@ -2340,7 +2413,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
   const pre=mk(),post=mk();nav.prepend(...pre);nav.append(...post);
   ['l','r'].forEach(k=>document.body.appendChild(Object.assign(document.createElement('div'),{className:'wfade '+k})));   // 左右漸淡
   const all=[...pre,...orig,...post],mid=b=>b.offsetLeft+b.offsetWidth/2,setW=()=>orig[0].offsetWidth*N,ctr=()=>nav.scrollLeft+nav.clientWidth/2;
-  const look=()=>{const c=ctr();all.forEach(b=>b.style.setProperty('--d',Math.min(1,Math.abs(mid(b)-c)/b.offsetWidth)))};
+  const look=()=>{const c=ctr();all.forEach(b=>b.style.setProperty('--d',Math.min(2,Math.abs(mid(b)-c)/b.offsetWidth)))};
   const near=()=>{const c=ctr();let best=all[0];all.forEach(b=>{if(Math.abs(mid(b)-c)<Math.abs(mid(best)-c))best=b});return best};
   const center=(b,sm)=>nav.scrollTo({left:mid(b)-nav.clientWidth/2,behavior:sm?'smooth':'auto'});
   const target=b=>b.dataset.for?document.getElementById(b.dataset.for):b;
