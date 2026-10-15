@@ -1773,7 +1773,7 @@ let chart,cs,vs,fs,ind={},xs={},cvSym='BTC',cvTf=14400,cvBars=null,fibLines=[],d
 const STKSYM=s=>s==='MSTR'||s==='MSTU'||s==='MSTR_MSTU', BTCDSYM=s=>s==='BTCD'||s==='BTCD_BTC';
 // MSTR、MSTU 的 1 小時／4 小時：美股盤中 1 小時 K（Yahoo Finance，由 data 分支每 15 分鐘更新）；4 小時＝每天開盤起每 4 根合一根（9:30–13:30、13:30–16:00）
 const STKI=window.STKI=(s,tf)=>(s==='MSTR'||s==='MSTU')&&(tf===3600||tf===14400);let cvIntra=false;const SIH={};
-async function stkHourRows(sym){if(SIH[sym])return SIH[sym];
+window.stkHourRows=stkHourRows;async function stkHourRows(sym){if(SIH[sym])return SIH[sym];
   const r=await fetch(`https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/${sym}_1h.csv`,{cache:'no-store'});if(!r.ok)throw new Error('no data');
   const rows=(await r.text()).trim().split('\n').slice(1).map(l=>l.split(',').map(Number)).filter(x=>x.length>=6&&x.every(isFinite));
   if(!rows.length)throw new Error('empty');setTimeout(()=>delete SIH[sym],10*60*1000);return SIH[sym]=rows}
@@ -1831,7 +1831,7 @@ function initChart(){
   chart.priceScale('fund').applyOptions({scaleMargins:{top:0.7,bottom:0.16}});
   const L=(c,w=1,st=0)=>chart.addLineSeries({color:c,lineWidth:w,lineStyle:st,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
   const X=(c,sc,w=2,st=0)=>chart.addLineSeries({color:c,lineWidth:w,lineStyle:st,priceScaleId:sc,priceLineVisible:false,lastValueVisible:true,crosshairMarkerVisible:false});
-  xs.MSTU=X('#f5a524','right');xs.MSTUS=X('#f5a524','right',1,2);  // MSTR＋MSTU：兩條共用右邊刻度（百分比模式，看同期漲跌幅）
+  xs.MSTU=X('#f5a524','right');xs.MSTUS=X('#f5a524','right',1,2);xs.MSTUS.applyOptions({lastValueVisible:false});  // MSTR＋MSTU：兩條共用右邊刻度（百分比模式，看同期漲跌幅）
   xs.MNAV=X('#a371f7','mnav',1);xs.MNAVEV=X('#d63cff','mnav',2);xs.DEBT=X('#ef5350','debt',1);xs.PREF=X('#f2a0a0','debt',1,2);xs.SHARES=X('#26a69a','shr',1);
   chart.priceScale('mnav').applyOptions({scaleMargins:{top:0.03,bottom:0.72}});chart.priceScale('debt').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});chart.priceScale('shr').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});
   xs.MNAVEV.createPriceLine({price:1,color:'#8b95a7',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'mNAV 1'});
@@ -2305,7 +2305,11 @@ function igCalc(g,d,i0,K){const W=288,[th,spTh]=g.th||[1.46,0.54],T5=K.T,C5=K.C,
 const SBASE={};
 async function syncStk(sym){const S=window.STK&&STK[sym];if(!S)return false;
   if(!SBASE[sym])SBASE[sym]=S.d.length;const n0=SBASE[sym];S.d.length=n0;S.c.length=n0;
-  const last=S.d[n0-1];const j=await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}USDT&interval=1d&startTime=${(last+1)*86400000}&limit=500`]);
+  const last=S.d[n0-1];
+  // 先用 data 分支的美股 1 小時 K（Yahoo，MSTR、MSTU 都有）補每天收盤；抓不到才用 Binance（只有 MSTR 有合約，MSTU 沒有，以前 MSTU 因此停在內建資料最後一天）
+  try{const R=await window.stkHourRows(sym),D=new Map();for(const r of R){const d=Math.floor(r[0]/86400000);if(d>last)D.set(d,r[4])}
+    if(D.size){[...D.keys()].sort((a,b)=>a-b).forEach(d=>{S.d.push(d);S.c.push(+(+D.get(d)).toFixed(2))});return true}}catch(e){}
+  const j=await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}USDT&interval=1d&startTime=${(last+1)*86400000}&limit=500`]);
   if(!j||!j.length)return false;
   for(const r of j){const d=Math.floor(r[0]/86400000),wd=new Date(d*86400000).getUTCDay();if(d<=last||wd===0||wd===6)continue;S.d.push(d);S.c.push(+(+r[4]).toFixed(2))}
   return S.d.length>n0}
