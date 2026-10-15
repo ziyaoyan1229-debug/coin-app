@@ -1,11 +1,11 @@
 {
  "market": {
   "bias": "bear",
-  "body": "**一句話**：CPI 偏熱後 BTC 跌到 81,500 附近止穩，目前約 81,550～81,690（-1.8%～-2.1%），還沒跌破 81,300／81,000；今晚 20:30 PPI 是下一個關卡，偏熱就可能再測 80,000。\n\n- **總經**：10 月升息 1 碼機率約五成；今晚 PPI、明天 Warsh 演講。\n- **資金面**：CPI 後 1 小時爆倉超過 1 億美元，槓桿已清掉一部分；Strive 仍買進 2,822 顆，公司買盤沒停。\n- **價格**：急殺後量縮橫盤，尚未出現長下影收回的反轉 K 線。\n\n## 關鍵價位（媒體整理，非本程式計算）\n- BTC：支撐 81,300、81,000、80,000；壓力 83,000、84,000～85,000。\n- ETH：支撐 2,400、2,300；壓力 2,500、2,560。\n\n## 對策略的意思\n- 突破類（策略 1、3、8）：不追多，4h 站回 85,000 才算。\n- 箱體／飛刀（策略 2、6、7）：81,000 未破前可小量觀察，4h 收破就觀望；停損 80,000 下方。\n- 研究卡 S-01（急殺回收）：等 4h 長下影收回再考慮，目前條件未成立。\n\n僅供參考，非投資建議。",
+  "body": "**一句話**：BTC 10/14 日收約 81,616，貼著 ETF 平均成本 81,500，81,000 未破；今晚 PPI 偏熱可能測 80,000。\n\n- **總經**：10 月升息機率 FedWatch 35%；明天 Warsh 演講。\n- **籌碼**：80,000 下有清算區、88,000 有賣壓。\n\n## 關鍵價位\n- 支撐 81,500、81,000、80,000；壓力 83,000、84,000～85,000。\n\n## 對策略的意思\n- 突破類：不追，4h 站回 85,000 才算。\n- 箱體／飛刀：81,000 未破可小量，4h 收破就觀望。\n\n僅供參考，非投資建議。",
   "calendar": [
    {
     "d": "10/15",
-    "e": "美國 9 月 PPI（生產者物價）"
+    "e": "20:30 美國 9 月 PPI、零售銷售、初領失業金"
    },
    {
     "d": "10/16",
@@ -20,35 +20,53 @@
     "e": "FOMC 利率決策（市場在賭會不會連續升息）"
    }
   ],
-  "title": "CPI 急殺後 BTC 在 81,500～81,700 橫盤，守住 81,300，等今晚 PPI",
-  "updated": "2026-10-15 04:50 台灣時間"
+  "title": "BTC 守在 81,600 附近、貼著 ETF 成本 81,500，今晚 PPI 定方向",
+  "updated": "2026-10-15 08:48 台灣時間"
  },
  "news": [
   {
-   "ts": "2026-10-14T20:47:00Z",
-   "title": "Strive 再買 2,822 顆 BTC（約 2.35 億美元），資金來自認股權證行使",
-   "summary": "Strive 10/14 公告以認股權證行使所得約 3.69 億美元中的 2.35 億買進 2,822 顆 BTC，持續擴大比特幣庫藏；公司型買盤在 CPI 急殺後仍在進場。",
+   "impact": "利空",
+   "source": "FXStreet",
+   "summary": "CPI 後 BTC 約 81,707（24h -1.6%）。Glassnode 指美國現貨 ETF 持有人成本約 81,500，日收跌破代表 ETF 平均持倉轉虧；80,000 下方有清算密集區，再破下看 True Market Mean 約 78,000。上方 88,000 是 6～12 個月持有者成本，站上前反彈易遇解套賣壓。10/7 以來 ETF 累計淨流出約 7.6 億美元。",
+   "tag": "BTC",
+   "title": "Glassnode：BTC 81,700 貼近 ETF 平均成本 81,500，跌破下看 80,000、78,000",
+   "ts": "2026-10-15T00:48:00Z",
+   "url": "https://www.fxstreet.com/cryptocurrencies/news/bitcoin-falls-on-hot-cpi-why-80-000-support-matters-202610142325"
+  },
+  {
+   "impact": "利空",
+   "source": "Yahoo Finance",
+   "summary": "CPI 公布後 Polymarket 上 10 月升息機率一度接近 50%，當天稍晚回落到約 30%；CME FedWatch 顯示 10 月升息機率 35%（前一天 22%）。紐約 Fed 總裁 Williams 本週稍早表示年內再升一次可能合適。Fed 已於 9/16 升息 1 碼至 3.75%–4.00%，下次 FOMC 為 10/27–28。",
+   "tag": "總經",
+   "title": "10 月升息機率回落：FedWatch 35%、Polymarket 由近五成降到約三成",
+   "ts": "2026-10-15T00:47:00Z",
+   "url": "https://finance.yahoo.com/economy/policy/articles/fed-interest-rate-hike-seems-195052044.html"
+  },
+  {
    "impact": "利多",
-   "tag": "其他",
    "source": "SEC 8-K／The Block",
+   "summary": "Strive 10/14 公告以認股權證行使所得約 3.69 億美元中的 2.35 億買進 2,822 顆 BTC，持續擴大比特幣庫藏；公司型買盤在 CPI 急殺後仍在進場。",
+   "tag": "其他",
+   "title": "Strive 再買 2,822 顆 BTC（約 2.35 億美元），資金來自認股權證行使",
+   "ts": "2026-10-14T20:47:00Z",
    "url": "https://www.sec.gov/Archives/edgar/data/0001920406/000162828026065816/asst-20261014.htm"
   },
   {
-   "ts": "2026-10-14T16:47:00Z",
-   "title": "CPI 偏熱後 BTC 跌回 81,900、ETH 跌 3%，10 月升息機率升到約五成",
-   "summary": "BTC 10/14 開盤 83,093，CPI 公布後一路走低，台灣 23:15 約 81,862（-1.8%）；ETH 約 2,433（-3.2%）。CME FedWatch 顯示 10 月升息 1 碼機率約 50%，週初不升息機率還接近 80%。",
    "impact": "利空",
-   "tag": "總經",
    "source": "Yahoo Finance",
+   "summary": "BTC 10/14 開盤 83,093，CPI 公布後一路走低，台灣 23:15 約 81,862（-1.8%）；ETH 約 2,433（-3.2%）。CME FedWatch 顯示 10 月升息 1 碼機率約 50%，週初不升息機率還接近 80%。",
+   "tag": "總經",
+   "title": "CPI 偏熱後 BTC 跌回 81,900、ETH 跌 3%，10 月升息機率升到約五成",
+   "ts": "2026-10-14T16:47:00Z",
    "url": "https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-wednesday-october-14-2026-crypto-prices-sliding-after-higher-inflation-report-133306768.html"
   },
   {
-   "ts": "2026-10-14T16:46:00Z",
-   "title": "更正：10/13 BTC 現貨 ETF 終值淨流入 1.756 億美元，為 10 月最佳單日",
-   "summary": "SoSoValue 終值顯示 10/13 BTC 現貨 ETF 淨流入 1.756 億美元（先前初步數據為流出），ETH ETF 流入 2,480 萬美元、中斷連續流出。10 月至今 BTC ETF 累計仍淨流出約 2.78 億美元。",
    "impact": "利多",
-   "tag": "ETF",
    "source": "24/7 Wall St.／Crypto Briefing",
+   "summary": "SoSoValue 終值顯示 10/13 BTC 現貨 ETF 淨流入 1.756 億美元（先前初步數據為流出），ETH ETF 流入 2,480 萬美元、中斷連續流出。10 月至今 BTC ETF 累計仍淨流出約 2.78 億美元。",
+   "tag": "ETF",
+   "title": "更正：10/13 BTC 現貨 ETF 終值淨流入 1.756 億美元，為 10 月最佳單日",
+   "ts": "2026-10-14T16:46:00Z",
    "url": "https://247wallst.com/investing/cryptocurrency/2026/10/14/bitcoin-etfs-just-had-their-best-day-of-october-while-xrp-etfs-see-no-inflows-for-three-sessions-are-investors-rotating-to-btc"
   },
   {
