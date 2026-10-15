@@ -321,6 +321,15 @@ body.ddopen #ddMask{display:block}
 html{background:var(--panel)}
 /* Safari：底部導覽往下延伸蓋住工具列後面的區域 */
 .bnav::after{content:"";position:absolute;left:0;right:0;top:100%;height:120px;background:inherit}
+/* 手機底部導覽：左右滑的滾輪，正中間那格就是目前分頁 */
+@media (max-width:959px){
+.bnav.wheel{overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;justify-content:flex-start}
+.bnav.wheel::-webkit-scrollbar{display:none}
+.bnav.wheel .wsp{flex:0 0 33.333%}
+.bnav.wheel button{flex:0 0 33.333%;scroll-snap-align:center;transform:scale(calc(1.1 - var(--d,1)*.22));opacity:calc(1 - var(--d,1)*.6);transition:color .15s}
+.bnav.wheel button.on{font-weight:700}
+.bnav.wheel button.on::before{top:auto;bottom:6px;width:22px;border-radius:3px}
+}
 body{background:var(--bg)}
 
 /* 禁止整頁縮放：雙擊不放大、輸入框不自動放大（iOS 字小於 16px 會放大） */
@@ -1909,7 +1918,7 @@ function resizeAll(){[[chart,'#mainChart'],[pChart,'#priceChart'],[eChart,'#eqCh
 addEventListener('resize',resizeAll);
 initChart();applyTheme();
 window.__redraw=()=>{if(chart)drawChart(false)};window.__ch=()=>({chart,pChart,eChart});
-{const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'chart')}
+{const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'strat')}   // 一打開預設在策略分析
 })();
 </script>
 <script>// ───────── 手機版：選擇幣種卡片、重大消息頁 ─────────
@@ -2216,6 +2225,17 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
   document.querySelectorAll('.dd').forEach(w=>{if(w===hold)return;const pan=w.querySelector(':scope>.ddpanel');if(!pan)return;w._pan=pan;pan._home=w;mo.observe(w,{attributes:true,attributeFilter:['class']})});
   new MutationObserver(()=>{if(!hold.children.length&&hold.classList.contains('open'))hold.classList.remove('open')}).observe(hold,{childList:true,attributes:true,attributeFilter:['class']});
   hold.addEventListener('click',e=>{if(e.target===hold)document.querySelectorAll('.dd.open').forEach(x=>x.classList.remove('open'))})})();
+// 手機底部導覽改成滾輪：左右滑，停在正中間的分頁就打開；點旁邊那格會轉到中間
+(function(){const nav=document.querySelector('.bnav');if(!nav||matchMedia('(min-width:960px)').matches)return;nav.classList.add('wheel');
+  nav.prepend(Object.assign(document.createElement('span'),{className:'wsp'}));nav.append(Object.assign(document.createElement('span'),{className:'wsp'}));
+  const btns=[...nav.querySelectorAll('button')],mid=b=>b.offsetLeft+b.offsetWidth/2;
+  const look=()=>{const c=nav.scrollLeft+nav.clientWidth/2;btns.forEach(b=>b.style.setProperty('--d',Math.min(1,Math.abs(mid(b)-c)/b.offsetWidth)))};
+  const center=(b,sm)=>{nav.scrollTo({left:mid(b)-nav.clientWidth/2,behavior:sm?'smooth':'auto'})};
+  let hold=0,t=0;   // 分頁切換（點按鈕、網址 #）後把那格轉到中間
+  new MutationObserver(ms=>ms.forEach(m=>{if(m.target.classList.contains('on')){hold=Date.now();center(m.target,true)}})).observe(nav,{subtree:true,attributes:true,attributeFilter:['class']});
+  nav.addEventListener('scroll',()=>{requestAnimationFrame(look);clearTimeout(t);t=setTimeout(()=>{if(Date.now()-hold<600)return;
+    const c=nav.scrollLeft+nav.clientWidth/2;let best=btns[0];btns.forEach(b=>{if(Math.abs(mid(b)-c)<Math.abs(mid(best)-c))best=b});if(!best.classList.contains('on'))best.click()},140)},{passive:true});
+  const init=()=>{const b=nav.querySelector('button.on')||btns[0];center(b,false);look()};init();addEventListener('resize',init);setTimeout(init,300)})();
 // 手機上的下拉：Safari 會把可拖曳(draggable)的項目當成拖曳開始，點了沒反應。
 // 觸控裝置一律關掉拖曳排序，並用 touchend 直接判定「點一下」來選取，不依賴 click。
 (function(){if(!matchMedia('(pointer:coarse)').matches)return;
