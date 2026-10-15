@@ -196,6 +196,17 @@ details.fold>.in{padding:0 14px 12px}
 .fng .cmp div{background:var(--panel2);border-radius:8px;padding:6px 4px;text-align:center;font-size:11.5px;color:var(--muted)}
 .fng .cmp b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
 .fng .sp{grid-column:1/-1;width:100%;height:46px;display:block}
+#fngBox{cursor:pointer}#fngBox .more2{grid-column:1/-1;text-align:right;font-size:12px;color:var(--acc);margin-top:-8px}
+#fngModal{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:var(--bg);padding:calc(var(--safe-t,0px) + 10px) 12px calc(env(safe-area-inset-bottom) + 12px);animation:fadeIn .15s}
+#fngModal.on{display:flex}
+#fngModal .hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}#fngModal .hd h3{margin:0;font-size:17px;flex:1}
+#fngModal .x{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px}
+#fngModal .seg{margin-bottom:8px}
+#fngLeg{font-size:12.5px;color:var(--muted);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}#fngLeg b{color:var(--text)}
+#fngChart{flex:1;min-height:240px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+#fngStat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+#fngStat div{background:var(--panel2);border-radius:8px;padding:6px 4px;text-align:center;font-size:11.5px;color:var(--muted)}#fngStat b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+@media (min-width:960px){#fngModal{inset:60px 12% 40px;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}}
 .fng .c0{color:var(--down)}.fng .c1{color:color-mix(in srgb,var(--down) 55%,var(--warn))}.fng .c2{color:var(--warn)}.fng .c3{color:color-mix(in srgb,var(--up) 60%,var(--warn))}.fng .c4{color:var(--up)}
 /* ── 市場分析分頁 ── */
 #newsView{flex-direction:column}
@@ -2444,7 +2455,7 @@ function renderFng(d){const box=$('#fngBox');if(!box)return;
   const line=S.map((x,i)=>`${i?'L':'M'}${xs(i).toFixed(1)},${ys(x).toFixed(1)}`).join('');
   const sp=S.length>1?`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${ys(50)}" y2="${ys(50)}" stroke="${V('--line')}" stroke-dasharray="3 3"/><path d="${line}" fill="none" stroke="${cols[c]}" stroke-width="1.8" vector-effect="non-scaling-stroke"/><circle cx="${xs(S.length-1)}" cy="${ys(S[S.length-1])}" r="3" fill="${cols[c]}"/></svg>`:'';
   const upd=new Date(+d[0].timestamp*1000),ts=`${upd.getMonth()+1}/${upd.getDate()}`;
-  box.innerHTML=`${g}<div><div class="lab c${c}">${esc(k[0])}</div><div class="sub">0 極度恐懼 ～ 100 極度貪婪・${ts} 更新</div><div class="cmp">${cmp.map(([n,x])=>`<div>${n}<b class="${x==null?'':'c'+fngCls(x)}">${x==null?'—':x}</b></div>`).join('')}</div></div>${sp}<div class="sub" style="grid-column:1/-1;margin-top:-6px">近 30 天走勢，虛線為 50</div>`}
+  box.innerHTML=`${g}<div><div class="lab c${c}">${esc(k[0])}</div><div class="sub">0 極度恐懼 ～ 100 極度貪婪・${ts} 更新</div><div class="cmp">${cmp.map(([n,x])=>`<div>${n}<b class="${x==null?'':'c'+fngCls(x)}">${x==null?'—':x}</b></div>`).join('')}</div></div>${sp}<div class="sub" style="grid-column:1/-1;margin-top:-6px">近 30 天走勢，虛線為 50</div><div class="more2">點開看歷史線圖 ›</div>`}
 // 過去分析：data 分支的 news_history.json（每篇存當時 BTC 價格與 24 小時後價格，看判斷準不準）
 const HIST_URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/news_history.json';let histAt=0;
 function histHit(h){if(h.btc==null||h.btc24==null)return null;const c=(h.btc24/h.btc-1)*100;return {c,ok:h.bias==='bull'?c>0:h.bias==='bear'?c<0:Math.abs(c)<1.5}}
@@ -2467,6 +2478,49 @@ async function loadFng(force){let d=null;
   renderFng(d)}
 let fngShown=0;{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();let f=0;if(!fngShown||Date.now()-fngAt>=FNG_EVERY){fngShown=1;f=loadFng()}return Promise.all([r,f])}}
 setInterval(()=>{if(Date.now()-fngAt>=FNG_EVERY)loadFng(1)},10*60*1000);
+// 點恐懼貪婪卡片：打開歷史線圖（指數＋BTC 價格），完整歷史一天抓一次
+const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,rng=365;
+  async function get(){if(all)return all;let d=null,at=0;
+    try{at=+localStorage.getItem('fngAllAt')||0;if(Date.now()-at<12*3600*1000)d=JSON.parse(localStorage.getItem('fngAll')||'null')}catch(e){}
+    if(!d){try{const r=await fetch('https://api.alternative.me/fng/?limit=0',{cache:'no-store'});if(r.ok){const j=await r.json();
+      d=(j&&j.data||[]).map(x=>[+x.timestamp,+x.value]).filter(x=>x[0]&&!isNaN(x[1])).sort((a,b)=>a[0]-b[0]);
+      if(d.length){try{localStorage.setItem('fngAll',JSON.stringify(d));localStorage.setItem('fngAllAt',Date.now())}catch(e){}}else d=null}}catch(e){}}
+    if(!d)try{d=JSON.parse(localStorage.getItem('fngAll')||'null')}catch(e){}
+    return all=d}
+  const day=t=>Math.floor(t/86400)*86400;
+  function btc(){try{const b=Engine.resample('BTC',86400),m=new Map();for(let i=0;i<b.T.length;i++)m.set(b.T[i],b.C[i]);return m}catch(e){return new Map()}}
+  // 圖表元件不認得 color-mix，自己把兩個顏色照比例混成 #rrggbb
+  const hx=c=>{c=c.replace('#','');if(c.length===3)c=[...c].map(x=>x+x).join('');return[0,2,4].map(i=>parseInt(c.slice(i,i+2),16))};
+  const mix=(a,b,w)=>{try{const A=hx(a),B=hx(b);return'#'+A.map((x,i)=>Math.round(x*w+B[i]*(1-w)).toString(16).padStart(2,'0')).join('')}catch(e){return a}};
+  function draw(){if(!all||!ch)return;const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
+    const cols=[V('--down'),mix(V('--down'),V('--warn'),.55),V('--warn'),mix(V('--up'),V('--warn'),.6),V('--up')];
+    const from=rng?day(Date.now()/1000)-rng*86400:0,D=all.filter(x=>x[0]>=from);
+    fs.setData(D.map(([t,v])=>({time:day(t),value:v,color:cols[fngCls(v)]})));
+    const B=btc(),bd=[];for(const[t]of D){const p=B.get(day(t));if(p!=null)bd.push({time:day(t),value:p})}bs.setData(bd);
+    ch.timeScale().fitContent();
+    const vs=D.map(x=>x[1]),avg=vs.reduce((a,b)=>a+b,0)/(vs.length||1);let lo=0,hi=0;D.forEach((x,i)=>{if(x[1]<D[lo][1])lo=i;if(x[1]>D[hi][1])hi=i});
+    const f=t=>{const d=new Date(t*1000);return`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`},fear=vs.filter(v=>v<25).length,greed=vs.filter(v=>v>75).length;
+    $('#fngStat').innerHTML=D.length?`<div>區間平均<b class="c${fngCls(avg)}">${avg.toFixed(0)}</b></div><div>最低 ${f(D[lo][0])}<b class="c0">${D[lo][1]}</b></div><div>最高 ${f(D[hi][0])}<b class="c4">${D[hi][1]}</b></div><div>極度恐懼天數<b>${fear}</b></div><div>極度貪婪天數<b>${greed}</b></div><div>資料天數<b>${D.length}</b></div>`:'';
+    leg(D[D.length-1],B)}
+  function leg(x,B){if(!x)return;const z=FNG_ZH,k=Object.values(z).find(a=>a[1]===fngCls(x[1])),d=new Date(x[0]*1000),p=(B||btc()).get(day(x[0]));
+    $('#fngLeg').innerHTML=`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}　指數 <b class="c${fngCls(x[1])}">${x[1]} ${k?k[0]:''}</b>${p!=null?`　BTC <b>${Math.round(p).toLocaleString('en-US')}</b>`:''}`}
+  async function open(){const m=$('#fngModal');m.classList.add('on');document.body.style.overflow='hidden';
+    if(!ch){const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
+      ch=LightweightCharts.createChart($('#fngChart'),{layout:{background:{color:V('--bg')},textColor:V('--muted'),fontFamily:'inherit'},grid:{vertLines:{visible:false},horzLines:{color:V('--line')}},
+        leftPriceScale:{visible:true,borderColor:V('--line'),scaleMargins:{top:.08,bottom:.06}},rightPriceScale:{mode:1,borderColor:V('--line')},timeScale:{borderColor:V('--line'),minBarSpacing:0.001},crosshair:{mode:0},handleScale:{axisPressedMouseMove:false}});
+      bs=ch.addLineSeries({color:V('--muted'),lineWidth:1,priceScaleId:'right',lastValueVisible:false,priceLineVisible:false});
+      fs=ch.addLineSeries({lineWidth:2,priceScaleId:'left',lastValueVisible:true,priceLineVisible:false,priceFormat:{type:'price',precision:0,minMove:1},autoscaleInfoProvider:()=>({priceRange:{minValue:0,maxValue:100}})});
+      fs.createPriceLine({price:25,color:V('--down'),lineStyle:2,lineWidth:1,axisLabelVisible:false});fs.createPriceLine({price:75,color:V('--up'),lineStyle:2,lineWidth:1,axisLabelVisible:false});
+      ch.subscribeCrosshairMove(p=>{if(!all)return;if(!p||!p.time){const from=rng?day(Date.now()/1000)-rng*86400:0,D=all.filter(x=>x[0]>=from);leg(D[D.length-1]);return}const x=all.find(a=>day(a[0])===p.time);if(x)leg(x)})}
+    if(!all){$('#fngLeg').textContent='讀取歷史資料中…';await get()}
+    if(!all){$('#fngLeg').textContent='暫時抓不到歷史資料，稍後再試。';return}draw()}
+  function close(){$('#fngModal').classList.remove('on');document.body.style.overflow=''}
+  document.addEventListener('click',e=>{if(e.target.closest('#fngBox')&&!$('#fngBox .empty'))open();
+    else if(e.target.closest('#fngX'))close();
+    else{const b=e.target.closest('#fngRng button');if(b){rng=+b.dataset.d;document.querySelectorAll('#fngRng button').forEach(x=>x.classList.toggle('on',x===b));draw()}}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#fngModal').classList.contains('on'))close()});
+  return{open,close}})();
+window.FngHist=FngHist;
 
 if($('#newsView').classList.contains('on'))open();
 
@@ -2585,5 +2639,9 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
     if(it.matches('.opt'))it.click();else{const cb=it.querySelector('input');if(cb&&hit!==cb){cb.click()}else if(cb)cb.click()}},{passive:false,capture:true});
 })();
 </script>
+<div id="fngModal" role="dialog" aria-label="恐懼貪婪指數歷史"><div class="hd"><h3>恐懼貪婪指數歷史</h3><button class="x" id="fngX" aria-label="關閉">✕</button></div>
+<div class="seg" id="fngRng"><button data-d="90">3 個月</button><button data-d="365" class="on">1 年</button><button data-d="1095">3 年</button><button data-d="0">全部</button></div>
+<div id="fngLeg"></div><div id="fngChart"></div><div id="fngStat"></div>
+<div class="sub" style="font-size:11.5px;color:var(--muted);margin-top:6px">彩色線是指數（左邊刻度，25 以下極度恐懼、75 以上極度貪婪），灰線是 BTC 價格（右邊刻度）。資料來源 alternative.me。</div></div>
 </body>
 </html>
