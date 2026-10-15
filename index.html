@@ -321,6 +321,7 @@ body.ddopen #ddMask{display:block}
 html{background:var(--panel)}
 /* Safari：底部導覽往下延伸蓋住工具列後面的區域 */
 .bnav::after{content:"";position:absolute;left:0;right:0;top:100%;height:120px;background:inherit}
+.hit{font-size:11px;font-weight:700;margin-left:6px}.hbody{display:none;margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--chip)}.it.open .hbody{display:block}#histBox .it{cursor:pointer}
 /* 今日訊號、模擬盤 */
 .sgc{margin-bottom:10px;padding:12px 14px}.sgc .hd{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px;margin-bottom:6px}
 .sgc .no{flex:none;width:24px;height:24px;border-radius:7px;background:var(--chip);color:var(--acc);display:grid;place-items:center;font-size:12.5px}
@@ -493,6 +494,7 @@ addEventListener('load',function(){setTimeout(hide,Math.max(0,1500-(Date.now()-t
   <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
   <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox"><div class="empty">讀取中…</div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
+  <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox"><div class="empty">讀取中…</div></div></div>
   <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox"></div></div>
   <div class="sect"><h2>重大消息</h2><div class="chips" id="newsChips"></div><div class="card" id="newsBox"><div class="empty">讀取中…</div></div></div>
   <div class="foot">回測資料：Binance 永續 2020-01 ～ 2026-09・時間為台灣時間<br>內容僅供參考，非投資建議</div>
@@ -2232,6 +2234,20 @@ function renderFng(d){const box=$('#fngBox');if(!box)return;
   const sp=S.length>1?`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${ys(50)}" y2="${ys(50)}" stroke="${V('--line')}" stroke-dasharray="3 3"/><path d="${line}" fill="none" stroke="${cols[c]}" stroke-width="1.8" vector-effect="non-scaling-stroke"/><circle cx="${xs(S.length-1)}" cy="${ys(S[S.length-1])}" r="3" fill="${cols[c]}"/></svg>`:'';
   const upd=new Date(+d[0].timestamp*1000),ts=`${upd.getMonth()+1}/${upd.getDate()}`;
   box.innerHTML=`${g}<div><div class="lab c${c}">${esc(k[0])}</div><div class="sub">0 極度恐懼 ～ 100 極度貪婪・${ts} 更新</div><div class="cmp">${cmp.map(([n,x])=>`<div>${n}<b class="${x==null?'':'c'+fngCls(x)}">${x==null?'—':x}</b></div>`).join('')}</div></div>${sp}<div class="sub" style="grid-column:1/-1;margin-top:-6px">近 30 天走勢，虛線為 50</div>`}
+// 過去分析：data 分支的 news_history.json（每篇存當時 BTC 價格與 24 小時後價格，看判斷準不準）
+const HIST_URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/news_history.json';let histAt=0;
+function histHit(h){if(h.btc==null||h.btc24==null)return null;const c=(h.btc24/h.btc-1)*100;return {c,ok:h.bias==='bull'?c>0:h.bias==='bear'?c<0:Math.abs(c)<1.5}}
+function renderHist(H){const box=$('#histBox');if(!box)return;if(!H||!H.length){box.innerHTML='<div class="empty">還沒有歷史紀錄（每 15 分鐘整理一次）。</div>';$('#histAcc').textContent='';return}
+  const cur=MARKET&&MARKET.updated,L=H.filter(h=>h.updated!==cur).reverse(),R=H.map(histHit).filter(Boolean),ok=R.filter(r=>r.ok).length;
+  $('#histAcc').textContent=R.length?`24 小時後看準 ${ok}／${R.length}（${Math.round(ok/R.length*100)}%）`:'';
+  const B={bull:['偏多','bull'],bear:['偏空','bear'],neutral:['中性','neu']};
+  box.innerHTML=L.length?L.map(h=>{const b=B[h.bias]||B.neutral,r=histHit(h),f=v=>Math.round(v).toLocaleString('en-US');
+    const px=h.btc==null?'':h.btc24==null?`當時 BTC ${f(h.btc)}，24 小時後再看`:`BTC ${f(h.btc)} → 24h 後 ${f(h.btc24)}（<span class="${r.c>=0?'pos':'neg'}">${r.c>=0?'+':''}${r.c.toFixed(1)}%</span>）<span class="hit ${r.ok?'pos':'neg'}">${r.ok?'✓ 準':'✗ 不準'}</span>`;
+    return `<div class="it"><div><span class="pill ${b[1]}">${b[0]}</span>　<span style="color:var(--muted)">${esc(String(h.updated).replace(' 台灣時間','').slice(5).replace('-','/'))}</span></div><div style="font-weight:600;margin-top:4px">${esc(h.title||'')}</div><div class="small" style="color:var(--muted)">${px}</div><div class="hbody ana">${md((h.body||'').replace(/^(\*\*)?一句話(\*\*)?(?=[：:])/m,'$1概要$2'))}</div></div>`}).join(''):'<div class="empty">目前只有最新這一篇。</div>'}
+async function loadHist(){let H=null;try{const r=await fetch(HIST_URL,{cache:'no-store'});if(r.ok){H=await r.json();histAt=Date.now();try{localStorage.setItem('hist',JSON.stringify(H))}catch(e){}}}catch(e){}
+  if(!H)try{H=JSON.parse(localStorage.getItem('hist')||'null')}catch(e){}renderHist(H)}
+document.addEventListener('click',e=>{const it=e.target.closest('#histBox .it');if(it)it.classList.toggle('open')});
+{const o=window.NewsTab.open;window.NewsTab.open=()=>{o();if(Date.now()-histAt>10*60*1000)loadHist()}}
 const FNG_EVERY=4*3600*1000;let fngAt=0;
 async function loadFng(force){let d=null;
   try{fngAt=+localStorage.getItem('fngAt')||0;if(!force&&Date.now()-fngAt<FNG_EVERY)d=JSON.parse(localStorage.getItem('fng')||'null')}catch(e){}
