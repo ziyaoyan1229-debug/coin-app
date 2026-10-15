@@ -185,7 +185,18 @@ details.fold>.in{padding:0 14px 12px}
 #stratView .toolbar{background:transparent;border:0;padding:6px 10px;overflow-x:auto;flex-wrap:nowrap}
 #stratView .legend{padding:6px 10px}
 
-/* ── 重大消息 ── */
+/* ── 恐懼貪婪指數 ── */
+.fng{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.fng .g{width:150px;max-width:42vw}
+.fng .g text{fill:var(--text)}
+.fng .lab{font-size:20px;font-weight:700;line-height:1.2}
+.fng .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.fng .cmp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}
+.fng .cmp div{background:var(--panel2);border-radius:8px;padding:6px 4px;text-align:center;font-size:11.5px;color:var(--muted)}
+.fng .cmp b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+.fng .sp{grid-column:1/-1;width:100%;height:46px;display:block}
+.fng .c0{color:var(--down)}.fng .c1{color:color-mix(in srgb,var(--down) 55%,var(--warn))}.fng .c2{color:var(--warn)}.fng .c3{color:color-mix(in srgb,var(--up) 60%,var(--warn))}.fng .c4{color:var(--up)}
+/* ── 市場分析分頁 ── */
 #newsView{flex-direction:column}
 .snap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .snap .card .k{font-size:11.5px;color:var(--muted)}
@@ -334,7 +345,7 @@ details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
 </head>
 <body>
 <header class="topbar"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="hmb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a1d7a"/><stop offset="1" stop-color="#160b34"/></linearGradient><radialGradient id="hmg" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="100" rx="22" fill="url(#hmb)"/><rect width="100" height="100" rx="22" fill="url(#hmg)"/><g transform="translate(0.0,0.0) scale(1.0)"><polygon points="80.0,70.0 65.0,84.3 35.0,84.3 20.0,70.0 35.0,55.7 65.0,55.7" fill="#9468e8" fill-opacity="0.26" stroke="#9468e8" stroke-width="3.4" stroke-opacity="0.75" stroke-linejoin="round"/><polygon points="80.0,53.0 65.0,67.3 35.0,67.3 20.0,53.0 35.0,38.7 65.0,38.7" fill="#d8b6ff" fill-opacity="0.32" stroke="#d8b6ff" stroke-width="3.4" stroke-opacity="0.9" stroke-linejoin="round"/><polygon points="80.0,36.0 65.0,50.3 35.0,50.3 20.0,36.0 35.0,21.7 65.0,21.7" fill="#f6cf6a" fill-opacity="0.35" stroke="#f6cf6a" stroke-width="3.4" stroke-opacity="1" stroke-linejoin="round"/></g></svg></div><div><div class="ttl">HexStack</div><div class="sub">幣策略・BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
-<nav class="bnav"><button id="nav_chart" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>選擇幣種</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>重大消息</button></nav>
+<nav class="bnav"><button id="nav_chart" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>選擇幣種</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button></nav>
 <main>
 <!-- ───────── 走勢圖 ───────── -->
 <section id="chartView" class="view on">
@@ -444,6 +455,7 @@ details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
   <div class="col" id="right"><details class="fold" id="expFold"><summary>📖 策略說明</summary><div class="in"><div id="explain"></div></div></details></div>
 </section>
 <section id="newsView" class="view"><div class="wrap">
+  <div class="sect"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="empty">讀取中…</div></div></div>
   <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
   <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox"><div class="empty">讀取中…</div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
@@ -2050,7 +2062,7 @@ async function source(){
 function renderMarket(){const box=$('#anaBox'),cal=$('#calBox');if(!box)return;
   if(!MARKET){box.innerHTML='<div class="empty">還沒有市場分析。</div>';cal.innerHTML='<div class="empty">—</div>';return}
   const b={bull:['偏多','bull'],bear:['偏空','bear'],neutral:['中性','neu']}[MARKET.bias]||['中性','neu'];
-  box.innerHTML=`<div class="meta"><span class="pill ${b[1]}">${b[0]}</span>　更新：${esc(MARKET.updated||'')}</div><h3 style="margin-top:8px">${esc(MARKET.title||'')}</h3>${md(MARKET.body||'')}`;
+  box.innerHTML=`<div class="meta"><span class="pill ${b[1]}">${b[0]}</span>　更新：${esc(MARKET.updated||'')}</div><h3 style="margin-top:8px">${esc(MARKET.title||'')}</h3>${md((MARKET.body||'').replace(/^(\*\*)?一句話(\*\*)?(?=[：:])/m,'$1概要$2'))}`;
   const C=MARKET.calendar||[];cal.innerHTML=C.length?C.map(x=>`<div class="cal"><b>${esc(x.d)}</b><span>${esc(x.e)}</span></div>`).join(''):'<div class="empty">—</div>'}
 function renderNews(){const box=$('#newsBox');if(!box)return;
   const tags=['全部',...new Set(NEWS.map(n=>n.tag).filter(Boolean))];
@@ -2086,6 +2098,34 @@ function open(){if(started){$('#snapBox').innerHTML=snapCards();return}started=t
   $('#snapBox').innerHTML=snapCards();source();
   const cl=window.claude&&window.claude.use;$('#askBtn').style.display=cl?'':'none';$('#askBtn').onclick=askClaude}
 window.NewsTab={open};
+// ── 恐懼貪婪指數（alternative.me，抓不到就用上次存的）──
+const FNG_ZH={'Extreme Fear':['極度恐懼',0],'Fear':['恐懼',1],'Neutral':['中性',2],'Greed':['貪婪',3],'Extreme Greed':['極度貪婪',4]};
+function fngCls(v){return v<25?0:v<47?1:v<55?2:v<76?3:4}
+function renderFng(d){const box=$('#fngBox');if(!box)return;
+  if(!d||!d.length){box.innerHTML='<div class="empty">暫時抓不到恐懼貪婪指數。</div>';return}
+  const v=+d[0].value,k=FNG_ZH[d[0].value_classification]||[d[0].value_classification,fngCls(v)],c=k[1];
+  const at=i=>d[i]?+d[i].value:null,cmp=[['昨天',at(1)],['上週',at(7)],['上個月',at(30)]];
+  // 半圓儀表：0 在左、100 在右
+  const R=40,cx=50,cy=50,pt=t=>{const a=Math.PI*(1-t/100);return[cx+R*Math.cos(a),cy-R*Math.sin(a)]};
+  const seg=(a,b,col)=>{const[x1,y1]=pt(a),[x2,y2]=pt(b);return`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)}" stroke="${col}" stroke-width="9" fill="none"/>`};
+  const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
+  const cols=[V('--down'),`color-mix(in srgb,${V('--down')} 55%,${V('--warn')})`,V('--warn'),`color-mix(in srgb,${V('--up')} 60%,${V('--warn')})`,V('--up')];
+  const bands=[[0,24.5],[25.5,46.5],[47.5,54.5],[55.5,75.5],[76.5,100]];
+  const [nx,ny]=pt(v);
+  const g=`<svg class="g" viewBox="0 0 100 74" role="img" aria-label="恐懼貪婪指數 ${v}">${bands.map((b,i)=>seg(b[0],b[1],cols[i])).join('')}<line x1="${cx}" y1="${cy}" x2="${(cx+(nx-cx)*0.72).toFixed(1)}" y2="${(cy+(ny-cy)*0.72).toFixed(1)}" stroke="${V('--text')}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3.2" fill="${V('--text')}"/><text x="50" y="71" text-anchor="middle" font-size="17" font-weight="700" style="font-variant-numeric:tabular-nums">${v}</text></svg>`;
+  // 30 天走勢
+  const S=d.slice(0,30).map(x=>+x.value).reverse(),W=300,H=46,xs=i=>i/(S.length-1)*W,ys=x=>H-3-(x/100)*(H-6);
+  const line=S.map((x,i)=>`${i?'L':'M'}${xs(i).toFixed(1)},${ys(x).toFixed(1)}`).join('');
+  const sp=S.length>1?`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${ys(50)}" y2="${ys(50)}" stroke="${V('--line')}" stroke-dasharray="3 3"/><path d="${line}" fill="none" stroke="${cols[c]}" stroke-width="1.8" vector-effect="non-scaling-stroke"/><circle cx="${xs(S.length-1)}" cy="${ys(S[S.length-1])}" r="3" fill="${cols[c]}"/></svg>`:'';
+  const upd=new Date(+d[0].timestamp*1000),ts=`${upd.getMonth()+1}/${upd.getDate()}`;
+  box.innerHTML=`${g}<div><div class="lab c${c}">${esc(k[0])}</div><div class="sub">0 極度恐懼 ～ 100 極度貪婪・${ts} 更新</div><div class="cmp">${cmp.map(([n,x])=>`<div>${n}<b class="${x==null?'':'c'+fngCls(x)}">${x==null?'—':x}</b></div>`).join('')}</div></div>${sp}<div class="sub" style="grid-column:1/-1;margin-top:-6px">近 30 天走勢，虛線為 50</div>`}
+let fngAt=0;
+async function loadFng(){let d=null;
+  try{const r=await fetch('https://api.alternative.me/fng/?limit=31',{cache:'no-store'});if(r.ok){const j=await r.json();d=j&&j.data;if(d&&d.length){try{localStorage.setItem('fng',JSON.stringify(d))}catch(e){}}}}catch(e){}
+  if(!d){try{d=JSON.parse(localStorage.getItem('fng')||'null')}catch(e){}}
+  fngAt=Date.now();renderFng(d)}
+{const o=window.NewsTab.open;window.NewsTab.open=()=>{o();if(Date.now()-fngAt>10*60*1000)loadFng()}}
+
 if($('#newsView').classList.contains('on'))open();
 
 // 啟動：先用歷史資料畫卡片，拿到即時價再更新
