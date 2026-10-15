@@ -27,7 +27,7 @@ jobs:
         run: |
           pip install -q pandas numpy
           git fetch -q --depth 1 origin data || true
-          git show origin/data:data/s03_state.json > scripts/s03_state.json || true
+          git show origin/data:data/s03_state.json > st.tmp 2>/dev/null && mv st.tmp scripts/s03_state.json || true   # 沒有就從空的開始（不能留空檔）
           python3 scripts/paper.py out/data
           cp scripts/s03_state.json out/data/ || true
       - name: 存市場分析歷史（給網站「過去分析」；失敗不影響 K 線）
