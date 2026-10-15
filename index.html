@@ -465,9 +465,12 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #newsView .foldable.shut .chev{transform:rotate(-90deg)}#newsView .foldable.shut>:not(h2){display:none!important}
 #newsView .card.clamp{max-height:360px;overflow:hidden;position:relative}#newsView .card.clamp::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(transparent,var(--panel));pointer-events:none}
 #newsView .morebtn{display:block;width:100%;margin:6px 0 0;padding:9px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--acc);font-size:13px;font-weight:600}
-#notifyView .tgbtn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;margin-top:0}
-#notifyView #tgLog a{color:var(--acc)}#notifyView .tgwhat{display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:1.55}
-#muStat{padding:6px 12px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#muStat .mh{margin-bottom:4px}#muStat .mr{display:flex;flex-wrap:wrap;gap:4px 12px}#muStat .mr span{white-space:nowrap}#muStat b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+#notifyView .tgcats{padding:4px 14px}#notifyView .tgc{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}#notifyView .tgc:first-child{border-top:0}
+#notifyView .tgc .ic{font-size:20px;flex:none;width:28px;text-align:center}#notifyView .tgc .bd{flex:1;min-width:0}#notifyView .tgc .bd b{display:block;font-size:14.5px}#notifyView .tgc .bd span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:1px}
+#notifyView .tgjoin{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-weight:700;font-size:13px;text-decoration:none}
+#notifyView .tgsoon{flex:none;font-size:12px;color:var(--muted);padding:6px 10px;border:1px dashed var(--line);border-radius:999px}
+#notifyView .tgtag{margin-left:8px;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
+#notifyView #tgLog a{color:var(--acc)}#muStat{padding:6px 12px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#muStat .mh{margin-bottom:4px}#muStat .mr{display:flex;flex-wrap:wrap;gap:4px 12px}#muStat .mr span{white-space:nowrap}#muStat b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
 .ev,.cal{cursor:pointer}.ev .go,.cal .go{flex:none;margin-left:auto;color:var(--muted);font-size:16px}
 #evModal{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:var(--bg);padding:calc(var(--safe-t,0px) + 10px) 14px 0;animation:fadeIn .15s}
 #evModal.on{display:flex}#evModal .hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}#evModal .hd h3{margin:0;font-size:17px;line-height:1.4;flex:1}
@@ -634,10 +637,9 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap">
-  <div class="sect"><h2>Telegram 通知</h2><div class="card" id="tgJoin"><div class="empty">讀取中…</div></div></div>
-  <div class="sect"><h2>會通知什麼</h2><div class="card tgwhat"><div>☀️ <b>每天早上 8 點早報</b>：BTC／ETH 價格、恐懼貪婪、今天的事件</div><div>⏰ <b>重要事件前 1 小時</b>：FOMC、CPI、Fed 發言等有時間的事件</div><div>📊 <b>市場分析更新</b>：偏多／偏空與概要</div></div></div>
-  <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="card plist" id="tgLog"><div class="empty">讀取中…</div></div></div>
-  <div class="foot">通知每 15 分鐘檢查一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
+  <div class="sect"><h2>Telegram 通知<span class="more">想收哪類就加入哪個頻道</span></h2><div class="card tgcats" id="tgCats"><div class="empty">讀取中…</div></div></div>
+  <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog"><div class="empty">讀取中…</div></div></div>
+  <div class="foot">加入頻道不用註冊、不用登入，不想收了退出頻道就好。通知每 15 分鐘檢查一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
@@ -2243,11 +2245,17 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   // 通知內文是 Telegram 的 HTML（只用 b、i、a）：先全部跳脫，再把這幾個標籤還原
   const tgHtml=t=>esc(t).replace(/&lt;(\/?)(b|i)&gt;/g,'<$1$2>').replace(/&lt;a href="(https:\/\/[^"]+)"&gt;(.*?)&lt;\/a&gt;/g,(m,u,x)=>`<a href="${u.replace(/"/g,'')}" target="_blank" rel="noopener">${x}</a>`).replace(/\n{2,}/g,'<br><span style="display:block;height:6px"></span>').replace(/\n/g,'<br>');
-  function render(d){const ch=d&&d.channel;
-    $('#tgJoin').innerHTML=ch?`<a class="gbtn tgbtn" href="${esc(ch)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1 1.4 11.6c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4z"/></svg>加入 Telegram 頻道</a><div class="small" style="margin-top:8px">加入後就會收到下面這些通知，不用註冊、不用登入。</div>`
-      :'<div class="empty" style="padding:6px 0">Telegram 頻道還在準備中，開好之後這裡會出現加入按鈕。</div>';
-    const it=(d&&d.items)||[];$('#tgAt').textContent=it.length?'最新 '+it[0].t.slice(5).replace('-','/'):'';
-    $('#tgLog').innerHTML=it.length?it.map(x=>`<div class="it"><div class="small" style="color:var(--muted)">${esc(x.t.slice(5).replace('-','/'))}</div><div style="margin-top:3px;line-height:1.6">${tgHtml(x.text)}</div></div>`).join(''):'<div class="it" style="color:var(--muted)">還沒有發過通知。</div>'}
+  const CATS=[['sig','📈','策略信號','8 個策略在 BTC／ETH 進場、加倉、出場、停損'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
+    ['mkt','📊','市場分析','早上 8 點早報、市場分析更新時的偏多／偏空與概要'],['lv','🎯','關鍵價位','BTC 站上或跌破市場分析寫的支撐、壓力'],['fg','😱','恐懼貪婪極端','指數低於 20 或高於 80 時提醒']];
+  const TGI='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1 1.4 11.6c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4z"/></svg>';
+  let flt='all',last=null;
+  function render(d){last=d;const ch=(d&&d.channels)||{};
+    $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc"><div class="ic">${ic}</div><div class="bd"><b>${n}</b><span>${ds}</span></div>${ch[k]?`<a class="tgjoin" href="${esc(ch[k])}" target="_blank" rel="noopener">${TGI}加入</a>`:'<span class="tgsoon">準備中</span>'}</div>`).join('');
+    const it=((d&&d.items)||[]).filter(x=>flt==='all'||x.cat===flt),nm=Object.fromEntries(CATS.map(c=>[c[0],c[2]]));
+    $('#tgChips').innerHTML=[['all','全部'],...CATS.map(c=>[c[0],c[2]])].map(([k,n])=>`<button data-k="${k}" class="${k===flt?'on':''}">${n}</button>`).join('');
+    $('#tgChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{flt=b.dataset.k;render(last)});
+    const all=(d&&d.items)||[];$('#tgAt').textContent=all.length?'最新 '+all[0].t.slice(5).replace('-','/'):'';
+    $('#tgLog').innerHTML=it.length?it.map(x=>`<div class="it"><div class="small" style="color:var(--muted)">${esc(x.t.slice(5).replace('-','/'))}${x.cat&&nm[x.cat]?`<span class="tgtag">${nm[x.cat]}</span>`:''}</div><div style="margin-top:3px;line-height:1.6">${tgHtml(x.text)}</div></div>`).join(''):'<div class="it" style="color:var(--muted)">還沒有發過通知。</div>'}
   async function open(){if(Date.now()-at<3*60*1000)return;let d=null;
     try{const r=await fetch(URL,{cache:'no-store'});if(r.ok){d=await r.json();at=Date.now();try{localStorage.setItem('tglog',JSON.stringify(d))}catch(e){}}}catch(e){}
     if(!d)try{d=JSON.parse(localStorage.getItem('tglog')||'null')}catch(e){}
