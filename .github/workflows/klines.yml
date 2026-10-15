@@ -1,0 +1,31 @@
+# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線，推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
+name: klines
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: klines
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - name: 抓 K 線
+        run: python3 scripts/fetch_klines.py out/data
+      - name: 推到 data 分支
+        run: |
+          cd out
+          git init -q -b data
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898732+github-actions[bot]@users.noreply.github.com'
+          printf '# K 線資料（自動產生）\n\n由 main 的 .github/workflows/klines.yml 每 15 分鐘覆蓋，只有一個 commit。\n欄位：open_time(ms, UTC), open, high, low, close, volume, taker_buy_base。來源 Binance 現貨 data-api.binance.vision，只含已收盤 K 棒。\n' > README.md
+          git add -A
+          git commit -q -m "K 線更新 $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" data:data
