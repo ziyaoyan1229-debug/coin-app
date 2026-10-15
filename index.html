@@ -2119,12 +2119,14 @@ function renderFng(d){const box=$('#fngBox');if(!box)return;
   const sp=S.length>1?`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${ys(50)}" y2="${ys(50)}" stroke="${V('--line')}" stroke-dasharray="3 3"/><path d="${line}" fill="none" stroke="${cols[c]}" stroke-width="1.8" vector-effect="non-scaling-stroke"/><circle cx="${xs(S.length-1)}" cy="${ys(S[S.length-1])}" r="3" fill="${cols[c]}"/></svg>`:'';
   const upd=new Date(+d[0].timestamp*1000),ts=`${upd.getMonth()+1}/${upd.getDate()}`;
   box.innerHTML=`${g}<div><div class="lab c${c}">${esc(k[0])}</div><div class="sub">0 極度恐懼 ～ 100 極度貪婪・${ts} 更新</div><div class="cmp">${cmp.map(([n,x])=>`<div>${n}<b class="${x==null?'':'c'+fngCls(x)}">${x==null?'—':x}</b></div>`).join('')}</div></div>${sp}<div class="sub" style="grid-column:1/-1;margin-top:-6px">近 30 天走勢，虛線為 50</div>`}
-let fngAt=0;
-async function loadFng(){let d=null;
-  try{const r=await fetch('https://api.alternative.me/fng/?limit=31',{cache:'no-store'});if(r.ok){const j=await r.json();d=j&&j.data;if(d&&d.length){try{localStorage.setItem('fng',JSON.stringify(d))}catch(e){}}}}catch(e){}
+const FNG_EVERY=4*3600*1000;let fngAt=0;
+async function loadFng(force){let d=null;
+  try{fngAt=+localStorage.getItem('fngAt')||0;if(!force&&Date.now()-fngAt<FNG_EVERY)d=JSON.parse(localStorage.getItem('fng')||'null')}catch(e){}
+  if(!d){try{const r=await fetch('https://api.alternative.me/fng/?limit=31',{cache:'no-store'});if(r.ok){const j=await r.json();d=j&&j.data;if(d&&d.length){fngAt=Date.now();try{localStorage.setItem('fng',JSON.stringify(d));localStorage.setItem('fngAt',fngAt)}catch(e){}}}}catch(e){}}
   if(!d){try{d=JSON.parse(localStorage.getItem('fng')||'null')}catch(e){}}
-  fngAt=Date.now();renderFng(d)}
-{const o=window.NewsTab.open;window.NewsTab.open=()=>{o();if(Date.now()-fngAt>10*60*1000)loadFng()}}
+  renderFng(d)}
+let fngShown=0;{const o=window.NewsTab.open;window.NewsTab.open=()=>{o();if(!fngShown||Date.now()-fngAt>=FNG_EVERY){fngShown=1;loadFng()}}}
+setInterval(()=>{if(Date.now()-fngAt>=FNG_EVERY)loadFng(1)},10*60*1000);
 
 if($('#newsView').classList.contains('on'))open();
 
