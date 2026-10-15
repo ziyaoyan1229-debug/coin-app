@@ -1472,7 +1472,9 @@ VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'',
 function Drawer(o){ // o:{chart(),series(),el,bar,bars(),tf(),key()}
   const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg'),lab=document.createElement('div');
   svg.setAttribute('style','position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible');lab.className='rlab';o.el.appendChild(svg);o.el.appendChild(lab);
-  let tool=null,shapes=[],tmp=null,drag=false,sel=-1,edit=null;
+  let tool=null,shapes=[],tmp=null,drag=false,sel=-1,edit=null,tch=null,cross=null;   // tch：手機畫線的階段 A 對準起點／W 等第二下／B 拉到終點
+  const hint=document.createElement('div');hint.setAttribute('style','position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:6;display:none;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 12px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)');o.el.appendChild(hint);
+  const say=t=>{hint.textContent=t||'';hint.style.display=t?'block':'none'};
   const btns=[...o.bar.querySelectorAll('[data-tool]')],delBtn=o.bar.querySelector('[data-tool=del]');
   function load(){try{shapes=JSON.parse(localStorage.getItem(o.key())||'[]')}catch(e){shapes=[]}}
   function save(){try{localStorage.setItem(o.key(),JSON.stringify(shapes))}catch(e){}}
@@ -1481,6 +1483,11 @@ function Drawer(o){ // o:{chart(),series(),el,bar,bars(),tf(),key()}
   function t2x(t){const B=o.bars(),c=o.chart();if(!B||!B.T.length)return null;const T=B.T,n=T.length;let i=lowerB(T,t);if(i>=n)i=n-1;else if(i>0&&T[i]>t)i--;const l=i+(t-T[i])/o.tf();return c.timeScale().logicalToCoordinate(l)}
   const p2y=p=>o.series().priceToCoordinate(p),y2p=y=>o.series().coordinateToPrice(y);
   const pt=e=>{const r=o.el.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;return{t:x2t(x),p:y2p(y)}};
+  // 手機畫線用：十字靠近 K 棒的開高低收（16px 內）就吸過去，點得準
+  function snap(e){const r=o.el.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,q={t:x2t(x),p:y2p(y)},B=o.bars(),c=o.chart();
+    if(!B||!B.H||q.t==null)return q;const l=c.timeScale().coordinateToLogical(x);if(l==null)return q;const i=Math.max(0,Math.min(B.T.length-1,Math.round(l)));
+    let best=null,bd=16;for(const v of [B.O[i],B.H[i],B.L[i],B.C[i]]){const yy=p2y(v);if(yy!=null&&Math.abs(yy-y)<bd){bd=Math.abs(yy-y);best=v}}
+    return best!=null?{t:B.T[i],p:best,snap:1}:q}
   function el(tag,attr){const e=document.createElementNS(NS,tag);for(const k in attr)e.setAttribute(k,attr[k]);return e}
   function dur(sec){const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.round(sec%3600/60);return ((d?d+' 天 ':'')+(h?h+' 小時 ':'')+(!d&&m?m+' 分':''))||'0'}
   function draw(){
@@ -1510,18 +1517,29 @@ function Drawer(o){ // o:{chart(),series(),el,bar,bars(),tf(),key()}
         if(i===sel&&s.b)for(const k of ['a','b']){const hx=t2x(s[k].t),hy=p2y(s[k].p);if(hx==null||hy==null)continue;const h=el('circle',{cx:hx,cy:hy,r:6,fill:'#ffd84d',stroke:'#000','stroke-width':1});h.style.cursor='move';
           h.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();edit={i,k};Drawer.active=api});g.appendChild(h)}}
       svg.appendChild(g)}
+    if(tch&&tmp){const x=t2x(tmp.a.t),y=p2y(tmp.a.p);if(x!=null&&y!=null)svg.appendChild(el('circle',{cx:x,cy:y,r:5,fill:'#ffd84d',stroke:'#000','stroke-width':1}))}
+    if(cross){const x=t2x(cross.t),y=p2y(cross.p),H=o.el.clientHeight;if(x!=null&&y!=null){const c=cross.snap?'#ffd84d':css('--text'),g=el('g',{});
+      g.appendChild(el('line',{x1:0,x2:W,y1:y,y2:y,stroke:c,'stroke-width':1,'stroke-dasharray':'4 3'}));g.appendChild(el('line',{x1:x,x2:x,y1:0,y2:H,stroke:c,'stroke-width':1,'stroke-dasharray':'4 3'}));
+      g.appendChild(el('circle',{cx:x,cy:y,r:4,fill:'none',stroke:c,'stroke-width':1.5}));
+      const tx=el('text',{x:Math.min(x+8,W-70),y:y>20?y-6:y+16,fill:c,'font-size':12,'font-weight':600});tx.textContent=fmt(cross.p,cross.p<10?3:1);g.appendChild(tx);svg.appendChild(g)}}
   }
-  function setTool(t){tool=t;btns.forEach(b=>b.classList.toggle('on',b.dataset.tool===t));const c=o.chart();c&&c.applyOptions({handleScroll:!t,handleScale:!t});o.el.style.cursor=t?'crosshair':'';o.el.style.touchAction=t?'none':''}
+  function setTool(t){tool=t;tch=null;cross=null;say(t&&matchMedia('(pointer:coarse)').matches?(t==='hline'?'拖動十字對準價位，放開就畫好':'拖動十字對準起點，放開確定'):'');btns.forEach(b=>b.classList.toggle('on',b.dataset.tool===t));const c=o.chart();c&&c.applyOptions({handleScroll:!t,handleScale:!t});o.el.style.cursor=t?'crosshair':'';o.el.style.touchAction=t?'none':''}
   btns.forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const t=b.dataset.tool;if(t==='clear'){shapes=[];tmp=null;sel=-1;save();draw();setTool(null);return}if(t==='del'){del();return}setTool(tool===t?null:t)}));
   o.el.addEventListener('pointerdown',e=>{
+    if(tool&&e.pointerType!=='mouse'){e.preventDefault();e.stopPropagation();Drawer.active=api;const q=snap(e);if(q.t==null||q.p==null)return;
+      if(tch==='W'){tch='B';tmp.b=q}else{tch='A';tmp=null}cross=q;draw();return}
     const t=tool||(e.shiftKey?'ruler':null);
     Drawer.active=api;
     if(!t){if(tmp&&tmp.type==='ruler')tmp=null;if(sel>=0)sel=-1;draw();return}
     e.preventDefault();e.stopPropagation();const a=pt(e);if(a.t==null||a.p==null)return;
     if(t==='hline'){shapes.push({type:'hline',a});save();setTool(null);draw();return}
     tmp={type:t,a,b:a};drag=true;draw()},true);
-  addEventListener('pointermove',e=>{if(edit){const q=pt(e);if(q.t!=null&&q.p!=null){shapes[edit.i][edit.k]=q;draw()}return}if(drag&&tmp){const b=pt(e);if(b.t!=null&&b.p!=null)tmp.b=b;draw()}});
-  addEventListener('pointerup',()=>{if(edit){edit=null;save();return}if(!drag)return;drag=false;if(tmp&&tmp.type!=='ruler'){if(tmp.a.t!==tmp.b.t||tmp.a.p!==tmp.b.p)shapes.push(tmp);tmp=null;save()}setTool(null);draw()});
+  addEventListener('pointermove',e=>{if(tch==='A'||tch==='B'){const q=snap(e);if(q.t!=null&&q.p!=null){cross=q;if(tch==='B')tmp.b=q;draw()}return}if(edit){const q=pt(e);if(q.t!=null&&q.p!=null){shapes[edit.i][edit.k]=q;draw()}return}if(drag&&tmp){const b=pt(e);if(b.t!=null&&b.p!=null)tmp.b=b;draw()}});
+  addEventListener('pointerup',()=>{
+    if(tch==='A'){if(tool==='hline'){shapes.push({type:'hline',a:cross});save();setTool(null);draw();return}
+      tmp={type:tool,a:cross,b:cross};tch='W';cross=null;say('再從任一處拖動，十字對準終點後放開');draw();return}
+    if(tch==='B'){if(tmp.type!=='ruler'){if(tmp.a.t!==tmp.b.t||tmp.a.p!==tmp.b.p)shapes.push(tmp);tmp=null;save()}setTool(null);draw();return}
+    if(edit){edit=null;save();return}if(!drag)return;drag=false;if(tmp&&tmp.type!=='ruler'){if(tmp.a.t!==tmp.b.t||tmp.a.p!==tmp.b.p)shapes.push(tmp);tmp=null;save()}setTool(null);draw()});
   addEventListener('keydown',e=>{if(Drawer.active!==api)return;if(e.key==='Escape'){tmp=null;drag=false;sel=-1;setTool(null);draw()}
     else if((e.key==='Delete'||e.key==='Backspace')&&sel>=0&&!/INPUT|SELECT|TEXTAREA/.test((e.target.tagName||''))){e.preventDefault();del()}});
   function del(){if(sel<0)return;shapes.splice(sel,1);sel=-1;save();draw()}
