@@ -1,4 +1,4 @@
-# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、MSTR／MSTU 美股盤中 1 小時 K（MSTR_1h.csv、MSTU_1h.csv）、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
+# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、MSTR／MSTU 美股盤中 1 小時 K（MSTR_1h.csv、MSTU_1h.csv）、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json）、Telegram 推播（tg_notify.py），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
 name: klines
 on:
   schedule:
@@ -40,6 +40,16 @@ jobs:
         run: |
           git show origin/data:data/news_history.json > old_hist.json 2>/dev/null || cp scripts/news_history_seed.json old_hist.json
           python3 scripts/news_history.py news.json out/data old_hist.json
+      - name: Telegram 推播（沒設定 TG_TOKEN／TG_CHAT 就跳過；失敗不影響 K 線）
+        continue-on-error: true
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          TG_LINK: ${{ secrets.TG_LINK }}
+        run: |
+          git show origin/data:data/tg_state.json > out/data/tg_state.json 2>/dev/null || rm -f out/data/tg_state.json
+          git show origin/data:data/tg_log.json > out/data/tg_log.json 2>/dev/null || rm -f out/data/tg_log.json
+          python3 scripts/tg_notify.py news.json out/data
       - name: 推到 data 分支
         run: |
           cd out

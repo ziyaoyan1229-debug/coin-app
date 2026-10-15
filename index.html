@@ -310,7 +310,7 @@ body.ddopen #ddMask{display:block}
 .seg button:disabled{opacity:.3;cursor:default}
 #chartView .toolbar .ddbtn{height:40px;padding:0 11px;font-size:14px;border-radius:10px}
 #indDD{order:1}#rangeWrap,#monthWrap,#stratWrap{order:2}
-#chartView .toolbar .pen{order:3;margin-left:auto;width:44px;padding:0;font-size:17px}
+#chartView .toolbar .pen{order:3;margin-left:auto;width:44px;padding:0;font-size:17px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}#chartView .toolbar .pen.on{color:var(--on-acc)}
 #cvTools{order:4;flex:1 0 100%!important;display:flex;overflow-x:auto;gap:6px;scrollbar-width:none}
 #cvTools::-webkit-scrollbar{display:none}
 .chartcard:not(.tools) #cvTools{display:none!important}
@@ -361,7 +361,7 @@ body{background:var(--bg)}
 /* 禁止整頁縮放：雙擊不放大、輸入框不自動放大（iOS 字小於 16px 會放大） */
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 input,select,textarea{font-size:16px}
-/* 策略頁：一行只有策略選單＋「細節」按鈕，其他收進細節 */
+/* 策略頁：一行只有策略選單＋「參數」按鈕，其他收進參數 */
 #left .ctl{position:relative;padding:10px 12px}
 #left .ctl>.field:first-child{margin:0;padding-right:84px}
 #left .ctl>.field:first-child>label{display:none}
@@ -461,6 +461,12 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .sumc .t{background:var(--panel2);border-radius:12px;padding:9px 11px;cursor:pointer;min-width:0}.sumc .t:active{opacity:.8}.sumc .t.w{grid-column:1/-1}
 .sumc .k{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between}.sumc .v{font-size:16px;font-weight:700;margin-top:2px;font-family:ui-monospace,"SF Mono",Menlo,monospace}.sumc .s{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sumc .t.hot .v{color:var(--down)}.sumc .fc0{color:var(--down)}.sumc .fc1{color:color-mix(in srgb,var(--down) 55%,var(--warn))}.sumc .fc2{color:var(--warn)}.sumc .fc3{color:color-mix(in srgb,var(--up) 60%,var(--warn))}.sumc .fc4{color:var(--up)}
+#newsView .foldable>h2{cursor:pointer;user-select:none}#newsView .foldable .chev{margin-left:6px;font-size:12px;color:var(--muted);display:inline-block;transition:transform .2s}
+#newsView .foldable.shut .chev{transform:rotate(-90deg)}#newsView .foldable.shut>:not(h2){display:none!important}
+#newsView .card.clamp{max-height:360px;overflow:hidden;position:relative}#newsView .card.clamp::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(transparent,var(--panel));pointer-events:none}
+#newsView .morebtn{display:block;width:100%;margin:6px 0 0;padding:9px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--acc);font-size:13px;font-weight:600}
+#notifyView .tgbtn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;margin-top:0}
+#notifyView #tgLog a{color:var(--acc)}#notifyView .tgwhat{display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:1.55}
 #muStat{padding:6px 12px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#muStat .mh{margin-bottom:4px}#muStat .mr{display:flex;flex-wrap:wrap;gap:4px 12px}#muStat .mr span{white-space:nowrap}#muStat b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
 .ev,.cal{cursor:pointer}.ev .go,.cal .go{flex:none;margin-left:auto;color:var(--muted);font-size:16px}
 #evModal{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:var(--bg);padding:calc(var(--safe-t,0px) + 10px) 14px 0;animation:fadeIn .15s}
@@ -498,7 +504,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv=v;var b=document.getElementById('spBar'),t=document.getElementById('spPct');if(b)b.style.width=v+'%';if(t)t.textContent=v+'%'};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(function(){setTimeout(hide,Math.max(0,1500-(Date.now()-t0)))})});setTimeout(hide,15000)})();</script></div>
 
 <header class="topbar"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="hmb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a1d7a"/><stop offset="1" stop-color="#160b34"/></linearGradient><radialGradient id="hmg" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="100" rx="22" fill="url(#hmb)"/><rect width="100" height="100" rx="22" fill="url(#hmg)"/><g transform="translate(0.0,0.0) scale(1.0)"><polygon points="80.0,70.0 65.0,84.3 35.0,84.3 20.0,70.0 35.0,55.7 65.0,55.7" fill="#9468e8" fill-opacity="0.26" stroke="#9468e8" stroke-width="3.4" stroke-opacity="0.75" stroke-linejoin="round"/><polygon points="80.0,53.0 65.0,67.3 35.0,67.3 20.0,53.0 35.0,38.7 65.0,38.7" fill="#d8b6ff" fill-opacity="0.32" stroke="#d8b6ff" stroke-width="3.4" stroke-opacity="0.9" stroke-linejoin="round"/><polygon points="80.0,36.0 65.0,50.3 35.0,50.3 20.0,36.0 35.0,21.7 65.0,21.7" fill="#f6cf6a" fill-opacity="0.35" stroke="#f6cf6a" stroke-width="3.4" stroke-opacity="1" stroke-linejoin="round"/></g></svg></div><div><div class="ttl">HexStack</div><div class="sub">幣策略・BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
-<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>今日訊號</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_paper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M16 13h2M3 10h18M7 6V4h10v2"/></svg>模擬盤</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
+<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>今日訊號</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_notify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>通知</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
 <main>
 <!-- ───────── 走勢圖 ───────── -->
 <section id="chartView" class="view">
@@ -581,7 +587,7 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
         <option value="knifeB">7. BTC 日線飛刀＋量價出場</option>
         <option value="my">8. 我的系統：威科夫＋形態＋POC＋量能</option>
       </select></div>
-    <details class="sdet" id="sDet"><summary><span class="k">細節</span><span id="sDetSum"></span></summary><div class="in">
+    <details class="sdet" id="sDet"><summary><span class="k">參數</span><span id="sDetSum"></span></summary><div class="in">
     <div class="row2">
       <div class="field"><label>標的</label><select id="sSym"><option>BTC</option><option>ETH</option></select></div>
       <div class="field"><label>起始資金（USDT）</label><input id="sCap" type="number" value="1000" min="10"></div>
@@ -616,8 +622,8 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
   <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox"></div></div>
   <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox"><div class="empty">讀取中…</div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
-  <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox"><div class="empty">讀取中…</div></div></div>
   <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox"></div></div>
+  <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox"><div class="empty">讀取中…</div></div></div>
   <div class="sect"><h2>重大消息</h2><div class="chips" id="newsChips"></div><div class="card" id="newsBox"><div class="empty">讀取中…</div></div></div>
   <div class="foot">回測資料：Binance 永續 2020-01 ～ 2026-09・時間為台灣時間<br>內容僅供參考，非投資建議</div>
 </div></section>
@@ -626,17 +632,19 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
   <div class="sect"><h2>今日訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="card empty">計算中…</div></div></div>
   <div class="foot">用每個策略的預設參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。<br>內容僅供參考，非投資建議</div>
 </div></section>
-<!-- ───────── 模擬盤 ───────── -->
-<section id="paperView" class="view"><div class="wrap">
-  <div class="sect"><h2>投資組模擬盤<span class="more" id="paperAsOf"></span></h2><div id="paperBox"><div class="card empty">讀取中…</div></div></div>
-  <div class="foot">依投資組 S-03 突破確認規則，每 15 分鐘用最新 K 線自動計算。只是紙上交易、記錄績效，不是實際下單。<br>內容僅供參考，非投資建議</div>
+<!-- ───────── 通知 ───────── -->
+<section id="notifyView" class="view"><div class="wrap">
+  <div class="sect"><h2>Telegram 通知</h2><div class="card" id="tgJoin"><div class="empty">讀取中…</div></div></div>
+  <div class="sect"><h2>會通知什麼</h2><div class="card tgwhat"><div>☀️ <b>每天早上 8 點早報</b>：BTC／ETH 價格、恐懼貪婪、今天的事件</div><div>⏰ <b>重要事件前 1 小時</b>：FOMC、CPI、Fed 發言等有時間的事件</div><div>📊 <b>市場分析更新</b>：偏多／偏空與概要</div></div></div>
+  <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="card plist" id="tgLog"><div class="empty">讀取中…</div></div></div>
+  <div class="foot">通知每 15 分鐘檢查一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
   <div class="sect"><h2>外觀</h2><div class="card"><div class="seg tset" id="themeSeg"><button data-t="dark">預設</button><button data-t="night">深夜</button><button data-t="light">白天</button></div>
     <label class="anrow"><input type="checkbox" id="autoNight"> 晚上 22:00～早上 6:00 自動切到深夜模式</label>
     <div class="small" style="margin-top:8px">也可以點右上角的按鈕依序切換。</div></div></div>
-  <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div><div><span>模擬盤</span><b id="setPaper">—</b></div></div></div>
+  <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
   <div class="sect"><h2>App</h2><div class="card"><button class="gbtn" id="setUpd" style="margin-top:0">更新到最新版</button>
     <div class="small" style="margin-top:8px">主畫面上的 App 沒看到新版時按這裡：清掉舊的暫存並重新載入。</div>
     <div class="setl" style="margin-top:6px"><div><span>版本</span><b id="setVer">—</b></div></div></div></div>
@@ -1644,15 +1652,14 @@ $('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length
 function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css('--muted'),fontFamily:'inherit'},grid:{vertLines:{color:css('--line')},horzLines:{color:css('--line')}},rightPriceScale:{borderColor:css('--line')},timeScale:{borderColor:css('--line'),timeVisible:true,secondsVisible:false,minBarSpacing:0.001},crosshair:{mode:0}}}
 
 // ── 分頁 ──
-const VIEWS=['chart','sig','strat','news','paper','set'];
+const VIEWS=['chart','sig','strat','news','notify','set'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k)});
-  if(v==='strat'&&!pChart){initStrat();}if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig')SigTab.open();if(v==='paper')PaperTab.open();if(v==='set')setTab();setTimeout(resizeAll,30);}
+  if(v==='strat'&&!pChart){initStrat();}if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig')SigTab.open();if(v==='notify')NotifyTab.open();if(v==='set')setTab();setTimeout(resizeAll,30);}
 VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
   $('#setSrc').textContent=tx('#liveTag').replace(/^價格：|^即時：/,'');
   const nm=document.querySelector('#newsView .ana .meta');$('#setNews').textContent=nm?nm.textContent.replace(/^.*更新：/,'').trim():'—';
-  $('#setPaper').textContent=tx('#paperAsOf');
   if($('#setVer').textContent==='—')fetch('sw.js',{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/coin-app-(v\d+)/);if(m)$('#setVer').textContent=m[1]}).catch(()=>{});}
 document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>window.__setTheme(b.dataset.t));
 {const c=$('#autoNight');c.checked=autoNightOn();c.onchange=()=>{localSet('autoNight',c.checked?'1':'0');applyTheme()};let last=effTheme();setInterval(()=>{const e=effTheme();if(e!==last){last=e;applyTheme()}},60000)}
@@ -2230,43 +2237,23 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
   return {open,reset(){key=''}}})();
 window.SigTab=SigTab;
 
-// ── 模擬盤：讀 data 分支的 paper.json（GitHub 排程每 15 分鐘算）──
-const PaperTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/paper.json';let at=0;
+// ── 通知 ──
+// 通知頁：Telegram 頻道（data 分支的 tg_log.json 由 scripts/tg_notify.py 寫：channel＝頻道連結，items＝最近發出的通知）
+const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/tg_log.json';let at=0;
   const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  const tm=t=>esc(String(t).replace(/:00 台北$/,'').replace(/^\d{4}-/,'').replace('-','/'));
-  // 績效：用已平倉的「損益佔權益」依出場時間累加出資金曲線（起始 1.0），最後一點加上持倉的未實現；算勝率、最大回撤、每月報酬
-  const pct=x=>{const v=parseFloat(String(x||'').replace('%',''));return isFinite(v)?v/100:0};
-  const ts=x=>{const m=String(x||'').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);return m?Date.UTC(+m[1],m[2]-1,+m[3],+m[4],+m[5])-8*3600e3:NaN};
-  function perf(d){const cl=(d.closed||[]).map(p=>({t:ts(p.出場時間),r:pct(p.損益佔權益)})).filter(x=>isFinite(x.t)).sort((a,b)=>a.t-b.t);
-    const t0=ts(d.start),tN=ts(d.updated)||Date.now();let eq=1,pk=1,dd=0;const pts=[[t0,1]];
-    for(const c of cl){pts.push([c.t,eq]);eq+=c.r;pts.push([c.t,eq]);pk=Math.max(pk,eq);dd=Math.max(dd,1-eq/pk)}
-    const un=(d.positions||[]).reduce((a,p)=>a+pct(p.未實現佔權益),0),last=eq+un;pts.push([tN,last]);dd=Math.max(dd,1-last/Math.max(pk,last));
-    const W=320,H=90,xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs,x0+1),lo=Math.min(...ys,0.99),hi=Math.max(...ys,1.01);
-    const X=t=>((t-x0)/(x1-x0)*W).toFixed(1),Y=v=>(H-4-(v-lo)/(hi-lo)*(H-8)).toFixed(1),path=pts.map((p,k)=>(k?'L':'M')+X(p[0])+' '+Y(p[1])).join(' ');
-    const win=cl.filter(c=>c.r>0).length,mo={};cl.forEach(c=>{const k=new Date(c.t+8*3600e3).toISOString().slice(0,7);mo[k]=(mo[k]||0)+c.r});
-    const months=[];{let dt=new Date(t0+8*3600e3);dt=new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),1));const end=new Date(tN+8*3600e3);while(dt<=end){months.push(dt.toISOString().slice(0,7));dt=new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth()+1,1))}}
-    const col=last>=1?'var(--up)':'var(--down)',sg=v=>(v>=0?'+':'')+(v*100).toFixed(2)+'%';
-    return `<div class="sect" style="padding:4px 0"><h2>績效<span class="more">已平倉 ${cl.length} 筆</span></h2><div class="card">
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:90px;display:block"><line x1="0" x2="${W}" y1="${Y(1)}" y2="${Y(1)}" stroke="var(--line)" stroke-dasharray="3 3"/><path d="${path}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
-      <div class="pst"><div><span>勝率</span><b>${cl.length?Math.round(win/cl.length*100)+'%':'—'}</b></div><div><span>最大回撤</span><b class="${dd>0?'neg':''}">${dd>0?'-'+(dd*100).toFixed(2)+'%':'0%'}</b></div><div><span>含未實現</span><b class="${last>=1?'pos':'neg'}">${sg(last-1)}</b></div></div>
-      <div class="pmo">${months.map(k=>`<div><span>${+k.slice(5)} 月</span><b class="${(mo[k]||0)>0?'pos':(mo[k]||0)<0?'neg':''}">${mo[k]?sg(mo[k]):'—'}</b></div>`).join('')}</div>
-      ${cl.length?'':'<div class="small" style="margin-top:8px;color:var(--muted)">S-03 還沒有平倉的交易，開始交易後這裡會有曲線、勝率和每月報酬。</div>'}</div></div>`}
-  function render(d){const b=$('#paperBox');if(!d){b.innerHTML='<div class="card empty">模擬盤資料還沒產生（排程每 15 分鐘更新一次）。</div>';return}
-    $('#paperAsOf').textContent='更新 '+String(d.updated).slice(5).replace('-','/');const r=(d.equity-1)*100;
-    const pos=d.positions||[],cl=(d.closed||[]).slice().reverse(),m=d.market||{};
-    const yn=(a,lab)=>`<b class="${a?'pos':'neg'}">${a?'站上':'跌破'}</b> ${lab}`;
-    b.innerHTML=`<div class="card" style="margin-bottom:10px"><div class="pbig"><div><div class="s">累積報酬（${esc(String(d.start).slice(0,10))} 起）</div><div class="v ${r>=0?'pos':'neg'}">${r>=0?'+':''}${r.toFixed(2)}%</div></div><div class="s">策略：${esc(d.strategy)}<br>持倉 ${pos.length} 筆・已平倉 ${cl.length} 筆</div></div></div>
-    ${perf(d)}
-    <div class="sect" style="padding:4px 0"><h2>目前持倉</h2><div class="card plist">${pos.length?pos.map(p=>`<div class="it"><b>${esc(p.幣)}</b> ${esc(p.類型)}　${tm(p.進場時間)} 進場 ${esc(p.進場價)}・停損 ${esc(p.停損)}<br>未實現 <b class="${String(p.未實現佔權益).startsWith('-')?'neg':'pos'}">${esc(p.未實現佔權益)}</b>・風險 ${esc(p.風險)}・部位 ${esc(p.部位價值佔權益)}</div>`).join(''):'<div class="it" style="color:var(--muted)">目前沒有持倉</div>'}</div></div>
-    <div class="sect" style="padding:4px 0"><h2>已平倉</h2><div class="card plist">${cl.length?cl.map(p=>`<div class="it"><b>${esc(p.幣)}</b> ${esc(p.類型)}　${tm(p.進場時間)} → ${tm(p.出場時間)}<br>進場 ${esc(p.進場價)}・損益 <b class="${String(p.損益佔權益).startsWith('-')?'neg':'pos'}">${esc(p.損益佔權益)}</b></div>`).join(''):'<div class="it" style="color:var(--muted)">還沒有平倉紀錄</div>'}</div></div>
-    <div class="sect" style="padding:4px 0"><h2>S-03 進場條件<span class="more">K 線到 ${tm(d.last_bar)}</span></h2><div class="card"><div class="cond">${['BTC','ETH'].filter(s=>m[s]).map(s=>`<b>${s} ${fmt(m[s].price,1)}</b><span>${yn(m[s].above_h4,'4h EMA200')}</span><span>${yn(m[s].above_d1,'日線 EMA50')}</span>`).join('')}</div>
-      <div class="small" style="margin-top:8px;color:var(--muted)">BTC 要兩條都站上才做；24 小時內訊號：${(d.signals24||[]).length?(d.signals24.map(x=>esc(x.sym+' '+x.time.slice(5))).join('、')):'無'}</div></div></div>`}
-  async function open(){if(Date.now()-at<5*60*1000)return;let d=null;
-    try{const r=await fetch(URL,{cache:'no-store'});if(r.ok){d=await r.json();at=Date.now();try{localStorage.setItem('paper',JSON.stringify(d))}catch(e){}}}catch(e){}
-    if(!d)try{d=JSON.parse(localStorage.getItem('paper')||'null')}catch(e){}
+  // 通知內文是 Telegram 的 HTML（只用 b、i、a）：先全部跳脫，再把這幾個標籤還原
+  const tgHtml=t=>esc(t).replace(/&lt;(\/?)(b|i)&gt;/g,'<$1$2>').replace(/&lt;a href="(https:\/\/[^"]+)"&gt;(.*?)&lt;\/a&gt;/g,(m,u,x)=>`<a href="${u.replace(/"/g,'')}" target="_blank" rel="noopener">${x}</a>`).replace(/\n{2,}/g,'<br><span style="display:block;height:6px"></span>').replace(/\n/g,'<br>');
+  function render(d){const ch=d&&d.channel;
+    $('#tgJoin').innerHTML=ch?`<a class="gbtn tgbtn" href="${esc(ch)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1 1.4 11.6c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4z"/></svg>加入 Telegram 頻道</a><div class="small" style="margin-top:8px">加入後就會收到下面這些通知，不用註冊、不用登入。</div>`
+      :'<div class="empty" style="padding:6px 0">Telegram 頻道還在準備中，開好之後這裡會出現加入按鈕。</div>';
+    const it=(d&&d.items)||[];$('#tgAt').textContent=it.length?'最新 '+it[0].t.slice(5).replace('-','/'):'';
+    $('#tgLog').innerHTML=it.length?it.map(x=>`<div class="it"><div class="small" style="color:var(--muted)">${esc(x.t.slice(5).replace('-','/'))}</div><div style="margin-top:3px;line-height:1.6">${tgHtml(x.text)}</div></div>`).join(''):'<div class="it" style="color:var(--muted)">還沒有發過通知。</div>'}
+  async function open(){if(Date.now()-at<3*60*1000)return;let d=null;
+    try{const r=await fetch(URL,{cache:'no-store'});if(r.ok){d=await r.json();at=Date.now();try{localStorage.setItem('tglog',JSON.stringify(d))}catch(e){}}}catch(e){}
+    if(!d)try{d=JSON.parse(localStorage.getItem('tglog')||'null')}catch(e){}
     render(d)}
   return {open}})();
-window.PaperTab=PaperTab;
+window.NotifyTab=NotifyTab;
 {const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'news')}   // 一打開預設在市場分析（滾輪：左策略分析、右查看價格）
 })();
 </script>
@@ -2543,10 +2530,20 @@ function closeEv(){$('#evModal').classList.remove('on');document.body.style.over
 document.addEventListener('click',e=>{const r=e.target.closest('#evBox .ev,#calBox .cal');if(r&&r.dataset.i!=null){openEv(+r.dataset.i);return}if(e.target.closest('#evX'))closeEv()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#evModal').classList.contains('on'))closeEv()});
 window.__openEv=openEv;
-// 今日摘要：BTC／ETH 價格、恐懼貪婪、下一個事件、今日訊號（用今日訊號頁算過的結果）、模擬盤；點各格跳到對應的地方
-let paperSum=null,paperAt=0;
-async function loadPaperSum(){if(Date.now()-paperAt<5*60e3)return;try{const r=await fetch('https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/paper.json',{cache:'no-store'});if(r.ok){paperSum=await r.json();paperAt=Date.now()}}catch(e){}
-  if(!paperSum)try{paperSum=JSON.parse(localStorage.getItem('paper')||'null')}catch(e){}}
+// 市場分析以下的區塊：點標題整塊收起／展開（記在這台裝置）；內容太長先只顯示一段，按「展開全部」看完整
+(function(){const IDS=['anaBox','calBox','histBox','newsBox'],H=360;
+  const secs=IDS.map(id=>{const el=document.getElementById(id);return el&&el.closest('.sect')}).filter(Boolean);
+  secs.forEach((sec,i)=>{const h=sec.querySelector('h2'),key='shut_'+IDS[i];if(!h)return;sec.classList.add('foldable');
+    const cv=document.createElement('span');cv.className='chev';cv.textContent='▾';h.appendChild(cv);
+    try{if(localStorage.getItem(key)==='1')sec.classList.add('shut')}catch(e){}
+    h.addEventListener('click',e=>{if(e.target.closest('a,button'))return;const on=sec.classList.toggle('shut');try{localStorage.setItem(key,on?'1':'0')}catch(_){}});
+    const card=sec.querySelector('.card:last-of-type')||sec.querySelector('.card');if(!card)return;
+    const btn=document.createElement('button');btn.type='button';btn.className='morebtn';btn.style.display='none';card.after(btn);
+    btn.onclick=()=>{const open=card.classList.toggle('open');card.classList.toggle('clamp',!open);btn.textContent=open?'收起 ▴':'展開全部 ▾';if(!open)sec.scrollIntoView({block:'start',behavior:'smooth'})};
+    sec.__fit=()=>{if(card.classList.contains('open'))return;card.classList.remove('clamp');const long=card.scrollHeight>H+80;card.classList.toggle('clamp',long);btn.style.display=long?'':'none';btn.textContent='展開全部 ▾'}});
+  let t=0;const fit=()=>{clearTimeout(t);t=setTimeout(()=>secs.forEach(s=>s.__fit&&s.__fit()),120)};
+  new MutationObserver(fit).observe(document.getElementById('newsView'),{childList:true,subtree:true});addEventListener('resize',fit);fit()})();
+// 今日摘要：BTC／ETH 價格、恐懼貪婪、下一個事件、今日訊號（用今日訊號頁算過的結果）；點各格跳到對應的地方
 function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x=>`<span class="${x>=0?'pos':'neg'}">${x>=0?'+':''}${(x*100).toFixed(1)}%</span>`;
   for(const sym of ['BTC','ETH']){try{const H=Engine.load(sym),n=H.n,c=H.C[n-1],c24=H.C[Math.max(0,n-25)];T.push(`<div class="t" data-go="chart" data-sym="${sym}"><div class="k">${sym}</div><div class="v">${fmt(c,sym==='BTC'?0:1)}</div><div class="s">24 小時 ${pc(c/c24-1)}</div></div>`)}catch(e){}}
   let fg=null;try{const d=JSON.parse(localStorage.getItem('fng')||'null');if(d&&d[0])fg=d}catch(e){}
@@ -2557,8 +2554,6 @@ function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x
   if(sg&&sg.res){let hold=0,hot=0;for(const st in sg.res)for(const sym in sg.res[st]){const x=sg.res[st][sym];if(!x)continue;if(/持倉中/.test(x.txt))hold++;if(x.hot)hot++}
     T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個策略持倉中（24 小時內）</div></div>`)}
   else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px">點這裡計算</div><div class="s">看 8 個策略現在持倉或空手</div></div>`);
-  if(paperSum){const P=paperSum,pos=(P.positions||[]).length,un=(P.positions||[]).reduce((a,p)=>a+(parseFloat(String(p.未實現佔權益||'').replace('%',''))||0),0),eq=+P.equity||1;
-    T.push(`<div class="t" data-go="paper"><div class="k">模擬盤 <span>›</span></div><div class="v">${pc(eq-1+un/100)}</div><div class="s">${pos?pos+' 筆持倉':'空手'}・已平倉 ${(P.closed||[]).length} 筆</div></div>`)}
   if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
   box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
 document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;
@@ -2643,7 +2638,7 @@ async function loadFng(force){let d=null;
   renderFng(d)}
 let fngShown=0;{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();let f=0;if(!fngShown||Date.now()-fngAt>=FNG_EVERY){fngShown=1;f=loadFng()}return Promise.all([r,f])}}
 setInterval(()=>{if(Date.now()-fngAt>=FNG_EVERY)loadFng(1)},10*60*1000);
-{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();renderSum();loadPaperSum().then(renderSum);setTimeout(renderSum,2500);return r}}
+{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();renderSum();setTimeout(renderSum,2500);return r}}
 // 點恐懼貪婪卡片：打開歷史線圖（指數＋BTC 價格），完整歷史一天抓一次
 const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,rng=365;
   async function get(){if(all)return all;let d=null,at=0;
@@ -2692,8 +2687,8 @@ if($('#newsView').classList.contains('on'))open();
 
 // 啟動：先用歷史資料畫卡片，拿到即時價再更新
 renderCoins();
-// 開場畫面等這些都抓完才進去：即時價格、市場分析（含恐懼貪婪、過去分析）、模擬盤
-{const B=window.__boot||[];B.push(syncAll(),window.NewsTab.open());if(window.PaperTab)B.push(PaperTab.open())}
+// 開場畫面等這些都抓完才進去：即時價格、市場分析（含恐懼貪婪、過去分析）、通知紀錄
+{const B=window.__boot||[];B.push(syncAll(),window.NewsTab.open());if(window.NotifyTab)B.push(NotifyTab.open())}
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastSync>25000)syncAll()});
 // 選項面板：加標題、遮罩；點遮罩就關閉
@@ -2704,14 +2699,14 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   const sync=()=>requestAnimationFrame(()=>title()||document.body.classList.toggle('ddopen',!!document.querySelector('.dd.open')));
   document.addEventListener('click',sync,true);document.addEventListener('click',sync);
   mask.addEventListener('click',e=>{e.stopPropagation();document.querySelectorAll('.dd.open').forEach(x=>x.classList.remove('open'));sync()})})();
-// 圖表工具列：週期改成一排直接點的按鈕，畫線工具收進「✏️」，指標按鈕顯示開了幾個
+// 圖表工具列：週期改成一排直接點的按鈕，畫線工具收進筆的按鈕，指標按鈕顯示開了幾個
 (function(){const bar=document.querySelector('#chartView .toolbar'),sel=$('#cvTf');if(!bar||!sel)return;
   const seg=document.createElement('div');seg.className='seg';
   seg.innerHTML=[[3600,'1H'],[14400,'4H'],[86400,'日'],[604800,'週']].map(([v,t])=>`<button data-v="${v}">${t}</button>`).join('');bar.prepend(seg);
   const upd=()=>{const stk=/^(MSTR|MSTU|MSTR_MSTU)$/.test($('#cvSym').value);seg.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===sel.value);b.disabled=stk&&+b.dataset.v<86400&&!window.STKI($('#cvSym').value,+b.dataset.v)})};
   seg.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('change'));upd()};
   sel.addEventListener('change',upd);sel.addEventListener('sync',upd);$('#cvSym').addEventListener('change',()=>setTimeout(upd,0));upd();
-  const pen=document.createElement('button');pen.className='ddbtn pen';pen.title='畫線工具';pen.textContent='✏️';
+  const pen=document.createElement('button');pen.className='ddbtn pen';pen.title='畫線工具';pen.setAttribute('aria-label','畫線工具');pen.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l3.8-1 11-11a2.1 2.1 0 0 0-2.8-2.8l-11 11z"/><path d="M14 7l3 3"/><path d="M14 21h7"/></svg>';
   pen.onclick=e=>{e.stopPropagation();pen.classList.toggle('on',document.querySelector('.chartcard').classList.toggle('tools'))};bar.appendChild(pen);
   const ib=$('#indBtn'),cnt=()=>{const n=[...document.querySelectorAll('#indPanel [data-ind]')].filter(x=>x.checked&&x.closest('label').style.display!=='none').length;ib.innerHTML='指標'+(n?` <b class="badge">${n}</b>`:' ▾')};
   document.querySelectorAll('#indPanel [data-ind]').forEach(x=>x.addEventListener('change',cnt));$('#cvSym').addEventListener('change',()=>setTimeout(cnt,0));cnt()})();
@@ -2739,7 +2734,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 
 // 禁止雙指縮放整頁（Safari 不理會 user-scalable=no）；圖表自己的縮放走 touch 事件不受影響
 (function(){const no=e=>e.preventDefault();['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,no,{passive:false}));})();
-// 策略「細節」摘要：標的・資金・期間
+// 策略「參數」摘要：標的・資金・期間
 (function(){const S=document.getElementById('sDetSum');if(!S)return;const $=id=>document.getElementById(id);
   const upd=()=>{const p=$('sPeriod'),o=p&&p.options[p.selectedIndex];let per=o?o.textContent.replace(/（.*?）|\s*(牛市|熊市|連續)/g,'').trim():'';
     if(p&&p.value==='custom')per=($('sFrom').value||'')+' → '+($('sTo').value||'');
