@@ -2,19 +2,21 @@
 只用標準函式庫。來源 Yahoo Finance chart API（只有正常交易時段，每天 7 根：9:30、10:30…15:30 美東；最後一根盤中會一直更新）。"""
 import csv, json, os, sys, time, urllib.request
 
-URL = 'https://query1.finance.yahoo.com/v8/finance/chart/{}?interval=60m&range=730d&includePrePost=false'
+BASE = 'https://{}.finance.yahoo.com/v8/finance/chart/{}?interval=60m&includePrePost=false&'
+# Yahoo 的 60 分 K 只給最近約兩年；有時對某些寫法回 422，所以依序試幾種
+QUERIES = ['period1={p1}&period2={p2}', 'range=1y', 'range=6mo']
 SYMBOLS = ['MSTR', 'MSTU']
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'data'
 
 
-def get(url):
-    for i in range(4):
+def get(url, tries=3):
+    for i in range(tries):
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=30) as r:
                 return json.load(r)
         except Exception as e:
-            if i == 3:
+            if i == tries - 1 or getattr(e, 'code', 0) in (400, 404, 422):
                 raise
             print('retry', url, e)
             time.sleep(2 ** i)
@@ -22,7 +24,19 @@ def get(url):
 
 os.makedirs(OUT, exist_ok=True)
 for sym in SYMBOLS:
-    res = get(URL.format(sym))['chart']['result'][0]
+    now = int(time.time())
+    res = None
+    for host in ('query1', 'query2'):
+        for qs in QUERIES:
+            try:
+                res = get(BASE.format(host, sym) + qs.format(p1=now - 700 * 86400, p2=now))['chart']['result'][0]
+                break
+            except Exception as e:
+                print(sym, host, qs, '失敗：', e, getattr(e, 'read', lambda: b'')()[:200])
+        if res is not None:
+            break
+    if res is None:
+        sys.exit(f'{sym} 抓不到')
     q = res['indicators']['quote'][0]
     rows = []
     for k, t in enumerate(res.get('timestamp') or []):
