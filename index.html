@@ -118,7 +118,8 @@ button{font:inherit}
 .bnav button.on::before{content:"";position:absolute;top:0;width:34px;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
 
 main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav-h) + var(--safe-b));left:0;right:0;height:auto!important}
-.view{overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* iOS：捲動容器上的 -webkit-overflow-scrolling 會把裡面 position:fixed 的底部選單裁掉（最後一項被底部導覽蓋住、點不到），不要再加 */
+.view{overflow-y:auto}
 .view.on{display:flex}
 
 /* 共用卡片 */
@@ -340,7 +341,7 @@ details.sdet>.in{margin-top:10px;padding-top:8px;border-top:1px solid var(--line
 details.sdet>.in .sum{font-size:12px;color:var(--muted);margin-bottom:6px}
 details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
 /* 選單：用 Safari 實際可見高度（dvh），底部多留空間，最後一項不會被工具列擋住 */
-.dd .ddpanel{max-height:72vh;max-height:72dvh;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:calc(28px + var(--safe-b))!important}
+.dd .ddpanel{max-height:72vh;max-height:72dvh;overscroll-behavior:contain;padding-bottom:calc(28px + var(--safe-b))!important}
 </style>
 </head>
 <body>
@@ -1558,7 +1559,7 @@ function sortSel(sel){if(!sel||sel._dd)return;const key='ord_'+sel.id,wrap=docum
       d.ondrop=e=>{e.preventDefault();e.stopPropagation();if(drag&&drag!==op){const r=d.getBoundingClientRect();if(e.clientY>r.top+r.height/2)op.after(drag);else op.before(drag);try{localStorage.setItem(key,JSON.stringify([...sel.options].map(o=>o.value)))}catch(_){}}drag=null;build()};
       pan.appendChild(d)})}
   btn.onclick=e=>{e.preventDefault();e.stopPropagation();document.querySelectorAll('.dd.open').forEach(x=>x!==wrap&&x.classList.remove('open'));wrap.classList.toggle('open')};
-  document.addEventListener('click',e=>{if(!wrap.contains(e.target))wrap.classList.remove('open')});
+  document.addEventListener('click',e=>{if(!wrap.contains(e.target)&&!pan.contains(e.target))wrap.classList.remove('open')});
   sel.addEventListener('change',build);sel.addEventListener('sync',build);new MutationObserver(build).observe(sel,{childList:true});build()}
 // 指標清單也可以拖曳排序
 function sortList(box,key,onChange){const items=()=>[...box.querySelectorAll(':scope>label')];let drag=null;
@@ -1704,7 +1705,7 @@ $('#cvTf').onchange=()=>{cvTf=+$('#cvTf').value;if(STKSYM(cvSym)&&cvTf<86400){cv
 $('#cvMonth').onchange=()=>drawChart(true);
 $('#cvRange').onchange=()=>{const v=$('#cvRange').value;if(!v||!cvBars)return;const[a,b]=v.split('|');const i0=lowerB(cvBars.T,ts(a)),i1=lowerB(cvBars.T,ts(b));chart.timeScale().setVisibleLogicalRange({from:i0,to:i1})};
 $('#indBtn').onclick=e=>{e.stopPropagation();$('#indDD').classList.toggle('open')};
-document.addEventListener('click',e=>{if(!$('#indDD').contains(e.target))$('#indDD').classList.remove('open')});
+document.addEventListener('click',e=>{if(!$('#indDD').contains(e.target)&&!$('#indPanel').contains(e.target))$('#indDD').classList.remove('open')});
 document.querySelectorAll('#indPanel [data-ind]').forEach(x=>x.onchange=()=>drawChart(false));
 sortList($('#indPanel'),'ord_ind',()=>legendVals(null));
 ['#cvSym','#cvTf','#cvRange'].forEach(s=>sortSel($(s)));
@@ -2138,7 +2139,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 // 選項面板：加標題、遮罩；點遮罩就關閉
 (function(){const T={cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
   const mask=document.createElement('div');mask.id='ddMask';document.querySelector('main').appendChild(mask);
-  const title=()=>{document.querySelectorAll('select').forEach(s=>{if(s._dd&&T[s.id])s._dd.querySelector('.ddpanel').dataset.title=T[s.id]});const ip=document.querySelector('#indPanel');if(ip)ip.dataset.title='指標（開關）'};
+  const title=()=>{document.querySelectorAll('select').forEach(s=>{if(s._dd&&T[s.id])(s._dd._pan||s._dd.querySelector('.ddpanel')).dataset.title=T[s.id]});const ip=document.querySelector('#indPanel');if(ip)ip.dataset.title='指標（開關）'};
   title();setTimeout(title,500);
   const sync=()=>requestAnimationFrame(()=>title()||document.body.classList.toggle('ddopen',!!document.querySelector('.dd.open')));
   document.addEventListener('click',sync,true);document.addEventListener('click',sync);
@@ -2187,6 +2188,16 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 (function(){const s=document.querySelector('#left .ctl>.field:first-child .ddbtn,#left .ctl>.field:first-child select'),c=document.querySelector('#left .ctl');
   if(!s||!c)return;const f=()=>{const h=s.getBoundingClientRect().height;if(h)c.style.setProperty('--selh',h+'px')};f();addEventListener('resize',f);setTimeout(f,500)})();
 
+// 底部選單搬到 body 最外層再顯示：iPhone Safari 會把捲動區塊裡的 position:fixed 裁掉，
+// 最後一項（例如策略 8）被底部導覽蓋住點不到。關閉時搬回原位。
+(function(){const hold=document.createElement('div');hold.className='dd ddportal';document.body.appendChild(hold);
+  const fix=w=>{const pan=w._pan;if(!pan)return;
+    if(w.classList.contains('open')){if(pan.parentNode!==hold){hold.querySelectorAll('.ddpanel').forEach(x=>x._home&&x._home.appendChild(x));hold.appendChild(pan)}hold.classList.add('open')}
+    else if(pan.parentNode===hold){w.appendChild(pan);if(!hold.children.length)hold.classList.remove('open')}};
+  const mo=new MutationObserver(ms=>ms.forEach(m=>fix(m.target)));
+  document.querySelectorAll('.dd').forEach(w=>{if(w===hold)return;const pan=w.querySelector(':scope>.ddpanel');if(!pan)return;w._pan=pan;pan._home=w;mo.observe(w,{attributes:true,attributeFilter:['class']})});
+  new MutationObserver(()=>{if(!hold.children.length&&hold.classList.contains('open'))hold.classList.remove('open')}).observe(hold,{childList:true,attributes:true,attributeFilter:['class']});
+  hold.addEventListener('click',e=>{if(e.target===hold)document.querySelectorAll('.dd.open').forEach(x=>x.classList.remove('open'))})})();
 // 手機上的下拉：Safari 會把可拖曳(draggable)的項目當成拖曳開始，點了沒反應。
 // 觸控裝置一律關掉拖曳排序，並用 touchend 直接判定「點一下」來選取，不依賴 click。
 (function(){if(!matchMedia('(pointer:coarse)').matches)return;
