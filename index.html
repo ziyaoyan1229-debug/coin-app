@@ -2037,6 +2037,12 @@ async function fetchLive(){
 
 // ── 把內建資料之後到現在的 1 小時 K 補上（Binance 永續），之後每 30 秒更新最後一根 ──
 const BASE={};   // 內建資料原本的長度，每次都從這裡重新接
+// Binance 連不到時的備援：GitHub 排程每 15 分鐘存的 15 分 K（data 分支），合成 1 小時 K（只用收完的整點）
+const SRC={};
+async function ghRows(pair,start){try{const r=await fetch(`https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/${pair}_15m.csv`,{cache:'no-store'});if(!r.ok)return [];
+  const H=new Map();for(const ln of (await r.text()).trim().split('\n').slice(1)){const a=ln.split(','),t=+a[0];if(!(t/1000>=start))continue;const h=Math.floor(t/3600000)*3600000;
+    let x=H.get(h);if(!x){x=[h,+a[1],+a[2],+a[3],+a[4],0,0];H.set(h,x)}x[2]=Math.max(x[2],+a[2]);x[3]=Math.min(x[3],+a[3]);x[4]=+a[4];x[5]+=+a[5];x[6]++}
+  return [...H.values()].filter(x=>x[6]===4).sort((a,b)=>a[0]-b[0])}catch(e){return []}}
 async function syncBars(sym){const d=window.DATA&&DATA[sym];if(!d)return false;
   if(!BASE[sym]){let c=d.c0;for(let i=0;i<d.n;i++)c+=d.dc[i];BASE[sym]={n:d.n,c}}
   // 第一次從內建資料尾端接；之後只重抓最後一根（還沒收完的那根）起的資料，不再每 30 秒重抓整段
@@ -2045,6 +2051,7 @@ async function syncBars(sym){const d=window.DATA&&DATA[sym];if(!d)return false;
   for(let k=0;k<4;k++){const j=await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${pair}&interval=1h&startTime=${from*1000}&limit=1500`,
       `https://data-api.binance.vision/api/v3/klines?symbol=${pair}&interval=1h&startTime=${from*1000}&limit=1000`]);
     if(!j||!j.length)break;rows=rows.concat(j);if(j.length<1000)break;from=j[j.length-1][0]/1000+3600}
+  if(!rows.length){rows=await ghRows(pair,start);if(rows.length)SRC.gh=1}
   if(!rows.length)return false;
   const fr=await getJ([`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${pair}&startTime=${(start-8*3600)*1000}&limit=1000`])||[];
   // 砍回 keep 根再接新資料
@@ -2099,7 +2106,7 @@ async function syncAll(){if(syncing)return;syncing=true;
     if(ok)await Promise.all(['BTC','ETH'].map(s=>syncIgn(s).catch(()=>false)));
     if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();updNowEnd();
       const s=$('#cvSym').value;if((s==='BTC'||s==='ETH')&&window.__redraw)window.__redraw();
-      const t=$('#liveTag');if(t)t.textContent='即時：Binance・'+new Date().toTimeString().slice(0,5)+' 更新'}
+      const t=$('#liveTag');if(t)t.textContent=(SRC.gh?'價格：GitHub 備援・':'即時：Binance・')+new Date().toTimeString().slice(0,5)+' 更新';SRC.gh=0}
     const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
     if(sk){delete DD.MSTR;delete DD.MSTU;const s=$('#cvSym').value;if((s==='MSTR'||s==='MSTU'||s==='MSTR_MSTU')&&window.__redraw)window.__redraw()}
     await fetchLive();renderCoins();if(started)$('#snapBox').innerHTML=snapCards()}
