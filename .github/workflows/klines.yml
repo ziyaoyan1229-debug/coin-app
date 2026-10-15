@@ -45,7 +45,7 @@ jobs:
       - name: 算策略信號（App 同一套引擎，給 Telegram「策略信號」；失敗不影響 K 線）
         continue-on-error: true
         run: node scripts/sig_notify.js out/data
-      - name: Telegram 推播（沒設定 TG_TOKEN 或頻道就跳過；失敗不影響 K 線）
+      - name: 通知（寫 tg_log.json 給網站瀏覽器通知；有設定 TG_TOKEN＋頻道才發 Telegram；失敗不影響 K 線）
         continue-on-error: true
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}

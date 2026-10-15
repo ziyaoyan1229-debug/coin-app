@@ -1,4 +1,4 @@
-"""Telegram 推播：一類一個頻道，大家想收哪類就加入哪個頻道（網站「通知」頁有每個頻道的加入按鈕）。
+"""通知：每 15 分鐘產生六類通知寫進 tg_log.json（網站「通知」頁的瀏覽器通知讀這個）；有設定 Telegram 時也發到各類頻道。
 由 .github/workflows/klines.yml 每 15 分鐘執行。只用標準函式庫。
 用法：python3 scripts/tg_notify.py <news.json> <資料夾（讀 BTC／ETH 15 分 K、MSTR／MSTU 1 小時 K、signals.json、paper.json；tg_state.json、tg_log.json 寫在這）>
 Secrets：TG_TOKEN（機器人 token）＋每類頻道（@公開頻道名稱）：
@@ -19,9 +19,9 @@ TW = 8 * 3600
 CATS = [('sig', '策略信號'), ('us', '美股開盤'), ('ev', '重要事件'), ('mkt', '市場分析'), ('lv', '關鍵價位'), ('fg', '恐懼貪婪極端')]
 FALL = os.environ.get('TG_CHAT', '').strip()
 CH = {c: os.environ.get('TG_CH_' + c.upper(), '').strip() or FALL for c, _ in CATS}
-if not TOKEN or not any(CH.values()):
-    print('沒設定 TG_TOKEN 或任何頻道，跳過 Telegram 推播')
-    sys.exit(0)
+TG = bool(TOKEN and any(CH.values()))   # 沒設定 Telegram 也照樣產生通知，寫進 tg_log.json 給網站的瀏覽器通知用
+if not TG:
+    print('沒設定 TG_TOKEN 或任何頻道：只寫 tg_log.json，不發 Telegram')
 
 
 def load(p, default):
@@ -225,10 +225,14 @@ if fg:
         add('fg', f"{'😱' if v <= 20 else '🤑'} <b>恐懼貪婪 {v}　{ZH.get(fg[0]['value_classification'], '')}</b>\n昨天 {fg[1]['value']}。{'市場極度恐慌，歷史上常是相對低點區，但也可能續跌。' if v <= 20 else '市場極度貪婪，追高風險升高。'}\n\n<a href=\"{SITE}#news\">看歷史線圖</a>")
         st['fgsent'] = fg[0].get('timestamp')
 
+# ── 記錄：每則通知都進 tg_log.json（網站通知頁列表＋瀏覽器通知用 id 判斷新的）──
+for c, m in msgs:
+    st['seq'] = st.get('seq', 0) + 1
+    st['log'].insert(0, dict(id=st['seq'], ts=int(now), t=time.strftime('%Y-%m-%d %H:%M', time.gmtime(now + TW)), cat=c, text=m))
 # ── 發送：每類頻道各自第一次只發「已開啟」 ──
 sent = 0
 for c, name in CATS:
-    chat = CH[c]
+    chat = CH[c] if TG else ''
     if not chat:
         continue
     mine = [m for cc, m in msgs if cc == c]
@@ -238,9 +242,8 @@ for c, name in CATS:
     for m in mine:
         if send(chat, m):
             sent += 1
-            st['log'].insert(0, dict(t=time.strftime('%Y-%m-%d %H:%M', time.gmtime(time.time() + TW)), cat=c, text=m))
-st['log'] = st['log'][:40]
-print('Telegram：產生', len(msgs), '則，發出', sent)
+st['log'] = [x for x in st['log'] if x.get('id')][:60]   # 舊版沒有 id 的紀錄丟掉
+print('通知：產生', len(msgs), '則，Telegram 發出', sent)
 with open(STATE, 'w', encoding='utf-8') as f:
     json.dump(st, f, ensure_ascii=False)
 # 給網站「通知」頁：每類頻道連結＋最近的通知（TG_LINK_<類> 可放私人頻道邀請連結；@名稱 自動產生 t.me 連結）
