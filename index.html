@@ -456,6 +456,18 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .ev .cd{flex:none;min-width:92px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:700;font-size:14px;color:var(--acc)}
 .ev .tx{font-size:13px;line-height:1.5;color:var(--text)}.ev .tx b{color:var(--muted);font-weight:600}
 .ev.hot .cd,.ev.hot .tx{color:var(--down)}.ev.hot .tx b{color:var(--down)}
+.ev,.cal{cursor:pointer}.ev .go,.cal .go{flex:none;margin-left:auto;color:var(--muted);font-size:16px}
+#evModal{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:var(--bg);padding:calc(var(--safe-t,0px) + 10px) 14px 0;animation:fadeIn .15s}
+#evModal.on{display:flex}#evModal .hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}#evModal .hd h3{margin:0;font-size:17px;line-height:1.4;flex:1}
+#evModal .x{flex:none;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px}
+#evBody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(env(safe-area-inset-bottom) + 20px)}
+#evBody .when{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:10px}#evBody .when b{font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--acc);font-size:15px}#evBody .when.hot b{color:var(--down)}
+#evBody .blk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+#evBody h4{margin:0 0 6px;font-size:14px;color:var(--acc)}#evBody p{margin:0 0 6px;font-size:13.5px;line-height:1.65}#evBody ul{margin:0;padding-left:18px}#evBody li{font-size:13.5px;line-height:1.65;margin:2px 0}
+#evBody .tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted);margin:0 4px 4px 0}
+#evBody .ctx{border-left:3px solid var(--acc);padding-left:10px;color:var(--text)}#evBody .src{font-size:11.5px;color:var(--muted);margin-top:8px}
+#evBody .up{color:var(--up)}#evBody .dn{color:var(--down)}
+@media (min-width:960px){#evModal{inset:60px 22% 40px;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding-bottom:0}}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
 .setl>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}.setl>div:first-child{border-top:0}
@@ -2387,20 +2399,98 @@ function renderMarket(){const box=$('#anaBox'),cal=$('#calBox');if(!box)return;
   if(!MARKET){box.innerHTML='<div class="empty">還沒有市場分析。</div>';cal.innerHTML='<div class="empty">—</div>';return}
   const b={bull:['偏多','bull'],bear:['偏空','bear'],neutral:['中性','neu']}[MARKET.bias]||['中性','neu'];
   box.innerHTML=`<div class="meta"><span class="pill ${b[1]}">${b[0]}</span>　更新：${esc(MARKET.updated||'')}</div><h3 style="margin-top:8px">${esc(MARKET.title||'')}</h3>${md((MARKET.body||'').replace(/^(\*\*)?一句話(\*\*)?(?=[：:])/m,'$1概要$2'))}`;
-  renderEv();const C=MARKET.calendar||[];cal.innerHTML=C.length?C.map(x=>`<div class="cal"><b>${esc(x.d)}</b><span>${esc(x.e)}</span></div>`).join(''):'<div class="empty">—</div>'}
+  renderEv();const C=MARKET.calendar||[];cal.innerHTML=C.length?C.map((x,i)=>`<div class="cal" data-i="${i}"><b>${esc(x.d)}</b><span>${esc(x.e)}</span><span class="go">›</span></div>`).join(''):'<div class="empty">—</div>'}
 // 重要事件倒數：讀行事曆的「月/日」（可寫成 10/27-28、10/31-11/1），內容開頭有「HH:MM」就算到那個時間，沒有就算到當天 0:00；一天內變紅
 function evList(){const C=(MARKET&&MARKET.calendar)||[],now=Date.now(),out=[];
   for(const x of C){const m=String(x.d||'').match(/^\s*(\d{1,2})\/(\d{1,2})(?:\s*[-–~～]\s*(?:(\d{1,2})\/)?(\d{1,2}))?/);if(!m)continue;
     const mo=+m[1],da=+m[2],tm=String(x.e||'').match(/^\s*(\d{1,2}):(\d{2})/),y0=new Date(now+8*3600e3).getUTCFullYear();
     const at=y=>Date.UTC(y,mo-1,da,tm?+tm[1]:0,tm?+tm[2]:0)-8*3600e3;let y=y0,t=at(y);if(t<now-180*86400e3)t=at(++y);
     const eMo=m[4]?(m[3]?+m[3]:mo):mo,eDa=m[4]?+m[4]:da;let end=tm&&!m[4]?t+3600e3:Date.UTC(y+(eMo<mo?1:0),eMo-1,eDa+1)-8*3600e3;
-    if(end<=now)continue;out.push({t,end,title:String(x.e||'').replace(/^\s*\d{1,2}:\d{2}\s*/,''),d:x.d,tm:tm?tm[0].trim():''})}
+    if(end<=now)continue;out.push({t,end,title:String(x.e||'').replace(/^\s*\d{1,2}:\d{2}\s*/,''),d:x.d,tm:tm?tm[0].trim():'',i:C.indexOf(x)})}
   return out.sort((a,b)=>a.t-b.t).slice(0,3)}
 function renderEv(){const sec=$('#evSect'),box=$('#evBox');if(!sec)return;const L=evList();sec.style.display=L.length?'':'none';if(!L.length)return;const now=Date.now();
   box.innerHTML=L.map(v=>{const ms=v.t-now;let left,hot=ms<86400e3;
     if(ms<=0)left='進行中';else{const d=Math.floor(ms/86400e3),h=Math.floor(ms%86400e3/3600e3),mi=Math.floor(ms%3600e3/60e3);left=d?`${d} 天 ${h} 小時`:h?`${h} 小時 ${mi} 分`:`${mi} 分`}
-    return `<div class="ev${hot?' hot':''}"><div class="cd">${left}</div><div class="tx"><b>${esc(v.d)}${v.tm?' '+esc(v.tm):''}</b>　${esc(v.title)}</div></div>`}).join('')}
+    return `<div class="ev${hot?' hot':''}" data-i="${v.i}"><div class="cd">${left}</div><div class="tx"><b>${esc(v.d)}${v.tm?' '+esc(v.tm):''}</b>　${esc(v.title)}</div><span class="go">›</span></div>`}).join('')}
 setInterval(()=>{if($('#newsView').classList.contains('on'))renderEv()},60000);
+// 點事件：看概述與可能影響。說明來自內建的事件類型說明（依關鍵字比對，一個事件可對到多種），再附上市場分析和新聞裡提到它的段落
+const EVK=[
+ {k:/FOMC|利率決策|議息|升息|降息/,n:'FOMC 利率決策',
+  what:'美國聯準會（Fed）每六週開會決定基準利率，會後發布聲明、點陣圖（每季一次），主席記者會通常在聲明後 30 分鐘。',
+  eff:['升息或口氣偏鷹：美元、美債殖利率走強，風險資產（BTC、ETH、MSTR）通常先跌。','降息或口氣偏鴿：資金成本下降，加密貨幣通常偏多。','結果符合預期時，行情常在記者會發言時才真正走出方向，前後幾小時波動放大、插針多。'],
+  tip:'公布前後 1～2 小時避免重倉追單，停損別放在整數關卡正下方。'},
+ {k:/Fed|聯準會|主席|Powell|Warsh|鮑爾|理事|官員.*(講話|談話|證詞)|對談|演說/,n:'Fed 官員發言',
+  what:'Fed 主席或理事公開談話，市場會從用字判斷下次會議升降息的機率。',
+  eff:['提到通膨仍高、不排除升息：偏空。','提到就業轉弱、可以考慮降息：偏多。','主席的發言影響最大，常讓 BTC 在幾分鐘內出現 1～3% 的波動。'],
+  tip:'看 CME FedWatch 的升降息機率怎麼變，比看標題準。'},
+ {k:/CPI|消費者物價/,n:'CPI 消費者物價指數',
+  what:'美國每月公布的通膨數據（台灣時間晚上 8:30 或 9:30），是 Fed 決策最看重的指標之一。',
+  eff:['高於預期：升息機率上升，美元走強，BTC 通常下跌。','低於預期：降息預期升溫，BTC 通常上漲。','核心 CPI（扣除食品能源）比總數更重要。'],
+  tip:'公布瞬間常有雙向插針，突破策略建議等 1h 收線確認。'},
+ {k:/PPI|生產者物價/,n:'PPI 生產者物價指數',
+  what:'企業端的物價，常被當成 CPI 的前導指標，通常在 CPI 前後一兩天公布。',
+  eff:['偏熱：市場擔心通膨回升，壓抑風險資產。','偏冷：支撐降息預期。','影響通常比 CPI 小，但會改變市場對下次 FOMC 的預期。'],
+  tip:''},
+ {k:/PCE/,n:'PCE 個人消費支出物價',
+  what:'Fed 正式採用的通膨指標，每月底公布。',
+  eff:['高於預期偏空、低於預期偏多，邏輯同 CPI。','因為 CPI 已先公布，市場通常已部分反映，波動多半較小。'],tip:''},
+ {k:/非農|就業|失業率|NFP/,n:'非農就業報告',
+  what:'美國每月第一個週五公布的就業數據（新增就業人數、失業率、薪資成長）。',
+  eff:['就業太強、薪資成長快：Fed 不急著降息，偏空。','就業明顯轉弱：降息預期升溫，但若嚴重到擔心衰退，風險資產也可能一起跌。'],
+  tip:'公布時間台灣晚上 8:30（冬令 9:30），前後 15 分鐘波動最大。'},
+ {k:/GDP/,n:'GDP 經濟成長',
+  what:'美國每季的經濟成長率（初值、修正值、終值）。',eff:['大幅低於預期會引發衰退擔憂；高於預期則降低降息需要。對加密貨幣的影響通常不如 CPI、FOMC。'],tip:''},
+ {k:/選擇權到期|期權到期|交割|Deribit|options/i,n:'選擇權到期',
+  what:'大量選擇權在同一天到期（美股每月第三個週五；Deribit 的 BTC／ETH 選擇權每週五台灣下午 4 點，月底與季底量最大）。',
+  eff:['到期前價格常被吸向「最大痛點」（讓買方損失最多的價格），波動被壓住。','到期後避險部位解除，行情容易突然放大、選邊。','美股月選擇權到期會影響 MSTR、MSTU，以及比特幣現貨 ETF 的波動。'],
+  tip:'到期日當天的假突破較多，突破策略可等隔天再確認。'},
+ {k:/MSCI/,n:'MSCI 指數調整',
+  what:'MSCI 決定是否把「數位資產財庫公司」（公司資產大多是加密貨幣，例如 Strategy／MSTR）從它的股票指數中剔除。',
+  eff:['剔除：追蹤 MSCI 指數的被動基金必須賣出 MSTR，市場估計賣壓達數十億美元，MSTR、MSTU 承壓，mNAV 可能再被壓縮。','保留：利空出盡，MSTR 常見反彈，mNAV 回升。','對 BTC 是間接影響：MSTR 籌資能力變差，代表未來買幣的力道減弱。'],
+  tip:'MSTU 是 MSTR 的兩倍槓桿，決定公布後的跳空會被放大，持有過夜要小心。'},
+ {k:/財報|earnings|盤後公布/i,n:'公司財報',
+  what:'上市公司公布季度財報與電話會議，加密相關公司（Strategy、Coinbase 等）會說明持幣數量、籌資計畫與營運狀況。',
+  eff:['Strategy（MSTR）：重點看比特幣持有量、平均成本、是否繼續發債或增發股票買幣，以及 mNAV 溢價怎麼解讀。','好於預期或宣布加碼買幣：MSTR 與 BTC 情緒偏多。','籌資受阻或認列大額減損：MSTR 先跌，盤後跳空可能很大。'],
+  tip:'美股盤後公布＝台灣清晨，隔天開盤才看得到真正反應。'},
+ {k:/以太坊|ETH|升級|主網|硬分叉|Glamsterdam|Pectra|Fusaka|EDCON|Devcon/,n:'以太坊升級／開發者大會',
+  what:'以太坊開發者會議或大會，常宣布下一次網路升級的內容與主網上線時間。',
+  eff:['確定主網時程：通常對 ETH 偏多（買預期），但真正上線當天常是「利多出盡」。','升級延後或測試網出問題：ETH 短線偏空。','對 BTC 影響很小，主要看 ETH／BTC 匯率。'],tip:''},
+ {k:/ETF/,n:'ETF 相關',
+  what:'加密貨幣 ETF 的審核決定、上市或資金流數據。',
+  eff:['新 ETF 核准或連續大額淨流入：偏多。','被拒、延後或連續淨流出：偏空。'],tip:''},
+ {k:/解鎖|unlock/i,n:'代幣解鎖',what:'專案方或早期投資人鎖定的代幣到期可以賣出。',eff:['解鎖量佔流通量越大，賣壓越大，該幣通常在解鎖前就開始走弱。'],tip:''},
+ {k:/SEC|CFTC|監管|法案|立法|國會|參議院|眾議院/,n:'監管與立法',
+  what:'美國監管機關或國會對加密貨幣的規範、法案表決或訴訟進度。',
+  eff:['法案通過或監管明確化：通常偏多，尤其是交易所、穩定幣相關幣種。','打壓、起訴或延後：短線偏空。'],tip:''},
+ {k:/日銀|BOJ|日本央行/,n:'日本央行決策',
+  what:'日本央行利率決策。',eff:['日銀升息會讓日圓套利交易平倉，過去曾引發全球風險資產（含 BTC）急跌。'],tip:''},
+ {k:/關稅|川普|Trump|白宮/,n:'美國政策／關稅',
+  what:'美國總統或白宮的政策宣布。',eff:['加關稅、貿易戰升溫：風險資產偏空。','對加密貨幣友善的政策（儲備、監管鬆綁）：偏多。'],tip:''}];
+function evInfo(x){const t=String(x.e).replace(/[（(][^）)]*[）)]/g,''),pos=r=>{const m=t.match(r.k);return m?m.index:-1},hit=EVK.filter(r=>pos(r)>=0).sort((a,b)=>pos(a)-pos(b));  // 括號裡是背景說明，不拿來判斷事件類型；依出現順序排
+  const ctx=(String(x.e).match(/[（(]([^）)]+)[）)]/g)||[]).map(z=>z.slice(1,-1)).filter(z=>!/^含/.test(z));
+  // 從標題抓關鍵字，找市場分析與新聞裡提到的段落
+  const kw=[...new Set((String(x.e).replace(/^\s*\d{1,2}:\d{2}\s*/,'').match(/[A-Za-z]{2,}|[\u4e00-\u9fff]{2,4}/g)||[]).filter(w=>!/^(美股|公布|決定|處理|留意|指數|含|時程|與|月)$/.test(w)))];
+  const hitKw=s=>kw.some(w=>s.includes(w))||hit.some(r=>r.k.test(s));
+  const body=String(MARKET&&MARKET.body||'').split('\n').map(l=>l.replace(/^\s*[-*]\s+/,'').replace(/^(\*\*)?一句話(\*\*)?(?=[：:])/,'$1概要$2').trim()).filter(l=>l&&!/^#/.test(l)&&!/非投資建議/.test(l)&&hitKw(l)).slice(0,3);
+  const news=(typeof NEWS!=='undefined'?NEWS:[]).filter(n=>hitKw(`${n.title} ${n.summary||''}`)).slice(0,4);
+  return{hit,ctx,body,news}}
+function openEv(i){const C=(MARKET&&MARKET.calendar)||[],x=C[i];if(!x)return;const {hit,ctx,body,news}=evInfo(x);
+  const v=evList().find(o=>o.i===i),now=Date.now();let left='';
+  if(v){const ms=v.t-now;if(ms<=0)left='進行中';else{const d=Math.floor(ms/86400e3),h=Math.floor(ms%86400e3/3600e3),mi=Math.floor(ms%3600e3/60e3);left=d?`${d} 天 ${h} 小時後`:h?`${h} 小時 ${mi} 分後`:`${mi} 分後`}}
+  const title=String(x.e).replace(/^\s*\d{1,2}:\d{2}\s*/,''),tm=(String(x.e).match(/^\s*(\d{1,2}:\d{2})/)||[])[1];
+  $('#evTitle').textContent=title.replace(/[（(][^）)]*[）)]\s*$/,'')||title;
+  const li=a=>`<ul>${a.map(z=>`<li>${esc(z).replace(/(偏空|下跌|承壓|急跌|先跌)/g,'<span class="dn">$1</span>').replace(/(偏多|上漲|反彈|回升)/g,'<span class="up">$1</span>')}</li>`).join('')}</ul>`;
+  let h=`<div class="when${v&&v.t-now<86400e3?' hot':''}">台灣時間 ${esc(x.d)}${tm?' '+tm:''}${left?`　<b>${left}</b>`:''}</div>`;
+  if(hit.length)h+=hit.map(r=>`<div class="blk"><h4>${esc(r.n)}</h4><p>${esc(r.what)}</p><h4 style="margin-top:8px">可能的影響</h4>${li(r.eff)}${r.tip?`<p style="margin-top:6px;color:var(--muted)">💡 ${esc(r.tip)}</p>`:''}</div>`).join('');
+  else h+=`<div class="blk"><h4>概述</h4><p>${esc(title)}</p><p style="color:var(--muted)">這個事件沒有內建說明，請參考下面市場分析與新聞的內容。</p></div>`;
+  if(ctx.length||body.length)h+=`<div class="blk"><h4>目前市場怎麼看</h4>${ctx.map(z=>`<p class="ctx">${esc(z)}</p>`).join('')}${body.length?`<ul>${body.map(l=>`<li>${md(l).replace(/^<p>|<\/p>$/g,'')}</li>`).join('')}</ul>`:''}<div class="src">摘自市場分析（${esc(MARKET.updated||'')}）</div></div>`;
+  if(news.length)h+=`<div class="blk"><h4>相關新聞</h4><ul>${news.map(n=>`<li>${n.url?`<a href="${esc(n.url)}" target="_blank" rel="noopener" style="color:var(--text)">${esc(n.title)}</a>`:esc(n.title)}${n.impact?` <span class="tag">${esc(n.impact)}</span>`:''}</li>`).join('')}</ul></div>`;
+  h+='<div class="src">事件類型說明是一般常見的市場反應，實際走勢仍看當下情境，僅供參考，非投資建議。</div>';
+  $('#evBody').innerHTML=h;$('#evBody').scrollTop=0;$('#evModal').classList.add('on');document.body.style.overflow='hidden'}
+function closeEv(){$('#evModal').classList.remove('on');document.body.style.overflow=''}
+document.addEventListener('click',e=>{const r=e.target.closest('#evBox .ev,#calBox .cal');if(r&&r.dataset.i!=null){openEv(+r.dataset.i);return}if(e.target.closest('#evX'))closeEv()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#evModal').classList.contains('on'))closeEv()});
+window.__openEv=openEv;
 function renderNews(){const box=$('#newsBox');if(!box)return;
   const tags=['全部',...new Set(NEWS.map(n=>n.tag).filter(Boolean))];
   $('#newsChips').innerHTML=tags.map(t=>`<button class="${t===filter?'on':''}">${esc(t)}</button>`).join('');
@@ -2643,5 +2733,6 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 <div class="seg" id="fngRng"><button data-d="90">3 個月</button><button data-d="365" class="on">1 年</button><button data-d="1095">3 年</button><button data-d="0">全部</button></div>
 <div id="fngLeg"></div><div id="fngChart"></div><div id="fngStat"></div>
 <div class="sub" style="font-size:11.5px;color:var(--muted);margin-top:6px">彩色線是指數（左邊刻度，25 以下極度恐懼、75 以上極度貪婪），灰線是 BTC 價格（右邊刻度）。資料來源 alternative.me。</div></div>
+<div id="evModal" role="dialog" aria-label="事件說明"><div class="hd"><h3 id="evTitle"></h3><button class="x" id="evX" aria-label="關閉">✕</button></div><div id="evBody"></div></div>
 </body>
 </html>
