@@ -1,7 +1,7 @@
 {
  "market": {
   "bias": "bear",
-  "body": "**一句話**：BTC 10/14 日收約 81,616，貼著 ETF 平均成本 81,500，81,000 未破；今晚 PPI 偏熱可能測 80,000。\n\n- **總經**：10 月升息機率 FedWatch 35%；明天 Warsh 演講。\n- **籌碼**：80,000 下有清算區、88,000 有賣壓。\n\n## 關鍵價位\n- 支撐 81,500、81,000、80,000；壓力 83,000、84,000～85,000。\n\n## 對策略的意思\n- 突破類：不追，4h 站回 85,000 才算。\n- 箱體／飛刀：81,000 未破可小量，4h 收破就觀望。\n\n僅供參考，非投資建議。",
+  "body": "**一句話**：BTC 4h 收約 80,834，跌破 81,000 箱底與 ETF 成本 81,500；10/14 ETF 淨流出 1.5 億，偏空。\n\n- **總經**：美元創高、美股科技重挫；今晚 PPI、零售銷售。\n- **籌碼**：24h 爆倉近 4.8 億，ETH 較弱。\n\n## 關鍵價位\n- 支撐 80,345、80,000、78,000；壓力 81,000～81,500、83,000、85,000。\n\n## 對策略的意思\n- 突破類：不追，站回 83,000 再說。\n- 箱體／飛刀：已跌破，暫停；80,000 不破且站回 81,000 才小量。\n\n僅供參考，非投資建議。",
   "calendar": [
    {
     "d": "10/15",
@@ -20,10 +20,37 @@
     "e": "FOMC 利率決策（市場在賭會不會連續升息）"
    }
   ],
-  "title": "BTC 守在 81,600 附近、貼著 ETF 成本 81,500，今晚 PPI 定方向",
-  "updated": "2026-10-15 08:48 台灣時間"
+  "title": "BTC 4 小時收破 81,000、跌到 80,800 附近，今晚 PPI 再定方向",
+  "updated": "2026-10-15 12:48 台灣時間"
  },
  "news": [
+  {
+   "ts": "2026-10-15T04:47:00Z",
+   "title": "BTC 4 小時收破 81,000、盤中約 80,800，ETH 跌 6% 到 2,350",
+   "summary": "CPI 偏熱後升息疑慮未散，亞洲早盤續跌；台灣 12:00 的 4h 收盤約 80,834（CF 指數），BTC 加 ETH 期貨 24 小時爆倉近 4.83 億美元，ETH 占 2.86 億。",
+   "tag": "BTC",
+   "impact": "利空",
+   "source": "CoinDesk",
+   "url": "https://coindesk.com/markets/2026/10/15/nearly-usd1-billion-in-crypto-bets-liquidated-as-bitcoin-ether-and-xrp-slide"
+  },
+  {
+   "ts": "2026-10-15T04:46:00Z",
+   "title": "10/14 BTC 現貨 ETF 初步淨流出 1.505 億美元，FBTC 流出 1.527 億",
+   "summary": "Farside 初步數據，IBIT 尚未公布；前一天 10/13 才淨流入 1.757 億，CPI 後資金轉為流出。",
+   "tag": "ETF",
+   "impact": "利空",
+   "source": "Farside Investors",
+   "url": "https://farside.co.uk/btc/"
+  },
+  {
+   "ts": "2026-10-15T04:45:00Z",
+   "title": "美元創 2025 年 5 月來新高、那斯達克 100 跌約 2%，風險資產齊退",
+   "summary": "CPI 偏熱推升升息押注，美元走強，半導體與 AI 股重挫（CoreWeave 跌逾 15%），中東情勢升溫，BTC 跟著風險資產回落。",
+   "tag": "總經",
+   "impact": "利空",
+   "source": "KuCoin News",
+   "url": "https://kucoin.com/news/flash/bitcoin-near-key-support-as-risk-assets-retreat-amid-cooling-speculative-trading"
+  },
   {
    "impact": "利空",
    "source": "FXStreet",
