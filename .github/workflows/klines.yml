@@ -1,4 +1,4 @@
-# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線，推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
+# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、算 S-03 模擬盤（paper.json），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
 name: klines
 on:
   schedule:
@@ -19,6 +19,13 @@ jobs:
           sparse-checkout: scripts
       - name: 抓 K 線
         run: python3 scripts/fetch_klines.py out/data
+      - name: 算模擬盤（給網站「模擬盤」分頁；失敗不影響 K 線）
+        continue-on-error: true
+        run: |
+          pip install -q pandas numpy
+          git fetch -q --depth 1 origin data && git show origin/data:data/s03_state.json > scripts/s03_state.json || true
+          python3 scripts/paper.py out/data
+          cp scripts/s03_state.json out/data/ || true
       - name: 推到 data 分支
         run: |
           cd out
