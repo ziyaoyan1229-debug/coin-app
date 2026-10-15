@@ -1,4 +1,4 @@
-# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
+# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、MSTR／MSTU 美股盤中 1 小時 K（MSTR_1h.csv、MSTU_1h.csv）、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
 name: klines
 on:
   schedule:
@@ -30,6 +30,11 @@ jobs:
           git show origin/data:data/s03_state.json > st.tmp 2>/dev/null && mv st.tmp scripts/s03_state.json || true   # 沒有就從空的開始（不能留空檔）
           python3 scripts/paper.py out/data
           cp scripts/s03_state.json out/data/ || true
+      - name: 抓 MSTR／MSTU 美股盤中 1 小時（給網站 1H、4H；抓不到就沿用上一版，不影響 K 線）
+        continue-on-error: true
+        run: |
+          git fetch -q --depth 1 origin data || true
+          python3 scripts/fetch_stocks.py out/data || for s in MSTR MSTU; do git show origin/data:data/${s}_1h.csv > out/data/${s}_1h.csv 2>/dev/null || rm -f out/data/${s}_1h.csv; done
       - name: 存市場分析歷史（給網站「過去分析」；失敗不影響 K 線）
         continue-on-error: true
         run: |
