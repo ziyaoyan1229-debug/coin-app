@@ -1,7 +1,7 @@
 {
  "market": {
   "bias": "bear",
-  "body": "**一句話**：BTC 4h 收約 80,834，跌破 81,000 箱底與 ETF 成本 81,500；10/14 ETF 淨流出 1.5 億，偏空。\n\n- **總經**：美元創高、美股科技重挫；今晚 PPI、零售銷售。\n- **籌碼**：24h 爆倉近 4.8 億，ETH 較弱。\n\n## 關鍵價位\n- 支撐 80,345、80,000、78,000；壓力 81,000～81,500、83,000、85,000。\n\n## 對策略的意思\n- 突破類：不追，站回 83,000 再說。\n- 箱體／飛刀：已跌破，暫停；80,000 不破且站回 81,000 才小量。\n\n僅供參考，非投資建議。",
+  "body": "**一句話**：BTC 約 80,750（14:51 台灣），4h 仍收在 81,000 下；韓股熔斷、爆倉 9.7 億，偏空。\n\n- **總經**：今晚 PPI、零售銷售；偏熱恐推升 10 月升息押注。\n- **籌碼**：多單已大量清洗，ETF 10/14 流出 1.5 億。\n\n## 關鍵價位\n- 支撐 80,345、80,000、78,000；壓力 81,000～81,500、83,000、85,000。\n\n## 對策略的意思\n- 突破類：不追，站回 83,000 再說。\n- 箱體／飛刀：暫停；PPI 後 80,000 不破且站回 81,000 才小量。\n\n僅供參考，非投資建議。",
   "calendar": [
    {
     "d": "10/15",
@@ -9,7 +9,7 @@
    },
    {
     "d": "10/16",
-    "e": "Fed 主席 Warsh 演講"
+    "e": "11:30 Fed 主席 Warsh 與 IMF 總裁對談"
    },
    {
     "d": "10/17-18",
@@ -20,35 +20,62 @@
     "e": "FOMC 利率決策（市場在賭會不會連續升息）"
    }
   ],
-  "title": "BTC 4 小時收破 81,000、跌到 80,800 附近，今晚 PPI 再定方向",
-  "updated": "2026-10-15 12:48 台灣時間"
+  "title": "BTC 在 80,700 附近弱勢整理，亞股重挫、爆倉近 10 億，等今晚 PPI",
+  "updated": "2026-10-15 16:48 台灣時間"
  },
  "news": [
   {
-   "ts": "2026-10-15T04:47:00Z",
-   "title": "BTC 4 小時收破 81,000、盤中約 80,800，ETH 跌 6% 到 2,350",
-   "summary": "CPI 偏熱後升息疑慮未散，亞洲早盤續跌；台灣 12:00 的 4h 收盤約 80,834（CF 指數），BTC 加 ETH 期貨 24 小時爆倉近 4.83 億美元，ETH 占 2.86 億。",
+   "impact": "中性",
+   "source": "TraderFactor",
+   "summary": "市場預估 9 月 PPI 月增 0.5～0.6%（核心約 0.3%），零售銷售約 +0.3%（前值 1.2%），初領失業金約 20 萬。CPI 偏熱後美元創 18 個月高再回落；若 PPI 也偏熱，10 月升息押注可能再升溫，對 BTC 不利。",
+   "tag": "總經",
+   "title": "今晚 PPI 預期月增 0.5～0.6%、零售銷售 0.3%；Warsh 台灣時間週五 11:30 發言",
+   "ts": "2026-10-15T08:47:00Z",
+   "url": "https://traderfactor.com/ppi-in-focus-after-hot-cpi/"
+  },
+  {
+   "impact": "利空",
+   "source": "Crypto News Flash",
+   "summary": "CoinGlass 數據：24 小時全網爆倉 9.72 億美元，其中多單 8.92 億（91.7%）。BTC 約 80,723（06:30 UTC）。分析師認為槓桿已大量清洗，但趨勢仍弱。",
    "tag": "BTC",
+   "title": "24 小時爆倉 9.72 億美元，九成以上是多單",
+   "ts": "2026-10-15T08:46:00Z",
+   "url": "https://www.crypto-news-flash.com/bitcoin-slides-under-81000-as-972m-liquidation-wave-hits-crypto/"
+  },
+  {
+   "impact": "利空",
+   "source": "The Block",
+   "summary": "美國 CPI 偏熱加上 AI 融資疑慮，三星、SK 海力士跌逾 9%，Kospi 跌 8% 觸發熔斷，日經 225 跌 5.2%。風險資產同步走弱，BTC 約 80,764、ETH 約 2,353（跌 6.5%）。",
+   "tag": "總經",
+   "title": "韓股 Kospi 暴跌 8% 觸發熔斷、日經跌 5.2%，BTC 守在 80,700 附近",
+   "ts": "2026-10-15T08:45:00Z",
+   "url": "https://www.theblock.co/news/markets/2026-10-15-bitcoin-drops-asian-equities-tumble-418623"
+  },
+  {
    "impact": "利空",
    "source": "CoinDesk",
+   "summary": "CPI 偏熱後升息疑慮未散，亞洲早盤續跌；台灣 12:00 的 4h 收盤約 80,834（CF 指數），BTC 加 ETH 期貨 24 小時爆倉近 4.83 億美元，ETH 占 2.86 億。",
+   "tag": "BTC",
+   "title": "BTC 4 小時收破 81,000、盤中約 80,800，ETH 跌 6% 到 2,350",
+   "ts": "2026-10-15T04:47:00Z",
    "url": "https://coindesk.com/markets/2026/10/15/nearly-usd1-billion-in-crypto-bets-liquidated-as-bitcoin-ether-and-xrp-slide"
   },
   {
-   "ts": "2026-10-15T04:46:00Z",
-   "title": "10/14 BTC 現貨 ETF 初步淨流出 1.505 億美元，FBTC 流出 1.527 億",
-   "summary": "Farside 初步數據，IBIT 尚未公布；前一天 10/13 才淨流入 1.757 億，CPI 後資金轉為流出。",
-   "tag": "ETF",
    "impact": "利空",
    "source": "Farside Investors",
+   "summary": "Farside 初步數據，IBIT 尚未公布；前一天 10/13 才淨流入 1.757 億，CPI 後資金轉為流出。",
+   "tag": "ETF",
+   "title": "10/14 BTC 現貨 ETF 初步淨流出 1.505 億美元，FBTC 流出 1.527 億",
+   "ts": "2026-10-15T04:46:00Z",
    "url": "https://farside.co.uk/btc/"
   },
   {
-   "ts": "2026-10-15T04:45:00Z",
-   "title": "美元創 2025 年 5 月來新高、那斯達克 100 跌約 2%，風險資產齊退",
-   "summary": "CPI 偏熱推升升息押注，美元走強，半導體與 AI 股重挫（CoreWeave 跌逾 15%），中東情勢升溫，BTC 跟著風險資產回落。",
-   "tag": "總經",
    "impact": "利空",
    "source": "KuCoin News",
+   "summary": "CPI 偏熱推升升息押注，美元走強，半導體與 AI 股重挫（CoreWeave 跌逾 15%），中東情勢升溫，BTC 跟著風險資產回落。",
+   "tag": "總經",
+   "title": "美元創 2025 年 5 月來新高、那斯達克 100 跌約 2%，風險資產齊退",
+   "ts": "2026-10-15T04:45:00Z",
    "url": "https://kucoin.com/news/flash/bitcoin-near-key-support-as-risk-assets-retreat-amid-cooling-speculative-trading"
   },
   {
