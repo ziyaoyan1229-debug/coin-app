@@ -603,9 +603,9 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
   <div class="col" id="right"><details class="fold" id="expFold"><summary>📖 策略說明</summary><div class="in"><div id="explain"></div></div></details></div>
 </section>
 <section id="newsView" class="view"><div class="wrap">
-  <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox"></div></div>
   <div class="sect"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="empty">讀取中…</div></div></div>
   <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
+  <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox"></div></div>
   <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox"><div class="empty">讀取中…</div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
   <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox"><div class="empty">讀取中…</div></div></div>
@@ -1831,7 +1831,8 @@ function initChart(){
   chart.priceScale('fund').applyOptions({scaleMargins:{top:0.7,bottom:0.16}});
   const L=(c,w=1,st=0)=>chart.addLineSeries({color:c,lineWidth:w,lineStyle:st,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
   const X=(c,sc,w=2,st=0)=>chart.addLineSeries({color:c,lineWidth:w,lineStyle:st,priceScaleId:sc,priceLineVisible:false,lastValueVisible:true,crosshairMarkerVisible:false});
-  xs.MSTU=X('#f5a524','left');xs.MSTUS=X('#f5a524','left',1,2);xs.MNAV=X('#a371f7','mnav',1);xs.MNAVEV=X('#d63cff','mnav',2);xs.DEBT=X('#ef5350','debt',1);xs.PREF=X('#f2a0a0','debt',1,2);xs.SHARES=X('#26a69a','shr',1);
+  xs.MSTU=X('#f5a524','right');xs.MSTUS=X('#f5a524','right',1,2);  // MSTR＋MSTU：兩條共用右邊刻度（百分比模式，看同期漲跌幅）
+  xs.MNAV=X('#a371f7','mnav',1);xs.MNAVEV=X('#d63cff','mnav',2);xs.DEBT=X('#ef5350','debt',1);xs.PREF=X('#f2a0a0','debt',1,2);xs.SHARES=X('#26a69a','shr',1);
   chart.priceScale('mnav').applyOptions({scaleMargins:{top:0.03,bottom:0.72}});chart.priceScale('debt').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});chart.priceScale('shr').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});
   xs.MNAVEV.createPriceLine({price:1,color:'#8b95a7',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'mNAV 1'});
   ind.MA20=L('#f5a524');ind.MA50=L('#a371f7');ind.MA200=L('#4c8dff');ind.BU=L('#8b95a7',1,2);ind.BM=L('#8b95a7',1,0);ind.BL=L('#8b95a7',1,2);ind.CHH=L('#4c8dff',1,2);ind.CHL=L('#f5a524',1,2);PIVK.forEach((k,j)=>ind[k]=chart.addLineSeries({color:PIVC[j],lineWidth:j===3?2:1,lineStyle:j===3?2:0,priceLineVisible:false,lastValueVisible:true,title:PIVN[j],crosshairMarkerVisible:false}));
@@ -1855,7 +1856,7 @@ function legendVals(p){const o=IND(),v=(s)=>{if(!p)return null;const x=p.seriesD
   if(stk&&cvSym!=='MSTU'){R.MNAV=()=>one(cvIntra?'mNAV（盤中估算）':'mNAV','#a371f7',v(xs.MNAV),2);R.MNAVEV=()=>one(cvIntra?'新 mNAV（EV，盤中估算）':'新 mNAV（EV）','#d63cff',v(xs.MNAVEV),2);
     R.DEBT=()=>`<span><i style="background:#ef5350"></i>可轉債 <b>${v(xs.DEBT)==null?'—':'$'+fmt(v(xs.DEBT),2)+'B'}</b>　<i style="background:#f2a0a0"></i>優先股 <b>${v(xs.PREF)==null?'—':'$'+fmt(v(xs.PREF),2)+'B'}</b></span>`;
     R.SHARES=()=>one('普通股（百萬股）','#26a69a',v(xs.SHARES),1);R.EVT=()=>'<span>● 紫＝可轉債發行／回購　● 橘＝普通股增發（ATM）</span>'}
-  const items=[];if(cvSym==='MSTR_MSTU'){const a=v(xs.MSTU),b=v(xs.MSTUS);items.push(one(a==null&&b!=null?'MSTU 模擬（左軸，虛線）':'MSTU（左軸）','#f5a524',a==null?b:a,2))}
+  const items=[];if(cvSym==='MSTR_MSTU'){const a=v(xs.MSTU),b=v(xs.MSTUS);items.push(one(a==null&&b!=null?'MSTU 模擬（虛線）':'MSTU','#f5a524',a==null?b:a,2))}
   document.querySelectorAll('#indPanel [data-ind]').forEach(x=>{const k=x.dataset.ind;if(x.checked&&R[k]){const h=R[k]();if(h)items.push(h)}});
   $('#indLegend').innerHTML=items.join('')||''}
 function showOhlc(d,p){if(!d){const n=cvBars&&cvBars.T.length;if(!n)return;const i=n-1;$('#ohlc').innerHTML=`${symName(cvSym)} ${tfName(cvTf)}　最新 ${STKSYM(cvSym)&&!cvIntra?tw(cvBars.T[i]).slice(0,10):tw(cvBars.T[i])}　收 <b>${fmt(cvBars.C[i],1)}</b>`;legendVals(null);return}
@@ -1875,7 +1876,7 @@ function stratOnChart(B){const st=$('#cvStrat').value;$('#stratWrap').classList.
 function msg(t){const m=$('#chartMsg');m.style.display=t?'block':'none';m.innerHTML=t||''}
 async function drawChart(fit){
   const stk=STKSYM(cvSym);document.querySelectorAll('.stkOnly').forEach(x=>x.style.display=stk&&cvSym!=='MSTU'?'':'none');
-  Object.values(xs).forEach(s=>s.setData([]));cs.setMarkers([]);chart.applyOptions({leftPriceScale:{visible:cvSym==='MSTR_MSTU',borderColor:css('--line')}});
+  Object.values(xs).forEach(s=>s.setData([]));cs.setMarkers([]);chart.applyOptions({leftPriceScale:{visible:false,borderColor:css('--line')}});
   if(BTCDSYM(cvSym)){msg('BTC.D（比特幣市佔率）還沒有資料：雲端環境的網路擋掉了資料來源。<br><span class="small">可以從 TradingView 匯出 CRYPTOCAP:BTC.D 日線 CSV 放到 D:\\binance_data，或在專案設定開放網路，我再加進來。</span>');cs.setData([]);vs.setData([]);fs.setData([]);Object.values(ind).forEach(s=>s.setData([]));cvBars=null;drawer1&&drawer1.reload();return}
   if(stk&&cvTf<86400&&!STKI(cvSym,cvTf)){cvTf=86400;$('#cvTf').value='86400';$('#cvTf').dispatchEvent(new Event('sync'))}
   const minute=cvTf<3600;$('#monthWrap').style.display=minute?'':'none';$('#rangeWrap').style.display=minute?'none':'';
@@ -1901,16 +1902,16 @@ async function drawChart(fit){
   if(o.CH&&cvTf<604800){line(ind.CHH,[...E.rollMaxPrev(B.H,look)]);line(ind.CHL,[...E.rollMinPrev(B.L,look)])}else{line(ind.CHH);line(ind.CHL)}
   drawPivot(B,o.WPIV,cvTf);stratOnChart(B);
   const mg={scaleMargins:{top:stk&&(o.MNAV||o.MNAVEV)?0.32:0.1,bottom:stk&&(o.DEBT||o.SHARES)?0.28:0.1}};
-  chart.priceScale('right').applyOptions(Object.assign({mode:o.LOG?1:0,autoScale:true},mg));chart.priceScale('left').applyOptions(Object.assign({autoScale:true},mg));
+  chart.priceScale('right').applyOptions(Object.assign({mode:cvSym==='MSTR_MSTU'?2:o.LOG?1:0,autoScale:true},mg));chart.priceScale('left').applyOptions(Object.assign({autoScale:true},mg));
   if(cvSym==='MSTU'&&!cvIntra){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);if(k<B.T.length)cs.setMarkers([{time:B.T[k]+TZ,position:'aboveBar',shape:'arrowDown',color:'#f5a524',text:'上市（之前為模擬）'}])}
   if(stk&&cvSym!=='MSTU'){const S=STK.MSTR;
-    if(cvSym==='MSTR_MSTU'){const U=STK.MSTU,z=U.sim;xs.MSTU.setData(stkSeries(B,U.c.map((v,i)=>i>=z?v:null),U.d));xs.MSTUS.setData(stkSeries(B,U.c.map((v,i)=>i<=z?v:null),U.d));chart.priceScale('left').applyOptions({mode:o.LOG?1:0})}
+    if(cvSym==='MSTR_MSTU'){const U=STK.MSTU,z=U.sim;xs.MSTU.setData(stkSeries(B,U.c.map((v,i)=>i>=z?v:null),U.d));xs.MSTUS.setData(stkSeries(B,U.c.map((v,i)=>i<=z?v:null),U.d))}
     if(o.MNAV)xs.MNAV.setData(cvIntra?mnavIntra(B,S.mnav):stkSeries(B,S.mnav,S.d));if(o.MNAVEV)xs.MNAVEV.setData(cvIntra?mnavIntra(B,S.mnavEv):stkSeries(B,S.mnavEv,S.d));
     if(o.DEBT){xs.DEBT.setData(stkSeries(B,S.debt,S.d));xs.PREF.setData(stkSeries(B,S.pref,S.d))}
     if(o.SHARES)xs.SHARES.setData(stkSeries(B,S.shares,S.d));
     if(o.EVT)cs.setMarkers(STK.ev.map(e=>{const t=e.d*86400,k=Math.max(0,lowerB(B.T,t+1)-1);return{time:B.T[k]+TZ,position:'belowBar',shape:'circle',color:e.type==='convert'?'#a371f7':'#f5a524',text:(e.type==='convert'?'可轉債 ':'增發 ')+'$'+(e.usd>=1000?(e.usd/1000).toFixed(e.usd%1000?1:0)+'B':e.usd+'M')}}).sort((a,b)=>a.time-b.time))}
   if(fit)window.__cvNeedFit=!$('#mainChart').clientWidth;   // 在隱藏分頁裡畫的，顯示後要重套範圍，不然 K 線會擠成一團
-  if(fit){if(cvIntra)chart.timeScale().setVisibleLogicalRange({from:n-(cvTf===3600?210:120),to:n+3});else if(cvSym==='MSTU'){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);chart.timeScale().setVisibleLogicalRange({from:Math.max(0,k-60),to:n+3})}else if(minute||stk)chart.timeScale().fitContent();else chart.timeScale().setVisibleLogicalRange({from:n-300,to:n+5})}
+  if(fit){if(cvIntra)chart.timeScale().setVisibleLogicalRange({from:n-(cvTf===3600?210:120),to:n+3});else if(cvSym==='MSTU'||cvSym==='MSTR_MSTU'){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);chart.timeScale().setVisibleLogicalRange({from:Math.max(0,k-(cvSym==='MSTU'?60:0)),to:n+3})}else if(minute||stk)chart.timeScale().fitContent();else chart.timeScale().setVisibleLogicalRange({from:n-300,to:n+5})}
   showOhlc(null);drawFib();drawer1&&drawer1.reload();
 }
 // 週樞紐：每週一 00:00 UTC 起，用上一週的高、低、收算 P=(H+L+C)/3、R=H-L，畫 P、P±0.236R、P±0.618R、P±R
