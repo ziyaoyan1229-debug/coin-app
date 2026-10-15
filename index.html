@@ -456,6 +456,12 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .ev .cd{flex:none;min-width:92px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:700;font-size:14px;color:var(--acc)}
 .ev .tx{font-size:13px;line-height:1.5;color:var(--text)}.ev .tx b{color:var(--muted);font-weight:600}
 .ev.hot .cd,.ev.hot .tx{color:var(--down)}.ev.hot .tx b{color:var(--down)}
+#setView .anrow{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13.5px}#setView .anrow input{width:18px;height:18px;accent-color:var(--acc)}
+.sumc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
+.sumc .t{background:var(--panel2);border-radius:12px;padding:9px 11px;cursor:pointer;min-width:0}.sumc .t:active{opacity:.8}.sumc .t.w{grid-column:1/-1}
+.sumc .k{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between}.sumc .v{font-size:16px;font-weight:700;margin-top:2px;font-family:ui-monospace,"SF Mono",Menlo,monospace}.sumc .s{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sumc .t.hot .v{color:var(--down)}.sumc .fc0{color:var(--down)}.sumc .fc1{color:color-mix(in srgb,var(--down) 55%,var(--warn))}.sumc .fc2{color:var(--warn)}.sumc .fc3{color:color-mix(in srgb,var(--up) 60%,var(--warn))}.sumc .fc4{color:var(--up)}
+#muStat{padding:6px 12px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#muStat .mh{margin-bottom:4px}#muStat .mr{display:flex;flex-wrap:wrap;gap:4px 12px}#muStat .mr span{white-space:nowrap}#muStat b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
 .ev,.cal{cursor:pointer}.ev .go,.cal .go{flex:none;margin-left:auto;color:var(--muted);font-size:16px}
 #evModal{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:var(--bg);padding:calc(var(--safe-t,0px) + 10px) 14px 0;animation:fadeIn .15s}
 #evModal.on{display:flex}#evModal .hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}#evModal .hd h3{margin:0;font-size:17px;line-height:1.4;flex:1}
@@ -474,7 +480,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .setl span{color:var(--muted)}.setl b{font-weight:600;text-align:right}
 @media (prefers-reduced-motion:reduce){#themeToast.on{animation:none}:root[data-theme="light"] *{transition:none!important}}
 </style>
-<script>try{var t=localStorage.getItem('theme3');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage.getItem('autoNight')==='1'&&(h>=22||h<6))t='night';if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <!-- 開場畫面：logo 三層六角依序疊上；網頁載完、即時價格、市場分析、恐懼貪婪、模擬盤都抓完（至少 1.5 秒、最多 15 秒）才淡出 -->
@@ -529,11 +535,12 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
       <option value="2026-06-30|2026-10-01">2026-06 → 至今 牛市</option></select></label>
     <label id="stratWrap"><select id="cvStrat"><option value="">策略買賣點</option><option value="brk">1. 4h 帶量突破</option><option value="box">2. 箱體飛刀</option><option value="poc">3. POC 帶量突破堆倉</option><option value="dense">4. 均線密集</option><option value="tur">5. 海龜交易法</option><option value="knife">6. ETH 日線飛刀＋海龜</option><option value="knifeB">7. BTC 日線飛刀＋量價</option><option value="my">8. 我的系統</option></select></label>
     <label id="monthWrap" style="display:none">月份 <select id="cvMonth"></select></label>
-    <span class="tools" id="cvTools"><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button></span>
+    <span class="tools" id="cvTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span>
     <span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span>
   </div>
   <div id="indLegend" class="legend"></div>
   <div id="ohlc"></div>
+  <div id="muStat" style="display:none"></div>
   <div id="mainChart" style="position:relative"><div id="chartMsg"></div></div>
   </div>
 </section>
@@ -593,9 +600,9 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
       <div class="field"><label>開始</label><input id="sFrom" type="date" value="2024-01-01" min="2020-02-01" max="2026-09-30"></div>
       <div class="field"><label>結束</label><input id="sTo" type="date" value="2026-09-30" min="2020-02-01" max="2026-10-01"></div>
     </div>
-    <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費＋滑價 0.07%（停損再加 0.03%）、真實資金費率、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div></div>
+    <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn ghost" id="cmpBtn" style="margin-top:8px;width:100%">疊加其他策略比較</button><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費＋滑價 0.07%（停損再加 0.03%）、真實資金費率、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div></div>
   <div class="col" id="center">
-        <div class="simcard"><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
+        <div class="simcard"><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
     <div class="legend" id="legend"></div><div id="priceChart" style="position:relative"></div>
     <div class="split" id="pSplit" title="上下拖動調整兩張圖的高度，點兩下恢復"></div><div id="eqChart"></div></div>
     <div class="stats" id="stats"></div><div class="lower"><div id="levTable"></div><div id="tradeTable"></div></div>
@@ -603,6 +610,7 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
   <div class="col" id="right"><details class="fold" id="expFold"><summary>📖 策略說明</summary><div class="in"><div id="explain"></div></div></details></div>
 </section>
 <section id="newsView" class="view"><div class="wrap">
+  <div class="sect" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="empty">整理中…</div></div></div>
   <div class="sect"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="empty">讀取中…</div></div></div>
   <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
   <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox"></div></div>
@@ -626,6 +634,7 @@ var pv=0;window.__prog=function(v){v=Math.max(pv,Math.min(100,Math.round(v)));pv
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
   <div class="sect"><h2>外觀</h2><div class="card"><div class="seg tset" id="themeSeg"><button data-t="dark">預設</button><button data-t="night">深夜</button><button data-t="light">白天</button></div>
+    <label class="anrow"><input type="checkbox" id="autoNight"> 晚上 22:00～早上 6:00 自動切到深夜模式</label>
     <div class="small" style="margin-top:8px">也可以點右上角的按鈕依序切換。</div></div></div>
   <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div><div><span>模擬盤</span><b id="setPaper">—</b></div></div></div>
   <div class="sect"><h2>App</h2><div class="card"><button class="gbtn" id="setUpd" style="margin-top:0">更新到最新版</button>
@@ -1621,8 +1630,10 @@ const TICON={dark:'<path d="M12 2.5 20.5 7.3v9.4L12 21.5l-8.5-4.8V7.3z"/>',night
 let theme=localGet('theme3');if(!THEMES.includes(theme))theme='dark';
 function localGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function localSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-function applyTheme(){document.documentElement.dataset.theme=theme;
-  const b=$('#themeBtn');b.querySelector('svg').innerHTML=TICON[theme];b.setAttribute('aria-label','模式：'+TNAME[theme]+'（點一下切換）');b.title='模式：'+TNAME[theme];
+// 晚上自動深夜：設定裡打開後，22:00～06:00（手機時間）自動用深夜模式，其他時間用自己選的模式
+const autoNightOn=()=>localGet('autoNight')==='1',isNightHr=()=>{const h=new Date().getHours();return h>=22||h<6},effTheme=()=>autoNightOn()&&isNightHr()?'night':theme;
+function applyTheme(){const et=effTheme();document.documentElement.dataset.theme=et;
+  const b=$('#themeBtn');b.querySelector('svg').innerHTML=TICON[et];b.setAttribute('aria-label','模式：'+TNAME[et]+'（點一下切換）');b.title='模式：'+TNAME[et];
   [chart,pChart,eChart].forEach(c=>c&&c.applyOptions(chartOpts()));
   const k={upColor:css('--up'),downColor:css('--down'),wickUpColor:css('--up'),wickDownColor:css('--down')};[cs,pcs].forEach(x=>{try{x&&x.applyOptions(k)}catch(e){}});
   document.querySelectorAll('#themeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===theme));}
@@ -1644,6 +1655,7 @@ function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.tex
   $('#setPaper').textContent=tx('#paperAsOf');
   if($('#setVer').textContent==='—')fetch('sw.js',{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/coin-app-(v\d+)/);if(m)$('#setVer').textContent=m[1]}).catch(()=>{});}
 document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>window.__setTheme(b.dataset.t));
+{const c=$('#autoNight');c.checked=autoNightOn();c.onchange=()=>{localSet('autoNight',c.checked?'1':'0');applyTheme()};let last=effTheme();setInterval(()=>{const e=effTheme();if(e!==last){last=e;applyTheme()}},60000)}
 $('#setUpd').onclick=async()=>{const b=$('#setUpd');b.disabled=true;b.textContent='更新中…';
   try{if(window.caches){for(const k of await caches.keys())if(k.startsWith('coin-app'))await caches.delete(k)}
     if(navigator.serviceWorker){for(const r of await navigator.serviceWorker.getRegistrations())await r.update().catch(()=>{})}}catch(e){}
@@ -1798,6 +1810,22 @@ function stockBars(sym,tf){const S=window.STK[sym],n=S.d.length,o={T:[],O:[],H:[
     else{const k=o.T.length-1;o.H[k]=Math.max(o.H[k],c);o.L[k]=Math.min(o.L[k],c);o.C[k]=c;o.k[k]=i}}
   return o}
 // 對齊到 K 棒：取每根 K 最後一天的值
+// BTC 指數：每天 UTC 收盤，跟 K 棒同一天對齊，MSTU 上市日＝1
+function btcIdx(B){let D;try{D=Engine.resample('BTC',86400)}catch(e){return[]}const m=new Map();D.T.forEach((t,i)=>m.set(t,D.C[i]));
+  const U=STK.MSTU,b0=m.get(U.d[U.sim]*86400);if(!b0)return[];const out=[];
+  for(let k=0;k<B.T.length;k++){const end=k+1<B.T.length?B.T[k+1]:B.T[k]+86400;let v=null;for(let t=B.T[k];t<end&&t<B.T[k]+8*86400;t+=86400)if(m.has(t))v=m.get(t);if(v!=null)out.push({time:B.T[k]+TZ,value:v/b0})}return out}
+// MSTU 槓桿耗損：看得到的區間（從 MSTU 上市後開始）裡，MSTR、MSTU 實際報酬 vs「2 倍 MSTR」理論
+function muStat(){const el=$('#muStat');if(!el||cvSym!=='MSTR_MSTU'||cvIntra||!cvBars){if(el)el.style.display='none';return}
+  const S=STK.MSTR,U=STK.MSTU,z=U.sim,mr=new Map(S.d.map((d,i)=>[d,S.c[i]]));let a=U.d[z],b=U.d[U.d.length-1];
+  try{const r=chart.timeScale().getVisibleRange();if(r){const f=Math.floor((r.from-TZ)/86400),t=Math.floor((r.to-TZ)/86400);if(f>a)a=f;if(t<b)b=t}}catch(e){}
+  const I=[];for(let i=z;i<U.d.length;i++){const d=U.d[i];if(d<a||d>b||!mr.has(d))continue;I.push([d,mr.get(d),U.c[i]])}
+  if(I.length<3){el.style.display='none';return}
+  let th=1;for(let i=1;i<I.length;i++)th*=1+2*(I[i][1]/I[i-1][1]-1);
+  const R=I.at(-1)[1]/I[0][1]-1,Ur=I.at(-1)[2]/I[0][2]-1,simple=2*R,dec=th/(1+simple)-1,trk=(1+Ur)/th-1;
+  const pc=x=>`<b class="${x>=0?'pos':'neg'}">${x>=0?'+':''}${(x*100).toFixed(1)}%</b>`,ds=d=>{const t=new Date(d*864e5);return`${t.getUTCFullYear()}/${t.getUTCMonth()+1}/${t.getUTCDate()}`};
+  el.innerHTML=`<div class="mh">${ds(I[0][0])}～${ds(I.at(-1)[0])}（拖動或縮放圖表會重算）</div><div class="mr"><span>MSTR ${pc(R)}</span><span>MSTU 實際 ${pc(Ur)}</span><span>單純 2 倍 ${pc(simple)}</span><span>每日 2 倍理論 ${pc(th-1)}</span><span title="每日重新平衡造成的損耗＝每日 2 倍理論 ÷ 單純 2 倍">波動耗損 ${pc(dec)}</span><span title="費用、借貸成本與追蹤誤差＝實際 ÷ 每日 2 倍理論">費用與追蹤誤差 ${pc(trk)}</span></div>`;
+  el.style.display=''}
+{let t=0;const hook=()=>{if(!chart)return setTimeout(hook,500);chart.timeScale().subscribeVisibleLogicalRangeChange(()=>{clearTimeout(t);t=setTimeout(muStat,150)})};setTimeout(hook,1000)}
 function idxBars(B){const S=STK.MSTR,U=STK.MSTU,k=S.d.indexOf(U.d[U.sim]),b=k<0?1:S.c[k],f=x=>x/b;
   return Object.assign({},B,{O:B.O.map(f),H:B.H.map(f),L:B.L.map(f),C:B.C.map(f)})}
 function stkSeries(B,arr,dates){const m=new Map();dates.forEach((d,i)=>m.set(d*86400,arr[i]));const out=[];
@@ -1833,7 +1861,7 @@ function initChart(){
   chart.priceScale('fund').applyOptions({scaleMargins:{top:0.7,bottom:0.16}});
   const L=(c,w=1,st=0)=>chart.addLineSeries({color:c,lineWidth:w,lineStyle:st,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
   const X=(c,sc,w=2,st=0)=>chart.addLineSeries({color:c,lineWidth:w,lineStyle:st,priceScaleId:sc,priceLineVisible:false,lastValueVisible:true,crosshairMarkerVisible:false});
-  xs.MSTU=X('#f5a524','right');xs.MSTUS=X('#f5a524','right',1,2);xs.MSTUS.applyOptions({lastValueVisible:false});  // MSTR＋MSTU：兩條共用右邊刻度（百分比模式，看同期漲跌幅）
+  xs.MSTU=X('#f5a524','right');xs.MSTUS=X('#f5a524','right',1,2);xs.MSTUS.applyOptions({lastValueVisible:false});xs.BTCI=X('#9aa3b2','right',1);  // MSTR＋MSTU：兩條共用右邊刻度（百分比模式，看同期漲跌幅）
   xs.MNAV=X('#a371f7','mnav',1);xs.MNAVEV=X('#d63cff','mnav',2);xs.DEBT=X('#ef5350','debt',1);xs.PREF=X('#f2a0a0','debt',1,2);xs.SHARES=X('#26a69a','shr',1);
   chart.priceScale('mnav').applyOptions({scaleMargins:{top:0.03,bottom:0.72}});chart.priceScale('debt').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});chart.priceScale('shr').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});
   xs.MNAVEV.createPriceLine({price:1,color:'#8b95a7',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'mNAV 1'});
@@ -1858,7 +1886,7 @@ function legendVals(p){const o=IND(),v=(s)=>{if(!p)return null;const x=p.seriesD
   if(stk&&cvSym!=='MSTU'){R.MNAV=()=>one(cvIntra?'mNAV（盤中估算）':'mNAV','#a371f7',v(xs.MNAV),2);R.MNAVEV=()=>one(cvIntra?'新 mNAV（EV，盤中估算）':'新 mNAV（EV）','#d63cff',v(xs.MNAVEV),2);
     R.DEBT=()=>`<span><i style="background:#ef5350"></i>可轉債 <b>${v(xs.DEBT)==null?'—':'$'+fmt(v(xs.DEBT),2)+'B'}</b>　<i style="background:#f2a0a0"></i>優先股 <b>${v(xs.PREF)==null?'—':'$'+fmt(v(xs.PREF),2)+'B'}</b></span>`;
     R.SHARES=()=>one('普通股（百萬股）','#26a69a',v(xs.SHARES),1);R.EVT=()=>'<span>● 紫＝可轉債發行／回購　● 橘＝普通股增發（ATM）</span>'}
-  const items=[];if(cvSym==='MSTR_MSTU'){const a=v(xs.MSTU),b=v(xs.MSTUS);items.push(one(a==null&&b!=null?'MSTU 指數（上市前模擬，虛線）':'MSTU 指數','#f5a524',a==null?b:a,3))}
+  const items=[];if(cvSym==='MSTR_MSTU'){const a=v(xs.MSTU),b=v(xs.MSTUS);items.push(one(a==null&&b!=null?'MSTU 指數（上市前模擬，虛線）':'MSTU 指數','#f5a524',a==null?b:a,3));items.push(one('BTC 指數','#9aa3b2',v(xs.BTCI),3))}
   document.querySelectorAll('#indPanel [data-ind]').forEach(x=>{const k=x.dataset.ind;if(x.checked&&R[k]){const h=R[k]();if(h)items.push(h)}});
   $('#indLegend').innerHTML=items.join('')||''}
 function showOhlc(d,p){if(!d){const n=cvBars&&cvBars.T.length;if(!n)return;const i=n-1;$('#ohlc').innerHTML=`${symName(cvSym)} ${tfName(cvTf)}　最新 ${STKSYM(cvSym)&&!cvIntra?tw(cvBars.T[i]).slice(0,10):tw(cvBars.T[i])}　收 <b>${fmt(cvBars.C[i],cvSym==='MSTR_MSTU'?3:1)}</b>`;legendVals(null);return}
@@ -1878,7 +1906,7 @@ function stratOnChart(B){const st=$('#cvStrat').value;$('#stratWrap').classList.
 function msg(t){const m=$('#chartMsg');m.style.display=t?'block':'none';m.innerHTML=t||''}
 async function drawChart(fit){
   const stk=STKSYM(cvSym);document.querySelectorAll('.stkOnly').forEach(x=>x.style.display=stk&&cvSym!=='MSTU'?'':'none');
-  Object.values(xs).forEach(s=>s.setData([]));cs.setMarkers([]);chart.applyOptions({leftPriceScale:{visible:false,borderColor:css('--line')}});
+  Object.values(xs).forEach(s=>s.setData([]));$('#muStat').style.display='none';cs.setMarkers([]);chart.applyOptions({leftPriceScale:{visible:false,borderColor:css('--line')}});
   if(BTCDSYM(cvSym)){msg('BTC.D（比特幣市佔率）還沒有資料：雲端環境的網路擋掉了資料來源。<br><span class="small">可以從 TradingView 匯出 CRYPTOCAP:BTC.D 日線 CSV 放到 D:\\binance_data，或在專案設定開放網路，我再加進來。</span>');cs.setData([]);vs.setData([]);fs.setData([]);Object.values(ind).forEach(s=>s.setData([]));cvBars=null;drawer1&&drawer1.reload();return}
   if(stk&&cvTf<86400&&!STKI(cvSym,cvTf)){cvTf=86400;$('#cvTf').value='86400';$('#cvTf').dispatchEvent(new Event('sync'))}
   const minute=cvTf<3600;$('#monthWrap').style.display=minute?'':'none';$('#rangeWrap').style.display=minute?'none':'';
@@ -1909,6 +1937,7 @@ async function drawChart(fit){
   if(cvSym==='MSTU'&&!cvIntra){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);if(k<B.T.length)cs.setMarkers([{time:B.T[k]+TZ,position:'aboveBar',shape:'arrowDown',color:'#f5a524',text:'上市（之前為模擬）'}])}
   if(stk&&cvSym!=='MSTU'){const S=STK.MSTR;
     if(cvSym==='MSTR_MSTU'){const U=STK.MSTU,z=U.sim,u0=U.c[z];xs.MSTU.setData(stkSeries(B,U.c.map((v,i)=>i>=z?v/u0:null),U.d));xs.MSTUS.setData(stkSeries(B,U.c.map((v,i)=>i<=z?v/u0:null),U.d));
+      xs.BTCI.setData(btcIdx(B));muStat();
       const k=lowerB(B.T,U.d[z]*86400);if(k<B.T.length&&!o.EVT)cs.setMarkers([{time:B.T[k]+TZ,position:'aboveBar',shape:'arrowDown',color:'#f5a524',text:'MSTU 上市＝1.0'}])}
     if(o.MNAV)xs.MNAV.setData(cvIntra?mnavIntra(B,S.mnav):stkSeries(B,S.mnav,S.d));if(o.MNAVEV)xs.MNAVEV.setData(cvIntra?mnavIntra(B,S.mnavEv):stkSeries(B,S.mnavEv,S.d));
     if(o.DEBT){xs.DEBT.setData(stkSeries(B,S.debt,S.d));xs.PREF.setData(stkSeries(B,S.pref,S.d))}
@@ -2053,7 +2082,7 @@ let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250)}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){return st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}
 function clearSim(){pcs&&pcs.setData([]);pcs&&pcs.setMarkers([]);eqs&&eqs.setData([]);bhs&&bhs.setData([]);$('#stats').innerHTML='';$('#tradeTable').innerHTML='';$('#levTable').innerHTML='';$('#legend').innerHTML=''}
-function runSim(){
+function runSim(){if(cmpLines.length)cmpClear();
   const st=$('#sStrat').value,sym=$('#sSym').value;  $('#busy').style.display='block';
   setTimeout(()=>{try{
     const[t0,t1]=period(),p=Object.assign({capital:+$('#sCap').value||1000},cur);
@@ -2114,6 +2143,20 @@ function lowerB(a,t){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m
 $('#levBtn').onclick=()=>{const st=$('#sStrat').value,sym=$('#sSym').value;$('#busy').style.display='block';
   setTimeout(()=>{const[t0,t1]=period(),rows=[];for(const L of (PL(st)?[1,3,5,10,15,20,25,30]:[1,2,3,4,5,6,7,8,10])){const p=Object.assign({capital:+$('#sCap').value||1000},cur,{lev:L});const r=simulate(st,sym,t0,t1,p);rows.push([L,r.final,r.mult,r.mdd,r.liq])}
     $('#levTable').innerHTML=`<h3>同一期間、不同槓桿（其他參數不變）</h3>${PL(st)?'<p class="small">每單風險固定，倉位大小由停損距離決定，所以槓桿上限開大到某個程度後結果就不會再變。</p>':''}<table><tr><th>槓桿</th><th>最終資金</th><th>倍數</th><th>最大回撤</th><th>爆倉</th></tr>${rows.map(([L,f,m,d,l])=>`<tr><td>${L} 倍</td><td>${fmt(f)}</td><td>${fmt(m,2)}</td><td>${pct(d)}</td><td>${l?'是':''}</td></tr>`).join('')}</table>`;$('#busy').style.display='none'},10)};
+// 策略對照：同一幣種、同一期間、同樣本金，其他策略用各自的最佳參數，權益曲線疊在下面那張圖；再按一次取消
+let cmpLines=[];const CMPC=['#4c8dff','#26a69a','#d63cff','#ef5350','#8bc34a','#ff8a65','#ba68c8'];
+function cmpClear(){cmpLines.forEach(l=>{try{eChart.removeSeries(l)}catch(e){}});cmpLines=[];$('#cmpBtn').textContent='疊加其他策略比較';$('#cmpBtn').classList.remove('on')}
+$('#cmpBtn').onclick=()=>{if(cmpLines.length){cmpClear();$('#levTable').innerHTML='';return}
+  const st=$('#sStrat').value,sym=$('#sSym').value;$('#busy').style.display='block';
+  setTimeout(()=>{try{const[t0,t1]=period(),cap=+$('#sCap').value||1000,rows=[];
+    const opts=[...$('#sStrat').options].filter(o=>o.value!==st&&BEST[o.value]&&BEST[o.value][sym]&&!(o.value==='knife'&&sym!=='ETH')&&!(o.value==='knifeB'&&sym!=='BTC'));
+    {const r=simulate(st,sym,t0,t1,Object.assign({capital:cap},cur));rows.push([$('#sStrat').selectedOptions[0].textContent+'（目前）',css('--acc'),r])}
+    opts.forEach((o,i)=>{try{const r=simulate(o.value,sym,t0,t1,Object.assign({capital:cap},BEST[o.value][sym]));const col=CMPC[i%CMPC.length];rows.push([o.textContent,col,r]);
+      const l=eChart.addLineSeries({color:col,lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});l.setData(r.eq.map(([t,v])=>({time:t+TZ,value:Math.max(v,1e-6)})));cmpLines.push(l)}catch(e){}});
+    rows.sort((a,b)=>b[2].mult-a[2].mult);
+    $('#levTable').innerHTML=`<h3>策略對照（${sym}，同期間、同本金，其他策略用預設最佳參數）</h3><table class="cmpt"><tr><th>策略</th><th>倍數</th><th>回撤</th><th>報酬÷回撤</th></tr>${rows.map(([n,c,r])=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${c};vertical-align:middle;margin-right:6px"></i>${n.replace(/^\d+\.\s*/,'')}</td><td class="${r.mult>=1?'pos':'neg'}">${r.liq?'爆倉':fmt(r.mult,2)}</td><td>${pct(r.mdd)}</td><td>${r.liq?'—':fmt((r.mult-1)/Math.max(r.mdd,0.05),2)}</td></tr>`).join('')}</table><p class="small">下面權益圖：金色＝目前策略，彩色細線＝其他策略。改參數或換策略會自動取消對照。</p>`;
+    $('#cmpBtn').textContent='取消策略對照';$('#cmpBtn').classList.add('on');
+  }finally{$('#busy').style.display='none'}},10)};
 // 一鍵最佳化：槓桿不動，挑前 4 個數字參數，各試 ×0.5～×1.5，隨機組 40 組＋目前參數；分批算不卡畫面。
 // 排名用「報酬÷最大回撤」（回撤至少算 5%），爆倉的不列；點「套用」把那組參數填回去重算
 $('#optBtn').onclick=()=>{const st=$('#sStrat').value,sym=$('#sSym').value,box=$('#levTable'),btn=$('#optBtn');if(btn.disabled)return;
@@ -2500,6 +2543,29 @@ function closeEv(){$('#evModal').classList.remove('on');document.body.style.over
 document.addEventListener('click',e=>{const r=e.target.closest('#evBox .ev,#calBox .cal');if(r&&r.dataset.i!=null){openEv(+r.dataset.i);return}if(e.target.closest('#evX'))closeEv()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#evModal').classList.contains('on'))closeEv()});
 window.__openEv=openEv;
+// 今日摘要：BTC／ETH 價格、恐懼貪婪、下一個事件、今日訊號（用今日訊號頁算過的結果）、模擬盤；點各格跳到對應的地方
+let paperSum=null,paperAt=0;
+async function loadPaperSum(){if(Date.now()-paperAt<5*60e3)return;try{const r=await fetch('https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/paper.json',{cache:'no-store'});if(r.ok){paperSum=await r.json();paperAt=Date.now()}}catch(e){}
+  if(!paperSum)try{paperSum=JSON.parse(localStorage.getItem('paper')||'null')}catch(e){}}
+function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x=>`<span class="${x>=0?'pos':'neg'}">${x>=0?'+':''}${(x*100).toFixed(1)}%</span>`;
+  for(const sym of ['BTC','ETH']){try{const H=Engine.load(sym),n=H.n,c=H.C[n-1],c24=H.C[Math.max(0,n-25)];T.push(`<div class="t" data-go="chart" data-sym="${sym}"><div class="k">${sym}</div><div class="v">${fmt(c,sym==='BTC'?0:1)}</div><div class="s">24 小時 ${pc(c/c24-1)}</div></div>`)}catch(e){}}
+  let fg=null;try{const d=JSON.parse(localStorage.getItem('fng')||'null');if(d&&d[0])fg=d}catch(e){}
+  if(fg){const v=+fg[0].value,k=FNG_ZH[fg[0].value_classification]||[fg[0].value_classification,fngCls(v)],y=fg[1]?+fg[1].value:null;T.push(`<div class="t" data-go="fng"><div class="k">恐懼貪婪 <span>›</span></div><div class="v fc${fngCls(v)}">${v} ${esc(k[0])}</div><div class="s">昨天 ${y==null?'—':y}</div></div>`)}
+  const ev=evList()[0];if(ev){const ms=ev.t-Date.now(),d=Math.floor(ms/86400e3),h=Math.floor(ms%86400e3/3600e3),mi=Math.floor(ms%3600e3/60e3),left=ms<=0?'進行中':d?`${d} 天 ${h} 小時`:h?`${h} 小時 ${mi} 分`:`${mi} 分`;
+    T.push(`<div class="t${ms<86400e3?' hot':''}" data-go="ev" data-i="${ev.i}"><div class="k">下一個事件 <span>›</span></div><div class="v">${left}</div><div class="s">${esc(ev.title)}</div></div>`)}
+  let sg=null;try{sg=JSON.parse(localStorage.getItem('sig')||'null')}catch(e){}
+  if(sg&&sg.res){let hold=0,hot=0;for(const st in sg.res)for(const sym in sg.res[st]){const x=sg.res[st][sym];if(!x)continue;if(/持倉中/.test(x.txt))hold++;if(x.hot)hot++}
+    T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個策略持倉中（24 小時內）</div></div>`)}
+  else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px">點這裡計算</div><div class="s">看 8 個策略現在持倉或空手</div></div>`);
+  if(paperSum){const P=paperSum,pos=(P.positions||[]).length,un=(P.positions||[]).reduce((a,p)=>a+(parseFloat(String(p.未實現佔權益||'').replace('%',''))||0),0),eq=+P.equity||1;
+    T.push(`<div class="t" data-go="paper"><div class="k">模擬盤 <span>›</span></div><div class="v">${pc(eq-1+un/100)}</div><div class="s">${pos?pos+' 筆持倉':'空手'}・已平倉 ${(P.closed||[]).length} 筆</div></div>`)}
+  if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
+  box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
+document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;
+  if(g==='fng'){window.FngHist&&FngHist.open()}else if(g==='ev'){openEv(+t.dataset.i)}
+  else if(g==='chart'){const s=document.querySelector('#cvSym');if(s&&s.value!==t.dataset.sym){s.value=t.dataset.sym;s.dispatchEvent(new Event('change'))}$('#nav_chart').click()}
+  else{const b=$('#nav_'+g);b&&b.click()}});
+setInterval(()=>{if($('#newsView').classList.contains('on'))renderSum()},60000);
 function renderNews(){const box=$('#newsBox');if(!box)return;
   const tags=['全部',...new Set(NEWS.map(n=>n.tag).filter(Boolean))];
   $('#newsChips').innerHTML=tags.map(t=>`<button class="${t===filter?'on':''}">${esc(t)}</button>`).join('');
@@ -2577,6 +2643,7 @@ async function loadFng(force){let d=null;
   renderFng(d)}
 let fngShown=0;{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();let f=0;if(!fngShown||Date.now()-fngAt>=FNG_EVERY){fngShown=1;f=loadFng()}return Promise.all([r,f])}}
 setInterval(()=>{if(Date.now()-fngAt>=FNG_EVERY)loadFng(1)},10*60*1000);
+{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();renderSum();loadPaperSum().then(renderSum);setTimeout(renderSum,2500);return r}}
 // 點恐懼貪婪卡片：打開歷史線圖（指數＋BTC 價格），完整歷史一天抓一次
 const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,rng=365;
   async function get(){if(all)return all;let d=null,at=0;
