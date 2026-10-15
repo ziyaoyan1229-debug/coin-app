@@ -1421,7 +1421,7 @@ N.createChart=function(el,opts){
   function lower(arr, t) { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] < t) lo = m + 1; else hi = m; } return lo; }
   function fmt(x) { return Math.round(x).toLocaleString('en-US'); }
 
-  root.Engine = { __clear: () => { for (const k in cache) delete cache[k]; }, COST, set5, setIgn, ign1h, __get5: s => F5S[s], __slideMed: slideMed, wyckoff, runMy, load, resample, atrPrev, rollMaxPrev, rollMinPrev, regimeFn, sideFn, runBreakout, runBox, runPoc, runTurtle, runRibbon, runDense, RIB, emaArr, pocPrev, boxes, H1, H4, D1 };
+  root.Engine = { __clear: () => { for (const k in cache) delete cache[k]; for (const k in IGN) delete IGN[k]; }, COST, set5, setIgn, ign1h, __get5: s => F5S[s], __slideMed: slideMed, wyckoff, runMy, load, resample, atrPrev, rollMaxPrev, rollMinPrev, regimeFn, sideFn, runBreakout, runBox, runPoc, runTurtle, runRibbon, runDense, RIB, emaArr, pocPrev, boxes, H1, H4, D1 };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -1891,7 +1891,8 @@ function daily(sym){
   for(let i=0;i<b.n;i++){const d=Math.floor(b.T[i]/DAY);if(d!==cur){cur=d;T.push(d*DAY);C.push(b.C[i])}else C[C.length-1]=b.C[i]}
   return{T,C}}
 const DD={};const D=s=>DD[s]||(DD[s]=daily(s));
-const ago=(d,n)=>d.C[Math.max(0,d.C.length-1-n)];
+// n 個日曆天前的收盤（股票週末沒資料，不能直接倒數 n 根）
+const ago=(d,n)=>{const t=d.T[d.T.length-1]-n*DAY;let i=d.T.length-1;while(i>0&&d.T[i]>t)i--;return d.C[i]};
 const smaLast=(C,n)=>{if(C.length<n)return NaN;let s=0;for(let i=C.length-n;i<C.length;i++)s+=C[i];return s/n};
 
 // ── 即時價格（Binance 公開行情；被擋就用歷史資料）──
@@ -1904,22 +1905,47 @@ async function fetchLive(){
 // ── 把內建資料之後到現在的 1 小時 K 補上（Binance 永續），之後每 30 秒更新最後一根 ──
 const BASE={};   // 內建資料原本的長度，每次都從這裡重新接
 async function syncBars(sym){const d=window.DATA&&DATA[sym];if(!d)return false;
-  if(!BASE[sym])BASE[sym]={n:d.n,arr:['dc','o','h','l','v'].map(k=>d[k].length)};
-  const n0=BASE[sym].n,start=d.t0+n0*3600,pair=sym+'USDT';
+  if(!BASE[sym]){let c=d.c0;for(let i=0;i<d.n;i++)c+=d.dc[i];BASE[sym]={n:d.n,c}}
+  // 第一次從內建資料尾端接；之後只重抓最後一根（還沒收完的那根）起的資料，不再每 30 秒重抓整段
+  const n0=BASE[sym].n,keep=Math.max(n0,d.n-1),start=d.t0+keep*3600,pair=sym+'USDT';
   let rows=[],from=start;
   for(let k=0;k<4;k++){const j=await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${pair}&interval=1h&startTime=${from*1000}&limit=1500`,
       `https://data-api.binance.vision/api/v3/klines?symbol=${pair}&interval=1h&startTime=${from*1000}&limit=1000`]);
     if(!j||!j.length)break;rows=rows.concat(j);if(j.length<1000)break;from=j[j.length-1][0]/1000+3600}
   if(!rows.length)return false;
-  const fr=await getJ([`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${pair}&startTime=${start*1000}&limit=1000`])||[];
-  // 先砍回內建長度再接新資料
-  ['dc','o','h','l','v'].forEach(k=>d[k].length=n0);for(const k in d.f)if(+k>=n0)delete d.f[k];
-  let c=d.c0;for(let i=0;i<n0;i++)c+=d.dc[i];
-  let n=n0;const sc=d.sc;
+  const fr=await getJ([`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${pair}&startTime=${(start-8*3600)*1000}&limit=1000`])||[];
+  // 砍回 keep 根再接新資料
+  ['dc','o','h','l','v'].forEach(k=>d[k].length=keep);for(const k in d.f)if(+k>=keep)delete d.f[k];
+  let c=BASE[sym].c;for(let i=n0;i<keep;i++)c+=d.dc[i];
+  let n=keep;const sc=d.sc;
   for(const r of rows){if(r[0]/1000!==d.t0+n*3600)break;
     const C=Math.round(+r[4]*sc);d.dc.push(C-c);c=C;d.o.push(Math.round(+r[1]*sc)-C);d.h.push(Math.round(+r[2]*sc)-C);d.l.push(Math.round(+r[3]*sc)-C);d.v.push(+r[5]);n++}
   for(const x of fr){const i=Math.round((Math.floor(x.fundingTime/3600000)*3600-d.t0)/3600);if(i>=n0&&i<n)d.f[i]=Math.round(+x.fundingRate*1e6)}
   d.n=n;return n>n0}
+// 策略 8 的「5 分點火」：內建 ign.js 只算到內建資料尾端，之後用 Binance 5 分 K 在前端補算（公式同引擎 ign1h）
+const K5={},IG0={};
+async function syncIgn(sym){const g=window.IGND&&IGND[sym],d=window.DATA&&DATA[sym];if(!g||!d||d.n<=(IG0[sym]?IG0[sym]:g.ms.length))return false;
+  if(!IG0[sym])IG0[sym]=g.ms.length;const i0=IG0[sym],pair=sym+'USDT',W=288;
+  let K=K5[sym];if(!K){K=K5[sym]={T:[],H:[],L:[],C:[],V:[]}}
+  // 第一次從點火資料尾端往前一天（暖機 288 根）開始抓；之後只重抓最後一根起
+  let from=K.T.length?K.T[K.T.length-1]:d.t0+i0*3600-(W+12)*300;
+  if(K.T.length)['T','H','L','C','V'].forEach(k=>K[k].length--);
+  for(let p=0;p<30;p++){const j=await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${pair}&interval=5m&startTime=${from*1000}&limit=1500`]);
+    if(!j||!j.length)break;for(const r of j){const t=r[0]/1000;if(K.T.length&&t<=K.T[K.T.length-1])continue;K.T.push(t);K.H.push(+r[2]);K.L.push(+r[3]);K.C.push(+r[4]);K.V.push(+r[5])}
+    if(j.length<1500)break;from=K.T[K.T.length-1]+300}
+  if(K.T.length<W+16)return false;
+  igCalc(g,d,i0,K);return true}
+function igCalc(g,d,i0,K){const W=288,[th,spTh]=g.th||[1.46,0.54],T5=K.T,C5=K.C,H5=K.H,L5=K.L,V5=K.V,m=C5.length;
+  const tr=new Float64Array(m);for(let x=1;x<m;x++)tr[x]=Math.max(H5[x]-L5[x],Math.abs(H5[x]-C5[x-1]),Math.abs(L5[x]-C5[x-1]));
+  const cs=new Float64Array(m+1);for(let x=0;x<m;x++)cs[x+1]=cs[x]+tr[x];
+  const med=E.__slideMed(V5,W);
+  g.ms.length=i0;for(const k in g.ev)if(+k>=i0)delete g.ev[k];
+  for(let i=i0;i<d.n;i++){const a=Math.round((d.t0+i*3600-T5[0])/300);if(a<W+4||a+12>m){g.ms.push(null);continue}
+    let best=-Infinity,hit=null;
+    for(let k=0;k<12;k++){const x=a+k,at=(cs[x]-cs[x-W])/W;if(!(at>0)||!(med[x]>0))continue;
+      const pa=(C5[x]-C5[x-1])/at,vr=V5[x]/med[x],sc=0.5*Math.log(Math.max(pa,0.01))+0.5*Math.log(Math.max(vr,0.01)),sp=(C5[x]-C5[x-3])/at/3;
+      if(sc>best)best=sc;if(!hit&&sc>=th&&sp>=spTh)hit=[k,C5[x]]}
+    g.ms.push(isFinite(best)?Math.round(best*100):null);if(hit)g.ev[i]=hit}}
 // MSTR／MSTU：幣安有股票永續合約（MSTRUSDT、MSTUUSDT），用日 K 收盤接在內建日資料後面（只接週一～週五，跟美股日曆一致）
 const SBASE={};
 async function syncStk(sym){const S=window.STK&&STK[sym];if(!S)return false;
@@ -1928,10 +1954,17 @@ async function syncStk(sym){const S=window.STK&&STK[sym];if(!S)return false;
   if(!j||!j.length)return false;
   for(const r of j){const d=Math.floor(r[0]/86400000),wd=new Date(d*86400000).getUTCDay();if(d<=last||wd===0||wd===6)continue;S.d.push(d);S.c.push(+(+r[4]).toFixed(2))}
   return S.d.length>n0}
+// 「至今」的期間跟著最新 K 棒走：內建資料只到 9/30，補上即時資料後要延伸，不然回測停在 10/1
+function updNowEnd(){const b=E.load('BTC');if(!b||!b.n)return;const end=ymd(b.T[b.n-1]+DAY);let rerun=false;
+  document.querySelectorAll('#sPeriod option,#cvRange option').forEach(o=>{if(!o.textContent.includes('至今'))return;const[a,e]=o.value.split('|');
+    if(e!==end){o.value=a+'|'+end;if(o.selected&&o.parentNode.id==='sPeriod')rerun=true}});
+  ['#sFrom','#sTo'].forEach(s=>{const x=$(s);if(x)x.max=end});
+  const pc=$('#priceChart');if(rerun&&pc&&pc.childElementCount)$('#sPeriod').dispatchEvent(new Event('change'))}  // 策略頁已開過才重算
 let syncing=false,lastSync=0;
 async function syncAll(){if(syncing)return;syncing=true;
   try{const ok=(await Promise.all(['BTC','ETH'].map(syncBars))).some(Boolean);
-    if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();
+    if(ok)await Promise.all(['BTC','ETH'].map(s=>syncIgn(s).catch(()=>false)));
+    if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();updNowEnd();
       const s=$('#cvSym').value;if((s==='BTC'||s==='ETH')&&window.__redraw)window.__redraw();
       const t=$('#liveTag');if(t)t.textContent='即時：Binance・'+new Date().toTimeString().slice(0,5)+' 更新'}
     const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
@@ -2071,7 +2104,9 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 // 寬螢幕預設展開策略說明
 if(matchMedia('(min-width:960px)').matches){const f=$('#expFold');if(f)f.open=true}
 // 自己架站時註冊 Service Worker（可離線、可加到主畫面）
-if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.host))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.host)){navigator.serviceWorker.register('sw.js').catch(()=>{});
+  // 新版 sw 接手時自動重新整理一次，不用等第二次開才看到新版
+  let had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)location.reload();had=true})}
 })();
 
 // 禁止雙指縮放整頁（Safari 不理會 user-scalable=no）；圖表自己的縮放走 touch 事件不受影響
