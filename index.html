@@ -368,9 +368,16 @@ details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
 </style>
 <style>
 /* ── HexStack 介面 E：預設（紫金）／深夜（純黑暖光）／白天（果凍感）。--accbg＝金色按鈕底、--on-acc＝金底上的字、--page＝頁面底、--navbg＝底部導覽底 ── */
-:root,:root[data-theme="dark"]{--bg:#111116;--panel:#18181f;--panel2:#1f1f27;--line:#2a2a33;--text:#ecebf1;--muted:#9a98a6;--acc:#f2c661;--acc2:#8a6ad8;--chip:#202029;
+:root,:root[data-theme="dark"]{--bg:#141418;--panel:#1a1a20;--panel2:#22222a;--line:#2c2c35;--text:#ecebf1;--muted:#a09eac;--acc:#f2c661;--acc2:#8a6ad8;--chip:#24242c;
   --up:#34d399;--down:#fb7185;--warn:#f5b84b;--good:#34d399;--accbg:#f2c661;--on-acc:#17140a;--r:16px;
-  --page:radial-gradient(130% 50% at 50% 0%,#1c1a24 0%,#131218 55%,#0e0e12 100%);--navbg:#0e0e12;--cardsh:none}
+  --page:radial-gradient(130% 60% at 50% 0%,#3a1d7a 0%,#24124f 50%,#170b36 100%);--navbg:#170b36;--cardsh:0 6px 18px rgba(10,4,30,.45)}
+/* 紫框灰心：外框（頂列、背景、底部導覽）紫色，要看的東西（K 線、數據卡片）深灰 */
+:root[data-theme="dark"] .topbar,:root:not([data-theme]) .topbar{background:color-mix(in srgb,#2a1460 85%,transparent);border-bottom-color:rgba(216,182,255,.14)}
+:root[data-theme="dark"] .iconbtn{background:rgba(255,255,255,.08);border-color:rgba(216,182,255,.2)}
+:root[data-theme="dark"] .chartcard,:root[data-theme="dark"] .simcard{border-color:rgba(216,182,255,.16);box-shadow:0 10px 26px rgba(10,4,30,.5)}
+:root[data-theme="dark"] .coin{background:var(--panel);border-color:rgba(216,182,255,.12)}
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .scard,:root[data-theme="dark"] #left .ctl,:root[data-theme="dark"] details.fold,:root[data-theme="dark"] .sgc{background:var(--panel);border-color:rgba(216,182,255,.12)}
+:root[data-theme="dark"] .sect h2,:root[data-theme="dark"] #sList .hd{color:#cbbcf0}
 :root[data-theme="night"]{--bg:#0b0a08;--panel:#0d0c0a;--panel2:#15130f;--line:#24201a;--text:#e6d9bf;--muted:#8f826b;--acc:#c99a45;--acc2:#7a6a9e;--chip:#17140f;
   --up:#3f9e7c;--down:#c25a66;--warn:#c99a45;--good:#3f9e7c;--accbg:#c99a45;--on-acc:#000;
   --page:#000;--navbg:#000;--cardsh:none}
