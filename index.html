@@ -433,22 +433,6 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .wfade{width:9%}
 .wfade.l{background:linear-gradient(90deg,var(--navbg) 10%,transparent)}.wfade.r{background:linear-gradient(270deg,var(--navbg) 10%,transparent)}
 }
-/* 底部圓形轉盤（手機）：一個大圓盤從底部露出上緣，選單沿著圓弧排，滑動就是轉盤子，正上方那格是目前分頁 */
-@media (max-width:959px){
-:root{--nav-h:78px}
-.bnav.wheel,.bnav.wheel::after{background:transparent!important}
-.bnav.wheel button{justify-content:flex-start;padding-top:13px;transform:none;transform-origin:50% 50%;transition:color .15s,opacity .12s ease-out}
-.bnav.wheel button.on::before{display:none}
-.wfade{display:none!important}
-.wdial{position:fixed;left:50%;z-index:29;pointer-events:none;border-radius:50%;
-  background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--acc2) 14%,var(--navbg)) 0%,var(--navbg) 22%);
-  box-shadow:0 -8px 24px rgba(0,0,0,.18),inset 0 2px 0 color-mix(in srgb,#fff 18%,transparent),0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent)}
-.wdial i{position:absolute;inset:4px;border-radius:50%;
-  background:repeating-conic-gradient(from var(--rot,0deg),color-mix(in srgb,var(--muted) 55%,transparent) 0 .25deg,transparent .25deg var(--step,1deg));
-  -webkit-mask:radial-gradient(circle closest-side,transparent calc(100% - 7px),#000 calc(100% - 7px));mask:radial-gradient(circle closest-side,transparent calc(100% - 7px),#000 calc(100% - 7px))}
-.wdial b{position:absolute;left:50%;top:-1px;width:30px;height:4px;margin-left:-15px;border-radius:0 0 4px 4px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
-body.ddopen .wdial{display:none}
-}
 @media (min-width:960px){.bnav::after{display:none}.bnav button.on{color:var(--acc)}.bnav button.on::before{background:var(--acc);box-shadow:0 0 10px var(--acc)}}
 /* 切換模式時的小提示 */
 #themeToast{position:fixed;left:50%;top:calc(var(--top-h) + var(--safe-t) + 10px);transform:translateX(-50%);z-index:60;padding:6px 14px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-size:13px;font-weight:700;opacity:0;pointer-events:none}
@@ -2969,13 +2953,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
   const all=[...pre,...orig,...post],M=new Map(),D=new Map();let W=1;
   const measure=()=>{all.forEach(b=>M.set(b,b.offsetLeft+b.offsetWidth/2));W=orig[0].offsetWidth||1};
   const mid=b=>M.get(b),setW=()=>W*N,ctr=()=>nav.scrollLeft+nav.clientWidth/2;
-  // 圓盤：半徑 RD，頂端貼著選單上緣；每格按鈕依離中心的距離 x 放到圓弧上（往下掉、跟著轉角度）
-  const dial=document.body.appendChild(Object.assign(document.createElement('div'),{className:'wdial',innerHTML:'<i></i><b></b>'}));let RD=400;
-  const place=()=>{const r=nav.getBoundingClientRect();RD=Math.max(360,innerWidth*1.05);Object.assign(dial.style,{width:2*RD+'px',height:2*RD+'px',marginLeft:-RD+'px',top:r.top+'px'});dial.style.setProperty('--step',(W/4/RD*180/Math.PI)+'deg')};
-  const look=()=>{const c=ctr();dial.style.setProperty('--rot',(-(nav.scrollLeft%W)/RD*180/Math.PI)+'deg');
-    all.forEach(b=>{const x=mid(b)-c,ax=Math.min(Math.abs(x),RD*.9),k=Math.round(x*2)/2;if(D.get(b)===k)return;D.set(b,k);
-      const dy=RD-Math.sqrt(RD*RD-ax*ax),deg=Math.asin(ax/RD)*180/Math.PI*Math.sign(x),d=Math.min(2.2,Math.abs(x)/W);
-      b.style.transform=`translateY(${dy.toFixed(1)}px) rotate(${deg.toFixed(2)}deg) scale(${(1.06-d*.12).toFixed(3)})`;b.style.opacity=(1-d*.3).toFixed(3)})};
+  const look=()=>{const c=ctr();all.forEach(b=>{const d=Math.round(Math.min(2,Math.abs(mid(b)-c)/W)*50)/50;if(D.get(b)!==d){D.set(b,d);b.style.setProperty('--d',d)}})};
   const near=()=>{const c=ctr();let best=all[0];all.forEach(b=>{if(Math.abs(mid(b)-c)<Math.abs(mid(best)-c))best=b});return best};
   const center=(b,sm)=>nav.scrollTo({left:mid(b)-nav.clientWidth/2,behavior:sm?'smooth':'auto'});
   const target=b=>b.dataset.for?document.getElementById(b.dataset.for):b;
@@ -2993,7 +2971,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
   if('onscrollend' in window)nav.addEventListener('scrollend',()=>later(30));
   nav.addEventListener('touchstart',()=>{down=true;clearTimeout(t)},{passive:true});
   nav.addEventListener('touchend',()=>{down=false;later(220)},{passive:true});nav.addEventListener('touchcancel',()=>{down=false;later(220)},{passive:true});
-  const init=()=>{measure();place();const b=nav.querySelector('button.on[id]')||orig[0];center(b,false);look()};init();addEventListener('resize',init);setTimeout(init,300);
+  const init=()=>{measure();const b=nav.querySelector('button.on[id]')||orig[0];center(b,false);look()};init();addEventListener('resize',init);setTimeout(init,300);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(init)})();
 // 手機上的下拉：Safari 會把可拖曳(draggable)的項目當成拖曳開始，點了沒反應。
 // 觸控裝置一律關掉拖曳排序，並用 touchend 直接判定「點一下」來選取，不依賴 click。
