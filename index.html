@@ -396,10 +396,10 @@ details.sdet h3{margin:12px 0 8px;font-size:13px;color:var(--muted)}
 :root[data-theme="night"]{--bg:#0b0a08;--panel:#0d0c0a;--panel2:#15130f;--line:#24201a;--text:#e6d9bf;--muted:#8f826b;--acc:#c99a45;--acc2:#7a6a9e;--chip:#17140f;
   --up:#3f9e7c;--down:#c25a66;--warn:#c99a45;--good:#3f9e7c;--accbg:#c99a45;--on-acc:#000;
   --page:#000;--navbg:#000;--cardsh:none}
-:root[data-theme="light"]{--bg:#ffffff;--panel:#ffffff;--panel2:#f4f3f7;--line:#e8e6ee;--text:#1e1b2b;--muted:#6a6779;--acc:#a8740c;--acc2:#6a4bc4;--chip:#f1eff5;
+:root[data-theme="light"]{--bg:#eceaf0;--panel:#f4f3f7;--panel2:#e5e3eb;--line:#d5d2dd;--text:#1a1726;--muted:#5d5a6c;--acc:#a8740c;--acc2:#6a4bc4;--chip:#e2dfe8;
   --up:#0f9f6e;--down:#e0445a;--warn:#c8921a;--good:#0f9f6e;--accbg:linear-gradient(160deg,#ffe08a,#e0aa38);--on-acc:#2a1a05;--r:20px;
-  --page:radial-gradient(260px 260px at 8% 4%,rgba(214,206,240,.35),transparent 70%),radial-gradient(240px 240px at 100% 22%,rgba(255,226,176,.4),transparent 70%),radial-gradient(130% 55% at 50% 0%,#ffffff 0%,#f7f6f9 50%,#f0eef3 100%);--navbg:#f0eef3;
-  --cardsh:0 8px 20px rgba(40,30,70,.08),inset 0 1px 0 #fff}
+  --page:radial-gradient(260px 260px at 8% 4%,rgba(190,180,225,.35),transparent 70%),radial-gradient(240px 240px at 100% 22%,rgba(240,205,150,.35),transparent 70%),radial-gradient(130% 55% at 50% 0%,#eceaf0 0%,#e4e2e9 50%,#dcd9e2 100%);--navbg:#dedbe4;
+  --cardsh:0 8px 20px rgba(40,30,70,.1),inset 0 1px 0 rgba(255,255,255,.6)}
 html,html[data-theme]{background:var(--navbg)}
 body,body[class]{background:var(--page);background-attachment:fixed}
 .view{background:transparent}
@@ -439,18 +439,18 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #themeToast.on{animation:tToast 1.4s ease-out}
 @keyframes tToast{0%{opacity:0;transform:translate(-50%,-6px)}15%,70%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 /* ── 白天：果凍感（光澤、柔陰影、按下回彈），K 線區只加立體邊框 ── */
-:root[data-theme="light"] .card,:root[data-theme="light"] .scard,:root[data-theme="light"] #left .ctl,:root[data-theme="light"] details.fold,:root[data-theme="light"] .sgc,:root[data-theme="light"] .stat{border-color:rgba(255,255,255,.95);background:rgba(255,255,255,.78)}
-:root[data-theme="light"] .coin{border-radius:18px;border-color:rgba(255,255,255,.95);background:rgba(255,255,255,.72);box-shadow:var(--cardsh)}
+:root[data-theme="light"] .card,:root[data-theme="light"] .scard,:root[data-theme="light"] #left .ctl,:root[data-theme="light"] details.fold,:root[data-theme="light"] .sgc,:root[data-theme="light"] .stat{border-color:rgba(255,255,255,.55);background:rgba(246,245,249,.6)}
+:root[data-theme="light"] .coin{border-radius:18px;border-color:rgba(255,255,255,.55);background:rgba(246,245,249,.55);box-shadow:var(--cardsh)}
 :root[data-theme="light"] .coin.on{border-color:#e0aa38;background:#fff6dc;box-shadow:0 8px 18px rgba(200,146,26,.22),inset 0 -3px 6px rgba(200,146,26,.12)}
-:root[data-theme="light"] .chartcard,:root[data-theme="light"] .simcard{border:4px solid rgba(255,255,255,.85);outline:1px solid rgba(40,30,70,.1);border-radius:24px;
+:root[data-theme="light"] .chartcard,:root[data-theme="light"] .simcard{border:4px solid rgba(255,255,255,.5);outline:1px solid rgba(40,30,70,.1);border-radius:24px;
   box-shadow:0 14px 30px rgba(40,30,70,.14),0 3px 6px rgba(40,30,70,.08),inset 0 2px 0 #fff,inset 0 -6px 12px rgba(40,30,70,.05)}
 :root[data-theme="light"] .seg{border-radius:999px;background:rgba(40,30,70,.06);border-color:transparent}
 :root[data-theme="light"] .seg button{border-radius:999px}
 :root[data-theme="light"] .seg button.on,:root[data-theme="light"] .chips button.on,:root[data-theme="light"] .btn:not(.ghost),:root[data-theme="light"] .gbtn{box-shadow:0 5px 12px rgba(200,146,26,.35),inset 0 -2px 4px rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.55)}
-:root[data-theme="light"] .ddbtn,:root[data-theme="light"] .chips button{border-radius:999px;background:rgba(255,255,255,.75);border-color:rgba(255,255,255,.95);box-shadow:0 4px 10px rgba(40,30,70,.08),inset 0 1px 0 #fff}
+:root[data-theme="light"] .ddbtn,:root[data-theme="light"] .chips button{border-radius:999px;background:rgba(246,245,249,.6);border-color:rgba(255,255,255,.55);box-shadow:0 4px 10px rgba(40,30,70,.08),inset 0 1px 0 #fff}
 :root[data-theme="light"] .coin,:root[data-theme="light"] .scard,:root[data-theme="light"] .sgc,:root[data-theme="light"] .seg button,:root[data-theme="light"] .chips button,:root[data-theme="light"] .ddbtn,:root[data-theme="light"] .btn,:root[data-theme="light"] .gbtn,:root[data-theme="light"] .iconbtn{transition:transform .45s cubic-bezier(.3,1.9,.45,1)}
 :root[data-theme="light"] .coin:active,:root[data-theme="light"] .scard:active,:root[data-theme="light"] .sgc:active,:root[data-theme="light"] .seg button:active,:root[data-theme="light"] .chips button:active,:root[data-theme="light"] .ddbtn:active,:root[data-theme="light"] .btn:active,:root[data-theme="light"] .gbtn:active,:root[data-theme="light"] .iconbtn:active{transform:scale(.93,.97);transition:transform .1s ease-out}
-:root[data-theme="light"] .iconbtn{border-radius:12px;background:rgba(255,255,255,.8);border-color:rgba(255,255,255,.95);box-shadow:0 4px 10px rgba(40,30,70,.08),inset 0 1px 0 #fff}
+:root[data-theme="light"] .iconbtn{border-radius:12px;background:rgba(246,245,249,.6);border-color:rgba(255,255,255,.55);box-shadow:0 4px 10px rgba(40,30,70,.08),inset 0 1px 0 #fff}
 #setView{flex-direction:column}
 .pst{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}.pst div,.pmo div{background:var(--panel2);border-radius:10px;padding:6px 8px;text-align:center}
 .pst span,.pmo span{display:block;font-size:11px;color:var(--muted)}.pst b{font-size:15px;font-family:ui-monospace,"SF Mono",Menlo,monospace}
