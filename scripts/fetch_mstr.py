@@ -135,7 +135,13 @@ def main():
     prev = load(PATH, {})
     if not FORCE and time.time() - prev.get('fetched', 0) < 6 * 3600:
         print('mstr.json 6 小時內抓過，跳過'); return
-    sub = get(f'https://data.sec.gov/submissions/CIK{CIK.zfill(10)}.json')['filings']['recent']
+    try:
+        sub = get(f'https://data.sec.gov/submissions/CIK{CIK.zfill(10)}.json')['filings']['recent']
+    except Exception as e:
+        if getattr(e, 'code', 0) == 403:
+            print('SEC 拒絕（403）：SEC 要求 User-Agent 帶聯絡信箱，請在 repo secrets 設 SEC_UA，例如「HexStack 你的信箱」。這次沿用上一版 mstr.json')
+            return
+        raise
     parsed = prev.get('parsed', {})
     n_new = 0
     for k in range(len(sub['form'])):

@@ -204,6 +204,7 @@ details.fold>.in{padding:0 14px 12px}
 #fngModal .x{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px}
 #fngModal .seg{margin-bottom:8px}
 #fngLeg{font-size:12.5px;color:var(--muted);min-height:18px;margin-bottom:4px;font-variant-numeric:tabular-nums}#fngLeg b{color:var(--text)}
+#fngModal .fnghint{font-size:11.5px;color:var(--muted);margin:2px 2px 6px;line-height:1.5}
 #fngChart{flex:1;min-height:240px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 #fngStat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
 #fngStat div{background:var(--panel2);border-radius:8px;padding:6px 4px;text-align:center;font-size:11.5px;color:var(--muted)}#fngStat b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
@@ -312,6 +313,7 @@ body.ddopen #ddMask{display:block}
 #chartView .toolbar .ddbtn{height:40px;padding:0 11px;font-size:14px;border-radius:10px}
 #indDD{order:1}#rangeWrap,#monthWrap,#stratWrap{order:2}
 #chartView .toolbar .pen{order:3;margin-left:auto;width:44px;padding:0;font-size:17px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}#chartView .toolbar .pen.on{color:var(--on-acc)}
+#cvQuick{order:2;display:inline-flex;gap:6px}#cvTools [data-act=auto],#cvTools [data-tool=del]{display:none!important}
 #cvTools{order:4;flex:1 0 100%!important;display:flex;overflow-x:auto;gap:6px;scrollbar-width:none}
 #cvTools::-webkit-scrollbar{display:none}
 .chartcard:not(.tools) #cvTools{display:none!important}
@@ -539,10 +541,10 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
         <label><input type="checkbox" data-ind="FUND"> 資金費率</label>
         <label><input type="checkbox" data-ind="FIB"> 斐波那契（依畫面高低點）</label>
         <label><input type="checkbox" data-ind="LOG"> 對數座標</label>
-        <label class="stkOnly"><input type="checkbox" data-ind="MNAVEV"> 新 mNAV（EV：含債與優先股）</label>
+        <label class="stkOnly"><input type="checkbox" data-ind="MNAVEV" checked> 新 mNAV（EV：含債與優先股）</label>
         <label class="stkOnly"><input type="checkbox" data-ind="DEBT"> 可轉債／優先股餘額</label>
         <label class="stkOnly"><input type="checkbox" data-ind="SHARES"> 普通股股數</label>
-        <label class="stkOnly"><input type="checkbox" data-ind="EVT"> 可轉債／增發事件</label>
+        <label class="stkOnly"><input type="checkbox" data-ind="EVT" checked> 可轉債／增發事件</label>
       </div></div>
     <label id="rangeWrap"><select id="cvRange">
       <option value="">區間</option>
@@ -553,6 +555,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
       <option value="2025-10-07|2026-06-30">2025-10 → 2026-06 熊市</option>
       <option value="2026-06-30|2026-10-01">2026-06 → 至今 牛市</option></select></label>
     <label id="stratWrap"><select id="cvStrat"><option value="">策略買賣點</option><option value="brk">1. 4h 帶量突破</option><option value="box">2. 箱體飛刀</option><option value="poc">3. POC 帶量突破堆倉</option><option value="dense">4. 均線密集</option><option value="tur">5. 海龜交易法</option><option value="knife">6. ETH 日線飛刀＋海龜</option><option value="knifeB">7. BTC 日線飛刀＋量價</option><option value="my">8. 我的系統</option></select></label>
+    <span id="cvQuick"><button class="ddbtn" type="button" data-q="auto" title="恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" type="button" data-q="del" title="刪除選取的線（先點一下線）" disabled>✕ 刪除</button></span>
     <label id="monthWrap" style="display:none">月份 <select id="cvMonth"></select></label>
     <span class="tools" id="cvTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span>
     <span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span>
@@ -706,9 +709,11 @@ N.createChart=function(el,opts){
     const fix=o=>{if(o&&o.scaleMargins)o=Object.assign({},o,{scaleMargins:{top:.08,bottom:.06}});return o};
     return{applyOptions:o=>{try{api&&api.applyOptions(fix(o))}catch(e){}},options:()=>api?api.options():{},width:()=>api?api.width():0}};
   // 圖在隱藏的頁面（寬度 0）時設可見範圍，會被算成最小 K 棒間距、一打開就擠成一坨：先記下最後一次的設定，等真的有寬度再套一次
-  const tsa=c.timeScale();let pend=null,w0=el.clientWidth;
-  for(const k of ['setVisibleRange','setVisibleLogicalRange','fitContent']){const f=tsa[k].bind(tsa);tsa[k]=(...a)=>{pend=el.clientWidth?null:[f,a];return f(...a)}}
-  if(window.ResizeObserver)new ResizeObserver(()=>{const w=el.clientWidth;if(w&&!w0&&pend){const[f,a]=pend;pend=null;requestAnimationFrame(()=>{try{f(...a)}catch(e){}})}w0=w}).observe(el);
+  // 判斷用圖表自己量到的寬度：容器剛顯示時 clientWidth 已經有了，但圖表內部還是 0，這時設的也會擠成一坨
+  const tsa=c.timeScale(),iw=()=>{try{return tsa.width()}catch(e){return el.clientWidth}};let pend=null;
+  for(const k of ['setVisibleRange','setVisibleLogicalRange','fitContent']){const f=tsa[k].bind(tsa);tsa[k]=(...a)=>{pend=iw()>20&&el.clientWidth?null:[f,a];return f(...a)}}
+  const replay=()=>{if(!pend||!el.clientWidth)return;if(iw()<=20){requestAnimationFrame(replay);return}const[f,a]=pend;pend=null;try{f(...a)}catch(e){}};
+  if(window.ResizeObserver)new ResizeObserver(()=>requestAnimationFrame(()=>requestAnimationFrame(replay))).observe(el);
   return c};
 })();
 </script>
@@ -1824,7 +1829,7 @@ function stkHourBars(rows,tf){const o={T:[],O:[],H:[],L:[],C:[],V:[],F:[]};let d
     if(tf===3600||k%4===0){o.T.push(t);o.O.push(op);o.H.push(hi);o.L.push(lo);o.C.push(cl);o.V.push(vo);o.F.push(0)}
     else{const j=o.T.length-1;o.H[j]=Math.max(o.H[j],hi);o.L[j]=Math.min(o.L[j],lo);o.C[j]=cl;o.V[j]+=vo}}
   return o}
-const symName=s=>cvIntra&&s===cvSym?s+'（美股盤中）':({BTC:'BTCUSDT',ETH:'ETHUSDT',MSTR:'MSTR（收盤價）',MSTU:'MSTU（收盤價）',MSTR_MSTU:'MSTR＋MSTU（指數，MSTU 上市日＝1）'})[s]||s;
+const symName=s=>cvIntra&&s===cvSym?s+'（美股盤中）':({BTC:'BTCUSDT',ETH:'ETHUSDT',MSTR:'MSTR（收盤價）',MSTU:'MSTU（收盤價）',MSTR_MSTU:'MSTR＋MSTU（指數，畫面最左邊＝1）'})[s]||s;
 // 股票只有每日收盤價：開＝前一天收，高低＝開收較大／較小。週線從週一開始
 function stockBars(sym,tf){const S=window.STK[sym],n=S.d.length,o={T:[],O:[],H:[],L:[],C:[],V:[],F:[],k:[]};let cur=-1,prev=null;
   for(let i=0;i<n;i++){const c=S.c[i];if(c==null)continue;const t=S.d[i]*86400,op=prev==null?c:prev;prev=c;
@@ -1835,7 +1840,7 @@ function stockBars(sym,tf){const S=window.STK[sym],n=S.d.length,o={T:[],O:[],H:[
 // 對齊到 K 棒：取每根 K 最後一天的值
 // BTC 指數：每天 UTC 收盤，跟 K 棒同一天對齊，MSTU 上市日＝1
 function btcIdx(B){let D;try{D=Engine.resample('BTC',86400)}catch(e){return[]}const m=new Map();D.T.forEach((t,i)=>m.set(t,D.C[i]));
-  const U=STK.MSTU,b0=m.get(U.d[U.sim]*86400);if(!b0)return[];const out=[];
+  const D0=[...m.keys()].map(t=>t/86400),b0=atDay(D0,[...m.values()],muBase());if(!b0)return[];const out=[];
   for(let k=0;k<B.T.length;k++){const end=k+1<B.T.length?B.T[k+1]:B.T[k]+86400;let v=null;for(let t=B.T[k];t<end&&t<B.T[k]+8*86400;t+=86400)if(m.has(t))v=m.get(t);if(v!=null)out.push({time:B.T[k]+TZ,value:v/b0})}return out}
 // MSTU 槓桿耗損：看得到的區間（從 MSTU 上市後開始）裡，MSTR、MSTU 實際報酬 vs「2 倍 MSTR」理論
 function muStat(){const el=$('#muStat');if(!el||cvSym!=='MSTR_MSTU'||cvIntra||!cvBars){if(el)el.style.display='none';return}
@@ -1849,7 +1854,13 @@ function muStat(){const el=$('#muStat');if(!el||cvSym!=='MSTR_MSTU'||cvIntra||!c
   el.innerHTML=`<div class="mh">${ds(I[0][0])}～${ds(I.at(-1)[0])}（拖動或縮放圖表會重算）</div><div class="mr"><span>MSTR ${pc(R)}</span><span>MSTU 實際 ${pc(Ur)}</span><span>單純 2 倍 ${pc(simple)}</span><span>每日 2 倍理論 ${pc(th-1)}</span><span title="每日重新平衡造成的損耗＝每日 2 倍理論 ÷ 單純 2 倍">波動耗損 ${pc(dec)}</span><span title="費用、借貸成本與追蹤誤差＝實際 ÷ 每日 2 倍理論">費用與追蹤誤差 ${pc(trk)}</span></div>`;
   el.style.display=''}
 {let t=0;const hook=()=>{if(!chart)return setTimeout(hook,500);chart.timeScale().subscribeVisibleLogicalRangeChange(()=>{clearTimeout(t);t=setTimeout(muStat,150)})};setTimeout(hook,1000)}
-function idxBars(B){const S=STK.MSTR,U=STK.MSTU,k=S.d.indexOf(U.d[U.sim]),b=k<0?1:S.c[k],f=x=>x/b;
+// MSTR＋MSTU 三條線的基準日：預設 MSTU 上市日；拖動／縮放停下來後改成畫面最左邊那天＝1，重畫（muRebase）
+let MUB=null;const muBase=()=>MUB??STK.MSTU.d[STK.MSTU.sim];
+const atDay=(D,V,d)=>{let k=-1;for(let i=0;i<D.length&&D[i]<=d;i++)if(V[i]!=null)k=i;if(k<0)k=V.findIndex(v=>v!=null);return V[k]};   // d 當天以前最後一個值
+function muRebase(){if(cvSym!=='MSTR_MSTU'||cvIntra||!cvBars)return;let d;try{const r=chart.timeScale().getVisibleRange();if(!r)return;d=Math.floor((r.from-TZ)/86400)}catch(e){return}
+  const S=STK.MSTR;d=Math.max(d,S.d[0]);if(d===MUB)return;MUB=d;window.__redraw&&window.__redraw(false)}
+{let t=0;const hook=()=>{if(!chart)return setTimeout(hook,500);chart.timeScale().subscribeVisibleLogicalRangeChange(()=>{clearTimeout(t);t=setTimeout(muRebase,250)})};setTimeout(hook,1000)}
+function idxBars(B){const S=STK.MSTR,b=atDay(S.d,S.c,muBase())||1,f=x=>x/b;
   return Object.assign({},B,{O:B.O.map(f),H:B.H.map(f),L:B.L.map(f),C:B.C.map(f)})}
 function stkSeries(B,arr,dates){const m=new Map();dates.forEach((d,i)=>m.set(d*86400,arr[i]));const out=[];
   for(let k=0;k<B.T.length;k++){const end=k+1<B.T.length?B.T[k+1]:Infinity;let v=null;for(let t=B.T[k];t<end&&t<B.T[k]+8*86400;t+=86400){if(m.has(t)&&m.get(t)!=null)v=m.get(t)}if(v!=null)out.push({time:B.T[k]+TZ,value:v})}return out}
@@ -1908,7 +1919,7 @@ function legendVals(p){const o=IND(),v=(s)=>{if(!p)return null;const x=p.seriesD
   R.FIB=()=>'<span>斐波那契：依畫面最高、最低點自動畫</span>';
   if(stk&&cvSym!=='MSTU'){R.MNAV=()=>one(cvIntra?'mNAV（盤中估算）':'mNAV','#a371f7',v(xs.MNAV),2);R.MNAVEV=()=>one(cvIntra?'新 mNAV（EV，盤中估算）':'新 mNAV（EV）','#d63cff',v(xs.MNAVEV),2);
     R.DEBT=()=>`<span><i style="background:#ef5350"></i>可轉債 <b>${v(xs.DEBT)==null?'—':'$'+fmt(v(xs.DEBT),2)+'B'}</b>　<i style="background:#f2a0a0"></i>優先股 <b>${v(xs.PREF)==null?'—':'$'+fmt(v(xs.PREF),2)+'B'}</b></span>`;
-    R.SHARES=()=>one('普通股（百萬股）','#26a69a',v(xs.SHARES),1);R.EVT=()=>'<span>● 紫＝可轉債發行／回購　● 橘＝普通股增發（ATM）</span>'}
+    R.SHARES=()=>one('普通股（百萬股）','#26a69a',v(xs.SHARES),1);R.EVT=()=>'<span>● 紫＝可轉債發行／回購　● 橘＝普通股增發（ATM）　● 藍＝優先股發行</span>'}
   const items=[];if(cvSym==='MSTR_MSTU'){const a=v(xs.MSTU),b=v(xs.MSTUS);items.push(one(a==null&&b!=null?'MSTU 指數（上市前模擬，虛線）':'MSTU 指數','#f5a524',a==null?b:a,3));items.push(one('BTC 指數','#9aa3b2',v(xs.BTCI),3))}
   document.querySelectorAll('#indPanel [data-ind]').forEach(x=>{const k=x.dataset.ind;if(x.checked&&R[k]){const h=R[k]();if(h)items.push(h)}});
   $('#indLegend').innerHTML=items.join('')||''}
@@ -1916,6 +1927,12 @@ function showOhlc(d,p){if(!d){const n=cvBars&&cvBars.T.length;if(!n)return;const
   const ch_=d.close/d.open-1;$('#ohlc').innerHTML=`${STKSYM(cvSym)&&!cvIntra?tw(p.time-TZ).slice(0,10)+(cvSym==='MSTU'&&p.time-TZ<STK.MSTU.d[STK.MSTU.sim]*86400?'（上市前模擬：2×MSTR－費用）':cvSym==='MSTR_MSTU'?'（MSTR 指數）':'（收盤價合成 K 棒）'):tw(p.time-TZ)}　開 ${fmt(d.open,cvSym==='MSTR_MSTU'?3:1)}　高 ${fmt(d.high,cvSym==='MSTR_MSTU'?3:1)}　低 ${fmt(d.low,cvSym==='MSTR_MSTU'?3:1)}　收 <b class="${ch_>=0?'pos':'neg'}">${fmt(d.close,cvSym==='MSTR_MSTU'?3:1)}</b>　${(ch_*100).toFixed(2)}%`;legendVals(p)}
 // K 線上標策略買賣點：用「今日訊號」同一套預設參數回測最近兩年，把進出場標在目前的週期上
 const SOC={};
+// 策略買賣點旁的「自動縮放」「刪除」：直接按繪圖工具列裡的同一顆，刪除跟著它能不能按
+(function(){const q=document.getElementById('cvQuick'),T=document.getElementById('cvTools');if(!q||!T)return;
+  const src=k=>T.querySelector(k==='auto'?'[data-act=auto]':'[data-tool=del]');
+  q.querySelectorAll('button').forEach(b=>b.onclick=()=>{const o=src(b.dataset.q);o&&o.click()});
+  const sync=()=>{const o=src('del');q.querySelector('[data-q=del]').disabled=!o||o.disabled};
+  new MutationObserver(sync).observe(T,{subtree:true,attributes:true,attributeFilter:['disabled']});sync()})();
 function stratOnChart(B){const st=$('#cvStrat').value;$('#stratWrap').classList.toggle('on',!!st);if(!st)return;
   if(STKSYM(cvSym)||!(BEST[st]&&BEST[st][cvSym])||(st==='knife'&&cvSym!=='ETH')||(st==='knifeB'&&cvSym!=='BTC')){msg(`這個策略沒有 ${cvSym} 的設定，只能看 ${st==='knife'?'ETH':st==='knifeB'?'BTC':'BTC／ETH'}。`);setTimeout(()=>msg(''),2500);return}
   const H=E.load(cvSym),t1=H.T[H.n-1]+3600,key=st+cvSym+t1;
@@ -1959,13 +1976,13 @@ async function drawChart(fit){
   chart.priceScale('right').applyOptions(Object.assign({mode:o.LOG?1:0,autoScale:true},mg));chart.priceScale('left').applyOptions(Object.assign({autoScale:true},mg));
   if(cvSym==='MSTU'&&!cvIntra){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);if(k<B.T.length)cs.setMarkers([{time:B.T[k]+TZ,position:'aboveBar',shape:'arrowDown',color:'#f5a524',text:'上市（之前為模擬）'}])}
   if(stk&&cvSym!=='MSTU'){const S=STK.MSTR;
-    if(cvSym==='MSTR_MSTU'){const U=STK.MSTU,z=U.sim,u0=U.c[z];xs.MSTU.setData(stkSeries(B,U.c.map((v,i)=>i>=z?v/u0:null),U.d));xs.MSTUS.setData(stkSeries(B,U.c.map((v,i)=>i<=z?v/u0:null),U.d));
+    if(cvSym==='MSTR_MSTU'){const U=STK.MSTU,z=U.sim,u0=atDay(U.d,U.c,muBase());xs.MSTU.setData(stkSeries(B,U.c.map((v,i)=>i>=z?v/u0:null),U.d));xs.MSTUS.setData(stkSeries(B,U.c.map((v,i)=>i<=z?v/u0:null),U.d));
       xs.BTCI.setData(btcIdx(B));muStat();
-      const k=lowerB(B.T,U.d[z]*86400);if(k<B.T.length&&!o.EVT)cs.setMarkers([{time:B.T[k]+TZ,position:'aboveBar',shape:'arrowDown',color:'#f5a524',text:'MSTU 上市＝1.0'}])}
+      const k=lowerB(B.T,U.d[z]*86400);if(k<B.T.length)window.__muMk={time:B.T[k]+TZ,position:'aboveBar',shape:'arrowDown',color:'#f5a524',text:'MSTU 上市'};if(k<B.T.length)cs.setMarkers([window.__muMk])}
     if(o.MNAV)xs.MNAV.setData(cvIntra?mnavIntra(B,S.mnav):stkSeries(B,S.mnav,S.d));if(o.MNAVEV)xs.MNAVEV.setData(cvIntra?mnavIntra(B,S.mnavEv):stkSeries(B,S.mnavEv,S.d));
     if(o.DEBT){xs.DEBT.setData(stkSeries(B,S.debt,S.d));xs.PREF.setData(stkSeries(B,S.pref,S.d))}
     if(o.SHARES)xs.SHARES.setData(stkSeries(B,S.shares,S.d));
-    if(o.EVT)cs.setMarkers(STK.ev.map(e=>{const t=e.d*86400,k=Math.max(0,lowerB(B.T,t+1)-1);return{time:B.T[k]+TZ,position:'belowBar',shape:'circle',color:e.type==='convert'?'#a371f7':'#f5a524',text:(e.type==='convert'?'可轉債 ':'增發 ')+'$'+(e.usd>=1000?(e.usd/1000).toFixed(e.usd%1000?1:0)+'B':e.usd+'M')}}).sort((a,b)=>a.time-b.time))}
+    if(o.EVT&&cvSym==='MSTR')cs.setMarkers(STK.ev.map(e=>{const t=e.d*86400,k=Math.max(0,lowerB(B.T,t+1)-1);return{time:B.T[k]+TZ,position:'belowBar',shape:'circle',color:e.type==='convert'?'#a371f7':e.type==='pref'?'#5b8cff':'#f5a524',text:(e.type==='convert'?'可轉債 ':e.type==='pref'?'優先股 ':'增發 ')+'$'+(e.usd>=1000?(e.usd/1000).toFixed(e.usd%1000?1:0)+'B':e.usd+'M')}}).sort((a,b)=>a.time-b.time))}
   if(fit)window.__cvNeedFit=!$('#mainChart').clientWidth;   // 在隱藏分頁裡畫的，顯示後要重套範圍，不然 K 線會擠成一團
   if(fit){if(cvIntra)chart.timeScale().setVisibleLogicalRange({from:n-(cvTf===3600?210:120),to:n+3});else if(cvSym==='MSTU'||cvSym==='MSTR_MSTU'){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);chart.timeScale().setVisibleLogicalRange({from:Math.max(0,k-(cvSym==='MSTU'?60:8)),to:n+3})}else if(minute||stk)chart.timeScale().fitContent();else chart.timeScale().setVisibleLogicalRange({from:n-300,to:n+5})}
   showOhlc(null);drawFib();drawer1&&drawer1.reload();
@@ -1992,7 +2009,7 @@ function drawFib(){fibLines.forEach(l=>cs.removePriceLine(l));fibLines=[];if(!IN
     const price=upTrend?hi-(hi-lo)*lv:lo+(hi-lo)*lv;
     fibLines.push(cs.createPriceLine({price,color:col,lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Fib '+lv}))}}
 const tfName=tf=>$('#cvTf').querySelector(`option[value="${tf}"]`).textContent;
-$('#cvSym').onchange=()=>{cvSym=$('#cvSym').value;drawChart(true)};
+$('#cvSym').onchange=()=>{cvSym=$('#cvSym').value;MUB=null;drawChart(true)};
 $('#cvTf').onchange=()=>{cvTf=+$('#cvTf').value;if(STKSYM(cvSym)&&cvTf<86400&&!STKI(cvSym,cvTf)){cvTf=86400;$('#cvTf').value='86400';$('#cvTf').dispatchEvent(new Event('sync'))}drawChart(true)};
 $('#cvMonth').onchange=()=>drawChart(true);
 $('#cvRange').onchange=()=>{const v=$('#cvRange').value;if(!v||!cvBars)return;const[a,b]=v.split('|');const i0=lowerB(cvBars.T,ts(a)),i1=lowerB(cvBars.T,ts(b));chart.timeScale().setVisibleLogicalRange({from:i0,to:i1})};
@@ -2402,6 +2419,24 @@ async function syncStk(sym){const S=window.STK&&STK[sym];if(!S)return false;
   if(!j||!j.length)return false;
   for(const r of j){const d=Math.floor(r[0]/86400000),wd=new Date(d*86400000).getUTCDay();if(d<=last||wd===0||wd===6)continue;S.d.push(d);S.c.push(+(+r[4]).toFixed(2))}
   return S.d.length>n0}
+// MSTR 基本面延伸：內建的 mNAV、持幣、股數、債只到內建資料最後一天。data 分支 mstr.json（排程從 SEC 8-K 抓）補持幣、股數、事件；
+// 之後每個交易日用當天收盤和 BTC 收盤（紐約收盤那小時）重算 mNAV。新 mNAV（EV）的現金用內建最後一天反推、之後沿用
+let MMETA=null;
+async function loadMstrMeta(){try{const r=await fetch('https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/mstr.json',{cache:'no-store'});
+    if(r.ok){const j=await r.json();MMETA={btc:j.btc,shares:j.shares,ev:j.ev,asof:j.asof};try{localStorage.setItem('mstrMeta',JSON.stringify(MMETA))}catch(e){}}}catch(e){}
+  if(!MMETA)try{MMETA=JSON.parse(localStorage.getItem('mstrMeta')||'null')}catch(e){}return MMETA}
+function extendMstr(){const S=STK.MSTR;if(!S)return;const n0=SBASE.MSTR||S.d.length,K=['mnav','mnavEv','debt','pref','shares','btc'];
+  if(!STK.__ev0)STK.__ev0=STK.ev.slice();K.forEach(k=>S[k].length=n0);STK.ev=STK.__ev0.slice();
+  const M=MMETA||{},last=S.d[n0-1],evLast=Math.max(...STK.__ev0.map(e=>e.d)),H=E.load('BTC');
+  const lb=(a,t)=>{let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<t)lo=m+1;else hi=m}return lo},bclose=d=>{const k=Math.min(H.n-1,Math.max(0,lb(H.T,d*86400+20*3600)));return H.C[k]};
+  const b0=S.btc[n0-1],s0=S.shares[n0-1],bc0=bclose(last),cash=S.c[n0-1]*s0*1e6+(S.debt[n0-1]+S.pref[n0-1])*1e9-S.mnavEv[n0-1]*b0*bc0;
+  // 階梯值：取 d 當天以前最後一筆；跟內建差太多（多半是解析錯）就不用
+  const step=(arr,d,v0,lo,hi)=>{let v=v0;for(const[x,y]of arr||[])if(x>last-7&&x<=d&&y>v0*lo&&y<v0*hi)v=y;return v};
+  const add=(type,d)=>(M.ev||[]).filter(e=>e.type===type&&e.d>last&&e.d<=d).reduce((a,e)=>a+e.usd/1000,0);   // 百萬→十億
+  for(let i=n0;i<S.d.length;i++){const d=S.d[i],c=S.c[i],bt=step(M.btc,d,b0,.7,1.6),sh=step(M.shares,d,s0,.8,1.6),db=S.debt[n0-1]+add('convert',d),pf=S.pref[n0-1]+add('pref',d),bc=bclose(d);
+    S.btc.push(bt);S.shares.push(+sh.toFixed(3));S.debt.push(+db.toFixed(3));S.pref.push(+pf.toFixed(3));
+    S.mnav.push(+(c*sh*1e6/(bt*bc)).toFixed(3));S.mnavEv.push(+((c*sh*1e6+(db+pf)*1e9-cash)/(bt*bc)).toFixed(3))}
+  for(const e of M.ev||[])if(e.d>evLast)STK.ev.push(e)}
 // 「至今」的期間跟著最新 K 棒走：內建資料只到 9/30，補上即時資料後要延伸，不然回測停在 10/1
 function updNowEnd(){const b=E.load('BTC');if(!b||!b.n)return;const end=ymd(b.T[b.n-1]+DAY);let rerun=false;
   document.querySelectorAll('#sPeriod option,#cvRange option').forEach(o=>{if(!o.textContent.includes('至今'))return;const[a,e]=o.value.split('|');
@@ -2416,6 +2451,7 @@ async function syncAll(){if(syncing)return;syncing=true;
       const s=$('#cvSym').value;if((s==='BTC'||s==='ETH')&&window.__redraw)window.__redraw();
       const t=$('#liveTag');if(t)t.textContent=(SRC.gh?'價格：GitHub 備援・':'即時：Binance・')+new Date().toTimeString().slice(0,5)+' 更新';SRC.gh=0}
     const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
+    try{await loadMstrMeta();extendMstr()}catch(e){console.warn('MSTR 基本面延伸失敗',e)}
     if(sk){delete DD.MSTR;delete DD.MSTU;const s=$('#cvSym').value;if((s==='MSTR'||s==='MSTU'||s==='MSTR_MSTU')&&window.__redraw)window.__redraw()}
     await fetchLive();renderCoins();if(started)$('#snapBox').innerHTML=snapCards()}
   finally{syncing=false}}
@@ -2697,7 +2733,7 @@ let fngShown=0;{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o()
 setInterval(()=>{if(Date.now()-fngAt>=FNG_EVERY)loadFng(1)},10*60*1000);
 {const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();renderSum();setTimeout(renderSum,2500);return r}}
 // 點恐懼貪婪卡片：打開歷史線圖（指數＋BTC 價格），完整歷史一天抓一次
-const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,rng=365;
+const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,ms=null,bands=[],rng=365;
   async function get(){if(all)return all;let d=null,at=0;
     try{at=+localStorage.getItem('fngAllAt')||0;if(Date.now()-at<12*3600*1000)d=JSON.parse(localStorage.getItem('fngAll')||'null')}catch(e){}
     if(!d){try{const r=await fetch('https://api.alternative.me/fng/?limit=0',{cache:'no-store'});if(r.ok){const j=await r.json();
@@ -2714,7 +2750,12 @@ const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,rng=365;
     const cols=[V('--down'),mix(V('--down'),V('--warn'),.55),V('--warn'),mix(V('--up'),V('--warn'),.6),V('--up')];
     const from=rng?day(Date.now()/1000)-rng*86400:0,D=all.filter(x=>x[0]>=from);
     fs.setData(D.map(([t,v])=>({time:day(t),value:v,color:cols[fngCls(v)]})));
-    const B=btc(),bd=[];for(const[t]of D){const p=B.get(day(t));if(p!=null)bd.push({time:day(t),value:p})}bs.setData(bd);
+    // 7 日平均：看趨勢轉折
+    ms.setData(D.map((x,i)=>{const a=D.slice(Math.max(0,i-6),i+1);return{time:day(x[0]),value:+(a.reduce((s,y)=>s+y[1],0)/a.length).toFixed(1)}}));
+    // 背景色帶：各區上緣畫一條填到底的面積，從上往下疊
+    if(D.length)bands.forEach(([top,b])=>b.setData([{time:day(D[0][0]),value:top},{time:day(D[D.length-1][0]),value:top}]));
+    // BTC 依當天恐懼貪婪上色（紅＝恐懼、綠＝貪婪）
+    const B=btc(),bd=[];for(const[t,v]of D){const p=B.get(day(t));if(p!=null)bd.push({time:day(t),value:p,color:cols[fngCls(v)]})}bs.setData(bd);
     ch.timeScale().fitContent();
     const vs=D.map(x=>x[1]),avg=vs.reduce((a,b)=>a+b,0)/(vs.length||1);let lo=0,hi=0;D.forEach((x,i)=>{if(x[1]<D[lo][1])lo=i;if(x[1]>D[hi][1])hi=i});
     const f=t=>{const d=new Date(t*1000);return`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`},fear=vs.filter(v=>v<25).length,greed=vs.filter(v=>v>75).length;
@@ -2725,10 +2766,17 @@ const FngHist=(()=>{let all=null,ch=null,fs=null,bs=null,rng=365;
   async function open(){const m=$('#fngModal');m.classList.add('on');document.body.style.overflow='hidden';
     if(!ch){const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
       ch=LightweightCharts.createChart($('#fngChart'),{layout:{background:{color:V('--bg')},textColor:V('--muted'),fontFamily:'inherit'},grid:{vertLines:{visible:false},horzLines:{color:V('--line')}},
-        leftPriceScale:{visible:true,borderColor:V('--line'),scaleMargins:{top:.08,bottom:.06}},rightPriceScale:{mode:1,borderColor:V('--line')},timeScale:{borderColor:V('--line'),minBarSpacing:0.001},crosshair:{mode:0},handleScale:{axisPressedMouseMove:false}});
-      bs=ch.addLineSeries({color:V('--muted'),lineWidth:1,priceScaleId:'right',lastValueVisible:false,priceLineVisible:false});
-      fs=ch.addLineSeries({lineWidth:2,priceScaleId:'left',lastValueVisible:true,priceLineVisible:false,priceFormat:{type:'price',precision:0,minMove:1},autoscaleInfoProvider:()=>({priceRange:{minValue:0,maxValue:100}})});
-      fs.createPriceLine({price:25,color:V('--down'),lineStyle:2,lineWidth:1,axisLabelVisible:false});fs.createPriceLine({price:75,color:V('--up'),lineStyle:2,lineWidth:1,axisLabelVisible:false});
+        leftPriceScale:{visible:false},rightPriceScale:{borderColor:V('--line')},timeScale:{borderColor:V('--line'),minBarSpacing:0.001},crosshair:{mode:0},handleScale:{axisPressedMouseMove:false}});
+      // 上：BTC（對數，依恐懼貪婪上色）；下：恐懼貪婪固定 0～100＋五區色帶＋7 日平均。兩個窗格共用時間軸
+      const L=LightweightCharts,fix=()=>({priceRange:{minValue:0,maxValue:100}}),na={lastValueVisible:false,priceLineVisible:false,crosshairMarkerVisible:false};
+      bs=ch.addSeries(L.LineSeries,{lineWidth:2,priceScaleId:'right',lastValueVisible:true,priceLineVisible:false,priceFormat:{type:'custom',minMove:1,formatter:x=>Math.round(x).toLocaleString('en-US')}},0);
+      ch.priceScale('right',0).applyOptions({mode:1});
+      // 色帶用跟底色混好的實色：下面的帶子畫在上面的帶子上，才不會半透明疊成一片褐色
+      bands=[[100,V('--up')],[75,mix(V('--up'),V('--warn'),.6)],[55,V('--muted')],[45,V('--warn')],[25,V('--down')]].map(([top,c])=>[top,ch.addSeries(L.AreaSeries,Object.assign({lineVisible:false,lineWidth:1,lineColor:'rgba(0,0,0,0)',topColor:mix(c,V('--bg'),.16),bottomColor:mix(c,V('--bg'),.16),priceScaleId:'right',autoscaleInfoProvider:fix},na),1)]);
+      ms=ch.addSeries(L.LineSeries,Object.assign({color:V('--text'),lineWidth:1,lineStyle:2,priceScaleId:'right',autoscaleInfoProvider:fix},na),1);
+      fs=ch.addSeries(L.LineSeries,{lineWidth:2,priceScaleId:'right',lastValueVisible:true,priceLineVisible:false,priceFormat:{type:'price',precision:0,minMove:1},autoscaleInfoProvider:fix},1);
+      ch.priceScale('right',1).applyOptions({mode:0,scaleMargins:{top:.04,bottom:.02}});
+      try{const P=ch.panes();P[0].setStretchFactor(1.6);P[1].setStretchFactor(1)}catch(e){}
       ch.subscribeCrosshairMove(p=>{if(!all)return;if(!p||!p.time){const from=rng?day(Date.now()/1000)-rng*86400:0,D=all.filter(x=>x[0]>=from);leg(D[D.length-1]);return}const x=all.find(a=>day(a[0])===p.time);if(x)leg(x)})}
     if(!all){$('#fngLeg').textContent='讀取歷史資料中…';await get()}
     if(!all){$('#fngLeg').textContent='暫時抓不到歷史資料，稍後再試。';return}draw()}
@@ -2861,8 +2909,8 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 </script>
 <div id="fngModal" role="dialog" aria-label="恐懼貪婪指數歷史"><div class="hd"><h3>恐懼貪婪指數歷史</h3><button class="x" id="fngX" aria-label="關閉">✕</button></div>
 <div class="seg" id="fngRng"><button data-d="90">3 個月</button><button data-d="365" class="on">1 年</button><button data-d="1095">3 年</button><button data-d="0">全部</button></div>
-<div id="fngLeg"></div><div id="fngChart"></div><div id="fngStat"></div>
-<div class="sub" style="font-size:11.5px;color:var(--muted);margin-top:6px">彩色線是指數（左邊刻度，25 以下極度恐懼、75 以上極度貪婪），灰線是 BTC 價格（右邊刻度）。資料來源 alternative.me。</div></div>
+<div id="fngLeg"></div><div class="fnghint">上：BTC（對數，顏色＝當天恐懼貪婪）　下：恐懼貪婪 0～100，虛線＝7 日平均；色帶由下往上：極度恐懼、恐懼、中性、貪婪、極度貪婪</div><div id="fngChart"></div><div id="fngStat"></div>
+<div class="sub" style="font-size:11.5px;color:var(--muted);margin-top:6px">極度恐懼 ≤25、恐懼 25～45、中性 45～55、貪婪 55～75、極度貪婪 ≥75。資料來源 alternative.me。</div></div>
 <div id="evModal" role="dialog" aria-label="事件說明"><div class="hd"><h3 id="evTitle"></h3><button class="x" id="evX" aria-label="關閉">✕</button></div><div id="evBody"></div></div>
 </body>
 </html>
