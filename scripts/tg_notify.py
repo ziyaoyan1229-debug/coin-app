@@ -68,8 +68,8 @@ st.setdefault('init', {})
 if st['init'] is True:          # 舊版狀態（單一頻道）
     st['init'] = {c: True for c, _ in CATS if c in ('ev', 'mkt')}
 st.setdefault('ev', []); st.setdefault('log', []); st.setdefault('sig', []); st.setdefault('lvhit', {})
-msgs = []                        # (類別, 內容)
-add = lambda c, m: msgs.append((c, m))
+msgs = []                        # (類別, 內容, 附加欄位)
+add = lambda c, m, **kw: msgs.append((c, m, kw))
 btc15 = csv_rows('BTCUSDT_15m.csv')
 btc = btc15[-1][4] if btc15 else (paper.get('market', {}).get('BTC', {}).get('price') or 0)
 
@@ -145,7 +145,7 @@ for m in S.get('marks') or []:
         continue
     side = '多' if m.get('side', 1) > 0 else '空'
     ic = {'entry': '🟢' if side == '多' else '🔴', 'add': '➕', 'stop': '⛔'}.get(m['type'], '🟠')
-    add('sig', f"{ic} <b>{esc(m['sym'])} {side}單{TY.get(m['type'], m['type'])}</b>　約 {f0(m['price']) if m['sym'] == 'BTC' else format(m['price'], ',.1f')}\n{esc(m['name'])}" + (f"（{esc(m['text'])}）" if m.get('text') else '') + f"\n台灣 {time.strftime('%m/%d %H:%M', time.gmtime(m['t'] + TW))} 收線\n\n<i>回測規則自動訊號，非投資建議</i>")
+    add('sig', f"{ic} <b>{esc(m['sym'])} {side}單{TY.get(m['type'], m['type'])}</b>　約 {f0(m['price']) if m['sym'] == 'BTC' else format(m['price'], ',.1f')}\n{esc(m['name'])}" + (f"（{esc(m['text'])}）" if m.get('text') else '') + f"\n台灣 {time.strftime('%m/%d %H:%M', time.gmtime(m['t'] + TW))} 收線\n\n<i>回測規則自動訊號，非投資建議</i>", st=m['st'], sym=m['sym'])
 st['sig'] = st['sig'][-400:]
 
 # ── 美股開盤／收盤（MSTR、MSTU，紐約時間判斷，含夏令） ──
@@ -226,16 +226,16 @@ if fg:
         st['fgsent'] = fg[0].get('timestamp')
 
 # ── 記錄：每則通知都進 tg_log.json（網站通知頁列表＋瀏覽器通知用 id 判斷新的）──
-for c, m in msgs:
+for c, m, kw in msgs:
     st['seq'] = st.get('seq', 0) + 1
-    st['log'].insert(0, dict(id=st['seq'], ts=int(now), t=time.strftime('%Y-%m-%d %H:%M', time.gmtime(now + TW)), cat=c, text=m))
+    st['log'].insert(0, dict(id=st['seq'], ts=int(now), t=time.strftime('%Y-%m-%d %H:%M', time.gmtime(now + TW)), cat=c, text=m, **kw))   # 策略信號多記 st、sym，網站可以只通知選的策略
 # ── 發送：每類頻道各自第一次只發「已開啟」 ──
 sent = 0
 for c, name in CATS:
     chat = CH[c] if TG else ''
     if not chat:
         continue
-    mine = [m for cc, m in msgs if cc == c]
+    mine = [m for cc, m, _ in msgs if cc == c]
     if not st['init'].get(c):
         mine = [m for m in mine if m.startswith('☀️') or m.startswith('📅')] or [f'✅ HexStack「{name}」通知已開啟。\n<a href="{SITE}#notify">打開 App</a>']
         st['init'][c] = True
