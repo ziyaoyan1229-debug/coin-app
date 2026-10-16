@@ -53,7 +53,8 @@ h3{font-size:13px;margin:14px 0 8px;color:var(--muted);font-weight:600;letter-sp
 .stat .k{font-size:11px;color:var(--muted)}.stat .v{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
 .pos{color:var(--up)}.neg{color:var(--down)}
 #priceChart{height:52%;min-height:260px}
-#eqChart{height:22%;min-height:140px;border-top:1px solid var(--line)}
+#eqChart{height:22%;min-height:140px}
+.eqcap{display:flex;justify-content:space-between;align-items:center;padding:8px 12px 2px;font-size:12.5px;font-weight:700;color:var(--muted)}.eqcap span{font-weight:400;font-size:11.5px;display:flex;align-items:center;gap:4px}.eqcap i{display:inline-block;width:14px;height:2px;background:var(--acc);margin-left:6px}.eqcap i.bh{background:repeating-linear-gradient(90deg,#8b95a7 0 3px,transparent 3px 6px)}
 .lower{flex:1;overflow:auto;border-top:1px solid var(--line);padding:8px 12px}
 table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
 th,td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:right;white-space:nowrap}
@@ -471,6 +472,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #notifyView .sw{flex:none;position:relative;width:46px;height:28px;border-radius:999px;background:#5b5967;border:0;padding:0;cursor:pointer;transition:background .2s}#notifyView .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}#notifyView .sw.on{background:#f2c661}#notifyView .sw.on::after{transform:translateX(18px)}:root[data-theme="light"] #notifyView .sw{background:#cfcdd8}:root[data-theme="light"] #notifyView .sw.on{background:#f2c661}#notifyView .tgc .bd a{color:var(--acc);text-decoration:none;font-size:12px}#notifyView .bnhint{font-size:12px;color:var(--muted);line-height:1.6;padding:2px 2px 0}#notifyView .bnhint b{color:var(--warn)}
 #notifyView .tgc.pick .bd{cursor:pointer}#notifyView .tgc .bd em{font-style:normal;color:var(--acc);font-size:12px;margin-left:6px;font-weight:600}#notifyView .sgpick{padding:2px 0 10px 12px;border-left:2px solid var(--line);margin:0 0 6px 2px}#notifyView .sgpick .tgc{padding:8px 0;border-top:0}#notifyView .sgpick .tgc b{font-size:13.5px;font-weight:600}#notifyView .sgpick .sw{transform:scale(.85)}#notifyView .sgpick .all{display:flex;gap:14px;font-size:12px;padding:4px 0 2px}#notifyView .sgpick .all button{background:none;border:0;color:var(--acc);padding:0;cursor:pointer;font-size:12px}
 .tlines>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.optl{display:flex;flex-direction:column;gap:8px;margin-top:8px}.optl .oc{border:1px solid var(--line);border-radius:12px;padding:10px 12px}.optl .oc.base{opacity:.75}.optl .oh{display:flex;align-items:center;gap:10px;font-size:13px}.optl .oh span{flex:1;color:var(--muted)}.optl .oh i{font-style:normal;font-weight:700}.optl .optUse{margin:0;padding:4px 12px;width:auto}.optl .ops{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:12.5px;color:var(--muted)}.optl .op b{color:var(--text);font-weight:600;margin-left:2px}.optl .op.ch b{color:var(--acc)}.optl .op s{margin-left:4px;font-size:11px;opacity:.7}
 #notifyView .tgsoon{flex:none;font-size:12px;color:var(--muted);padding:6px 10px;border:1px dashed var(--line);border-radius:999px}
 #notifyView .tgtag{margin-left:8px;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
 #notifyView #tgLog a{color:var(--acc)}#muStat{padding:6px 12px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#muStat .mh{margin-bottom:4px}#muStat .mr{display:flex;flex-wrap:wrap;gap:4px 12px}#muStat .mr span{white-space:nowrap}#muStat b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
@@ -619,9 +621,8 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
     </div>
     <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn ghost" id="cmpBtn" style="margin-top:8px;width:100%">疊加其他策略比較</button><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費＋滑價 0.07%（停損再加 0.03%）、真實資金費率、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div></div>
   <div class="col" id="center">
-        <div class="simcard"><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
-    <div class="legend" id="legend"></div><div id="priceChart" style="position:relative"></div>
-    <div class="split" id="pSplit" title="上下拖動調整兩張圖的高度，點兩下恢復"></div><div id="eqChart"></div></div>
+        <div class="simcard"><div class="eqcap">資金曲線<span><i></i>策略　<i class="bh"></i>買進持有</span></div><div id="eqChart"></div><div class="split" id="pSplit" title="上下拖動調整兩張圖的高度，點兩下恢復"></div><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
+    <div class="legend" id="legend"></div><div id="priceChart" style="position:relative"></div></div>
     <div class="stats" id="stats"></div><div class="lower"><div id="levTable"></div><div id="tradeTable"></div></div>
   </div>
   <div class="col" id="right"><details class="fold" id="expFold"><summary>📖 策略說明</summary><div class="in"><div id="explain"></div></div></details></div>
@@ -704,6 +705,10 @@ N.createChart=function(el,opts){
     let api;try{api=ps(id,pi||0)}catch(e){api=null}
     const fix=o=>{if(o&&o.scaleMargins)o=Object.assign({},o,{scaleMargins:{top:.08,bottom:.06}});return o};
     return{applyOptions:o=>{try{api&&api.applyOptions(fix(o))}catch(e){}},options:()=>api?api.options():{},width:()=>api?api.width():0}};
+  // 圖在隱藏的頁面（寬度 0）時設可見範圍，會被算成最小 K 棒間距、一打開就擠成一坨：先記下最後一次的設定，等真的有寬度再套一次
+  const tsa=c.timeScale();let pend=null,w0=el.clientWidth;
+  for(const k of ['setVisibleRange','setVisibleLogicalRange','fitContent']){const f=tsa[k].bind(tsa);tsa[k]=(...a)=>{pend=el.clientWidth?null:[f,a];return f(...a)}}
+  if(window.ResizeObserver)new ResizeObserver(()=>{const w=el.clientWidth;if(w&&!w0&&pend){const[f,a]=pend;pend=null;requestAnimationFrame(()=>{try{f(...a)}catch(e){}})}w0=w}).observe(el);
   return c};
 })();
 </script>
@@ -2191,10 +2196,11 @@ $('#optBtn').onclick=()=>{const st=$('#sStrat').value,sym=$('#sSym').value,box=$
     if(i<combos.length){show();setTimeout(step,0);return}
     btn.disabled=false;res.sort((a,b)=>b.score-a.score);const top=res.filter(r=>!r.base).slice(0,5),base=res.find(r=>r.base);
     const lab=d=>d[1].replace(/（.*?）/g,'');
-    const renderTop=()=>{box.innerHTML=`<h3>最佳參數前 5 名（槓桿 ${cur.lev??'—'} 倍不變）</h3><p class="small">排名＝報酬÷最大回撤。只是這段期間的回測，換期間可能就不是最好，建議換幾段期間比對再用。</p>
-      <div style="overflow-x:auto"><table><tr><th>#</th>${defs.map(d=>`<th>${lab(d)}</th>`).join('')}<th>倍數</th><th>回撤</th><th></th></tr>
-      ${base?`<tr style="color:var(--muted)"><td>目前</td>${base.c.map(v=>`<td>${v}</td>`).join('')}<td>${fmt(base.mult,2)}</td><td>${pct(base.mdd)}</td><td></td></tr>`:''}
-      ${top.map((r,k)=>`<tr><td>${k+1}</td>${r.c.map((v,j)=>`<td${v!==cur[defs[j][0]]?' style="color:var(--acc);font-weight:700"':''}>${v}</td>`).join('')}<td class="${r.mult>=1?'pos':'neg'}">${fmt(r.mult,2)}</td><td>${pct(r.mdd)}</td><td><button class="btn ghost optUse" data-k="${k}" style="margin:0;padding:4px 10px;width:auto">套用</button></td></tr>`).join('')}</table></div>`;
+    // 每一名列成一張卡：參數名稱＋數值，跟目前不同的標黃並註明原本的值（手機上不用左右滑表格對欄位）
+    const prm=(c,cmp)=>defs.map((d,j)=>{const ch=cmp&&c[j]!==cur[d[0]];return `<span class="op${ch?' ch':''}">${lab(d)} <b>${c[j]}</b>${ch?`<s>${cur[d[0]]}</s>`:''}</span>`}).join('');
+    const renderTop=()=>{box.innerHTML=`<h3>最佳參數前 5 名（槓桿 ${cur.lev??'—'} 倍不變）</h3><p class="small">排名＝報酬÷最大回撤。只是這段期間的回測，換期間可能就不是最好，建議換幾段期間比對再用。黃色＝跟目前不同的參數。</p>
+      <div class="optl">${base?`<div class="oc base"><div class="oh"><b>目前參數</b><span>報酬 ${fmt(base.mult,2)} 倍・回撤 ${pct(base.mdd)}</span></div><div class="ops">${prm(base.c,false)}</div></div>`:''}
+      ${top.map((r,k)=>`<div class="oc"><div class="oh"><b>第 ${k+1} 名</b><span>報酬 <i class="${r.mult>=1?'pos':'neg'}">${fmt(r.mult,2)}</i> 倍・回撤 ${pct(r.mdd)}</span><button class="btn ghost optUse" data-k="${k}">套用</button></div><div class="ops">${prm(r.c,true)}</div></div>`).join('')}</div>`;
     box.querySelectorAll('.optUse').forEach(b=>b.onclick=()=>{const r=top[+b.dataset.k];defs.forEach((d,j)=>{cur[d[0]]=r.c[j];const inp=document.querySelector(`#params [data-k="${d[0]}"]`);if(inp)inp.value=r.c[j]});runSim();setTimeout(renderTop,80)})};renderTop()};
   setTimeout(step,30)};
 // 策略 6 只給 ETH 用：選它就切到 ETH、BTC 藏起來
@@ -2769,7 +2775,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   try{const v=JSON.parse(localStorage.getItem('split_strat')||'null');if(v)set(v[0],v[1])}catch(e){}
   let y0=0,p0=0,e0=0,on=false;
   sp.addEventListener('pointerdown',e=>{on=true;y0=e.clientY;p0=$('#priceChart').clientHeight;e0=$('#eqChart').clientHeight;sp.classList.add('on');sp.setPointerCapture(e.pointerId);e.preventDefault()});
-  sp.addEventListener('pointermove',e=>{if(!on)return;const d=e.clientY-y0,t=p0+e0,ph=Math.max(120,Math.min(t-80,p0+d));set(ph,t-ph)});
+  sp.addEventListener('pointermove',e=>{if(!on)return;const d=e.clientY-y0,t=p0+e0,eh=Math.max(80,Math.min(t-120,e0+d));set(t-eh,eh)});
   const end=()=>{if(!on)return;on=false;sp.classList.remove('on');try{localStorage.setItem('split_strat',JSON.stringify([$('#priceChart').clientHeight,$('#eqChart').clientHeight]))}catch(e){}};
   sp.addEventListener('pointerup',end);sp.addEventListener('pointercancel',end);
   sp.addEventListener('dblclick',()=>{R.style.removeProperty('--ph');R.style.removeProperty('--eh');try{localStorage.removeItem('split_strat')}catch(e){}})})();
