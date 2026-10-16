@@ -37,6 +37,14 @@ jobs:
         run: |
           git fetch -q --depth 1 origin data || true
           python3 scripts/fetch_stocks.py out/data || for s in MSTR MSTU; do git show origin/data:data/${s}_1h.csv > out/data/${s}_1h.csv 2>/dev/null || rm -f out/data/${s}_1h.csv; done
+      - name: MSTR 基本面（SEC 公告：持幣、ATM 增發、可轉債／優先股；6 小時最多抓一次；失敗就沿用上一版）
+        continue-on-error: true
+        env:
+          SEC_UA: ${{ secrets.SEC_UA }}
+          MSTR_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: |
+          git show origin/data:data/mstr.json > out/data/mstr.json 2>/dev/null || rm -f out/data/mstr.json
+          python3 scripts/fetch_mstr.py out/data
       - name: 存市場分析歷史（給網站「過去分析」；失敗不影響 K 線）
         continue-on-error: true
         run: |
