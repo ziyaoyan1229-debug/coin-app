@@ -39,6 +39,9 @@ vm.runInThisContext(eng);
 const bi = html.indexOf('const BEST={'); let k = bi + 11, dep = 0;
 for (; k < html.length; k++) { if (html[k] === '{') dep++; else if (html[k] === '}' && --dep === 0) break; }
 const BEST = vm.runInThisContext('(' + html.slice(bi + 11, k + 1) + ')');
+// 策略框架 v1：App 預設用校準後的參數（FW1 覆蓋在原版之上），通知跟 App「今日訊號」一致
+const fw1 = html.match(/^const FW1=(\{.*\});$/m);
+if (fw1) { const F = vm.runInThisContext('(' + fw1[1] + ')'); for (const st in F) for (const y in F[st]) if (BEST[st] && BEST[st][y]) BEST[st][y] = Object.assign({}, BEST[st][y], F[st][y]); }
 const simSrc = html.match(/function simulate\(st,sym,t0,t1,p\)\{[^\n]*\}/)[0];
 const E = Engine; global.E = E;
 const simulate = vm.runInThisContext('(' + simSrc + ')');
