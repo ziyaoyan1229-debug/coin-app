@@ -470,6 +470,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #notifyView .tgjoin{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-weight:700;font-size:13px;text-decoration:none}
 #notifyView .sw{flex:none;position:relative;width:46px;height:28px;border-radius:999px;background:#5b5967;border:0;padding:0;cursor:pointer;transition:background .2s}#notifyView .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}#notifyView .sw.on{background:#f2c661}#notifyView .sw.on::after{transform:translateX(18px)}:root[data-theme="light"] #notifyView .sw{background:#cfcdd8}:root[data-theme="light"] #notifyView .sw.on{background:#f2c661}#notifyView .tgc .bd a{color:var(--acc);text-decoration:none;font-size:12px}#notifyView .bnhint{font-size:12px;color:var(--muted);line-height:1.6;padding:2px 2px 0}#notifyView .bnhint b{color:var(--warn)}
 #notifyView .tgc.pick .bd{cursor:pointer}#notifyView .tgc .bd em{font-style:normal;color:var(--acc);font-size:12px;margin-left:6px;font-weight:600}#notifyView .sgpick{padding:2px 0 10px 12px;border-left:2px solid var(--line);margin:0 0 6px 2px}#notifyView .sgpick .tgc{padding:8px 0;border-top:0}#notifyView .sgpick .tgc b{font-size:13.5px;font-weight:600}#notifyView .sgpick .sw{transform:scale(.85)}#notifyView .sgpick .all{display:flex;gap:14px;font-size:12px;padding:4px 0 2px}#notifyView .sgpick .all button{background:none;border:0;color:var(--acc);padding:0;cursor:pointer;font-size:12px}
+.tlines>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #notifyView .tgsoon{flex:none;font-size:12px;color:var(--muted);padding:6px 10px;border:1px dashed var(--line);border-radius:999px}
 #notifyView .tgtag{margin-left:8px;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
 #notifyView #tgLog a{color:var(--acc)}#muStat{padding:6px 12px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#muStat .mh{margin-bottom:4px}#muStat .mr{display:flex;flex-wrap:wrap;gap:4px 12px}#muStat .mr span{white-space:nowrap}#muStat b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
@@ -671,7 +672,8 @@ const GROUP={vol:'VOL',fund:'FUND',mnav:'MNAV',debt:'DEBT',shr:'SHR'};
 const ORDER=['VOL','FUND','MNAV','DEBT','SHR'];
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const pfmt=p=>{const a=Math.abs(p);return a===0?'0':a>=1000?p.toLocaleString('en-US',{maximumFractionDigits:0}):a>=10?p.toFixed(2):p.toFixed(a>=1?3:4)};
-function extra(){return{autoSize:true,layout:{attributionLogo:false,panes:{enableResize:true,separatorColor:css('--line')||'#2a3343',separatorHoverColor:'rgba(91,140,255,.35)'}}}}
+// 語系固定 zh-TW：有些手機／內嵌瀏覽器回報的語系（例如 en-US@posix）Intl 不認得，時間軸會出錯、整張圖畫不出來
+function extra(){return{autoSize:true,localization:{locale:'zh-TW'},layout:{attributionLogo:false,panes:{enableResize:true,separatorColor:css('--line')||'#2a3343',separatorHoverColor:'rgba(91,140,255,.35)'}}}}
 function merge(a,b){const o=Object.assign({},a);for(const k in b)o[k]=b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k])?merge(a&&a[k]||{},b[k]):b[k];return o}
 N.createChart=function(el,opts){
   const c=orig.call(L,el,merge(opts||{},extra()));
@@ -2234,9 +2236,9 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     return {txt,hot:recent.length>0}}
   function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=String(t1);if(busy||k===key)return;busy=true;
     $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];ORDER.forEach(st=>['BTC','ETH'].forEach(sym=>{if(BEST[st]&&BEST[st][sym])jobs.push([st,sym])}));
-    try{const c=JSON.parse(localStorage.getItem('sig')||'null');if(c&&c.k===k){render(c.res);key=k;busy=false;return}}catch(e){}
+    try{const c=JSON.parse(localStorage.getItem('sig')||'null');if(c&&c.k===k){render(c.res);key=k;busy=false;dispatchEvent(new Event('sigdone'));return}}catch(e){}
     const res={};let i=0;box().innerHTML=`<div class="card empty">計算中 0／${jobs.length}…</div>`;
-    const step=()=>{if(i>=jobs.length){render(res);key=k;busy=false;try{localStorage.setItem('sig',JSON.stringify({k,res}))}catch(e){}return}const [st,sym]=jobs[i++];try{(res[st]=res[st]||{})[sym]=one(st,sym,t1)}catch(e){(res[st]=res[st]||{})[sym]={txt:'這次算不出來',hot:false}}
+    const step=()=>{if(i>=jobs.length){render(res);key=k;busy=false;try{localStorage.setItem('sig',JSON.stringify({k,res}))}catch(e){}dispatchEvent(new Event('sigdone'));return}const [st,sym]=jobs[i++];try{(res[st]=res[st]||{})[sym]=one(st,sym,t1)}catch(e){(res[st]=res[st]||{})[sym]={txt:'這次算不出來',hot:false}}
       box().firstChild.textContent=`計算中 ${i}／${jobs.length}…`;setTimeout(step,0)};setTimeout(step,30)}
   function render(res){box().innerHTML=ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
     return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
@@ -2460,8 +2462,8 @@ function snap(sym){const d=D(sym),C=d.C,n=C.length,last=C[n-1],L=LIVE[sym];
   return{sym,last,live:L?L.px:null,asof:ymd(d.T[n-1]),ch7:last/ago(d,7)-1,ch30:last/ago(d,30)-1,ma200,above200:last>ma200,ma50w,above50w:last>ma50w,ath,dd:last/ath-1,fundAnn:fr,vol30:vol}}
 function snapCards(){const out=[];for(const s of ['BTC','ETH']){const x=snap(s),px=x.live||x.last;
   const trend=x.above200&&x.above50w?['多頭','bull']:!x.above200&&!x.above50w?['空頭','bear']:['震盪','neu'];
-  out.push(`<div class="card"><div class="k">${s} ${x.live?'即時':'收盤 '+x.asof.slice(5)}</div><div class="v">$${fmt(px,0)}</div><div class="s"><span class="${cls(x.ch7)}">7 天 ${sg(x.ch7)}</span>　<span class="${cls(x.ch30)}">30 天 ${sg(x.ch30)}</span></div></div>`,
-    `<div class="card"><div class="k">${s} 趨勢 <span class="pill ${trend[1]}">${trend[0]}</span></div><div class="s" style="margin-top:6px">200 日線 $${fmt(x.ma200,0)}（${x.above200?'站上':'跌破'}）<br>50 週線 $${fmt(x.ma50w,0)}（${x.above50w?'站上':'跌破'}）<br>距高點 ${sg(x.dd)}・年化波動 ${(x.vol30*100).toFixed(0)}%</div></div>`)}
+  out.push(`<div class="card"><div class="k">${s} ${x.live?'即時':'收盤 '+x.asof.slice(5)}</div><div class="v">$${fmt(px,0)}</div><div class="s tlines" style="margin-top:4px"><div class="${cls(x.ch7)}">7 天 ${sg(x.ch7)}</div><div class="${cls(x.ch30)}">30 天 ${sg(x.ch30)}</div></div></div>`,
+    `<div class="card"><div class="k">${s} 趨勢 <span class="pill ${trend[1]}">${trend[0]}</span></div><div class="s tlines" style="margin-top:6px"><div>200 日線 $${fmt(x.ma200,0)} <span class="${x.above200?'pos':'neg'}">${x.above200?'站上':'跌破'}</span></div><div>50 週線 $${fmt(x.ma50w,0)} <span class="${x.above50w?'pos':'neg'}">${x.above50w?'站上':'跌破'}</span></div><div>距高點 ${sg(x.dd)}</div><div>年化波動 ${(x.vol30*100).toFixed(0)}%</div></div></div>`)}
   return out.join('')}
 
 // ── 簡單的 Markdown 轉 HTML（只處理標題、粗體、清單、段落）──
@@ -2598,16 +2600,18 @@ function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x
   const ev=evList()[0];if(ev){const ms=ev.t-Date.now(),d=Math.floor(ms/86400e3),h=Math.floor(ms%86400e3/3600e3),mi=Math.floor(ms%3600e3/60e3),left=ms<=0?'進行中':d?`${d} 天 ${h} 小時`:h?`${h} 小時 ${mi} 分`:`${mi} 分`;
     T.push(`<div class="t${ms<86400e3?' hot':''}" data-go="ev" data-i="${ev.i}"><div class="k">下一個事件 <span>›</span></div><div class="v">${left}</div><div class="s">${esc(ev.title)}</div></div>`)}
   let sg=null;try{sg=JSON.parse(localStorage.getItem('sig')||'null')}catch(e){}
+  let cur='';try{const H=Engine.load('BTC');cur=String(H.T[H.n-1]+3600)}catch(e){}
+  if(sg&&sg.res&&sg.k!==cur)sg=null;   // 舊資料算的不顯示，等背景重算（開 App 後自動算，見 sigdone）
   if(sg&&sg.res){let hold=0,hot=0;for(const st in sg.res)for(const sym in sg.res[st]){const x=sg.res[st][sym];if(!x)continue;if(/持倉中/.test(x.txt))hold++;if(x.hot)hot++}
-    T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個策略持倉中（24 小時內）</div></div>`)}
-  else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px">點這裡計算</div><div class="s">看 8 個策略現在持倉或空手</div></div>`);
+    T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個持倉中${hot?'・24 小時內有新進出場':''}</div></div>`)}
+  else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px">計算中…</div><div class="s">正在算 8 個策略現在持倉或空手</div></div>`);
   if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
   box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
 document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;
   if(g==='fng'){window.FngHist&&FngHist.open()}else if(g==='ev'){openEv(+t.dataset.i)}
   else if(g==='chart'){const s=document.querySelector('#cvSym');if(s&&s.value!==t.dataset.sym){s.value=t.dataset.sym;s.dispatchEvent(new Event('change'))}$('#nav_chart').click()}
   else{const b=$('#nav_'+g);b&&b.click()}});
-setInterval(()=>{if($('#newsView').classList.contains('on'))renderSum()},60000);
+setInterval(()=>{if($('#newsView').classList.contains('on'))renderSum()},60000);addEventListener('sigdone',()=>{if($('#newsView').classList.contains('on'))renderSum()});
 function renderNews(){const box=$('#newsBox');if(!box)return;
   const tags=['全部',...new Set(NEWS.map(n=>n.tag).filter(Boolean))];
   $('#newsChips').innerHTML=tags.map(t=>`<button class="${t===filter?'on':''}">${esc(t)}</button>`).join('');
@@ -2735,7 +2739,9 @@ if($('#newsView').classList.contains('on'))open();
 // 啟動：先用歷史資料畫卡片，拿到即時價再更新
 renderCoins();
 // 開場畫面等這些都抓完才進去：即時價格、市場分析（含恐懼貪婪、過去分析）、通知紀錄
-{const B=window.__boot||[];B.push(syncAll(),window.NewsTab.open());if(window.NotifyTab)B.push(NotifyTab.open())}
+{const B=window.__boot||[];B.push(syncAll(),window.NewsTab.open());if(window.NotifyTab)B.push(NotifyTab.open());
+  // 價格同步完後在背景算今日訊號，市場分析的「今日摘要」才有最新的持倉／新訊號
+  Promise.allSettled(B.slice()).then(()=>setTimeout(()=>window.SigTab&&SigTab.open(),1500))}
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastSync>25000)syncAll()});
 // 選項面板：加標題、遮罩；點遮罩就關閉
