@@ -2553,20 +2553,21 @@ const Opt=(()=>{const SEL={},RES={},JOBS=[];let lastP=0;
   function paint(){document.querySelectorAll('#myPane .mys').forEach(c=>{const k=c.dataset.k,o=c.querySelector('.mopt');if(!o)return;
       const j=JOBS.find(x=>x.lk===k&&!x.done)||JOBS.find(x=>x.lk===k&&x.done&&!x.seen);
       if(!j){o.innerHTML='';return}
-      if(j.done){const L=LEV[j.key];o.innerHTML=`<button class="oline" type="button" data-a="opt">✓ ${j.lev?(L&&L.best?'最佳槓桿 '+L.best.lev+' 倍':'每種槓桿都爆倉'):'最佳參數找好了'}　${j.lev?'看結果':'看前 5 名'} ›</button>`;return}
+      if(j.done){const L=LEV[j.key];o.innerHTML=`<button class="oline" type="button" data-a="opt">✓ ${j.lev?(L&&L.best?'最佳槓桿 '+L.best.lev+' 倍':'每種槓桿都爆倉'):'最佳參數找好了'}　${j.lev?'看結果':'看前 10 名'} ›</button>`;return}
       const f=j.i/j.n,el=(Date.now()-j.at)/1000,left=j.i?el/j.i*(j.n-j.i):NaN;
       o.innerHTML=`<div class="osub"><span class="spin"></span>${j.lev?'找最佳槓桿':'找最佳參數'} ${Math.round(f*100)}%　${isFinite(left)?'還要 '+eta(left):'估算中…'}</div><div class="bar"><i style="width:${(f*100).toFixed(1)}%"></i></div>`})}
   function seen(k){JOBS.forEach(j=>{if(j.lk===k&&j.done)j.seen=true});paint()}
   function pane(){const st=$('#sStrat').value,sym=$('#sSym').value,box=$('#optPane'),r=RES[st+'|'+sym],run=JOBS.find(j=>!j.done&&!j.lev&&j.key===st+'|'+sym);
     pane2();const lv=$('#optPane').firstElementChild&&$('#optPane').firstElementChild.id==='levRes'?$('#levRes').outerHTML:'';
-    if(!r){if(lv){box.innerHTML=lv;bindLev();return}box.innerHTML=`<div class="card" style="padding:14px;line-height:1.7">${run?`正在找最佳參數（${run.i}／${run.n} 組），跑完會列在這裡。`:'還沒找過最佳參數。到「策略參數」勾要調的參數，按「一鍵找最佳參數」，跑完前 5 名會列在這裡，可以直接套用。'}</div>`;return}
+    if(!r){if(lv){box.innerHTML=lv;bindLev();return}box.innerHTML=`<div class="card" style="padding:14px;line-height:1.7">${run?`正在找最佳參數（${run.i}／${run.n} 組），跑完會列在這裡。`:'還沒找過最佳參數。到「策略參數」勾要調的參數，按「一鍵找最佳參數」，跑完前 10 名會列在這裡，可以直接套用。'}</div>`;return}
     const {defs,top,base}=r;
     const prm=(c,cmp)=>defs.map((d,j)=>{const ch=cmp&&c[j]!==cur[d[0]];return `<span class="op${ch?' ch':''}">${lab(d)} <b>${c[j]}</b>${ch?`<s>${cur[d[0]]}</s>`:''}</span>`}).join('');
-    box.innerHTML=lv+`<div class="card" style="padding:12px 14px"><h3 style="margin:0 0 6px">最佳參數前 5 名（${esc(r.per)}，槓桿 ${r.lev??'—'} 倍不變）</h3><p class="small">排名＝報酬÷最大回撤，試了 ${r.cnt} 組。只是這段期間的回測，換期間可能就不是最好。黃色＝跟目前不同的參數。</p>
+    box.innerHTML=lv+`<div class="card" style="padding:12px 14px"><h3 style="margin:0 0 6px">最佳參數前 10 名（${esc(r.per)}，槓桿 ${r.lev??'—'} 倍不變）</h3><p class="small">排名＝報酬÷最大回撤，試了 ${r.cnt} 組。只是這段期間的回測，換期間可能就不是最好。黃色＝跟目前不同的參數。</p>
       <div class="optl">${base?`<div class="oc base"><div class="oh"><b>目前參數</b><span>報酬 ${fmt(base.mult,2)} 倍・回撤 ${pct(base.mdd)}</span></div><div class="ops">${prm(base.c,false)}</div></div>`:''}
       ${top.map((x,k)=>`<div class="oc"><div class="oh"><b>第 ${k+1} 名</b><span>報酬 <i class="${x.mult>=1?'pos':'neg'}">${fmt(x.mult,2)}</i> 倍・回撤 ${pct(x.mdd)}</span><button class="btn ghost optUse" data-k="${k}">套用</button></div><div class="ops">${prm(x.c,true)}</div></div>`).join('')||'<p class="small">這些組合都爆倉了，換參數或降槓桿再試。</p>'}</div></div>`;
-    box.querySelectorAll('.optUse').forEach(b=>b.onclick=()=>{const x=top[+b.dataset.k];defs.forEach((d,j)=>cur[d[0]]=x.c[j]);setMyP(st,sym,cur);buildParams();runSim();pane();
-      b.textContent='已套用';const t=$('#themeToast');if(t){t.textContent='已套用，到「績效」看回測';t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1600)}});bindLev()}
+    box.querySelectorAll('.optUse').forEach(b=>b.onclick=()=>{const x=top[+b.dataset.k];defs.forEach((d,j)=>cur[d[0]]=x.c[j]);setMyP(st,sym,cur);r.base={c:x.c.slice(),mult:x.mult,mdd:x.mdd};
+      if(SigLock.editKey())SigLock.save(false);buildParams();runSim();pane();   // 套用＝目前參數換成這組，也存回「我的策略」
+      const t=$('#themeToast');if(t){t.textContent=SigLock.editKey()?'已套用並存到我的策略':'已套用，到「績效」看回測';t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1600)}});bindLev()}
   function start(){const st=$('#sStrat').value,sym=$('#sSym').value,btn=$('#optBtn'),key=st+'|'+sym;if(btn.disabled)return;
     if(JOBS.some(j=>!j.done&&j.key===key)){alert('這個策略正在找最佳參數');return}
     const N=nums(st),S=SEL[st]||N.slice(0,4).map(d=>d[0]),defs=N.filter(d=>S.includes(d[0])),wl=S.includes('lev');
@@ -2585,7 +2586,7 @@ const Opt=(()=>{const SEL={},RES={},JOBS=[];let lastP=0;
         try{const r=simulate(st,sym,t0,t1,p);if(!r.liq)res.push({c,mult:r.mult,mdd:r.mdd,score:(r.mult-1)/Math.max(r.mdd,0.05),base:j.i===0})}catch(e){}}
       job.set(j.i/j.n);const now=Date.now();if(now-lastP>250){lastP=now;paint()}
       if(j.i<combos.length){setTimeout(step,0);return}
-      job.end();res.sort((a,b)=>b.score-a.score);const top=res.filter(r=>!r.base).slice(0,5),base=res.find(r=>r.base);
+      job.end();res.sort((a,b)=>b.score-a.score);const top=res.filter(r=>!r.base).slice(0,10),base=res.find(r=>r.base);
       RES[key]={defs,top,base,per,cnt:combos.length,lev:c0.lev};j.done=true;paint();
       if(wl){const bp=Object.assign({},c0);if(top[0])defs.forEach((d,k)=>bp[d[0]]=top[0].c[k]);startLev(bp,false,st,sym)}   // 也勾了槓桿：用第 1 名參數接著找最佳槓桿
       if(top[0]){const bp=Object.assign({},c0);defs.forEach((d,k)=>bp[d[0]]=top[0].c[k]);RunLog.add({kind:'opt',st,sym,t0,t1,per:so.value==='custom'?null:per,cap,p:bp,mult:top[0].mult,mdd:top[0].mdd,base:base?{mult:base.mult,mdd:base.mdd}:null,cnt:combos.length})}
@@ -2601,7 +2602,7 @@ const Opt=(()=>{const SEL={},RES={},JOBS=[];let lastP=0;
       <p class="small">${L.liqAt?`${L.liqAt} 倍以上這段期間會爆倉。`:'試到 200 倍都沒爆倉。'}目前 ${L.cur} 倍。試了 ${L.rows.length} 種槓桿${RES[st+'|'+sym]&&RES[st+'|'+sym].top[0]?'（其他參數用最佳參數第 1 名，套用會一起填入）':'，其他參數不變'}。槓桿越接近爆倉線風險越大，實際用建議打折。</p>
       <button class="btn" id="levUse" type="button" style="width:100%;margin:4px 0 8px">套用 ${L.best.lev} 倍</button>`:'<p class="small">每一種槓桿都爆倉了，先調其他參數（例如停損）再試。</p>'}
       <table class="cmpt" style="width:100%"><tr><th>槓桿</th><th>倍數</th><th>回撤</th></tr>${rows.map(r=>`<tr${r.best?' style="color:var(--acc);font-weight:700"':''}><td>${r.lev} 倍${r.best?' ★':''}</td><td>${r.liq?'<span class="neg">爆倉</span>':fmt(r.mult,2)}</td><td>${r.liq?'—':pct(r.mdd)}</td></tr>`).join('')}</table></div>`;bindLev()}
-  function bindLev(){const b=$('#levUse');if(!b)return;b.onclick=()=>{const st=$('#sStrat').value,sym=$('#sSym').value,L=LEV[st+'|'+sym];if(!L||!L.best)return;Object.assign(cur,L.p,{lev:L.best.lev});setMyP(st,sym,cur);buildParams();runSim();b.textContent='已套用 '+L.best.lev+' 倍'}}
+  function bindLev(){const b=$('#levUse');if(!b)return;b.onclick=()=>{const st=$('#sStrat').value,sym=$('#sSym').value,L=LEV[st+'|'+sym];if(!L||!L.best)return;Object.assign(cur,L.p,{lev:L.best.lev});setMyP(st,sym,cur);if(SigLock.editKey())SigLock.save(false);buildParams();runSim();b.textContent='已套用 '+L.best.lev+' 倍'}}
   function startLev(c0,nav,st0,sym0){const st=st0||$('#sStrat').value,sym=sym0||$('#sSym').value,key=st+'|'+sym,btn=$('#optBtn');
     const[t0,t1]=period(),cap=+$('#sCap').value||1000,so=$('#sPeriod'),per=so.value==='custom'?tw(t0).slice(0,10)+' → '+tw(t1).slice(0,10):so.options[so.selectedIndex].textContent;
     const name=SigLock.editName()||RunLog.sName(st),j={key,st,sym,name,lk:lkey(st,sym),lev:true,i:0,n:40,at:Date.now(),done:false};JOBS.unshift(j);
@@ -3196,7 +3197,7 @@ $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
   const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   list.innerHTML='<div class="hd">範例策略：點一個看回測，或到「我的策略」新增自己的</div>'+[...sel.options].map(o=>{const m=o.textContent.match(/^(\d+)\.\s*(.*)$/)||[0,'',o.textContent],I=INFO[o.value]||['',[]];
     return `<button class="scard" type="button" data-v="${o.value}"><span class="no">${m[1]}</span><span class="bd"><span class="nm">${esc(m[2])}</span>${I[0]?`<span class="ds" style="display:block">${esc(I[0])}</span>`:''}<span class="tg">${I[1].map(t=>`<span>${esc(t)}</span>`).join('')}</span></span><span class="ar" aria-hidden="true">›</span></button>`}).join('');
-  const pick=on=>{SV.classList.toggle('picking',on);SV.scrollTop=0;if(!on){window.DTab&&DTab.set('r');setTimeout(()=>dispatchEvent(new Event('resize')),30)}};window.StratNav={pick};
+  const pick=on=>{SV.classList.toggle('picking',on);SV.scrollTop=0;if(on&&window.MyStrat&&!$('#myPane').hidden)MyStrat.render();if(!on){window.DTab&&DTab.set('r');setTimeout(()=>dispatchEvent(new Event('resize')),30)}};window.StratNav={pick};
   list.addEventListener('click',e=>{const b=e.target.closest('.scard');if(!b)return;if(sel.value!==b.dataset.v){sel.value=b.dataset.v;sel.dispatchEvent(new Event('change'))}pick(false)});
   $('#sBackBtn').onclick=()=>pick(true);
   // 從底部「策略分析」進來一律先看清單
