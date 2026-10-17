@@ -428,17 +428,15 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .card,.scard,#left .ctl,details.fold{background:color-mix(in srgb,var(--panel) 85%,transparent)}
 /* 底部分頁列（手機）：iOS 風格，固定五格，點一下或在列上滑動選取，膠囊底色跟著跑 */
 @media (max-width:959px){
-.bnav{background:color-mix(in srgb,var(--navbg) 82%,transparent);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6);border-top:.5px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.bnav{background:color-mix(in srgb,var(--navbg) 82%,transparent);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6);border-top:.5px solid var(--line);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .bnav::after{background:var(--navbg)}
-.bnav .tpill{position:absolute;top:6px;left:0;height:calc(var(--nav-h) - 12px);width:var(--tw,20%);transform:translateX(var(--tx,0));border-radius:16px;background:color-mix(in srgb,var(--acc) 15%,transparent);transition:transform .42s cubic-bezier(.3,1.35,.5,1),width .3s;pointer-events:none}
-.bnav.drag .tpill{transition:transform .08s linear;background:color-mix(in srgb,var(--acc) 22%,transparent)}
+.bnav .tpill{position:absolute;top:6px;left:0;height:calc(var(--nav-h) - 12px);width:var(--tw,20%);transform:translateX(var(--tx,0));border-radius:16px;background:color-mix(in srgb,var(--acc) 15%,transparent);transition:transform .32s cubic-bezier(.25,1,.5,1),width .25s;will-change:transform;pointer-events:none}
 .bnav button{z-index:1;font-size:10.5px;font-weight:600;letter-spacing:-.2px;white-space:nowrap;gap:2px;transition:color .2s,transform .18s}
 .bnav button svg{width:24px;height:24px}
 .bnav button.on{color:var(--acc)}.bnav button.on::before{display:none}
-.bnav button:active,.bnav button.hov{transform:scale(.92)}
-.view.in-l{animation:vin-l .28s cubic-bezier(.2,.8,.3,1)}.view.in-r{animation:vin-r .28s cubic-bezier(.2,.8,.3,1)}
-@keyframes vin-l{from{opacity:.4;transform:translateX(-28px)}to{opacity:1;transform:none}}
-@keyframes vin-r{from{opacity:.4;transform:translateX(28px)}to{opacity:1;transform:none}}
+.bnav button:active{transform:scale(.92)}
+.view.vfade{animation:vfade .16s ease-out}
+@keyframes vfade{from{opacity:.35}to{opacity:1}}
 }
 @media (min-width:960px){.bnav::after{display:none}.bnav button.on{color:var(--acc)}.bnav button.on::before{background:var(--acc);box-shadow:0 0 10px var(--acc)}}
 /* 切換模式時的小提示 */
@@ -1934,7 +1932,9 @@ function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css
 // ── 分頁 ──
 const VIEWS=['chart','sig','strat','news','notify','set'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k||k==='set'&&v==='notify')});
-  if(v==='strat'&&!pChart){initStrat();}if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig')SigTab.open();if(v==='notify')NotifyTab.open();if(v==='set')setTab();setTimeout(resizeAll,30);}
+  if(v==='strat'&&!pChart){initStrat();}
+  // 先讓分頁切過去畫出來，各頁的載入晚一點再做，點下去不卡
+  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig')SigTab.open();if(v==='notify')NotifyTab.open();if(v==='set')setTab();resizeAll()},20));}
 VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
 $('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
 // 設定分頁：外觀模式、資料狀態、一鍵更新
@@ -3673,35 +3673,16 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
   hold.addEventListener('click',e=>{if(e.target===hold)document.querySelectorAll('.dd.open').forEach(x=>x.classList.remove('open'))})})();
 // 手機底部導覽改成滾輪：左右滑可以一直循環，停在正中間的分頁就打開；點旁邊那格會轉到中間
 // 做法：前後各複製一組按鈕，停下來時如果在複製的那組，就無聲跳回中間那組的同一格
-// 手機底部分頁列（iOS 風格）：點一下切換，或手指在列上左右滑、放開就選那格；內容區左右滑也能換頁
+// 手機底部分頁列（iOS 原生風格）：只用點的，目前分頁有膠囊底色；換頁時新頁面很快淡入
 (function(){const nav=document.querySelector('.bnav');if(!nav||matchMedia('(min-width:960px)').matches)return;
-  const tabs=[...nav.querySelectorAll('button')].filter(b=>!b.hidden),N=tabs.length;
+  const tabs=[...nav.querySelectorAll('button')].filter(b=>!b.hidden);
   const pill=Object.assign(document.createElement('i'),{className:'tpill'});nav.prepend(pill);
   const cur=()=>tabs.findIndex(b=>b.classList.contains('on'));
   const place=i=>{const b=tabs[Math.max(0,i)];if(!b)return;nav.style.setProperty('--tw',(b.offsetWidth-10)+'px');nav.style.setProperty('--tx',(b.offsetLeft+5)+'px')};
-  const tick=()=>{try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}};
   let last=cur();
-  // 換頁時膠囊滑過去，新頁面從對應方向滑進來
   new MutationObserver(()=>{const i=cur();if(i<0||i===last)return;place(i);
-    if(last>=0){const v=document.querySelector('.view.on');if(v){v.classList.remove('in-l','in-r');void v.offsetWidth;v.classList.add(i>last?'in-r':'in-l');setTimeout(()=>v.classList.remove('in-l','in-r'),320)}}
+    if(last>=0){const v=document.querySelector('.view.on');if(v){v.classList.remove('vfade');void v.offsetWidth;v.classList.add('vfade');setTimeout(()=>v.classList.remove('vfade'),200)}}
     last=i}).observe(nav,{subtree:true,attributes:true,attributeFilter:['class']});
-  // 在分頁列上拖曳選取
-  const idxAt=x=>{const r=nav.getBoundingClientRect();return Math.max(0,Math.min(N-1,Math.floor((x-r.left)/(r.width/N))))};
-  let sx=0,drag=false,hv=-1;
-  const hover=i=>{if(i===hv)return;tabs.forEach((b,k)=>b.classList.toggle('hov',k===i));if(hv>=0)tick();hv=i};
-  nav.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;drag=false;hv=-1},{passive:true});
-  nav.addEventListener('touchmove',e=>{const x=e.touches[0].clientX;if(!drag&&Math.abs(x-sx)<8)return;drag=true;nav.classList.add('drag');
-    const r=nav.getBoundingClientRect(),w=r.width/N;nav.style.setProperty('--tx',(5+Math.max(0,Math.min(r.width-w,x-r.left-w/2)))+'px');hover(idxAt(x))},{passive:true});
-  const end=e=>{if(!drag)return;drag=false;nav.classList.remove('drag');tabs.forEach(b=>b.classList.remove('hov'));
-    const i=idxAt(e.changedTouches[0].clientX);hv=-1;if(i!==cur())tabs[i].click();else place(i)};
-  nav.addEventListener('touchend',end,{passive:true});nav.addEventListener('touchcancel',()=>{drag=false;nav.classList.remove('drag');tabs.forEach(b=>b.classList.remove('hov'));place(cur())},{passive:true});
-  // 內容區左右滑換頁（從圖表、輸入框、可橫向捲動的地方開始的不算）
-  const main=document.querySelector('main');let t0=null;
-  const blocked=el=>{for(;el&&el!==main;el=el.parentElement){if(el.matches('canvas,input,textarea,select,[data-noswipe],.tv-lightweight-charts'))return true;
-    if(el.scrollWidth>el.clientWidth+2){const o=getComputedStyle(el).overflowX;if(o==='auto'||o==='scroll')return true}}return false};
-  main&&main.addEventListener('touchstart',e=>{t0=e.touches.length===1&&!blocked(e.target)&&!document.body.classList.contains('ddopen')?{x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}:null},{passive:true});
-  main&&main.addEventListener('touchend',e=>{if(!t0)return;const p=e.changedTouches[0],dx=p.clientX-t0.x,dy=p.clientY-t0.y,dt=Date.now()-t0.t;t0=null;
-    if(dt>700||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8)return;const i=cur();if(i<0)return;const j=i+(dx<0?1:-1);if(j>=0&&j<N){tick();tabs[j].click()}},{passive:true});
   const init=()=>place(cur());init();addEventListener('resize',init);setTimeout(init,300);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(init)})();
 // 手機上的下拉：Safari 會把可拖曳(draggable)的項目當成拖曳開始，點了沒反應。
 // 觸控裝置一律關掉拖曳排序，並用 touchend 直接判定「點一下」來選取，不依賴 click。
