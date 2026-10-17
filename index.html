@@ -499,6 +499,9 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #newsView .foldable.shut .chev{transform:rotate(-90deg)}#newsView .foldable.shut>:not(h2){display:none!important}
 #newsView .card.clamp{max-height:360px;overflow:hidden;position:relative}#newsView .card.clamp::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(transparent,var(--panel));pointer-events:none}
 #newsView .morebtn{display:block;width:100%;margin:6px 0 0;padding:9px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--acc);font-size:13px;font-weight:600}
+.bnav button[hidden]{display:none!important}
+.setgo{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;color:var(--text);padding:14px;cursor:pointer;border:1px solid var(--line)}.setgo span{flex:1;min-width:0}.setgo b{display:block;font-size:15px}.setgo small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.5}.setgo i{font-style:normal;color:var(--muted);font-size:20px}
+.nback{background:none;border:0;color:var(--acc);font:inherit;font-size:15px;padding:4px 2px 8px;cursor:pointer}
 #notifyView .tgcats{padding:4px 14px}#notifyView .tgc{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}#notifyView .tgc:first-child{border-top:0}
 #notifyView .tgc .ic{font-size:20px;flex:none;width:28px;text-align:center}#notifyView .tgc .bd{flex:1;min-width:0}#notifyView .tgc .bd b{display:block;font-size:14.5px}#notifyView .tgc .bd span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:1px}
 #notifyView .tgjoin{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-weight:700;font-size:13px;text-decoration:none}
@@ -550,7 +553,7 @@ function hide(){if(done)return;done=1;tv=100;want=1}
 window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 
 <header class="topbar"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="hmb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a1d7a"/><stop offset="1" stop-color="#160b34"/></linearGradient><radialGradient id="hmg" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="100" rx="22" fill="url(#hmb)"/><rect width="100" height="100" rx="22" fill="url(#hmg)"/><g transform="translate(0.0,0.0) scale(1.0)"><polygon points="80.0,70.0 65.0,84.3 35.0,84.3 20.0,70.0 35.0,55.7 65.0,55.7" fill="#9468e8" fill-opacity="0.26" stroke="#9468e8" stroke-width="3.4" stroke-opacity="0.75" stroke-linejoin="round"/><polygon points="80.0,53.0 65.0,67.3 35.0,67.3 20.0,53.0 35.0,38.7 65.0,38.7" fill="#d8b6ff" fill-opacity="0.32" stroke="#d8b6ff" stroke-width="3.4" stroke-opacity="0.9" stroke-linejoin="round"/><polygon points="80.0,36.0 65.0,50.3 35.0,50.3 20.0,36.0 35.0,21.7 65.0,21.7" fill="#f6cf6a" fill-opacity="0.35" stroke="#f6cf6a" stroke-width="3.4" stroke-opacity="1" stroke-linejoin="round"/></g></svg></div><div><div class="ttl">HexStack</div><div class="sub">幣策略・BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
-<nav class="bnav"><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>今日訊號</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_notify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>通知</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
+<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>今日訊號</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_notify" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>通知</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
 <main>
 <!-- ───────── 走勢圖 ───────── -->
 <section id="chartView" class="view">
@@ -605,6 +608,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 #stratView:not(.picking)>#sPick{display:none}
 #sTab{margin:12px 12px 0}#sTab button{flex:1}#sTab #rlCnt,#sTab #myCnt{margin-left:4px;font-size:12px;opacity:.75}
 #myPane{padding:12px}#myPane .mys{margin-bottom:10px;padding:12px 14px}#myPane .mys .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}#myPane .mys .hd b{flex:1;min-width:0}
+#myPane .mys{cursor:pointer}#myPane .mys .hd b{display:flex;align-items:center;gap:2px}#myPane .mys .ic{background:none;border:0;padding:4px 5px;color:var(--muted);cursor:pointer;flex:none;display:flex;align-items:center}#myPane .mys .ic:first-of-type{margin-left:4px}#myPane .mys .ic:active{color:var(--acc)}#myPane .mgo{font-size:12px;color:var(--acc);text-align:right;margin-top:6px}
 #myPane .mys .hd .sym{font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
 #myPane .mst{display:flex;gap:6px;margin:10px 0 8px}#myPane .mst div{flex:1;background:var(--panel2);border-radius:10px;padding:7px 8px;font-size:11.5px;color:var(--muted)}#myPane .mst div b{display:block;font-size:15px;color:var(--text);margin-top:2px}
 #myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#myPane .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}
@@ -685,10 +689,10 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
   <div class="col" id="right"><details class="fold" id="expFold"><summary>📖 策略說明</summary><div class="in"><div id="explain"></div></div></details></div>
 </section>
 <section id="newsView" class="view"><div class="wrap">
-  <div class="sect" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="empty">整理中…</div></div></div>
   <div class="sect"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="empty">讀取中…</div></div></div>
-  <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
+  <div class="sect" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="empty">整理中…</div></div></div>
   <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox"></div></div>
+  <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
   <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox"><div class="empty">讀取中…</div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
   <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox"></div></div>
@@ -699,16 +703,17 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
   <div class="sect"><h2>今日訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="card empty">計算中…</div></div></div>
-  <div class="foot">用每個策略的預設參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。<br>內容僅供參考，非投資建議</div>
+  <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 通知 ───────── -->
-<section id="notifyView" class="view"><div class="wrap">
+<section id="notifyView" class="view"><div class="wrap"><button class="nback" id="ntBack" type="button">‹ 設定</button>
   <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。</div><div class="card tgcats" id="tgCats"><div class="empty">讀取中…</div></div><div class="bnhint" id="bnHint"></div><button class="btn" id="bnTest" hidden style="margin:2px 2px 8px">發測試通知</button></div>
   <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog"><div class="empty">讀取中…</div></div></div>
   <div class="foot">通知內容每 15 分鐘更新一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
+  <div class="sect"><h2>通知</h2><button class="card setgo" id="setNotify" type="button"><span><b>通知設定</b><small>策略信號、美股開盤、重要事件、關鍵價位等開關，最近的通知</small></span><i aria-hidden="true">›</i></button></div>
   <div class="sect"><h2>外觀</h2><div class="card"><div class="seg tset" id="themeSeg"><button data-t="dark">預設</button><button data-t="night">深夜</button><button data-t="light">白天</button></div>
     <label class="anrow"><input type="checkbox" id="autoNight"> 晚上 22:00～早上 6:00 自動切到深夜模式</label>
     <div class="small" style="margin-top:8px">也可以點右上角的按鈕依序切換。</div></div></div>
@@ -1898,9 +1903,10 @@ function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css
 
 // ── 分頁 ──
 const VIEWS=['chart','sig','strat','news','notify','set'];
-function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k)});
+function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k||k==='set'&&v==='notify')});
   if(v==='strat'&&!pChart){initStrat();}if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig')SigTab.open();if(v==='notify')NotifyTab.open();if(v==='set')setTab();setTimeout(resizeAll,30);}
 VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
+$('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
   $('#setSrc').textContent=tx('#liveTag').replace(/^價格：|^即時：/,'');
@@ -2656,9 +2662,9 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     if(recent.length)txt+=`<br><span class="tbadge">24h 內</span> ${recent.slice(-3).map(m=>`${md(m.t)} ${m.text||(m.type==='entry'?'進場':m.type==='stop'?'停損':'出場')}`).join('、')}`;
     return {txt,hot:recent.length>0,my:!!my}}
   function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=t1+JSON.stringify(window.SigLock?[SigLock.get(),SigLock.names(),SigLock.paused()]:{});if(busy||k===key)return;busy=true;
-    $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];ORDER.forEach(st=>['BTC','ETH'].forEach(sym=>{if(BEST[st]&&BEST[st][sym])jobs.push([st,sym])}));
-    // 我的策略裡的自組策略：照各自存的規則算，排在最上面
-    const L=window.SigLock?SigLock.get():{};Object.keys(L).forEach(k=>{const[st,sym]=k.split('|');if(st==='cus'&&BEST.cus[sym])jobs.push(['cus',sym,k])});
+    $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];
+    // 只列「我的策略」：每個照各自存的參數算（範例策略在「策略分析 › 策略」自己研究）
+    const L=window.SigLock?SigLock.get():{};Object.keys(L).forEach(k=>{const[st,sym]=k.split('|');if(BEST[st]&&BEST[st][sym])jobs.push([st,sym,k])});
     try{const c=JSON.parse(localStorage.getItem('sig')||'null');if(c&&c.k===k){render(c.res);key=k;busy=false;dispatchEvent(new Event('sigdone'));return}}catch(e){}
     const res={};let i=0;box().innerHTML=`<div class="card empty">計算中 0／${jobs.length}…</div>`;
     const step=()=>{if(i>=jobs.length){render(res);key=k;busy=false;try{localStorage.setItem('sig',JSON.stringify({k,res}))}catch(e){}dispatchEvent(new Event('sigdone'));return}const [st,sym,mk]=jobs[i++];
@@ -2666,8 +2672,9 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
       else try{(res[st]=res[st]||{})[sym]=one(st,sym,t1)}catch(e){(res[st]=res[st]||{})[sym]={txt:'這次算不出來',hot:false}}
       box().firstChild.textContent=`計算中 ${i}／${jobs.length}…`;setTimeout(step,0)};setTimeout(step,30)}
   function render(res){const M=res.mine||{},P=window.SigLock?SigLock.paused():{},mk=Object.keys(M).filter(k=>window.SigLock&&SigLock.get()[k]);
-    box().innerHTML=(mk.length?`<div class="small" style="color:var(--muted);margin:2px 2px 8px">我的自組策略</div>`+mk.map(k=>{const x=M[k],sym=k.split('|')[1];
-      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">🧩</span>${(SigLock.name(k)||'').replace(/[&<>]/g,'')}${P[k]?'<span class="small" style="color:var(--muted);font-weight:500">　通知暫停</span>':''}</div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join('')+`<div class="small" style="color:var(--muted);margin:12px 2px 8px">範例策略</div>`:'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
+    if(!mk.length){box().innerHTML='<div class="card empty" style="line-height:1.8">「我的策略」還沒有策略。<br>到「策略分析 › 我的策略」新增，這裡就會列出每個策略現在持倉還是空手、最近 24 小時有沒有進出場。</div>';return}
+    box().innerHTML=(mk.length?mk.map((k,n)=>{const x=M[k],sym=k.split('|')[1];
+      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">${n+1}</span>${(SigLock.name(k)||'').replace(/[&<>]/g,'')}${P[k]?'<span class="small" style="color:var(--muted);font-weight:500">　通知暫停</span>':''}</div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join(''):'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
     return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}${x.my?' 🔒':''}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
   // 點一列：跳到策略分析的那個策略、那個幣
   document.addEventListener('click',e=>{const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
@@ -2721,14 +2728,13 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
   function syncSym(){const st=$('#maSt'),sy=$('#maSym');if(!st||!sy)return;const o=ONLY[st.value];[...sy.options].forEach(x=>x.disabled=!!o&&x.value!==o||!BEST[st.value][x.value]);if(sy.selectedOptions[0].disabled)sy.value=[...sy.options].find(x=>!x.disabled).value}
   function render(){count();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
-    const top=`<div id="optJobs"></div><button class="btn ghost" id="myCmp" style="width:100%;margin:0 0 8px"${cmpOn?' aria-pressed="true"':''}>${cmpOn?'收起策略比較':'📊 策略比較'}</button><div id="myCmpBox"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
+    const top=`<div id="optJobs"></div><button class="btn ghost" id="myCmp" style="width:100%;margin:0 0 8px"${cmpOn?' aria-pressed="true"':''}>${cmpOn?'收起策略比較':'策略比較'}</button><div id="myCmpBox"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(cmpOn)setTimeout(cmp,0);
     if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     box().innerHTML=top+`<p class="mtip">${sigOn()?'通知會照每張卡的參數推播，App 關著也收得到。':'<b>還沒開通知</b>：到「通知」打開「策略信號」，下面開著通知的策略才會推播。'}</p>`+ks.map(k=>{const[st,sym]=SigLock.part(k);
-      return `<div class="card mys" data-k="${esc(k)}"><div class="hd"><b>${esc(SigLock.name(k))}</b><span class="sym">${sym}</span><span class="small" style="color:var(--muted);font-weight:500">通知</span><button class="sw${P[k]?'':' on'}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div>
+      return `<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.name(k))}<button class="ic" type="button" data-a="ren" aria-label="改名"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="ic" type="button" data-a="del" aria-label="移除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></b><span class="sym">${sym}</span><span class="small" style="color:var(--muted);font-weight:500">通知</span><button class="sw${P[k]?'':' on'}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div>
         <div class="small" style="color:var(--muted);margin-top:2px">${esc(st==='cus'?Rules.sum(L[k]):SigLock.nm(st))}</div>
-        <div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div><div class="mnow small">計算中…</div>
-        <div class="btnrow"><button class="btn ghost" data-a="open">打開調整</button><button class="btn ghost" data-a="ren">改名</button><button class="btn ghost" data-a="del">移除</button></div></div>`}).join('');
+        <div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div><div class="mnow small">計算中…</div><div class="mgo">點卡片看績效、調參數 ›</div></div>`}).join('');
     syncSym();window.Opt&&Opt.paint();
     let i=0;const step=()=>{if(i>=ks.length)return;const k=ks[i++],[st,sym]=SigLock.part(k),c=box().querySelector(`.mys[data-k="${CSS.escape(k)}"]`);
       if(c)try{const r=stats(st,sym,L[k]),m=c.querySelectorAll('.mst b'),cls=x=>x>=1?'pos':'neg';
@@ -2737,9 +2743,9 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
         c.querySelector('.mnow').innerHTML=r.now?r.now.txt:''}catch(e){c.querySelector('.mnow').textContent='這次算不出來'}
       setTimeout(step,0)};setTimeout(step,30)}
   // 到參數頁：帶入參數（p＝null 用預設最佳參數），標記正在編輯哪一個
-  function goEdit(st,sym,p,ed){setMyP(st,sym,Object.assign({},BEST[st][sym],p||{}));const same=$('#sStrat').value===st&&$('#sSym').value===sym;
+  function goEdit(st,sym,p,ed,tab){setMyP(st,sym,Object.assign({},BEST[st][sym],p||{}));const same=$('#sStrat').value===st&&$('#sSym').value===sym;
     const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+st+'"]');if(b)b.click();
-    if($('#sStrat').value!==st){$('#sStrat').value=st;$('#sStrat').dispatchEvent(new Event('change'))}if(same){buildParams();runSim()}SigLock.setEdit(ed);const d=$('#sDet');if(d)d.open=true;window.DTab&&DTab.set('p')}   // 第 3 步：直接打開參數區
+    if($('#sStrat').value!==st){$('#sStrat').value=st;$('#sStrat').dispatchEvent(new Event('change'))}if(same){buildParams();runSim()}SigLock.setEdit(ed);const d=$('#sDet');if(d)d.open=true;window.DTab&&DTab.set(tab||'p')}   // 第 3 步：直接打開參數區
   document.addEventListener('change',e=>{if(e.target.id==='maSt')syncSym();if(e.target.id==='maDir'){const k=keep();dir=e.target.value;render();k()}});
   const keep=()=>{const v={sym:$('#maSym')&&$('#maSym').value,dir:$('#maDir')&&$('#maDir').value,name:$('#maName')&&$('#maName').value};
     return ()=>{if(v.sym&&$('#maSym'))$('#maSym').value=v.sym;if(v.dir&&$('#maDir'))$('#maDir').value=v.dir;if(v.name&&$('#maName'))$('#maName').value=v.name;syncSym()}};
@@ -2756,17 +2762,19 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;render();goEdit(st,sym,null,{st,sym,name:n});return}
     const c=e.target.closest('#myPane .mys');if(!c)return;const k=c.dataset.k,[st,sym]=SigLock.part(k);
     if(e.target.closest('.sw')){const P=SigLock.paused();SigLock.pause(k,!P[k]);render();return}
-    const a=e.target.closest('[data-a]');if(!a)return;
+    const a=e.target.closest('[data-a]');if(!a){goEdit(st,sym,SigLock.get()[k],k,'r');return}   // 點卡片：打開，先看績效
     if(a.dataset.a==='del'){if(confirm(`把「${SigLock.name(k)}」從我的策略移除？`)){SigLock.remove(k);SigTab.reset();render()}return}
     if(a.dataset.a==='ren'){const n=prompt('新名字',SigLock.name(k));if(n&&n.trim()){SigLock.rename(k,n.trim());render()}return}
     goEdit(st,sym,SigLock.get()[k],k)});
-  return {render,count,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k)}}})();window.MyStrat=MyStrat;
-// 第一次打開：「我的策略」先放兩個做多範例（海龜、均線金叉死叉），通知先關著；移除後不會再放回來
-(()=>{try{if(localStorage.getItem('mySeed'))return;localStorage.setItem('mySeed','1');
+  return {render,count,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k,'r')}}})();window.MyStrat=MyStrat;
+// 第一次打開：「我的策略」先放兩個做多範例（海龜、均線金叉死叉），預設只開均線的通知；移除後不會再放回來
+(()=>{try{const sd=localStorage.getItem('mySeed');
+  if(sd==='1'){localStorage.setItem('mySeed','2');const O=JSON.parse(localStorage.getItem('sigLockOff')||'{}');if(O['cus|BTC|ex2']){delete O['cus|BTC|ex2'];localStorage.setItem('sigLockOff',JSON.stringify(O))}return}   // 均線範例改成預設開通知
+  if(sd)return;localStorage.setItem('mySeed','2');
   const J=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return {}}},cl=p=>{const o=Object.assign({},p);delete o.capital;return o};
   const L=J('sigLock'),N=J('sigLockName'),O=J('sigLockOff');
   L['tur|BTC|ex1']=cl(Object.assign({},BEST.tur.BTC,{dir:'long'}));N['tur|BTC|ex1']='範例：海龜（做多）';O['tur|BTC|ex1']=true;
-  L['cus|BTC|ex2']=cl(BEST.cus.BTC);N['cus|BTC|ex2']='範例：均線金叉做多、死叉出場';O['cus|BTC|ex2']=true;
+  L['cus|BTC|ex2']=cl(BEST.cus.BTC);N['cus|BTC|ex2']='範例：均線金叉做多、死叉出場';delete O['cus|BTC|ex2'];
   localStorage.setItem('sigLock',JSON.stringify(L));localStorage.setItem('sigLockName',JSON.stringify(N));localStorage.setItem('sigLockOff',JSON.stringify(O))}catch(e){}})();
 
 // ── 通知 ──
@@ -2775,13 +2783,15 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   // 通知內文是 Telegram 的 HTML（只用 b、i、a）：先全部跳脫，再把這幾個標籤還原
   const tgHtml=t=>esc(t).replace(/&lt;(\/?)(b|i)&gt;/g,'<$1$2>').replace(/&lt;a href="(https:\/\/[^"]+)"&gt;(.*?)&lt;\/a&gt;/g,(m,u,x)=>`<a href="${u.replace(/"/g,'')}" target="_blank" rel="noopener">${x}</a>`).replace(/\n{2,}/g,'<br><span style="display:block;height:6px"></span>').replace(/\n/g,'<br>');
-  const CATS=[['sig','📈','策略信號','8 個策略在 BTC／ETH 進場、加倉、出場、停損'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
+  const CATS=[['sig','📈','策略信號','「我的策略」裡開著通知的策略：進場、加倉、出場、停損（範例策略另外選）'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
     ['mkt','📊','市場分析','早上 8 點早報、市場分析更新時的偏多／偏空與概要'],['lv','🎯','關鍵價位','BTC 站上或跌破市場分析寫的支撐、壓力'],['fg','😱','恐懼貪婪極端','指數低於 20 或高於 80 時提醒']];
   const TGI='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1 1.4 11.6c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4z"/></svg>';
   let flt='all',last=null;
   // 瀏覽器通知：每類一個開關（localStorage bnCats）；App 開著（含背景分頁）時每 3 分鐘看 tg_log.json，有比 bnLast 新的就跳系統通知
   const getJ=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},setJ=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-  let on=getJ('bnCats',{}),off=getJ('bnSigOff',{}),pickOpen=false;const anyOn=()=>CATS.some(c=>on[c[0]]);
+  let on=getJ('bnCats',null),off=getJ('bnSigOff',{}),pickOpen=false;const anyOn=()=>CATS.some(c=>on[c[0]]);
+  // 第一次用：預設只開「策略信號」，而且只收「我的策略」的（範例策略的預設信號先關）；還要使用者按「允許通知」瀏覽器才會真的推
+  if(!on){on={sig:true};setJ('bnCats',on);if(!localStorage.getItem('bnSigOff')){[...document.querySelectorAll('#sStrat option')].forEach(o=>{if(o.value)off[o.value]=true});setJ('bnSigOff',off)}}
   // 策略信號可以只收選的策略（bnSigOff＝關掉的策略）
   const STS=()=>[...document.querySelectorAll('#cvStrat option')].filter(o=>o.value&&(typeof BEST==='undefined'||BEST[o.value])).map(o=>[o.value,o.textContent.replace(/^\d+\.\s*/,'')]);
   const canN='Notification' in window,iosWeb=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches);
@@ -2817,7 +2827,9 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   function hint(){tBtn();const h=$('#bnHint');if(!h)return;
     h.innerHTML=!canN?(iosWeb?'<b>iPhone 要先在 Safari 按「分享 → 加入主畫面」，從主畫面打開 App 才能開通知。</b>':'<b>這個瀏覽器不支援通知。</b>')
       :Notification.permission==='denied'?'<b>通知被瀏覽器封鎖了</b>，請到瀏覽器的網站設定把通知改成允許。'
+      :anyOn()&&Notification.permission!=='granted'?'<b>策略信號已預設打開</b>（只推「我的策略」裡開著通知的策略），還要允許瀏覽器通知才收得到。<button class="btn" id="bnAllow" type="button" style="display:block;width:100%;margin-top:8px">允許通知</button>'
       :anyOn()?(pushOn?'背景推播已開啟：App 關著、鎖螢幕也收得到。':'App 開著時才會跳通知（電腦放在背景分頁也可以）；手機切到別的 App 或鎖螢幕時收不到，回到 App 會補跳。'):'第一次打開開關時，瀏覽器會問你要不要允許通知，選「允許」。'}
+  document.addEventListener('click',async e=>{if(e.target.id!=='bnAllow')return;let p='denied';try{p=await Notification.requestPermission()}catch(x){}if(p==='granted'){setJ('bnLast',maxId(last));render(last);poll();pushSync()}else hint()});
   async function toggle(k){
     if(!on[k]){if(!canN){hint();return}
       if(Notification.permission!=='granted'){let p='denied';try{p=await Notification.requestPermission()}catch(e){}if(p!=='granted'){hint();return}}
@@ -2834,7 +2846,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   setInterval(poll,3*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setTimeout(poll,4000);setTimeout(()=>{if(anyOn()||pushOn)pushSync()},6000);
   function render(d){last=d;const ch=(d&&d.channels)||{};
     const sts=STS(),nOn=sts.filter(([k])=>!off[k]).length;
-    $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc${k==='sig'?' pick':''}"><div class="bd"${k==='sig'?' id="sgOpen"':''}><b>${n}${k==='sig'?`<em>${nOn===sts.length?'全部策略':nOn+'／'+sts.length+' 個策略'} ${pickOpen?'▾':'›'}</em>`:''}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`
+    $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc${k==='sig'?' pick':''}"><div class="bd"${k==='sig'?' id="sgOpen"':''}><b>${n}${k==='sig'?`<em>範例策略 ${nOn===sts.length?'全開':nOn+'／'+sts.length} ${pickOpen?'▾':'›'}</em>`:''}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`
       +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}${[...new Set(Object.keys(window.SigLock?SigLock.active():{}).filter(x=>x.startsWith(sk+'|')).map(x=>x.split('|')[1]))].map(x=>' 🔒'+x).join('')}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
     $('#tgCats').querySelectorAll('.sw[data-k]').forEach(b=>b.onclick=()=>toggle(b.dataset.k));
     $('#sgOpen').onclick=e=>{if(e.target.closest('a'))return;pickOpen=!pickOpen;render(last)};
@@ -3173,7 +3185,7 @@ function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x
   if(sg&&sg.res&&sg.k!==cur)sg=null;   // 舊資料算的不顯示，等背景重算（開 App 後自動算，見 sigdone）
   if(sg&&sg.res){let hold=0,hot=0;for(const st in sg.res)for(const sym in sg.res[st]){const x=sg.res[st][sym];if(!x)continue;if(/持倉中/.test(x.txt))hold++;if(x.hot)hot++}
     T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個持倉中${hot?'・24 小時內有新進出場':''}</div></div>`)}
-  else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px">計算中…</div><div class="s">正在算 8 個策略現在持倉或空手</div></div>`);
+  else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px">計算中…</div><div class="s">正在算我的策略現在持倉或空手</div></div>`);
   if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
   box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
 document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;
@@ -3390,7 +3402,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 // 手機底部導覽改成滾輪：左右滑可以一直循環，停在正中間的分頁就打開；點旁邊那格會轉到中間
 // 做法：前後各複製一組按鈕，停下來時如果在複製的那組，就無聲跳回中間那組的同一格
 (function(){const nav=document.querySelector('.bnav');if(!nav||matchMedia('(min-width:960px)').matches)return;nav.classList.add('wheel');
-  const orig=[...nav.querySelectorAll('button')],N=orig.length;
+  const orig=[...nav.querySelectorAll('button')].filter(b=>!b.hidden),N=orig.length;   // 藏起來的（通知收在設定裡）不放進滾輪
   const mk=()=>orig.map(b=>{const c=b.cloneNode(true);c.removeAttribute('id');c.dataset.for=b.id;c.setAttribute('aria-hidden','true');c.tabIndex=-1;c.addEventListener('click',()=>b.click());return c});
   const R=3,pre=[].concat(...Array.from({length:R},mk)),post=[].concat(...Array.from({length:R},mk));nav.prepend(...pre);nav.append(...post);   // 左右各三組複製，可以一直滑
   ['l','r'].forEach(k=>document.body.appendChild(Object.assign(document.createElement('div'),{className:'wfade '+k})));   // 左右漸淡
