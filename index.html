@@ -377,6 +377,7 @@ input,select,textarea{font-size:16px}
 #left .ctl{position:relative;padding:10px 12px}
 #left .ctl>.field:first-child{margin:0;padding-right:84px}
 #left .ctl>.field:first-child>label{display:none}
+#left .ctl>.field:first-child{display:none}#left #lockBtn{width:calc(100% - 84px)!important}@media (max-width:959px){#left #lockBtn{width:100%!important}}   /* 範例 8 策略搬到財務部研究：不再讓使用者切策略 */
 details.sdet>summary{list-style:none;cursor:pointer;position:absolute;top:10px;right:12px;width:76px;height:var(--selh,44px);box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:4px;
   background:var(--bg);border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:600;color:var(--text)}
 details.sdet>summary::-webkit-details-marker{display:none}
@@ -606,7 +607,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 /* 策略分析：先列策略，點了才進回測畫面 */
 #stratView.picking>.col{display:none!important}
 #stratView:not(.picking)>#sPick{display:none}
-#sTab{margin:12px 12px 0}#sTab button{flex:1}#sTab #rlCnt,#sTab #myCnt{margin-left:4px;font-size:12px;opacity:.75}
+#sTab{margin:12px 12px 0}#sTab button[hidden]{display:none}#sTab button{flex:1}#sTab #rlCnt,#sTab #myCnt{margin-left:4px;font-size:12px;opacity:.75}
 #myPane{padding:12px}#myPane .mys{margin-bottom:10px;padding:12px 14px}#myPane .mys .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}#myPane .mys .hd b{flex:1;min-width:0}
 #myPane .mys{cursor:pointer}#myPane .mys .hd b{display:flex;align-items:center;gap:2px}#myPane .mys .ic{background:none;border:0;padding:4px 5px;color:var(--muted);cursor:pointer;flex:none;display:flex;align-items:center}#myPane .mys .ic:first-of-type{margin-left:4px}#myPane .mys .ic:active{color:var(--acc)}#myPane .mgo{font-size:12px;color:var(--acc);text-align:right;margin-top:6px}
 #myPane .mys .hd .sym{font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
@@ -645,8 +646,8 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 #sBack>button{display:flex;align-items:center;gap:4px;background:transparent;border:0;color:var(--acc);font:inherit;font-size:15px;padding:6px 4px;cursor:pointer}
 </style>
 <section id="stratView" class="view picking">
-  <div id="sBack"><button id="sBackBtn" type="button">‹ 全部策略</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
-  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" class="on">策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList"></div><div id="myPane" hidden></div><div id="rlPane" hidden><div class="btnrow" style="margin:0 0 10px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label><label><input type="checkbox" id="rlStar"> 只看 ⭐</label></div><div id="rlList"></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
+  <div id="sBack"><button id="sBackBtn" type="button">‹ 我的策略</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
+  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine" class="on">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" hidden>策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList" hidden></div><div id="myPane"></div><div id="rlPane" hidden><div class="btnrow" style="margin:0 0 10px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label><label><input type="checkbox" id="rlStar"> 只看 ⭐</label></div><div id="rlList"></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
   <div class="col" id="left"><div class="ctl">
     <div class="field"><label>策略</label>
       <select id="sStrat">
@@ -2344,7 +2345,7 @@ function initStrat(){
   freePan(()=>pChart,$('#priceChart'),$('#sTools'));
   sDrawer=Drawer({chart:()=>pChart,series:()=>pcs,el:$('#priceChart'),bar:$('#sTools'),bars:()=>simBars,tf:()=>E.H4,key:()=>'sdraw_'+$('#sSym').value});
   buildParams();runSim();
-  MyStrat.count();if(Object.keys(SigLock.get()).length)$('#sTab [data-t="mine"]').click();   // 有鎖定的策略就先看「我的策略」
+  MyStrat.count();$('#sTab [data-t="mine"]').click();   // 有鎖定的策略就先看「我的策略」
 }
 // 功能庫（自訂策略的積木）：引擎的 Engine.CUSLIB；Rules 畫參數頁的進出場條件、LibPick 是搜尋＋勾選的選單
 const LibPick=(()=>{let cb=null;const L=()=>Engine.CUSLIB,esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -2714,7 +2715,6 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   const pick=(g,a,lab,t)=>`<div class="field"><label>${lab}</label>${chips(a)}<button class="btn ghost rbadd" type="button" data-a="${g}">${a.length?'重新選':'＋ 從功能庫選'}${t}指標</button></div>`;
   function addForm(){const ops=[...$('#sStrat').options].filter(o=>BEST[o.value]&&o.value!=='cus').map(o=>`<option value="${o.value}">${esc(o.textContent)}</option>`).join('');
     return `<div class="card mys madd"><div class="hd"><b>新增我的策略</b></div>
-      <div class="seg" id="maMode" style="margin:10px 0"><button type="button" data-m="lib" class="${mode==='lib'?'on':''}">從功能庫自己組</button><button type="button" data-m="ex" class="${mode==='ex'?'on':''}">從範例策略開始</button></div>
       <div class="field"><label>標的</label><select id="maSym"><option>BTC</option><option>ETH</option></select></div>
       ${mode==='lib'?`<div class="field"><label>方向</label><select id="maDir">${[['long','做多'],['short','做空'],['both','雙向（做多、做空各自選指標）']].map(([v,t])=>`<option value="${v}"${dir===v?' selected':''}>${t}</option>`).join('')}</select></div>
       ${pick('pin',pin,'1. '+(dir==='both'?'做多':'')+'進場訊號（可以選好幾個）',(dir==='both'?'做多':'')+'進場')}
