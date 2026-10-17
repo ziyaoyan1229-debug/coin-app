@@ -40,7 +40,7 @@ def bn(m, since):
 
 
 def yf(m, since):
-    rng = 'range=max' if since == 0 else 'range=1mo'
+    rng = f'period1=0&period2={int(time.time())}' if since == 0 else 'range=1mo'   # range=max 會回月 K，要用 period1／period2 才是日 K
     res = None
     for host in ('query1', 'query2'):
         try:
@@ -72,6 +72,8 @@ for m in MK:
     path = os.path.join(OUT, m['s'] + '.csv')
     old = load(path)
     since = old[-3][0] if len(old) > 3 else 0
+    if since and (old[-1][0] - old[0][0]) / len(old) > 3 * DAY:   # 舊檔不是日 K（以前抓成月 K）就整個重抓
+        old, since = [], 0
     try:
         new = (bn if m['src'] == 'bn' else yf)(m, since)
     except Exception as e:
@@ -92,7 +94,7 @@ for m in MK:
     else:
         bad.append(m['s'])
     last, prev = rows[-1], rows[-2] if len(rows) > 1 else rows[-1]
-    idx.append({'s': m['s'], 'name': m['name'], 'cat': m['cat'], 'src': m['src'], 'px': last[4], 'ch': round(last[4] / prev[4] - 1, 5), 't0': rows[0][0], 't1': last[0], 'n': len(rows)})
+    idx.append({'s': m['s'], 'name': m['name'], 'cat': m['cat'], 'src': m['src'], 'px': last[4], 'ch': round(last[4] / prev[4] - 1, 5), 't0': rows[0][0], 't1': last[0], 'n': len(rows), 'v': round(last[5] * (1 if m['src'] == 'bn' else last[4]))})
     if m['src'] == 'yf':
         time.sleep(0.3)
 json.dump({'updated': int(time.time()), 'list': idx}, open(os.path.join(OUT, 'index.json'), 'w'), ensure_ascii=False, separators=(',', ':'))

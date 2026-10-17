@@ -29,6 +29,8 @@ jobs:
         run: |
           git fetch -q --depth 1 origin data || true
           git archive origin/data data/d 2>/dev/null | tar -x -C out 2>/dev/null || true
+          git archive origin/data data/icons 2>/dev/null | tar -x -C out 2>/dev/null || true
+          python3 scripts/fetch_icons.py out/data || true
           python3 scripts/fetch_daily.py out/data
       - name: 算模擬盤（給網站「模擬盤」分頁；失敗不影響 K 線）
         continue-on-error: true
