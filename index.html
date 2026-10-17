@@ -512,7 +512,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #notifyView .tgcats{padding:4px 14px}#notifyView .tgc{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}#notifyView .tgc:first-child{border-top:0}
 #notifyView .tgc .ic{font-size:20px;flex:none;width:28px;text-align:center}#notifyView .tgc .bd{flex:1;min-width:0}#notifyView .tgc .bd b{display:block;font-size:14.5px}#notifyView .tgc .bd span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:1px}
 #notifyView .tgjoin{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-weight:700;font-size:13px;text-decoration:none}
-:is(#notifyView,#myPane) .sw{flex:none;position:relative;width:46px;height:28px;border-radius:999px;background:#5b5967;border:0;padding:0;cursor:pointer;transition:background .2s}:is(#notifyView,#myPane) .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}:is(#notifyView,#myPane) .sw.on{background:#f2c661}:is(#notifyView,#myPane) .sw.on::after{transform:translateX(18px)}:root[data-theme="light"] :is(#notifyView,#myPane) .sw{background:#cfcdd8}:root[data-theme="light"] :is(#notifyView,#myPane) .sw.on{background:#f2c661}#notifyView .tgc .bd a{color:var(--acc);text-decoration:none;font-size:12px}#notifyView .bnhint{font-size:12px;color:var(--muted);line-height:1.6;padding:2px 2px 0}#notifyView .bnhint b{color:var(--warn)}
+:is(#notifyView,#myPane,#sigView) .sw{flex:none;position:relative;width:46px;height:28px;border-radius:999px;background:#5b5967;border:0;padding:0;cursor:pointer;transition:background .2s}:is(#notifyView,#myPane,#sigView) .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}:is(#notifyView,#myPane,#sigView) .sw.on{background:#f2c661}:is(#notifyView,#myPane,#sigView) .sw.on::after{transform:translateX(18px)}:root[data-theme="light"] :is(#notifyView,#myPane,#sigView) .sw{background:#cfcdd8}:root[data-theme="light"] :is(#notifyView,#myPane,#sigView) .sw.on{background:#f2c661}#notifyView .tgc .bd a{color:var(--acc);text-decoration:none;font-size:12px}#notifyView .bnhint{font-size:12px;color:var(--muted);line-height:1.6;padding:2px 2px 0}#notifyView .bnhint b{color:var(--warn)}
 #notifyView .tgc.pick .bd{cursor:pointer}#notifyView .tgc .bd em{font-style:normal;color:var(--acc);font-size:12px;margin-left:6px;font-weight:600}#notifyView .sgpick{padding:2px 0 10px 12px;border-left:2px solid var(--line);margin:0 0 6px 2px}#notifyView .sgpick .tgc{padding:8px 0;border-top:0}#notifyView .sgpick .tgc b{font-size:13.5px;font-weight:600}#notifyView .sgpick .sw{transform:scale(.85)}#notifyView .sgpick .all{display:flex;gap:14px;font-size:12px;padding:4px 0 2px}#notifyView .sgpick .all button{background:none;border:0;color:var(--acc);padding:0;cursor:pointer;font-size:12px}
 .tlines>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .optl{display:flex;flex-direction:column;gap:8px;margin-top:8px}.optl .oc{border:1px solid var(--line);border-radius:12px;padding:10px 12px}.optl .oc.base{opacity:.75}.optl .oh{display:flex;align-items:center;gap:10px;font-size:13px}.optl .oh span{flex:1;color:var(--muted)}.optl .oh i{font-style:normal;font-weight:700}.optl .optUse{margin:0;padding:4px 12px;width:auto}.optl .ops{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:12.5px;color:var(--muted)}.optl .op b{color:var(--text);font-weight:600;margin-left:2px}.optl .op.ch b{color:var(--acc)}.optl .op s{margin-left:4px;font-size:11px;opacity:.7}
@@ -595,7 +595,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
       <option value="2022-11-21|2025-10-07">2022-11 → 2025-10 牛市</option>
       <option value="2025-10-07|2026-06-30">2025-10 → 2026-06 熊市</option>
       <option value="2026-06-30|2026-10-01">2026-06 → 至今 牛市</option></select></label>
-    <label id="stratWrap"><select id="cvStrat"><option value="">策略買賣點</option><option value="brk">1. 4h 帶量突破</option><option value="box">2. 箱體飛刀</option><option value="poc">3. POC 帶量突破堆倉</option><option value="dense">4. 均線密集</option><option value="tur">5. 海龜交易法</option><option value="knife">6. ETH 日線飛刀＋海龜</option><option value="knifeB">7. BTC 日線飛刀＋量價</option><option value="my">8. 我的系統</option></select></label>
+    <label id="stratWrap"><select id="cvStrat"><option value="">策略買賣點</option></select></label>
     <span id="cvQuick"><button class="ddbtn" type="button" data-q="auto" title="恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" type="button" data-q="del" title="刪除選取的線（先點一下線）" disabled>✕ 刪除</button></span>
     <label id="monthWrap" style="display:none">月份 <select id="cvMonth"></select></label>
     <span class="tools" id="cvTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span>
@@ -618,7 +618,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 #myPane .mys{cursor:pointer}#myPane .mys .hd b{display:flex;align-items:center;gap:2px}#myPane .mys .ic{background:none;border:0;padding:4px 5px;color:var(--muted);cursor:pointer;flex:none;display:flex;align-items:center}#myPane .mys .ic:first-of-type{margin-left:4px}#myPane .mys .ic:active{color:var(--acc)}#myPane .mgo{font-size:12px;color:var(--acc);text-align:right;margin-top:6px}
 #myPane .mys .hd .sym{font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
 #myPane .mst{display:flex;gap:6px;margin:10px 0 8px}#myPane .mst div{flex:1;background:var(--panel2);border-radius:10px;padding:7px 8px;font-size:11.5px;color:var(--muted)}#myPane .mst div b{display:block;font-size:15px;color:var(--text);margin-top:2px}
-#myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#myPane .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}
+#myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
 .rlrun{background:var(--panel2);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px}.rlrun .h{display:flex;justify-content:space-between;gap:8px;font-weight:700}.rlrun .h span{color:var(--acc);font-family:ui-monospace,Menlo,monospace}
 .rlrun .sub{color:var(--muted);font-size:12px;margin:2px 0 7px}.rlrun .bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--muted) 25%,transparent);overflow:hidden}.rlrun .bar i{display:block;height:100%;background:var(--accbg,var(--acc));border-radius:3px;transition:width .3s}
@@ -2172,10 +2172,15 @@ const SOC={};
   q.querySelectorAll('button').forEach(b=>b.onclick=()=>{const o=src(b.dataset.q);o&&o.click()});
   const sync=()=>{const o=src('del');q.querySelector('[data-q=del]').disabled=!o||o.disabled};
   new MutationObserver(sync).observe(T,{subtree:true,attributes:true,attributeFilter:['disabled']});sync()})();
-function stratOnChart(B){const st=$('#cvStrat').value;$('#stratWrap').classList.toggle('on',!!st);if(!st)return;
-  if(STKSYM(cvSym)||!(BEST[st]&&BEST[st][cvSym])||(st==='knife'&&cvSym!=='ETH')||(st==='knifeB'&&cvSym!=='BTC')){msg(`這個策略沒有 ${cvSym} 的設定，只能看 ${st==='knife'?'ETH':st==='knifeB'?'BTC':'BTC／ETH'}。`);setTimeout(()=>msg(''),2500);return}
-  const H=E.load(cvSym),t1=H.T[H.n-1]+3600,key=st+cvSym+t1;
-  let marks=SOC[key];if(!marks){try{const r=simulate(st,cvSym,t1-730*86400,t1,Object.assign({capital:1000},BEST[st][cvSym]));marks=SOC[key]=r.marks||[]}catch(e){marks=[]}}
+// 下拉清單＝「我的策略」：每個用自己存的參數
+window.syncCvStrat=syncCvStrat;function syncCvStrat(){const sel=$('#cvStrat');if(!sel||!window.SigLock)return;const v=sel.value,L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+  const h='<option value="">策略買賣點</option>'+ks.map(k=>`<option value="${k.replace(/"/g,'')}">${SigLock.name(k).replace(/[&<>]/g,'')}（${SigLock.part(k)[1]}）</option>`).join('');
+  if(sel.innerHTML!==h){sel.innerHTML=h;sel.value=ks.includes(v)?v:''}}
+function stratOnChart(B){const lk=$('#cvStrat').value;$('#stratWrap').classList.toggle('on',!!lk);if(!lk)return;
+  const P=SigLock.get()[lk];if(!P)return;const[st,sym]=SigLock.part(lk);
+  if(cvSym!==sym||!(BEST[st]&&BEST[st][sym])){msg(`「${SigLock.name(lk)}」是 ${sym} 的策略，切到 ${sym} 才看得到買賣點。`);setTimeout(()=>msg(''),2500);return}
+  const H=E.load(cvSym),t1=H.T[H.n-1]+3600,key=lk+t1+JSON.stringify(P);
+  let marks=SOC[key];if(!marks){try{const r=simulate(st,cvSym,t1-730*86400,t1,Object.assign({capital:1000},BEST[st][cvSym],P));marks=SOC[key]=r.marks||[]}catch(e){marks=[]}}
   const M={entry:['多','空'],add:['',''],exit:['出','出'],tp:['減','減'],stop:['損','損'],liq:['爆','爆']};
   cs.setMarkers(marks.map(m=>{const k=Math.max(0,lowerB(B.T,m.t)-1),S=m.side<0,ty=m.type;
     const pos=ty==='entry'||ty==='add'?(S?'aboveBar':'belowBar'):(S?'belowBar':'aboveBar');
@@ -2261,7 +2266,7 @@ $('#indBtn').onclick=e=>{e.stopPropagation();$('#indDD').classList.toggle('open'
 document.addEventListener('click',e=>{if(!$('#indDD').contains(e.target)&&!$('#indPanel').contains(e.target))$('#indDD').classList.remove('open')});
 document.querySelectorAll('#indPanel [data-ind]').forEach(x=>x.onchange=()=>drawChart(false));
 sortList($('#indPanel'),'ord_ind',()=>legendVals(null));
-['#cvSym','#cvTf','#cvRange','#cvStrat'].forEach(s=>sortSel($(s)));
+syncCvStrat();['#cvSym','#cvTf','#cvRange','#cvStrat'].forEach(s=>sortSel($(s)));
 $('#cvStrat').onchange=()=>drawChart(false);
 
 // ───────── 策略模擬 ─────────
@@ -2439,7 +2444,7 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
       :typeof e!=='string'?'先調參數、看下面的回測，滿意再按儲存。':eq?(!cats.sig?'要到「通知」打開「策略信號」並允許通知，才收得到推播。':'App 關著也會照這組參數推播（每 15 分鐘算一次）。'):'參數改過了，按上面儲存才會改用新的參數推播。'}
   function create(st,sym,nmv,p){const L=get();if(Object.keys(L).length>=30){alert('我的策略最多 30 個，先移除一些');return null}
     const k=st+'|'+sym+'|'+Date.now().toString(36);L[k]=p;put(L);const N=names();N[k]=nmv;W('sigLockName',N);return k}
-  function done(){ui();window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset();window.MyStrat&&MyStrat.count()}
+  function done(){ui();window.syncCvStrat&&syncCvStrat();window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset();window.MyStrat&&MyStrat.count()}
   function save(asNew){const st=$('#sStrat').value,sym=$('#sSym').value,e=asNew?null:editing(),p=clean(cur||{});
     if(typeof e==='string'){const L=get();L[e]=p;put(L);return done()}
     let n=e&&e.name;if(!n){n=prompt('幫這個策略取個名字',nm(st)+' '+sym);if(n==null)return;n=n.trim().slice(0,20)||nm(st)}
@@ -2451,7 +2456,7 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
     rename=(k,n)=>{const N=names();N[k]=n.slice(0,20);W('sigLockName',N);window.NotifyTab&&NotifyTab.sync()};
   const editName=()=>{const e=editing();return e?(typeof e==='string'?name(e):e.name):null};
   const editKey=()=>{const e=editing();return typeof e==='string'?e:null};
-  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit,editName,editKey}})();window.SigLock=SigLock;
+  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit,editName,editKey}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
@@ -2710,7 +2715,7 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     else txt='空手　這一年沒有交易';
     if(recent.length)txt+=`<br><span class="tbadge">24h 內</span> ${recent.slice(-3).map(m=>`${md(m.t)} ${m.text||(m.type==='entry'?'進場':m.type==='stop'?'停損':'出場')}`).join('、')}`;
     return {txt,hot:recent.length>0,my:!!my}}
-  function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=t1+JSON.stringify(window.SigLock?[SigLock.get(),SigLock.names(),SigLock.paused()]:{});if(busy||k===key)return;busy=true;
+  function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=t1+JSON.stringify(window.SigLock?[SigLock.get(),SigLock.names()]:{});if(busy||k===key)return;busy=true;
     $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];
     // 只列「我的策略」：每個照各自存的參數算（範例策略在「策略分析 › 策略」自己研究）
     const L=window.SigLock?SigLock.get():{};Object.keys(L).forEach(k=>{const[st,sym]=k.split('|');if(BEST[st]&&BEST[st][sym])jobs.push([st,sym,k])});
@@ -2722,11 +2727,13 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
       box().firstChild.textContent=`計算中 ${i}／${jobs.length}…`;setTimeout(step,0)};setTimeout(step,30)}
   function render(res){const M=res.mine||{},P=window.SigLock?SigLock.paused():{},mk=Object.keys(M).filter(k=>window.SigLock&&SigLock.get()[k]);
     if(!mk.length){box().innerHTML='<div class="card empty" style="line-height:1.8">「我的策略」還沒有策略。<br>到「策略分析 › 我的策略」新增，這裡就會列出每個策略現在持倉還是空手、最近 24 小時有沒有進出場。</div>';return}
-    box().innerHTML=(mk.length?mk.map((k,n)=>{const x=M[k],sym=k.split('|')[1];
-      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">${n+1}</span>${(SigLock.name(k)||'').replace(/[&<>]/g,'')}${P[k]?'<span class="small" style="color:var(--muted);font-weight:500">　通知暫停</span>':''}</div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join(''):'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
+    const on_=(()=>{try{return !!(JSON.parse(localStorage.getItem('bnCats'))||{}).sig}catch(e){return false}})();
+    box().innerHTML=(on_?'':'<p class="mtip"><b>還沒開通知</b>：到「設定 › 通知」打開「策略信號」，下面開著通知的策略才會推播。</p>')+(mk.length?mk.map((k,n)=>{const x=M[k],sym=k.split('|')[1];
+      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">${n+1}</span><span class="nm">${(SigLock.name(k)||'').replace(/[&<>]/g,'')}</span><span class="small sgn">通知</span><button class="sw${P[k]?'':' on'}" type="button" data-n="${k.replace(/"/g,'')}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join(''):'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
     return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}${x.my?' 🔒':''}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
   // 點一列：跳到策略分析的那個策略、那個幣
-  document.addEventListener('click',e=>{const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
+  document.addEventListener('click',e=>{const sw=e.target.closest('#sigBox .sw[data-n]');if(sw){e.stopPropagation();const k=sw.dataset.n,P=SigLock.paused(),on=!!P[k];SigLock.pause(k,!on);sw.classList.toggle('on',on);sw.setAttribute('aria-checked',on);return}
+    const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
     $('#nav_strat').click();const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+c.dataset.st+'"]');if(b)b.click()});
   return {open,one,nm,md,reset(){key=''}}})();
 window.SigTab=SigTab;
@@ -2775,12 +2782,12 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <button class="btn ghost" type="button" disabled style="width:100%;margin-top:10px;opacity:.6">🤖 AI 幫我配置＋回測多種組合（開發中）</button>
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
   function syncSym(){const st=$('#maSt'),sy=$('#maSym');if(!st||!sy)return;const o=ONLY[st.value];[...sy.options].forEach(x=>x.disabled=!!o&&x.value!==o||!BEST[st.value][x.value]);if(sy.selectedOptions[0].disabled)sy.value=[...sy.options].find(x=>!x.disabled).value}
-  function render(){count();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+  function render(){count();window.syncCvStrat&&syncCvStrat();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
     const top=`<button class="btn ghost" id="myCmp" style="width:100%;margin:0 0 8px"${cmpOn?' aria-pressed="true"':''}>${cmpOn?'收起策略比較':'策略比較'}</button><div id="myCmpBox"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(cmpOn)setTimeout(cmp,0);
     if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
-    box().innerHTML=top+`<p class="mtip">${sigOn()?'通知會照每張卡的參數推播，App 關著也收得到。':'<b>還沒開通知</b>：到「通知」打開「策略信號」，下面開著通知的策略才會推播。'}</p>`+ks.map(k=>{const[st,sym]=SigLock.part(k);
-      return `<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.name(k))}<button class="ic" type="button" data-a="ren" aria-label="改名"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="ic" type="button" data-a="del" aria-label="移除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></b><span class="sym">${sym}</span><span class="small" style="color:var(--muted);font-weight:500">通知</span><button class="sw${P[k]?'':' on'}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div>
+    box().innerHTML=top+ks.map(k=>{const[st,sym]=SigLock.part(k);
+      return `<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.name(k))}<button class="ic" type="button" data-a="ren" aria-label="改名"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="ic" type="button" data-a="del" aria-label="移除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></b><span class="sym">${sym}</span></div>
         <div class="small" style="color:var(--muted);margin-top:2px">${esc(st==='cus'?Rules.sum(L[k]):SigLock.nm(st))}</div>
         <div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div><div class="mnow small">計算中…</div><div class="mopt"></div></div>`}).join('');
     syncSym();window.Opt&&Opt.paint();
@@ -2832,7 +2839,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   // 通知內文是 Telegram 的 HTML（只用 b、i、a）：先全部跳脫，再把這幾個標籤還原
   const tgHtml=t=>esc(t).replace(/&lt;(\/?)(b|i)&gt;/g,'<$1$2>').replace(/&lt;a href="(https:\/\/[^"]+)"&gt;(.*?)&lt;\/a&gt;/g,(m,u,x)=>`<a href="${u.replace(/"/g,'')}" target="_blank" rel="noopener">${x}</a>`).replace(/\n{2,}/g,'<br><span style="display:block;height:6px"></span>').replace(/\n/g,'<br>');
-  const CATS=[['sig','📈','策略信號','「我的策略」裡開著通知的策略：進場、加倉、出場、停損（範例策略另外選）'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
+  const CATS=[['sig','📈','策略信號','「今日訊號」裡開著通知的策略：進場、加倉、出場、停損'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
     ['mkt','📊','市場分析','早上 8 點早報、市場分析更新時的偏多／偏空與概要'],['lv','🎯','關鍵價位','BTC 站上或跌破市場分析寫的支撐、壓力'],['fg','😱','恐懼貪婪極端','指數低於 20 或高於 80 時提醒']];
   const TGI='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1 1.4 11.6c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4z"/></svg>';
   let flt='all',last=null;
@@ -2841,7 +2848,8 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   let on=getJ('bnCats',null),off=getJ('bnSigOff',{}),pickOpen=false;const anyOn=()=>CATS.some(c=>on[c[0]]);
   // 第一次用：預設只開「策略信號」，而且只收「我的策略」的（範例策略的預設信號先關）；還要使用者按「允許通知」瀏覽器才會真的推
   if(!on){on={sig:true};setJ('bnCats',on);if(!localStorage.getItem('bnSigOff')){[...document.querySelectorAll('#sStrat option')].forEach(o=>{if(o.value)off[o.value]=true});setJ('bnSigOff',off)}}
-  // 策略信號可以只收選的策略（bnSigOff＝關掉的策略）
+  // 範例策略已移到策略庫自己研究：範例的預設信號一律不收（bnSigOff＝關掉的策略；我的策略的信號不受影響）
+  {let ch=false;[...document.querySelectorAll('#sStrat option')].forEach(o=>{if(o.value&&!off[o.value]){off[o.value]=true;ch=true}});if(ch){setJ('bnSigOff',off);setTimeout(()=>{try{pushLater()}catch(e){}},8000)}}
   const STS=()=>[...document.querySelectorAll('#cvStrat option')].filter(o=>o.value&&(typeof BEST==='undefined'||BEST[o.value])).map(o=>[o.value,o.textContent.replace(/^\d+\.\s*/,'')]);
   const canN='Notification' in window,iosWeb=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches);
   const maxId=d=>Math.max(0,...((d&&d.items)||[]).map(x=>x.id||0));
@@ -2894,13 +2902,8 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
     if(fresh.length&&document.getElementById('notifyView').classList.contains('on'))render(d)}
   setInterval(poll,3*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setTimeout(poll,4000);setTimeout(()=>{if(anyOn()||pushOn)pushSync()},6000);
   function render(d){last=d;const ch=(d&&d.channels)||{};
-    const sts=STS(),nOn=sts.filter(([k])=>!off[k]).length;
-    $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc${k==='sig'?' pick':''}"><div class="bd"${k==='sig'?' id="sgOpen"':''}><b>${n}${k==='sig'?`<em>範例策略 ${nOn===sts.length?'全開':nOn+'／'+sts.length} ${pickOpen?'▾':'›'}</em>`:''}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`
-      +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}${[...new Set(Object.keys(window.SigLock?SigLock.active():{}).filter(x=>x.startsWith(sk+'|')).map(x=>x.split('|')[1]))].map(x=>' 🔒'+x).join('')}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
-    $('#tgCats').querySelectorAll('.sw[data-k]').forEach(b=>b.onclick=()=>toggle(b.dataset.k));
-    $('#sgOpen').onclick=e=>{if(e.target.closest('a'))return;pickOpen=!pickOpen;render(last)};
-    $('#tgCats').querySelectorAll('.sw[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(off[k])delete off[k];else off[k]=true;setJ('bnSigOff',off);render(last);pushLater()});
-    $('#tgCats').querySelectorAll('.sgpick .all button').forEach(b=>b.onclick=()=>{off={};if(b.dataset.a==='0')sts.forEach(([k])=>off[k]=true);setJ('bnSigOff',off);render(last);pushLater()});hint();
+    $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc"><div class="bd"><b>${n}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`).join('');
+    $('#tgCats').querySelectorAll('.sw[data-k]').forEach(b=>b.onclick=()=>toggle(b.dataset.k));hint();
     const it=((d&&d.items)||[]).filter(x=>(flt==='all'||x.cat===flt)&&mine(x)),nm=Object.fromEntries(CATS.map(c=>[c[0],c[2]]));
     $('#tgChips').innerHTML=[['all','全部'],...CATS.map(c=>[c[0],c[2]])].map(([k,n])=>`<button data-k="${k}" class="${k===flt?'on':''}">${n}</button>`).join('');
     $('#tgChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{flt=b.dataset.k;render(last)});
@@ -3508,7 +3511,7 @@ renderCoins();
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastSync>25000)syncAll()});
 // 選項面板：加標題、遮罩；點遮罩就關閉
-(function(){const T={cvStrat:'在 K 線上標策略買賣點（最近兩年，用預設參數）',cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
+(function(){const T={cvStrat:'在 K 線上標我的策略買賣點（最近兩年，用各自的參數）',cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
   const mask=document.createElement('div');mask.id='ddMask';document.querySelector('main').appendChild(mask);
   const title=()=>{document.querySelectorAll('select').forEach(s=>{if(s._dd&&T[s.id])(s._dd._pan||s._dd.querySelector('.ddpanel')).dataset.title=T[s.id]});const ip=document.querySelector('#indPanel');if(ip)ip.dataset.title='指標（開關）'};
   title();setTimeout(title,500);
