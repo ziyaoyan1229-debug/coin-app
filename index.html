@@ -631,7 +631,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
         <option value="knifeB">7. BTC 日線飛刀＋量價出場</option>
         <option value="my">8. 我的系統：威科夫＋形態＋POC＋量能</option>
       </select></div>
-    <button class="btn ghost" id="lockBtn" type="button" style="width:100%;margin:0 0 4px">🔒 鎖定這組參數收通知</button><p class="small" id="lockHint" style="margin:0 2px 8px"></p>
+    <button class="btn ghost" id="lockBtn" type="button" style="width:100%;margin:0 0 4px">🔒 鎖定我的策略</button><p class="small" id="lockHint" style="margin:0 2px 8px"></p>
     <details class="sdet" id="sDet"><summary><span class="k">參數</span><span id="sDetSum"></span></summary><div class="in">
     <div class="row2">
       <div class="field"><label>標的</label><select id="sSym"><option>BTC</option><option>ETH</option></select></div>
@@ -2156,7 +2156,7 @@ const SigLock=(()=>{const get=()=>{try{return JSON.parse(localStorage.getItem('s
   put=L=>{try{Object.keys(L).length?localStorage.setItem('sigLock',JSON.stringify(L)):localStorage.removeItem('sigLock')}catch(e){}},
   clean=p=>{const o={};for(const k of Object.keys(p))if(k!=='capital')o[k]=p[k];return o},same=(a,b)=>JSON.stringify(Object.entries(a).sort())===JSON.stringify(Object.entries(b).sort());
   function ui(){const b=$('#lockBtn'),h=$('#lockHint');if(!b)return;const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym,on=L[k],eq=on&&same(on,clean(cur||{}));
-    b.textContent=!on?'🔒 鎖定這組參數收通知':eq?'✓ 已鎖定：通知用這組參數（點一下解除）':'🔄 參數改過了，點一下更新鎖定';b.classList.toggle('on',!!on);
+    b.textContent=!on?'🔒 鎖定我的策略':eq?'✓ 已鎖定我的策略（點一下解除）':'🔄 參數改過了，點一下更新鎖定';b.classList.toggle('on',!!on);
     const n=Object.keys(L).length,cats=(()=>{try{return JSON.parse(localStorage.getItem('bnCats'))||{}}catch(e){return{}}})();
     h.textContent=!on?`鎖定後，${sym} 的這個策略會照你現在的參數發進出場通知，不再用預設參數。`:(!cats.sig?'還要到「通知」打開「策略信號」，並允許通知，才收得到。':`已鎖定 ${n} 個策略＋幣。App 關著也會照你的參數推播（每 15 分鐘算一次）。`)}
   function toggle(){const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym;
