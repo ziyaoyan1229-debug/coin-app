@@ -131,6 +131,7 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 
 /* ── 查看價格：上面一排幣種（可左右滑），下面 K 線滿版 ── */
 #chartView{flex-direction:column;overflow:hidden!important}
+#chartView{position:relative}#grpLoad{position:absolute;inset:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:14px;color:var(--muted)}#grpLoad.on{display:flex}#grpLoad .spin{width:26px;height:26px;border-width:3px}
 #chartView>.sect{padding:8px 0 8px;flex:none}
 #chartView>.sect h2{padding:0 12px;margin:0 0 6px}
 .coins{display:flex;gap:8px;overflow-x:auto;padding:0 12px;scroll-snap-type:x mandatory;scrollbar-width:none}
@@ -2228,7 +2229,7 @@ async function drawChart(fit){
     if(o.EVT&&cvSym==='MSTR')cs.setMarkers(STK.ev.map(e=>{const t=e.d*86400,k=Math.max(0,lowerB(B.T,t+1)-1);return{time:B.T[k]+TZ,position:'belowBar',shape:'circle',color:e.type==='convert'?'#a371f7':e.type==='pref'?'#5b8cff':'#f5a524',text:(e.type==='convert'?'可轉債 ':e.type==='pref'?'優先股 ':'增發 ')+'$'+(e.usd>=1000?(e.usd/1000).toFixed(e.usd%1000?1:0)+'B':e.usd+'M')}}).sort((a,b)=>a.time-b.time))}
   if(fit)window.__cvNeedFit=!$('#mainChart').clientWidth;   // 在隱藏分頁裡畫的，顯示後要重套範圍，不然 K 線會擠成一團
   if(fit){if(cvIntra)chart.timeScale().setVisibleLogicalRange({from:n-(cvTf===3600?210:120),to:n+3});else if(cvSym==='MSTU'||cvSym==='MSTR_MSTU'){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);chart.timeScale().setVisibleLogicalRange({from:Math.max(0,k-(cvSym==='MSTU'?60:8)),to:n+3})}else if(minute||stk)chart.timeScale().fitContent();else chart.timeScale().setVisibleLogicalRange({from:n-300,to:n+5})}
-  showOhlc(null);drawFib();drawer1&&drawer1.reload();
+  showOhlc(null);drawFib();drawer1&&drawer1.reload();document.dispatchEvent(new Event('chartdrawn'));
 }
 // 週樞紐：每週一 00:00 UTC 起，用上一週的高、低、收算 P=(H+L+C)/3、R=H-L，畫 P、P±0.236R、P±0.618R、P±R
 const PIVK=['PR1','PR2','PR3','PP','PS3','PS2','PS1'],PIVF=[1,.618,.236,0,-.236,-.618,-1],
@@ -3034,7 +3035,7 @@ async function syncAll(){if(syncing)return;syncing=true;
     if(ok)await Promise.all(['BTC','ETH'].map(s=>syncIgn(s).catch(()=>false)));
     if(ok){E.__clear&&E.__clear();for(const k in DD)delete DD[k];lastSync=Date.now();updNowEnd();
       const s=$('#cvSym').value;if((s==='BTC'||s==='ETH')&&window.__redraw)window.__redraw();
-      const t=$('#liveTag');if(t)t.textContent=(SRC.gh?'價格：GitHub 備援・':'即時：Binance・')+new Date().toTimeString().slice(0,5)+' 更新';SRC.gh=0}
+      const t=$('#liveTag');if(t)t.textContent=(SRC.gh?'價格：GitHub 備援・':'即時：Binance・')+new Date().toTimeString().slice(0,8)+' 更新';SRC.gh=0}
     const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
     try{await loadMstrMeta();extendMstr()}catch(e){console.warn('MSTR 基本面延伸失敗',e)}
     if(sk){delete DD.MSTR;delete DD.MSTU;const s=$('#cvSym').value;if((s==='MSTR'||s==='MSTU'||s==='MSTR_MSTU')&&window.__redraw)window.__redraw()}
@@ -3067,7 +3068,7 @@ const XM=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/c
     const m={};try{const j=await getJ(['https://fapi.binance.com/fapi/v1/exchangeInfo']);if(j&&j.symbols){const S=j.symbols.filter(x=>x.quoteAsset==='USDT'&&x.status==='TRADING');
       for(const it of (IDX||[]).filter(x=>x.src!=='bn')){const want=ALIAS[it.s]||[it.s];const f=S.find(x=>want.includes(x.baseAsset));if(f)m[it.s]=f.symbol}
       ls('xmPerp',{at:Date.now(),m})}}catch(e){}return PERP=m}
-  async function ticks(){if(Date.now()-tkAt<20000)return TK;const L=await list(),bn=L.filter(x=>x.src==='bn').map(x=>x.s+'USDT'),P=await perps();
+  async function ticks(force){if(!force&&Date.now()-tkAt<20000)return TK;const L=await list(),bn=L.filter(x=>x.src==='bn').map(x=>x.s+'USDT'),P=await perps();
     const a=bn.length?await getJ(['https://data-api.binance.vision/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(bn)),'https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(bn))]):null;
     const pv=Object.values(P),b=pv.length?await getJ(['https://fapi.binance.com/fapi/v1/ticker/24hr']):null;
     const T={};(a||[]).forEach(x=>T[x.symbol.replace(/USDT$/,'')]={px:+x.lastPrice,ch:+x.priceChangePercent/100});
@@ -3141,10 +3142,11 @@ const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=
     if(sock[kind]){try{sock[kind].onclose=null;sock[kind].close()}catch(e){}sock[kind]=null}key[kind]=k;if(!k)return;
     const hosts=kind==='spot'?SPOT:FUT,url=hosts[fail[kind]%hosts.length]+k;let ws;try{ws=new WebSocket(url)}catch(e){fail[kind]++;key[kind]='';return}
     sock[kind]=ws;ws.onmessage=e=>{try{const m=JSON.parse(e.data),d=m.data;if(!d)return;
-        if(d.e==='24hrMiniTicker')Q[d.s]={px:+d.c,ch:+d.c/+d.o-1};else if(d.e==='kline')K[m.stream]={t:d.k.t/1000,o:+d.k.o,h:+d.k.h,l:+d.k.l,c:+d.k.c,v:+d.k.q}}catch(x){}};
+        got=1;if(d.e==='24hrMiniTicker')Q[d.s]={px:+d.c,ch:+d.c/+d.o-1};else if(d.e==='kline')K[m.stream]={t:d.k.t/1000,o:+d.k.o,h:+d.k.h,l:+d.k.l,c:+d.k.c,v:+d.k.q}}catch(x){}};
     ws.onopen=()=>setTimeout(flush,1500);   // 剛連上先更新一次，不用等 5 秒
     ws.onclose=()=>{if(sock[kind]===ws){sock[kind]=null;key[kind]='';fail[kind]++}}}   // 斷線：下一輪（5 秒後）換主機重連
-  function flush(){
+  let got=0;
+  function flush(){if(got){got=0;const t=$('#liveTag');if(t)t.textContent='即時：Binance・'+new Date().toTimeString().slice(0,8)+' 更新'}
     // 卡片
     document.querySelectorAll('#coins .coin').forEach(el=>{const s=el.dataset.x||el.dataset.k;if(!s)return;const i=XM.info(s),p=el.dataset.x&&!(i&&i.src==='bn')?XM.perpOf(s):null;
       const q=Q[(p||s+'USDT')];if(!q)return;if(!el.dataset.x&&(s==='BTC'||s==='ETH'))LIVE[s]=Object.assign(LIVE[s]||{},{px:q.px,ch:q.ch});
@@ -3167,9 +3169,17 @@ const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=
   sp.after(w);const menu=$('#grpMenu');
   $('#grpBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('on');menu.querySelectorAll('button').forEach(b=>b.classList.toggle('cur',b.dataset.g===cvGrp))};
   document.addEventListener('click',()=>menu.classList.remove('on'));
-  menu.onclick=async e=>{const b=e.target.closest('[data-g]');if(!b)return;cvGrp=b.dataset.g;try{localStorage.setItem('cvGrp',cvGrp)}catch(x){}menu.classList.remove('on');renderCoins();$('#coins').scrollLeft=0;
-    if(cvGrp==='系統'){const s=$('#cvSym');if(/^X:/.test(s.value)){s.value='BTC';s.dispatchEvent(new Event('change'))}return}
-    await XM.list();const L=XM.group(cvGrp);if(L.length&&!L.includes($('#cvSym').value.slice(2)))XM.pick(L[0]);renderCoins();XM.ticks().then(renderCoins).catch(()=>{})};
+  // 切換群組：先蓋上載入畫面，等新的價格和 K 線都到了才拿掉，避免看到上一組的舊價格
+  const ld=document.createElement('div');ld.id='grpLoad';ld.innerHTML='<span class="spin"></span><b></b>';$('#chartView').appendChild(ld);
+  menu.onclick=async e=>{const b=e.target.closest('[data-g]');if(!b)return;cvGrp=b.dataset.g;try{localStorage.setItem('cvGrp',cvGrp)}catch(x){}menu.classList.remove('on');
+    ld.querySelector('b').textContent='載入「'+cvGrp+'」最新價格…';ld.classList.add('on');const t0=Date.now();
+    let drawn=false;const dn=()=>{drawn=true};document.addEventListener('chartdrawn',dn,{once:true});renderCoins();$('#coins').scrollLeft=0;
+    const lim=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
+    try{if(cvGrp==='系統'){const s=$('#cvSym');if(/^X:/.test(s.value)){s.value='BTC';s.dispatchEvent(new Event('change'))}else drawn=true;await lim(fetchLive(),8000)}
+      else{await XM.list();const L=XM.group(cvGrp);if(L.length&&!L.includes($('#cvSym').value.slice(2)))XM.pick(L[0]);else drawn=true;await lim(XM.ticks(true),8000)}}catch(x){}
+    renderCoins();LiveWS.tick();
+    while(!drawn&&Date.now()-t0<10000)await new Promise(r=>setTimeout(r,100));
+    document.removeEventListener('chartdrawn',dn);setTimeout(()=>ld.classList.remove('on'),Math.max(0,400-(Date.now()-t0)))};
   Promise.all([XM.list(),XM.icons()]).then(()=>{renderCoins();if(cvGrp!=='系統')XM.ticks().then(renderCoins).catch(()=>{})})})();
 $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
 // ── 策略分析：先列策略，點了才進回測畫面 ──
