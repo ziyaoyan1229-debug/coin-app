@@ -2687,7 +2687,7 @@ function resizeAll(){[[chart,'#mainChart'],[pChart,'#priceChart'],[eChart,'#eqCh
   if(window.__cvNeedFit&&chart&&$('#mainChart').clientWidth){window.__cvNeedFit=false;drawChart(true)}}
 addEventListener('resize',resizeAll);
 initChart();applyTheme();
-window.__redraw=()=>{if(chart)drawChart(false)};window.__ch=()=>({chart,pChart,eChart});
+window.__redraw=()=>{if(chart)drawChart(false)};window.__cv=()=>({cs,bars:cvBars,tf:cvTf,dp:ohD()});window.__ch=()=>({chart,pChart,eChart});
 // ── 今日訊號：每個策略用預設參數跑最近一年，看最後狀態與最近 24h 的進出場 ──
 const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
   const md=t=>{const d=new Date((t+8*3600)*1000);return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}:00`};
@@ -3074,7 +3074,7 @@ const XM=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/c
     if(b)for(const s in P){const x=b.find(y=>y.symbol===P[s]);if(x)T[s]={px:+x.lastPrice,ch:+x.priceChangePercent/100,perp:1}}
     if(a||b){TK=T;tkAt=Date.now()}return TK}
   const pf=v=>fmt(v,v<0.01?8:v<1?5:v<10?4:2);
-  const quote=s=>{const t=TK[s],i=info(s);return t?t:i?{px:i.px,ch:i.ch}:null};
+  const quote=s=>{const i=info(s),W=window.LiveWS&&LiveWS.Q[i&&i.src!=='bn'?(PERP&&PERP[s])||'':s+'USDT'],t=W||TK[s];return t?t:i?{px:i.px,ch:i.ch}:null};
   async function daily(s){const c=DLY[s];if(c&&Date.now()-c.at<300000)return c.B;
     const r=await fetch(URL+s+'.csv',{cache:'no-store'});if(!r.ok)throw new Error('no data');
     const B={T:[],O:[],H:[],L:[],C:[],V:[]};for(const ln of (await r.text()).trim().split('\n').slice(1)){const a=ln.split(',');B.T.push(+a[0]);B.O.push(+a[1]);B.H.push(+a[2]);B.L.push(+a[3]);B.C.push(+a[4]);B.V.push(+a[5])}
@@ -3109,7 +3109,8 @@ const XM=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/c
     return f?`<span class="ic" style="background:#fff"><img src="${URL.replace('/d/','/icons/')+f}" alt="" loading="lazy" onerror="this.parentNode.style.background='#4b5563';this.replaceWith('${s.slice(0,3)}')"></span>`:`<span class="ic" style="background:#4b5563">${s.slice(0,3)}</span>`}
   function pick(s){const sel=$('#cvSym');if(!sel.querySelector(`option[value="X:${s}"]`)){const o=document.createElement('option');o.value='X:'+s;o.textContent=s;sel.appendChild(o)}
     if(sel.value!=='X:'+s){sel.value='X:'+s;sel.dispatchEvent(new Event('change'))}}
-  return{list,ticks,quote,info,bars,intra,perps,pick,pf,GROUPS,group,icon,icons}})();window.XM=XM;
+  const perpOf=s=>PERP?PERP[s]||null:null;
+  return{list,ticks,quote,info,bars,intra,perps,perpOf,pick,pf,GROUPS,group,icon,icons}})();window.XM=XM;
 let cvGrp=(()=>{try{return localStorage.getItem('cvGrp')||'系統'}catch(e){return '系統'}})();
 function renderCoins(){const box=$('#coins');if(!box)return;const curSym=$('#cvSym').value,gb=$('#grpBtn');if(gb)gb.firstChild.textContent=cvGrp;
   if(cvGrp!=='系統'){const L=XM.group(cvGrp);
@@ -3121,6 +3122,45 @@ function renderCoins(){const box=$('#coins');if(!box)return;const curSym=$('#cvS
     return `<button class="coin${c.k===curSym?' on':''}" data-k="${c.k}" title="${c.name}"><span class="ic" style="background:${c.col}">${c.ic}</span><span class="nm">${c.lab||c.k}</span><span class="ch ${cls(ch)}">${sg(ch)}<span class="small"> ${L?'24h':'30天'}</span></span><span class="px">$${fmt(px,px<1000?2:0)}</span></button>`}).join('');
   box.querySelectorAll('.coin[data-k]').forEach((el,i)=>{const c=COINS[i];
     el.onclick=()=>{const s=$('#cvSym');if(s.value!==c.k){s.value=c.k;s.dispatchEvent(new Event('change'))}renderCoins()}});}
+// ── 即時價格：手機直接連幣安 WebSocket，每 5 秒把最新價格寫到卡片和 K 線最後一根（只在「查看價格」、畫面開著時連線）──
+const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=','wss://stream.binance.com:9443/stream?streams='],FUT=['wss://fstream.binance.com/stream?streams='];
+  const IV={3600:'1h',7200:'2h',14400:'4h',28800:'8h',86400:'1d',604800:'1w'};
+  const sock={spot:null,fut:null},key={spot:'',fut:''},fail={spot:0,fut:0},Q={},K={};let kWant=null;
+  function want(){const on=document.visibilityState==='visible'&&$('#chartView')&&$('#chartView').classList.contains('on'),S=new Set(),F=new Set();kWant=null;if(!on)return{S,F};
+    // 卡片：系統群組只接 BTC、ETH（MSTR、MSTU 是股票收盤價，照原本方式）；其他群組接整組
+    if(cvGrp==='系統'){F.add('btcusdt@miniTicker');F.add('ethusdt@miniTicker')}
+    else for(const s of XM.group(cvGrp)){const i=XM.info(s);if(i&&i.src==='bn')S.add(s.toLowerCase()+'usdt@miniTicker');else{const p=XM.perpOf(s);if(p)F.add(p.toLowerCase()+'@miniTicker')}}
+    // K 線最後一根：目前這張圖
+    const V=window.__cv?__cv():{},cvTf=V.tf,iv=IV[cvTf],cs_=$('#cvSym').value;
+    if(iv&&(cs_==='BTC'||cs_==='ETH')){const st=cs_.toLowerCase()+'usdt@kline_'+iv;F.add(st);kWant=st}
+    else if(iv&&/^X:/.test(cs_)){const s=cs_.slice(2),i=XM.info(s);
+      if(i&&i.src==='bn'){const st=s.toLowerCase()+'usdt@kline_'+iv;S.add(st);kWant=st}
+      else if(cvTf<86400){const p=XM.perpOf(s);if(p){const st=p.toLowerCase()+'@kline_'+iv;F.add(st);kWant=st}}}
+    return{S,F}}
+  function open(kind,set){const k=[...set].sort().join('/');if(k===key[kind]&&sock[kind])return;
+    if(sock[kind]){try{sock[kind].onclose=null;sock[kind].close()}catch(e){}sock[kind]=null}key[kind]=k;if(!k)return;
+    const hosts=kind==='spot'?SPOT:FUT,url=hosts[fail[kind]%hosts.length]+k;let ws;try{ws=new WebSocket(url)}catch(e){fail[kind]++;key[kind]='';return}
+    sock[kind]=ws;ws.onmessage=e=>{try{const m=JSON.parse(e.data),d=m.data;if(!d)return;
+        if(d.e==='24hrMiniTicker')Q[d.s]={px:+d.c,ch:+d.c/+d.o-1};else if(d.e==='kline')K[m.stream]={t:d.k.t/1000,o:+d.k.o,h:+d.k.h,l:+d.k.l,c:+d.k.c,v:+d.k.q}}catch(x){}};
+    ws.onopen=()=>setTimeout(flush,1500);   // 剛連上先更新一次，不用等 5 秒
+    ws.onclose=()=>{if(sock[kind]===ws){sock[kind]=null;key[kind]='';fail[kind]++}}}   // 斷線：下一輪（5 秒後）換主機重連
+  function flush(){
+    // 卡片
+    document.querySelectorAll('#coins .coin').forEach(el=>{const s=el.dataset.x||el.dataset.k;if(!s)return;const i=XM.info(s),p=el.dataset.x&&!(i&&i.src==='bn')?XM.perpOf(s):null;
+      const q=Q[(p||s+'USDT')];if(!q)return;if(!el.dataset.x&&(s==='BTC'||s==='ETH'))LIVE[s]=Object.assign(LIVE[s]||{},{px:q.px,ch:q.ch});
+      const px=el.querySelector('.px'),ch=el.querySelector('.ch');if(px)px.textContent='$'+(el.dataset.x?XM.pf(q.px):fmt(q.px,q.px<1000?2:0));
+      if(ch){ch.className='ch '+cls(q.ch);ch.innerHTML=`${sg(q.ch)}<span class="small"> 24h</span>`}});
+    // K 線最後一根：開盤時間對得上才改（對不上就等下一次整張重畫），新的一根只接在正後方
+    const V=window.__cv?__cv():{},cvBars=V.bars,cs=V.cs,cvTf=V.tf;const k=kWant&&K[kWant];if(!k||!cs||!cvBars||!cvBars.T.length)return;const B=cvBars,n=B.T.length,last=B.T[n-1];
+    if(k.t===last){if(B.x){B.H[n-1]=Math.max(B.H[n-1],k.h);B.L[n-1]=Math.min(B.L[n-1],k.l);B.C[n-1]=k.c}
+      try{cs.update({time:k.t+TZ,open:B.O[n-1],high:Math.max(B.H[n-1],k.h),low:Math.min(B.L[n-1],k.l),close:k.c})}catch(e){}}
+    else if(k.t===last+cvTf||(cvTf===604800&&k.t===last+604800)){if(B.x){B.T.push(k.t);B.O.push(k.o);B.H.push(k.h);B.L.push(k.l);B.C.push(k.c);B.V.push(k.v);B.F&&B.F.push(0)}
+      try{cs.update({time:k.t+TZ,open:k.o,high:k.h,low:k.l,close:k.c})}catch(e){}}
+    else return;
+    const b=$('#ohlc b');if(b&&/最新/.test($('#ohlc').textContent))b.textContent=fmt(k.c,V.dp)}
+  function tick(){if(cvGrp==='美股'||cvGrp==='原物料'||/^X:/.test($('#cvSym').value))XM.perps();const w=want();open('spot',w.S);open('fut',w.F);flush()}
+  setInterval(tick,5000);document.addEventListener('visibilitychange',tick);
+  return{tick,Q}})();window.LiveWS=LiveWS;
 // 標題列：選群組（只在「查看價格」顯示；選單蓋在畫面上，不推動版面）
 (function(){const sp=document.querySelector('.topbar .sp');if(!sp)return;const w=document.createElement('div');w.className='grpdd';
   w.innerHTML=`<button type="button" id="grpBtn" aria-haspopup="listbox">${cvGrp}<span aria-hidden="true"> ▾</span></button><div id="grpMenu" role="listbox">${XM.GROUPS.map((g,i)=>`<button type="button" data-g="${g}">${i+1}. ${g}</button>`).join('')}</div>`;
