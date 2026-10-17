@@ -3215,8 +3215,10 @@ const XM=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/c
     if(sel.value!=='X:'+s){sel.value='X:'+s;sel.dispatchEvent(new Event('change'))}}
   const perpOf=s=>PERP?PERP[s]||null:null;
   return{list,ticks,quote,info,bars,intra,perps,perpOf,pick,pf,GROUPS,group,icon,icons}})();window.XM=XM;
+// 群組內部代號還是「系統」（存在手機裡的設定不用改），畫面上顯示成 HexStack
+const grpName=g=>g==='系統'?'HexStack':g;
 let cvGrp=(()=>{try{return localStorage.getItem('cvGrp')||'系統'}catch(e){return '系統'}})();
-function renderCoins(){const box=$('#coins');if(!box)return;const curSym=$('#cvSym').value,gb=$('#grpBtn');if(gb)gb.firstChild.textContent=cvGrp;
+function renderCoins(){const box=$('#coins');if(!box)return;const curSym=$('#cvSym').value,gb=$('#grpBtn');if(gb)gb.firstChild.textContent=grpName(cvGrp);
   if(cvGrp!=='系統'){const L=XM.group(cvGrp);
     box.innerHTML=L.length?L.map(s=>{const v=XM.quote(s)||{},i=XM.info(s);
       return `<button class="coin${'X:'+s===curSym?' on':''}" data-x="${s}" title="${i?i.name:s}">${XM.icon(s)}<span class="nm">${s}</span><span class="ch ${cls(v.ch||0)}">${v.ch!=null?sg(v.ch):''}<span class="small"> 24h</span></span><span class="px">${v.px!=null?'$'+XM.pf(v.px):'—'}</span></button>`}).join(''):'<div class="small" style="padding:10px 2px;display:flex;align-items:center;gap:8px"><span class="spin"></span>讀取中…</div>';
@@ -3268,14 +3270,14 @@ const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=
   return{tick,Q}})();window.LiveWS=LiveWS;
 // 標題列：選群組（只在「查看價格」顯示；選單蓋在畫面上，不推動版面）
 (function(){const sp=document.querySelector('.topbar .sp');if(!sp)return;const w=document.createElement('div');w.className='grpdd';
-  w.innerHTML=`<button type="button" id="grpBtn" aria-haspopup="listbox">${cvGrp}<span aria-hidden="true"> ▾</span></button><div id="grpMenu" role="listbox">${XM.GROUPS.map((g,i)=>`<button type="button" data-g="${g}">${i+1}. ${g}</button>`).join('')}</div>`;
+  w.innerHTML=`<button type="button" id="grpBtn" aria-haspopup="listbox">${grpName(cvGrp)}<span aria-hidden="true"> ▾</span></button><div id="grpMenu" role="listbox">${XM.GROUPS.map((g,i)=>`<button type="button" data-g="${g}">${i+1}. ${grpName(g)}</button>`).join('')}</div>`;
   sp.after(w);const menu=$('#grpMenu');
   $('#grpBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('on');menu.querySelectorAll('button').forEach(b=>b.classList.toggle('cur',b.dataset.g===cvGrp))};
   document.addEventListener('click',()=>menu.classList.remove('on'));
   // 切換群組：先蓋上載入畫面，等新的價格和 K 線都到了才拿掉，避免看到上一組的舊價格
   const ld=document.createElement('div');ld.id='grpLoad';ld.innerHTML='<i class="hxs"><b></b><b></b><b></b></i><span class="tx"></span>';$('#chartView').appendChild(ld);
   menu.onclick=async e=>{const b=e.target.closest('[data-g]');if(!b)return;cvGrp=b.dataset.g;try{localStorage.setItem('cvGrp',cvGrp)}catch(x){}menu.classList.remove('on');
-    ld.querySelector('.tx').textContent='載入「'+cvGrp+'」最新價格…';ld.classList.add('on');const t0=Date.now();
+    ld.querySelector('.tx').textContent='載入「'+grpName(cvGrp)+'」最新價格…';ld.classList.add('on');const t0=Date.now();
     let drawn=false;const dn=()=>{drawn=true};document.addEventListener('chartdrawn',dn,{once:true});renderCoins();$('#coins').scrollLeft=0;
     const lim=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
     try{if(cvGrp==='系統'){const s=$('#cvSym');if(/^X:/.test(s.value)){s.value='BTC';s.dispatchEvent(new Event('change'))}else drawn=true;await lim(fetchLive(),8000)}
