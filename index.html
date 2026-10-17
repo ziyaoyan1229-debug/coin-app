@@ -614,11 +614,12 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 #stratView.picking>.col{display:none!important}
 #stratView:not(.picking)>#sPick{display:none}
 #sTab{margin:12px 12px 0}#sTab button[hidden]{display:none}#sTab button{flex:1}#sTab #rlCnt,#sTab #myCnt{margin-left:4px;font-size:12px;opacity:.75}
-#myPane{padding:12px}#myPane .mys{margin-bottom:10px;padding:12px 14px}#myPane .mys .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}#myPane .mys .hd b{flex:1;min-width:0}
+#myPane,#cmpPane{padding:12px}#myPane .mys{margin-bottom:10px;padding:12px 14px}#myPane .mys .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}#myPane .mys .hd b{flex:1;min-width:0}
 #myPane .mys{cursor:pointer}#myPane .mys .hd b{display:flex;align-items:center;gap:2px}#myPane .mys .ic{background:none;border:0;padding:4px 5px;color:var(--muted);cursor:pointer;flex:none;display:flex;align-items:center}#myPane .mys .ic:first-of-type{margin-left:4px}#myPane .mys .ic:active{color:var(--acc)}#myPane .mgo{font-size:12px;color:var(--acc);text-align:right;margin-top:6px}
 #myPane .mys .hd .sym{font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
 #myPane .mst{display:flex;gap:6px;margin:10px 0 8px}#myPane .mst div{flex:1;background:var(--panel2);border-radius:10px;padding:7px 8px;font-size:11.5px;color:var(--muted)}#myPane .mst div b{display:block;font-size:15px;color:var(--text);margin-top:2px}
-#myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
+#myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#cmpPane .ccchips{display:flex;flex-wrap:wrap;gap:6px}#cmpPane .ccchips button{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}#cmpPane .ccchips button.on{background:var(--acc);border-color:var(--acc);color:#fff}#cmpSeg{display:flex}#cmpSeg button{flex:1}
+#myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
 .rlrun{background:var(--panel2);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px}.rlrun .h{display:flex;justify-content:space-between;gap:8px;font-weight:700}.rlrun .h span{color:var(--acc);font-family:ui-monospace,Menlo,monospace}
 .rlrun .sub{color:var(--muted);font-size:12px;margin:2px 0 7px}.rlrun .bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--muted) 25%,transparent);overflow:hidden}.rlrun .bar i{display:block;height:100%;background:var(--accbg,var(--acc));border-radius:3px;transition:width .3s}
@@ -652,7 +653,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 </style>
 <section id="stratView" class="view picking">
   <div id="sBack"><button id="sBackBtn" type="button">‹ 我的策略</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
-  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine" class="on">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" hidden>策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList" hidden></div><div id="myPane"></div><div id="rlPane" hidden><div class="btnrow" style="margin:0 0 10px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label><label><input type="checkbox" id="rlStar"> 只看 ⭐</label></div><div id="rlList"></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
+  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="cmp">策略比較</button><button type="button" data-t="mine" class="on">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" hidden>策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList" hidden></div><div id="cmpPane" hidden></div><div id="myPane"></div><div id="rlPane" hidden><div class="btnrow" style="margin:0 0 10px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label><label><input type="checkbox" id="rlStar"> 只看 ⭐</label></div><div id="rlList"></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
   <div class="col" id="left"><div class="ctl">
     <div class="field"><label>策略</label>
       <select id="sStrat">
@@ -2683,7 +2684,7 @@ const RunLog=(()=>{const K='runlog',MAX=300;let L=[],last='';const JOBS=[];const
       L.sort((a,b)=>b.at-a.at);save();render();alert(`匯入 ${n} 筆紀錄`)}catch(err){alert('這個檔案不是 HexStack 的回測紀錄')}};
   // 策略清單頁的兩個分頁：策略／回測紀錄
   $('#sTab').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.t,lg=t==='log';
-    $('#sTab').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#sList').hidden=t!=='list';pane.hidden=!lg;$('#myPane').hidden=t!=='mine';$('#stratView').scrollTop=0;if(lg)render();if(t==='mine')MyStrat.render()});
+    $('#sTab').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#sList').hidden=t!=='list';pane.hidden=!lg;$('#myPane').hidden=t!=='mine';$('#cmpPane').hidden=t!=='cmp';$('#stratView').scrollTop=0;if(lg)render();if(t==='mine')MyStrat.render();if(t==='cmp')MyStrat.cmpTab()});
   render();return{add,render,job,sName,pName:pName}})();window.RunLog=RunLog;
 
 // ───────── 右側說明 ─────────
@@ -2754,16 +2755,67 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     b.innerHTML='<div class="card" style="padding:12px 14px;margin-bottom:10px">計算中…</div>';const R=[];let i=0;
     const step=()=>{if(!cmpOn||!$('#myCmpBox'))return;if(i<ks.length){const k=ks[i],[st,sym]=SigLock.part(k);try{const r=stats(st,sym,L[k]);R.push({k,name:SigLock.name(k),sym,r:r.all,y:r.y1,c:CC[i%CC.length]})}catch(e){}i++;$('#myCmpBox .card').textContent=`計算中 ${i}／${ks.length}…`;setTimeout(step,0);return}
       draw(R)};setTimeout(step,20)}
-  function draw(R){const W=360,H=200,P=6,A=R.filter(x=>x.r.eq&&x.r.eq.length);let t0=Infinity,t1=-Infinity,v0=Infinity,v1=-Infinity;
+  function draw(R,title){const W=360,H=200,P=6,A=R.filter(x=>x.r.eq&&x.r.eq.length);let t0=Infinity,t1=-Infinity,v0=Infinity,v1=-Infinity;
     A.forEach(x=>x.r.eq.forEach(([t,v])=>{if(t<t0)t0=t;if(t>t1)t1=t;const lv=Math.log10(Math.max(v,1));if(lv<v0)v0=lv;if(lv>v1)v1=lv}));if(v1-v0<0.1){v1+=0.05;v0-=0.05}
     const X=t=>P+(t-t0)/(t1-t0||1)*(W-2*P),Y=v=>H-P-(Math.log10(Math.max(v,1))-v0)/(v1-v0)*(H-2*P);
     const lines=A.map(x=>{const e=x.r.eq,n=e.length,st=Math.max(1,Math.floor(n/240));let d='';for(let j=0;j<n;j+=st)d+=(d?'L':'M')+X(e[j][0]).toFixed(1)+','+Y(e[j][1]).toFixed(1);d+='L'+X(e[n-1][0]).toFixed(1)+','+Y(e[n-1][1]).toFixed(1);return `<path d="${d}" fill="none" stroke="${x.c}" stroke-width="1.6"/>`}).join('');
     const base=`<line x1="${P}" x2="${W-P}" y1="${Y(1000).toFixed(1)}" y2="${Y(1000).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3 4" stroke-width="1" opacity=".6"/>`;
     const sc=x=>x.r.liq?-1:(x.r.mult-1)/Math.max(x.r.mdd,0.05),S=R.slice().sort((a,b)=>sc(b)-sc(a));
-    $('#myCmpBox').innerHTML=`<div class="card mycmp" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:700;margin-bottom:4px">策略比較（2020 至今，本金 1,000）</div>
+    $('#myCmpBox').innerHTML=`<div class="card mycmp" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:700;margin-bottom:4px">${title||'策略差異（2020 至今，本金 1,000）'}</div>
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${base}${lines}</svg>
       <div class="small" style="color:var(--muted);margin:2px 0 8px">資金曲線用對數刻度，虛線＝本金 1,000。${new Date(t0*1000).getFullYear()} → ${new Date(t1*1000).getFullYear()}</div>
-      <table class="cmpt" style="width:100%"><tr><th>策略</th><th>倍數</th><th>回撤</th><th>近一年</th><th>報酬÷回撤</th></tr>${S.map(x=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${x.c};vertical-align:middle;margin-right:6px"></i>${esc(x.name)} <span class="small">${x.sym}</span></td><td class="${x.r.mult>=1?'pos':'neg'}">${x.r.liq?'爆倉':fmt(x.r.mult,2)}</td><td>${pct(x.r.mdd)}</td><td class="${x.y.mult>=1?'pos':'neg'}">${x.y.liq?'爆倉':((x.y.mult-1)*100).toFixed(1)+'%'}</td><td>${x.r.liq?'—':fmt(sc(x),2)}</td></tr>`).join('')}</table></div>`}
+      <table class="cmpt" style="width:100%"><tr><th>${R.coin?'幣種':'策略'}</th><th>倍數</th><th>回撤</th><th>近一年</th><th>報酬÷回撤</th></tr>${S.map(x=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${x.c};vertical-align:middle;margin-right:6px"></i>${esc(x.name)} <span class="small">${x.sym||''}</span></td><td class="${x.r.mult>=1?'pos':'neg'}">${x.bad?'—':x.r.liq?'爆倉':fmt(x.r.mult,2)}</td><td>${x.bad?'—':pct(x.r.mdd)}</td><td class="${x.y.mult>=1?'pos':'neg'}">${x.bad?'—':x.y.liq?'爆倉':((x.y.mult-1)*100).toFixed(1)+'%'}</td><td>${x.r.liq?'—':fmt(sc(x),2)}</td></tr>`).join('')}</table></div>`}
+  // 策略比較分頁：策略差異（我的策略全部比）／幣種差異（同一個策略放到不同幣上跑）
+  let cmpMode='st',ccK='',ccPer=730,ccSel=['BTC','ETH','SOL','XRP','BNB','DOGE'],ccBusy=false;
+  function cmpTab(){cmpOn=true;const P=$('#cmpPane');
+    P.innerHTML=`<div class="seg" id="cmpSeg" style="margin:0 0 10px"><button type="button" data-m="st"${cmpMode==='st'?' class="on"':''}>策略差異</button><button type="button" data-m="coin"${cmpMode==='coin'?' class="on"':''}>幣種差異</button></div><div id="ccForm"></div><div id="myCmpBox"></div>`;
+    P.querySelector('#cmpSeg').onclick=e=>{const b=e.target.closest('button');if(!b||ccBusy)return;cmpMode=b.dataset.m;cmpTab()};
+    if(cmpMode==='st')cmp();else ccForm()}
+  // 1 小時 K：BTC、ETH 用內建資料；其他幣由手機向幣安現貨抓（缺的小時用前一根收盤補平），轉成引擎的格式
+  const HD={};
+  async function hourData(sym,from,prog){if(sym==='BTC'||sym==='ETH')return true;const c=HD[sym];if(c&&c.from<=from&&Date.now()-c.at<600000)return true;
+    const now=Math.floor(Date.now()/3600000)*3600,rows=[];const t=Math.floor(from/3600)*3600;
+    const urls=s=>[`https://data-api.binance.vision/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`,`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`];
+    const getJ=async us=>{for(const u of us){try{const r=await fetch(u);if(r.ok)return await r.json()}catch(e){}}return null};
+    const starts=[];for(let s=t;s<now;s+=1000*3600)starts.push(s);let done=0;
+    for(let i=0;i<starts.length;i+=5){const part=await Promise.all(starts.slice(i,i+5).map(s=>getJ(urls(s))));
+      if(part.some(x=>x===null))return false;part.forEach(j=>rows.push(...j));done+=part.length;prog&&prog(done/starts.length)}
+    const by=new Map();rows.forEach(r=>by.set(r[0]/1000,r));const tk=[...by.keys()].sort((a,b)=>a-b);if(tk.length<500)return false;
+    let mx=0;tk.forEach(k=>{const v=+by.get(k)[2];if(v>mx)mx=v});
+    const t0=tk[0],n=Math.round((tk[tk.length-1]-t0)/3600)+1,sc=10**Math.max(0,6-Math.floor(Math.log10(mx)));
+    const d={t0,n,sc,c0:0,dc:new Array(n),o:new Array(n),h:new Array(n),l:new Array(n),v:new Array(n),f:{}};let pc=0,last=null;
+    for(let i=0;i<n;i++){const r=by.get(t0+i*3600)||[0,last[4],last[4],last[4],last[4],'0'];last=r;const C=Math.round(+r[4]*sc);
+      d.dc[i]=C-pc;pc=C;d.o[i]=Math.round(+r[1]*sc)-C;d.h[i]=Math.round(+r[2]*sc)-C;d.l[i]=Math.round(+r[3]*sc)-C;d.v[i]=+r[5]}
+    window.DATA[sym]=d;E.__clear&&E.__clear();HD[sym]={from,at:Date.now()};return true}
+  function ccForm(){const L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+    if(!ks.length){$('#ccForm').innerHTML='<div class="card" style="padding:12px 14px">先在「我的策略」新增一個策略。</div>';$('#myCmpBox').innerHTML='';return}
+    if(!ks.includes(ccK))ccK=ks[0];
+    const all=['BTC','ETH',...(window.XM?XM.group('熱門山寨幣').concat(XM.group('其他山寨幣')):[])].filter((x,i,a)=>a.indexOf(x)===i);
+    $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
+      <div class="field"><label>策略</label><select id="ccK">${ks.map(k=>`<option value="${esc(k)}"${k===ccK?' selected':''}>${esc(SigLock.name(k))}（${SigLock.part(k)[1]}）</option>`).join('')}</select></div>
+      <div class="field"><label>期間</label><div class="seg" id="ccPer">${[[365,'近一年'],[730,'近兩年'],[0,'2020 至今']].map(([v,t])=>`<button type="button" data-v="${v}"${ccPer===v?' class="on"':''}>${t}</button>`).join('')}</div></div>
+      <div class="field"><label>幣種（可以選好幾個）</label><div class="ccchips">${all.map(x=>`<button type="button" data-s="${x}"${ccSel.includes(x)?' class="on"':''}>${x}</button>`).join('')}</div></div>
+      <p class="small" style="margin:4px 0 8px">用這個策略存的參數，原封不動放到每個幣上回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），而且沒有算資金費率。</p>
+      <button class="btn" id="ccGo" type="button" style="width:100%">開始比較</button></div>`;
+    $('#ccK').onchange=e=>ccK=e.target.value;
+    $('#ccPer').onclick=e=>{const b=e.target.closest('button');if(!b)return;ccPer=+b.dataset.v;$('#ccPer').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
+    $('#ccForm .ccchips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const s=b.dataset.s;ccSel=ccSel.includes(s)?ccSel.filter(x=>x!==s):[...ccSel,s];b.classList.toggle('on')};
+    $('#ccGo').onclick=coinRun}
+  async function coinRun(){if(ccBusy)return;const L=SigLock.get(),p=L[ccK];if(!p)return;const[st,sym0]=SigLock.part(ccK),coins=[sym0,...ccSel.filter(x=>x!==sym0)];
+    if(coins.length<2){alert('至少選一個別的幣來比較');return}ccBusy=true;$('#ccGo').disabled=true;
+    const now=Math.floor(Date.now()/1000),from=ccPer?now-ccPer*D1:ts('2020-03-13'),box=$('#myCmpBox'),R=[];
+    const show=t=>box.innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px"><span class="spin" style="margin-right:8px"></span>${t}</div>`;
+    const bad=(s,why,i)=>R.push({bad:1,name:s,sym:why,r:{liq:true,mult:0,mdd:0,eq:[]},y:{mult:0,liq:true},c:CC[i%CC.length]});
+    for(let i=0;i<coins.length;i++){const s=coins[i];show(`${s}：下載 1 小時 K…（${i+1}／${coins.length}）`);
+      let ok=false;try{ok=await hourData(s,from-60*D1,f=>show(`${s}：下載 1 小時 K ${Math.round(f*100)}%（${i+1}／${coins.length}）`))}catch(e){}
+      if(!ok){bad(s,'抓不到資料',i);continue}
+      show(`${s}：回測中…（${i+1}／${coins.length}）`);await new Promise(r=>setTimeout(r,0));
+      try{const H=E.load(s),t1=H.T[H.n-1]+3600,a0=Math.max(from,H.T[0]+60*D1),P=Object.assign({capital:1000},BEST[st][sym0],p);
+        const r=simulate(st,s,a0,t1,P),y=simulate(st,s,Math.max(a0,t1-365*D1),t1,P);
+        R.push({name:s,sym:a0>from+D1?'從 '+new Date(a0*1000).toISOString().slice(0,7)+' 開始':'',r,y,c:CC[i%CC.length]})}
+      catch(e){bad(s,'這個策略不支援',i)}}
+    ccBusy=false;$('#ccGo').disabled=false;R.coin=true;
+    draw(R,`幣種差異：${esc(SigLock.name(ccK))}（${ccPer===365?'近一年':ccPer===730?'近兩年':'2020 至今'}，本金 1,000）`)}
   // 新增：1. 功能庫挑進出場指標（或從範例開始）→ 2. 取名 → 下一步到參數頁（3. 設參數，4. 看回測，按儲存）
   let mode='lib',dir='long',pin=[],pout=[],psin=[],psout=[];
   const chips=a=>a.length?`<div class="chips2">${a.map(id=>`<span>${esc(Engine.CUSLIB[id][0])}</span>`).join('')}</div>`:'';
@@ -2783,8 +2835,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
   function syncSym(){const st=$('#maSt'),sy=$('#maSym');if(!st||!sy)return;const o=ONLY[st.value];[...sy.options].forEach(x=>x.disabled=!!o&&x.value!==o||!BEST[st.value][x.value]);if(sy.selectedOptions[0].disabled)sy.value=[...sy.options].find(x=>!x.disabled).value}
   function render(){count();window.syncCvStrat&&syncCvStrat();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
-    const top=`<button class="btn ghost" id="myCmp" style="width:100%;margin:0 0 8px"${cmpOn?' aria-pressed="true"':''}>${cmpOn?'收起策略比較':'策略比較'}</button><div id="myCmpBox"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
-    if(cmpOn)setTimeout(cmp,0);
+    const top=`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     box().innerHTML=top+ks.map(k=>{const[st,sym]=SigLock.part(k);
       return `<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.name(k))}<button class="ic" type="button" data-a="ren" aria-label="改名"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="ic" type="button" data-a="del" aria-label="移除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></b><span class="sym">${sym}</span></div>
@@ -2804,7 +2855,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   document.addEventListener('change',e=>{if(e.target.id==='maSt')syncSym();if(e.target.id==='maDir'){const k=keep();dir=e.target.value;render();k()}});
   const keep=()=>{const v={sym:$('#maSym')&&$('#maSym').value,dir:$('#maDir')&&$('#maDir').value,name:$('#maName')&&$('#maName').value};
     return ()=>{if(v.sym&&$('#maSym'))$('#maSym').value=v.sym;if(v.dir&&$('#maDir'))$('#maDir').value=v.dir;if(v.name&&$('#maName'))$('#maName').value=v.name;syncSym()}};
-  document.addEventListener('click',e=>{if(e.target.id==='myCmp'){cmpOn=!cmpOn;render();return}if(e.target.id==='myAdd'){adding=true;mode='lib';dir='long';pin=[];pout=[];psin=[];psout=[];render();return}
+  document.addEventListener('click',e=>{if(e.target.id==='myAdd'){adding=true;mode='lib';dir='long';pin=[];pout=[];psin=[];psout=[];render();return}
     const mm=e.target.closest('#maMode button');if(mm){const k=keep();mode=mm.dataset.m;render();k();return}
     const f=e.target.closest('#myPane .madd');if(f){const a=e.target.closest('[data-a]');if(!a)return;
       if(a.dataset.a==='cancel'){adding=false;render();return}
@@ -2822,7 +2873,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     if(a.dataset.a==='del'){if(confirm(`把「${SigLock.name(k)}」從我的策略移除？`)){SigLock.remove(k);SigTab.reset();render()}return}
     if(a.dataset.a==='ren'){const n=prompt('新名字',SigLock.name(k));if(n&&n.trim()){SigLock.rename(k,n.trim());render()}return}
     goEdit(st,sym,SigLock.get()[k],k)});
-  return {render,count,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k,'r')}}})();window.MyStrat=MyStrat;
+  return {render,count,cmpTab,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k,'r')}}})();window.MyStrat=MyStrat;
 // 第一次打開：「我的策略」先放兩個做多範例（海龜、均線金叉死叉），預設只開均線的通知；移除後不會再放回來
 (()=>{try{const sd=localStorage.getItem('mySeed');
   if(sd==='1'){localStorage.setItem('mySeed','2');const O=JSON.parse(localStorage.getItem('sigLockOff')||'{}');if(O['cus|BTC|ex2']){delete O['cus|BTC|ex2'];localStorage.setItem('sigLockOff',JSON.stringify(O))}return}   // 均線範例改成預設開通知
