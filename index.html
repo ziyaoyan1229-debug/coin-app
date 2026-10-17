@@ -2457,7 +2457,8 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
     rename=(k,n)=>{const N=names();N[k]=n.slice(0,20);W('sigLockName',N);window.NotifyTab&&NotifyTab.sync()};
   const editName=()=>{const e=editing();return e?(typeof e==='string'?name(e):e.name):null};
   const editKey=()=>{const e=editing();return typeof e==='string'?e:null};
-  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit,editName,editKey}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
+  const dirty=()=>{const e=editing();if(typeof e!=='string')return false;const st=$('#sStrat').value,sym=$('#sSym').value;return !same(clean(Object.assign({},BEST[st][sym],get()[e])),clean(cur||{}))};
+  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit,editName,editKey,clean,dirty,create:(st,sym,n,p)=>{const k=create(st,sym,n,p);if(k){edit=k;done()}return k}}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
@@ -2829,7 +2830,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       ${dir==='both'?pick('psin',psin,'　 做空進場訊號（可以選好幾個）','做空進場')+pick('psout',psout,'　 做空出場訊號（任一出現就出場，也可以不選）','做空出場')+'<p class="small" style="margin:0 0 8px">持多單時出現做空進場訊號就反手做空，反過來也一樣。</p>':''}`
       :`<div class="field"><label>1. 選一個範例策略</label><select id="maSt">${ops}</select></div>`}
       <div class="field"><label>2. 取個名字</label><input id="maName" maxlength="20" placeholder="例如：我的 BTC 突破"></div>
-      <p class="small" style="margin:0 0 8px">下一步打開參數頁：3. 設定每個指標的參數和停損停利，4. 看回測，滿意再按「儲存」。</p>
+      <p class="small" style="margin:0 0 8px">按「下一步」就會存進我的策略，接著打開參數頁：3. 設定每個指標的參數和停損停利，4. 看回測，改過參數再按「儲存變更」。</p>
       <div class="btnrow"><button class="btn ghost" data-a="cancel">取消</button><button class="btn" data-a="next">下一步：設定參數</button></div>
       <button class="btn ghost" type="button" disabled style="width:100%;margin-top:10px;opacity:.6">🤖 AI 幫我配置＋回測多種組合（開發中）</button>
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
@@ -2864,8 +2865,8 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       const sym=$('#maSym').value;
       if(mode==='lib'){const B=dir==='both';if(!pin.length&&!(B&&psin.length)){alert(B?'先從功能庫選至少一個做多或做空進場指標':'先從功能庫選至少一個進場指標');return}
         const n=($('#maName').value.trim()||'自訂 '+sym).slice(0,20),rules=JSON.stringify(Object.assign({in:pin.map(Rules.blk),out:pout.map(Rules.blk),any:0},B?{sin:psin.map(Rules.blk),sout:psout.map(Rules.blk),sany:0}:{}));
-        adding=false;render();goEdit('cus',sym,{rules,dir},{st:'cus',sym,name:n});return}
-      const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;render();goEdit(st,sym,null,{st,sym,name:n});return}
+        adding=false;const k=SigLock.create('cus',sym,n,SigLock.clean(Object.assign({},BEST.cus[sym],{rules,dir})));if(!k)return;render();goEdit('cus',sym,SigLock.get()[k],k);return}   // 按下一步就存進我的策略，之後改參數再按儲存
+      const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;const k=SigLock.create(st,sym,n,SigLock.clean(Object.assign({},BEST[st][sym])));if(!k)return;render();goEdit(st,sym,SigLock.get()[k],k);return}
     const c=e.target.closest('#myPane .mys');if(!c)return;const k=c.dataset.k,[st,sym]=SigLock.part(k);
     if(e.target.closest('.sw')){const P=SigLock.paused();SigLock.pause(k,!P[k]);render();return}
     const a=e.target.closest('[data-a]');if(!a){goEdit(st,sym,SigLock.get()[k],k,'r');return}   // 點卡片：打開，先看績效
@@ -3253,7 +3254,7 @@ $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
     return `<button class="scard" type="button" data-v="${o.value}"><span class="no">${m[1]}</span><span class="bd"><span class="nm">${esc(m[2])}</span>${I[0]?`<span class="ds" style="display:block">${esc(I[0])}</span>`:''}<span class="tg">${I[1].map(t=>`<span>${esc(t)}</span>`).join('')}</span></span><span class="ar" aria-hidden="true">›</span></button>`}).join('');
   const pick=on=>{SV.classList.toggle('picking',on);SV.scrollTop=0;if(on&&window.MyStrat&&!$('#myPane').hidden)MyStrat.render();if(!on){window.DTab&&DTab.set('r');setTimeout(()=>dispatchEvent(new Event('resize')),30)}};window.StratNav={pick};
   list.addEventListener('click',e=>{const b=e.target.closest('.scard');if(!b)return;if(sel.value!==b.dataset.v){sel.value=b.dataset.v;sel.dispatchEvent(new Event('change'))}pick(false)});
-  $('#sBackBtn').onclick=()=>pick(true);
+  $('#sBackBtn').onclick=()=>{if(SigLock.dirty()&&confirm(`參數改過了，要儲存到「${SigLock.editName()}」嗎？`))SigLock.save(false);pick(true)};
   // 從底部「策略分析」進來一律先看清單
   $('#nav_strat').addEventListener('click',()=>pick(true));})();
 
