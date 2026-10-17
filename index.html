@@ -1777,15 +1777,17 @@ N.createChart=function(el,opts){
   function ichiCloud(B, a, b) { const m = B.C.length, A = new Float64Array(m).fill(NaN), Bs = new Float64Array(m).fill(NaN), mid = (i, n) => { let h = -Infinity, l = Infinity; for (let j = i - n + 1; j <= i; j++) { if (B.H[j] > h) h = B.H[j]; if (B.L[j] < l) l = B.L[j]; } return (h + l) / 2; };
     for (let i = 2 * b - 1 + b; i < m; i++) { const k = i - b; A[i] = (mid(k, a) + mid(k, b)) / 2; Bs[i] = mid(k, 2 * b); } return [A, Bs]; }
   function parseRules(s) { let r; try { r = typeof s === 'string' ? JSON.parse(s) : s; } catch (e) { r = null; } r = r || {};
-    const ok = x => Array.isArray(x) && CUSLIB[x[0]], g = k => (r[k] || []).filter(ok).slice(0, 8); return { in: g('in'), out: g('out'), add: g('add'), part: g('part'), any: r.any ? 1 : 0 }; }
+    const ok = x => Array.isArray(x) && CUSLIB[x[0]], g = k => (r[k] || []).filter(ok).slice(0, 8); return { in: g('in'), out: g('out'), add: g('add'), part: g('part'), any: r.any ? 1 : 0, sin: g('sin'), sout: g('sout'), sany: r.sany ? 1 : 0 }; }
   function cusFn(B, sym, tf, blk) { const key = 'cus' + sym + tf + JSON.stringify(blk); if (cache[key]) return cache[key]; const L = CUSLIB[blk[0]], P = L[2].map((d, k) => (isFinite(+blk[k + 1]) ? +blk[k + 1] : d[1]));
     const f = L[3](B, ...P), m = B.C.length, r = new Uint8Array(m); for (let i = 0; i < m; i++) r[i] = f(i) ? 1 : 0; return (cache[key] = r); }
   // 加倉、分批出場的條件只在「剛出現」那根觸發（前一根不成立），避免條件持續成立時每根都觸發
   // 加倉：加倉條件任一出現、或順勢走了 addPct%（從上次進場／加倉價算），每次加「第一筆的 addSize 倍」，最多 addMax 次
   // 分批出場：分批出場條件任一出現、或第一段停利 tp1Pct% 到了，賣出目前部位的 partFrac／tp1Frac；全部出場照出場條件、停損、停利、移動停損、持有上限
   function runCustom(sym, t0, t1, p) {
-    const b = load(sym), tf = (+p.tf || 4) * H1, B = resample(sym, tf), R = parseRules(p.rules), w = p.dir === 'short' ? -1 : 1;
-    const F = a => a.map(x => cusFn(B, sym, tf, x)), IN = F(R.in), OUT = F(R.out), ADD = F(R.add), PART = F(R.part), atr = p.stopAtr > 0 ? atrArr(B, 14) : null;
+    const b = load(sym), tf = (+p.tf || 4) * H1, B = resample(sym, tf), R = parseRules(p.rules), w0 = p.dir === 'short' ? -1 : 1, both = p.dir === 'both';
+    // 雙向：in／out＝做多進出場，sin／sout＝做空進出場；持倉中出現反方向的進場訊號就反手
+    const all = (A, any, i) => { if (!A.length) return false; let go = !any; for (const a of A) go = any ? go || !!a[i] : go && !!a[i]; return go; };
+    const F = a => a.map(x => cusFn(B, sym, tf, x)), IN = F(R.in), OUT = F(R.out), SIN = F(R.sin), SOUT = F(R.sout), ADD = F(R.add), PART = F(R.part), atr = p.stopAtr > 0 ? atrArr(B, 14) : null;
     const addMax = Math.max(0, Math.round(+p.addMax || 0)), addSize = +p.addSize > 0 ? +p.addSize : 1, addPct = +p.addPct || 0;
     const partFrac = Math.min(1, Math.max(0, +p.partFrac || 0.5)), tp1 = +p.tp1Pct || 0, tp1Frac = Math.min(1, Math.max(0, +p.tp1Frac || 0.5));
     let cash = p.capital, q = 0, s = 0, avg = 0, stop = 0, best = 0, bars = 0, q0 = 0, adds = 0, lastPx = 0, tp1Done = false, liq = false, peak = cash, mdd = 0, fund = 0, fees = 0;
@@ -1813,7 +1815,9 @@ N.createChart=function(el,opts){
       }
       const c = B.C[i], tEnd = B.T[i] + tf;
       if (q) { bars++; let why = '';
-        for (let k = 0; k < OUT.length && !why; k++) if (OUT[k][i]) why = CUSLIB[R.out[k][0]][0];
+        const OX = both && s < 0 ? SOUT : OUT, OR = both && s < 0 ? R.sout : R.out;
+        for (let k = 0; k < OX.length && !why; k++) if (OX[k][i]) why = CUSLIB[OR[k][0]][0];
+        if (!why && both && (s > 0 ? all(SIN, R.sany, i) : all(IN, R.any, i))) why = s > 0 ? '反手做空' : '反手做多';
         if (!why && p.maxBars > 0 && bars >= p.maxBars) why = `持有 ${p.maxBars} 根到期`;
         if (why) close(c * (1 - s * COST.slip), why, tEnd);
         else {
@@ -1825,8 +1829,8 @@ N.createChart=function(el,opts){
               if (E(c) - fe > COST.mm * (q + dq) * c * 2) { cash -= fe; fees += fe; avg = (avg * q + px * dq) / (q + dq); q += dq; adds++; lastPx = c; cur.px.push(c);
                 marks.push({ t: tEnd, px: c, type: 'add', side: s, text: `加倉 ${adds}：${aw}` }); } } }
         } }
-      if (!q && IN.length) { let go = !R.any; for (const a of IN) { if (R.any) go = go || !!a[i]; else go = go && !!a[i]; }
-        if (go && isFinite(c)) {
+      if (!q) { const L = all(IN, R.any, i), S = both && all(SIN, R.sany, i), w = both ? (L && !S ? 1 : S && !L ? -1 : 0) : L ? w0 : 0;
+        if (w && isFinite(c)) {
           const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = q0 = dq; s = w; avg = c * (1 + w * COST.slip); best = avg; bars = 0; adds = 0; lastPx = c; tp1Done = false;
           const sp = p.stopPct > 0 ? avg * (1 - w * p.stopPct / 100) : 0, sa = atr && isFinite(atr[i]) ? c - w * p.stopAtr * atr[i] : 0;
           stop = sp && sa ? (w > 0 ? Math.max(sp, sa) : Math.min(sp, sa)) : sp || sa;
@@ -2247,7 +2251,7 @@ const BEST={
  tur:{BTC:{dir:'both2',tf:8,entry:'s1',s1skip:true,exit:'low',lev:10,risk:0.02,maxU:4,atrN:20,entryN:20,exitN:10,stopN:2,addN:0.5,regime:'none',funding:true},
       ETH:{dir:'both2',tf:8,entry:'s2',s1skip:true,exit:'low',lev:10,risk:0.02,maxU:4,atrN:20,entryN:55,exitN:20,stopN:2,addN:0.5,regime:'none',funding:true}}};
 const PDEF={
- cus:[['dir','做多／做空','sel',[['long','做多'],['short','做空']]],['tf','K 棒週期','sel',[[1,'1 小時'],[4,'4 小時'],[8,'8 小時'],[24,'日線']]],['lev','槓桿（倍）','num',0.5,20,0.5,'進場名目＝權益×槓桿'],
+ cus:[['dir','做多／做空','sel',[['long','做多'],['short','做空'],['both','雙向（做多、做空各自設進出場）']]],['tf','K 棒週期','sel',[[1,'1 小時'],[4,'4 小時'],[8,'8 小時'],[24,'日線']]],['lev','槓桿（倍）','num',0.5,20,0.5,'進場名目＝權益×槓桿'],
    ['stopPct','停損（%）','num',0,50,0.5,'0＝不設'],['stopAtr','ATR 停損（倍）','num',0,10,0.5,'0＝不設；兩個都設取比較近的'],['tp','停利（%）','num',0,500,1,'0＝不設'],['trail','移動停損（%）','num',0,50,0.5,'從最高點回落幾 % 出場，0＝不設'],['maxBars','最多持有（根）','num',0,1000,1,'0＝不限'],
    ['addMax','最多加倉次數','num',0,10,1,'0＝不加倉'],['addSize','每次加倉（第一筆的幾倍）','num',0.1,3,0.1,''],['addPct','順勢幾 % 加一次','num',0,100,0.5,'從上次進場價算，0＝只看加倉條件'],
    ['tp1Pct','第一段停利（%）','num',0,500,1,'到了先賣一部分，0＝不設'],['tp1Frac','第一段賣出比例','num',0.1,1,0.05,'0.5＝賣一半'],['partFrac','分批出場條件每次賣出比例','num',0.1,1,0.05,'分批出場條件出現時賣掉目前部位的幾成'],['funding','計資金費率','chk']],
@@ -2335,22 +2339,29 @@ const LibPick=(()=>{let cb=null;const L=()=>Engine.CUSLIB,esc=t=>String(t).repla
 const Rules=(()=>{const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const get=p=>Engine.parseRules(p&&p.rules),blk=id=>[id,...Engine.CUSLIB[id][2].map(d=>d[1])];
   const name=b=>Engine.CUSLIB[b[0]][0],desc=b=>{const P=Engine.CUSLIB[b[0]][2];return name(b)+(P.length?'（'+P.map((d,k)=>b[k+1]??d[1]).join('、')+'）':'')};
-  const sum=p=>{const r=get(p);return '進場：'+(r.in.map(name).join(r.any?' 或 ':'＋')||'未設定')+'；出場：'+(r.out.map(name).join(' 或 ')||'只靠停損停利')+(r.add.length||p.addMax>0?'；有加倉':'')+(r.part.length||p.tp1Pct>0?'；分批出場':'')};
+  const sum=p=>{const r=get(p),b=p.dir==='both',x=(a,o)=>a.map(name).join(o?' 或 ':'＋');return (b?'雙向。多：':'')+'進場：'+(x(r.in,r.any)||'未設定')+'；出場：'+(x(r.out,1)||'只靠停損停利')+(b?'。空：進場：'+(x(r.sin,r.sany)||'未設定')+'；出場：'+(x(r.sout,1)||'只靠停損停利'):'')+(r.add.length||p.addMax>0?'；有加倉':'')+(r.part.length||p.tp1Pct>0?'；分批出場':'')};
   function rows(r,g){return r[g].length?r[g].map((b,k)=>`<div class="rbr"><div class="t"><b>${esc(name(b))}</b><button class="x" type="button" data-g="${g}" data-i="${k}" aria-label="刪除">✕</button></div>
       <div class="rbp">${Engine.CUSLIB[b[0]][2].map((d,j)=>`<label>${esc(d[0])}<input type="number" data-g="${g}" data-i="${k}" data-j="${j+1}" min="${d[2]}" max="${d[3]}" step="${d[4]}" value="${b[j+1]??d[1]}"></label>`).join('')}</div></div>`).join('')
-      :`<div class="rbe">${({in:'還沒有進場條件',out:'沒有出場條件：只靠下面的停損、停利、移動停損、持有上限出場',add:'不用指標加倉（也可以用下面「順勢幾 % 加一次」）',part:'不用指標分批出場（也可以用下面「第一段停利」）'})[g]}</div>`}
-  function html(p){const r=get(p);return `<div class="rb"><div class="rbh">進場條件<select id="rbAny"><option value="0"${r.any?'':' selected'}>全部符合才進場</option><option value="1"${r.any?' selected':''}>任一符合就進場</option></select></div>${rows(r,'in')}<button class="btn ghost rbadd" type="button" data-add="in">＋ 從功能庫加進場條件</button>
-    <div class="rbh">出場條件（任一符合就全部出場）</div>${rows(r,'out')}<button class="btn ghost rbadd" type="button" data-add="out">＋ 從功能庫加出場條件</button>
+      :`<div class="rbe">${({in:'還沒有進場條件',out:'沒有出場條件：只靠下面的停損、停利、移動停損、持有上限出場',add:'不用指標加倉（也可以用下面「順勢幾 % 加一次」）',part:'不用指標分批出場（也可以用下面「第一段停利」）',sin:'還沒有做空進場條件（沒設就不做空）',sout:'沒有做空出場條件：只靠停損停利、或出現做多訊號時反手'})[g]}</div>`}
+  const TT={in:'加進場條件',out:'加出場條件',add:'加加倉條件',part:'加分批出場條件',sin:'加做空進場條件',sout:'加做空出場條件'};
+  const anySel=(id,v)=>`<select id="${id}"><option value="0"${v?'':' selected'}>全部符合才進場</option><option value="1"${v?' selected':''}>任一符合就進場</option></select>`;
+  function html(p){const r=get(p),b=p.dir==='both',L=b?'做多':'';return `<div class="rb"><div class="rbh">${L}進場條件${anySel('rbAny',r.any)}</div>${rows(r,'in')}<button class="btn ghost rbadd" type="button" data-add="in">＋ 從功能庫加${L}進場條件</button>
+    <div class="rbh">${L}出場條件（任一符合就全部出場）</div>${rows(r,'out')}<button class="btn ghost rbadd" type="button" data-add="out">＋ 從功能庫加${L}出場條件</button>
+    ${b?`<div class="rbh">做空進場條件${anySel('rbSAny',r.sany)}</div>${rows(r,'sin')}<button class="btn ghost rbadd" type="button" data-add="sin">＋ 從功能庫加做空進場條件</button>
+    <div class="rbh">做空出場條件（任一符合就全部出場）</div>${rows(r,'sout')}<button class="btn ghost rbadd" type="button" data-add="sout">＋ 從功能庫加做空出場條件</button>
+    <p class="small" style="margin:0 0 10px">持多單時出現做空進場訊號就反手做空，反過來也一樣。</p>`:''}
     <div class="rbh">加倉條件（持倉中出現就加一次，次數看下面「最多加倉次數」）</div>${rows(r,'add')}<button class="btn ghost rbadd" type="button" data-add="add">＋ 從功能庫加加倉條件</button>
     <div class="rbh">分批出場條件（出現就先賣一部分）</div>${rows(r,'part')}<button class="btn ghost rbadd" type="button" data-add="part">＋ 從功能庫加分批出場條件</button></div>`}
   function bind(st,sym){const P=$('#params'),save=r=>{cur.rules=JSON.stringify(r);setMyP(st,sym,cur);buildParams();schedule()};
-    $('#rbAny').onchange=e=>{const r=get(cur);r.any=+e.target.value;save(r)};
+    $('#rbAny').onchange=e=>{const r=get(cur);r.any=+e.target.value;save(r)};if($('#rbSAny'))$('#rbSAny').onchange=e=>{const r=get(cur);r.sany=+e.target.value;save(r)};
     P.querySelectorAll('.rbr .x').forEach(b=>b.onclick=()=>{const r=get(cur);r[b.dataset.g].splice(+b.dataset.i,1);save(r)});
     P.querySelectorAll('.rbp input').forEach(el=>el.onchange=()=>{const r=get(cur);r[el.dataset.g][+el.dataset.i][+el.dataset.j]=+el.value;cur.rules=JSON.stringify(r);setMyP(st,sym,cur);schedule()});
-    P.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const g=b.dataset.add;LibPick.open(({in:'加進場條件',out:'加出場條件',add:'加加倉條件',part:'加分批出場條件'})[g],ids=>{const r=get(cur);r[g].push(...ids.map(blk));r[g]=r[g].slice(0,8);save(r)})})}
+    P.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const g=b.dataset.add;LibPick.open(TT[g],ids=>{const r=get(cur);r[g].push(...ids.map(blk));r[g]=r[g].slice(0,8);save(r)})})}
   function explain(p,sym){const r=get(p),li=a=>a.map(b=>`<li>${esc(desc(b))}</li>`).join('');
     return `<h2>自訂策略（${sym}）</h2><p>從功能庫自己組的策略。每根 ${({1:'1 小時',4:'4 小時',8:'8 小時',24:'日線'})[p.tf]||'4 小時'} K 收盤時判斷，收盤價成交；停損、停利用 1 小時高低點判斷。</p>
-      <h4>進場（${r.any?'任一符合':'全部符合'}，${p.dir==='short'?'做空':'做多'}）</h4><ul>${li(r.in)||'<li>還沒設定</li>'}</ul><h4>出場（任一符合）</h4><ul>${li(r.out)||'<li>沒有指標出場</li>'}</ul>
+      ${p.dir==='both'?`<h4>做多進場（${r.any?'任一符合':'全部符合'}）</h4><ul>${li(r.in)||'<li>還沒設定</li>'}</ul><h4>做多出場（任一符合，或出現做空進場訊號就反手）</h4><ul>${li(r.out)||'<li>沒有指標出場</li>'}</ul>
+      <h4>做空進場（${r.sany?'任一符合':'全部符合'}）</h4><ul>${li(r.sin)||'<li>還沒設定，不做空</li>'}</ul><h4>做空出場（任一符合，或出現做多進場訊號就反手）</h4><ul>${li(r.sout)||'<li>沒有指標出場</li>'}</ul>`
+      :`<h4>進場（${r.any?'任一符合':'全部符合'}，${p.dir==='short'?'做空':'做多'}）</h4><ul>${li(r.in)||'<li>還沒設定</li>'}</ul><h4>出場（任一符合）</h4><ul>${li(r.out)||'<li>沒有指標出場</li>'}</ul>`}
       ${p.addMax>0?`<h4>加倉（最多 ${p.addMax} 次，每次第一筆的 ${p.addSize} 倍）</h4><ul>${li(r.add)}${p.addPct>0?`<li>順勢 ${p.addPct}% 加一次</li>`:''}${!r.add.length&&!(p.addPct>0)?'<li>沒有設加倉條件，不會加倉</li>':''}</ul>`:''}
       ${r.part.length||p.tp1Pct>0?`<h4>分批出場</h4><ul>${r.part.length?r.part.map(b=>`<li>${esc(desc(b))}出現時賣 ${Math.round((p.partFrac||0.5)*100)}%</li>`).join(''):''}${p.tp1Pct>0?`<li>第一段停利 ${p.tp1Pct}% 賣 ${Math.round((p.tp1Frac||0.5)*100)}%</li>`:''}</ul>`:''}
       <h4>風控</h4><ul><li>槓桿 ${p.lev} 倍</li>${p.stopPct>0?`<li>停損 ${p.stopPct}%</li>`:''}${p.stopAtr>0?`<li>ATR 停損 ${p.stopAtr} 倍</li>`:''}${p.tp>0?`<li>停利 ${p.tp}%</li>`:''}${p.trail>0?`<li>移動停損 ${p.trail}%</li>`:''}${p.maxBars>0?`<li>最多持有 ${p.maxBars} 根</li>`:''}</ul>
@@ -2367,7 +2378,7 @@ function buildParams(){
     if(typ==='sel')return `<div class="field"><label>${lab}</label><select data-k="${k}">${a.map(([v,t])=>`<option value="${v}" ${String(v)===String(cur[k])?'selected':''}>${t}</option>`).join('')}</select>${typeof b==='string'?`<div class="hint">${b}</div>`:''}</div>`;
     if(typ==='chk')return `<div class="field"><label><input data-k="${k}" type="checkbox" ${cur[k]?'checked':''}> ${lab}</label></div>`;}).join('');
   if(st==='cus')Rules.bind(st,sym);
-  document.querySelectorAll('#params [data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;cur[k]=el.type==='checkbox'?el.checked:(el.tagName==='SELECT'&&isNaN(+el.value)?el.value:+el.value);setMyP(st,sym,cur);schedule()});
+  document.querySelectorAll('#params [data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;cur[k]=el.type==='checkbox'?el.checked:(el.tagName==='SELECT'&&isNaN(+el.value)?el.value:+el.value);setMyP(st,sym,cur);if(st==='cus'&&k==='dir')buildParams();schedule()});
   renderExplain();SigLock.ui();
 }
 // 我的策略（存檔）：localStorage sigLock＝{ 'st|sym|id': 參數 }、sigLockName＝{ key: 名字 }、sigLockOff＝{ key: true（暫停通知）}（舊版 key 沒有 |id 也照用）
@@ -2625,15 +2636,17 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const P=Object.assign({capital:1000},BEST[st][sym],p),a=simulate(st,sym,ts('2020-03-13'),t1,P),b=simulate(st,sym,t1-365*D1,t1,P);
     return memo[k]={all:a,y1:b,now:SigTab.one(st,sym,t1,p)}}
   // 新增：1. 功能庫挑進出場指標（或從範例開始）→ 2. 取名 → 下一步到參數頁（3. 設參數，4. 看回測，按儲存）
-  let mode='lib',pin=[],pout=[];
+  let mode='lib',dir='long',pin=[],pout=[],psin=[],psout=[];
   const chips=a=>a.length?`<div class="chips2">${a.map(id=>`<span>${esc(Engine.CUSLIB[id][0])}</span>`).join('')}</div>`:'';
+  const pick=(g,a,lab,t)=>`<div class="field"><label>${lab}</label>${chips(a)}<button class="btn ghost rbadd" type="button" data-a="${g}">${a.length?'重新選':'＋ 從功能庫選'}${t}指標</button></div>`;
   function addForm(){const ops=[...$('#sStrat').options].filter(o=>BEST[o.value]&&o.value!=='cus').map(o=>`<option value="${o.value}">${esc(o.textContent)}</option>`).join('');
     return `<div class="card mys madd"><div class="hd"><b>新增我的策略</b></div>
       <div class="seg" id="maMode" style="margin:10px 0"><button type="button" data-m="lib" class="${mode==='lib'?'on':''}">從功能庫自己組</button><button type="button" data-m="ex" class="${mode==='ex'?'on':''}">從範例策略開始</button></div>
       <div class="field"><label>標的</label><select id="maSym"><option>BTC</option><option>ETH</option></select></div>
-      ${mode==='lib'?`<div class="field"><label>方向</label><select id="maDir"><option value="long">做多</option><option value="short">做空</option></select></div>
-      <div class="field"><label>1. 進場訊號（可以選好幾個）</label>${chips(pin)}<button class="btn ghost rbadd" type="button" data-a="pin">${pin.length?'重新選':'＋ 從功能庫選'}進場指標</button></div>
-      <div class="field"><label>　 出場訊號（任一出現就出場，也可以不選、只用停損停利）</label>${chips(pout)}<button class="btn ghost rbadd" type="button" data-a="pout">${pout.length?'重新選':'＋ 從功能庫選'}出場指標</button></div>`
+      ${mode==='lib'?`<div class="field"><label>方向</label><select id="maDir">${[['long','做多'],['short','做空'],['both','雙向（做多、做空各自選指標）']].map(([v,t])=>`<option value="${v}"${dir===v?' selected':''}>${t}</option>`).join('')}</select></div>
+      ${pick('pin',pin,'1. '+(dir==='both'?'做多':'')+'進場訊號（可以選好幾個）',(dir==='both'?'做多':'')+'進場')}
+      ${pick('pout',pout,'　 '+(dir==='both'?'做多':'')+'出場訊號（任一出現就出場，也可以不選、只用停損停利）',(dir==='both'?'做多':'')+'出場')}
+      ${dir==='both'?pick('psin',psin,'　 做空進場訊號（可以選好幾個）','做空進場')+pick('psout',psout,'　 做空出場訊號（任一出現就出場，也可以不選）','做空出場')+'<p class="small" style="margin:0 0 8px">持多單時出現做空進場訊號就反手做空，反過來也一樣。</p>':''}`
       :`<div class="field"><label>1. 選一個範例策略</label><select id="maSt">${ops}</select></div>`}
       <div class="field"><label>2. 取個名字</label><input id="maName" maxlength="20" placeholder="例如：我的 BTC 突破"></div>
       <p class="small" style="margin:0 0 8px">下一步打開參數頁：3. 設定每個指標的參數和停損停利，4. 看回測，滿意再按「儲存」。</p>
@@ -2660,17 +2673,18 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   function goEdit(st,sym,p,ed){setMyP(st,sym,Object.assign({},BEST[st][sym],p||{}));const same=$('#sStrat').value===st&&$('#sSym').value===sym;
     const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+st+'"]');if(b)b.click();
     if($('#sStrat').value!==st){$('#sStrat').value=st;$('#sStrat').dispatchEvent(new Event('change'))}if(same){buildParams();runSim()}SigLock.setEdit(ed);const d=$('#sDet');if(d)d.open=true}   // 第 3 步：直接打開參數區
-  document.addEventListener('change',e=>{if(e.target.id==='maSt')syncSym()});
+  document.addEventListener('change',e=>{if(e.target.id==='maSt')syncSym();if(e.target.id==='maDir'){const k=keep();dir=e.target.value;render();k()}});
   const keep=()=>{const v={sym:$('#maSym')&&$('#maSym').value,dir:$('#maDir')&&$('#maDir').value,name:$('#maName')&&$('#maName').value};
     return ()=>{if(v.sym&&$('#maSym'))$('#maSym').value=v.sym;if(v.dir&&$('#maDir'))$('#maDir').value=v.dir;if(v.name&&$('#maName'))$('#maName').value=v.name;syncSym()}};
-  document.addEventListener('click',e=>{if(e.target.id==='myAdd'){adding=true;mode='lib';pin=[];pout=[];render();return}
+  document.addEventListener('click',e=>{if(e.target.id==='myAdd'){adding=true;mode='lib';dir='long';pin=[];pout=[];psin=[];psout=[];render();return}
     const mm=e.target.closest('#maMode button');if(mm){const k=keep();mode=mm.dataset.m;render();k();return}
     const f=e.target.closest('#myPane .madd');if(f){const a=e.target.closest('[data-a]');if(!a)return;
       if(a.dataset.a==='cancel'){adding=false;render();return}
-      if(a.dataset.a==='pin'||a.dataset.a==='pout'){const k=keep(),g=a.dataset.a;LibPick.open(g==='pin'?'選進場指標':'選出場指標',ids=>{if(g==='pin')pin=ids;else pout=ids;render();k()});return}
+      const PT={pin:'選'+(dir==='both'?'做多':'')+'進場指標',pout:'選'+(dir==='both'?'做多':'')+'出場指標',psin:'選做空進場指標',psout:'選做空出場指標'};
+      if(PT[a.dataset.a]){const k=keep(),g=a.dataset.a;LibPick.open(PT[g],ids=>{({pin:()=>pin=ids,pout:()=>pout=ids,psin:()=>psin=ids,psout:()=>psout=ids})[g]();render();k()});return}
       const sym=$('#maSym').value;
-      if(mode==='lib'){if(!pin.length){alert('先從功能庫選至少一個進場指標');return}
-        const dir=$('#maDir').value,n=($('#maName').value.trim()||'自訂 '+sym).slice(0,20),rules=JSON.stringify({in:pin.map(Rules.blk),out:pout.map(Rules.blk),any:0});
+      if(mode==='lib'){const B=dir==='both';if(!pin.length&&!(B&&psin.length)){alert(B?'先從功能庫選至少一個做多或做空進場指標':'先從功能庫選至少一個進場指標');return}
+        const n=($('#maName').value.trim()||'自訂 '+sym).slice(0,20),rules=JSON.stringify(Object.assign({in:pin.map(Rules.blk),out:pout.map(Rules.blk),any:0},B?{sin:psin.map(Rules.blk),sout:psout.map(Rules.blk),sany:0}:{}));
         adding=false;render();goEdit('cus',sym,{rules,dir},{st:'cus',sym,name:n});return}
       const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;render();goEdit(st,sym,null,{st,sym,name:n});return}
     const c=e.target.closest('#myPane .mys');if(!c)return;const k=c.dataset.k,[st,sym]=SigLock.part(k);
