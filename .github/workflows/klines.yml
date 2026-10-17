@@ -53,7 +53,7 @@ jobs:
       - name: 算策略信號（App 同一套引擎，給 Telegram「策略信號」；失敗不影響 K 線）
         continue-on-error: true
         run: node scripts/sig_notify.js out/data
-      - name: 通知（寫 tg_log.json 給網站瀏覽器通知；有設定 TG_TOKEN＋頻道才發 Telegram；失敗不影響 K 線）
+      - name: 通知（寫 tg_log.json 給網站瀏覽器通知；有設定 TG_TOKEN＋頻道才發 Telegram；有設定 CF_API_TOKEN 才發背景推播；失敗不影響 K 線）
         continue-on-error: true
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
@@ -64,6 +64,9 @@ jobs:
           TG_CH_MKT: ${{ secrets.TG_CH_MKT }}
           TG_CH_LV: ${{ secrets.TG_CH_LV }}
           TG_CH_FG: ${{ secrets.TG_CH_FG }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          PUSH_KEY: ${{ secrets.PUSH_KEY }}
         run: |
           git show origin/data:data/tg_state.json > out/data/tg_state.json 2>/dev/null || rm -f out/data/tg_state.json
           git show origin/data:data/tg_log.json > out/data/tg_log.json 2>/dev/null || rm -f out/data/tg_log.json

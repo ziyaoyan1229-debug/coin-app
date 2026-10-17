@@ -15,3 +15,6 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==l
 // 點通知：有開著的 App 就切過去，沒有就開新的
 self.addEventListener('notificationclick',e=>{e.notification.close();const u=new URL((e.notification.data&&e.notification.data.url)||'./',self.registration.scope).href;
   e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(ws=>{const w=ws.find(x=>x.url.startsWith(self.registration.scope));return w?w.focus():clients.openWindow(u)}))});
+// 背景推播（worker/push.js 送來的）：App 關著也會跳通知；iPhone 規定每則推播都要顯示通知
+self.addEventListener('push',e=>{let d={};try{d=e.data.json()}catch(x){d={body:e.data?e.data.text():''}}
+  e.waitUntil(self.registration.showNotification(d.title||'HexStack',{body:d.body||'',tag:d.tag,icon:'icon-192.png',badge:'icon-192.png',data:{url:d.url||'./#notify'}}))});

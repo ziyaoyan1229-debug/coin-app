@@ -689,7 +689,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap">
-  <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。App 要開著才收得到：電腦放在背景分頁可以；手機切到別的 App 或鎖螢幕時收不到，回到 App 會補跳。</div><div class="card tgcats" id="tgCats"><div class="empty">讀取中…</div></div><div class="bnhint" id="bnHint"></div></div>
+  <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。</div><div class="card tgcats" id="tgCats"><div class="empty">讀取中…</div></div><div class="bnhint" id="bnHint"></div></div>
   <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog"><div class="empty">讀取中…</div></div></div>
   <div class="foot">通知內容每 15 分鐘更新一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
 </div></section>
@@ -2452,32 +2452,49 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const STS=()=>[...document.querySelectorAll('#cvStrat option')].filter(o=>o.value&&(typeof BEST==='undefined'||BEST[o.value])).map(o=>[o.value,o.textContent.replace(/^\d+\.\s*/,'')]);
   const canN='Notification' in window,iosWeb=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches);
   const maxId=d=>Math.max(0,...((d&&d.items)||[]).map(x=>x.id||0));
+  // 背景推播：data 分支的 push.json 有推播後端網址（worker/push.js）時，向後端登記這台裝置要收的類別，App 關著也收得到；登記成功（bnPush）就不再由 App 自己跳通知，免得重複
+  const PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',canP='PushManager' in window&&'serviceWorker' in navigator;
+  let pushOn=!!getJ('bnPush',false),pt;
+  const u8=k=>{k=k.replace(/-/g,'+').replace(/_/g,'/');return Uint8Array.from(atob(k+'='.repeat((4-k.length%4)%4)),c=>c.charCodeAt(0))};
+  const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const post=(u,d)=>fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(d)});
+  async function pushSync(){if(!canP)return;let ok=false;
+    try{const reg=await navigator.serviceWorker.getRegistration();if(!reg)return;
+      const base=(await (await fetch(PJ,{cache:'no-store'})).json()).url;if(!base)throw 0;
+      let s=await reg.pushManager.getSubscription();
+      if(!anyOn()){if(s){await post(base+'/unsub',{endpoint:s.endpoint}).catch(()=>{});await s.unsubscribe().catch(()=>{})}}
+      else if(Notification.permission==='granted'){const k=(await (await fetch(base+'/vapid')).json()).key;
+        if(s&&s.options&&s.options.applicationServerKey&&b64(s.options.applicationServerKey)!==k){await s.unsubscribe().catch(()=>{});s=null}
+        if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k)});
+        ok=(await post(base+'/sub',{sub:s.toJSON(),cats:on,off})).ok}}catch(e){}
+    pushOn=ok;setJ('bnPush',ok);hint()}
+  const pushLater=()=>{clearTimeout(pt);pt=setTimeout(pushSync,800)};
   function hint(){const h=$('#bnHint');if(!h)return;
     h.innerHTML=!canN?(iosWeb?'<b>iPhone 要先在 Safari 按「分享 → 加入主畫面」，從主畫面打開 App 才能開通知。</b>':'<b>這個瀏覽器不支援通知。</b>')
       :Notification.permission==='denied'?'<b>通知被瀏覽器封鎖了</b>，請到瀏覽器的網站設定把通知改成允許。'
-      :anyOn()?'':'第一次打開開關時，瀏覽器會問你要不要允許通知，選「允許」。'}
+      :anyOn()?(pushOn?'背景推播已開啟：App 關著、鎖螢幕也收得到。':'App 開著時才會跳通知（電腦放在背景分頁也可以）；手機切到別的 App 或鎖螢幕時收不到，回到 App 會補跳。'):'第一次打開開關時，瀏覽器會問你要不要允許通知，選「允許」。'}
   async function toggle(k){
     if(!on[k]){if(!canN){hint();return}
       if(Notification.permission!=='granted'){let p='denied';try{p=await Notification.requestPermission()}catch(e){}if(p!=='granted'){hint();return}}
       if(!anyOn())setJ('bnLast',maxId(last));}
-    on[k]=!on[k];setJ('bnCats',on);render(last);poll()}
+    on[k]=!on[k];setJ('bnCats',on);render(last);poll();pushLater()}
   const plain=t=>String(t).replace(/<a [^>]*>.*?<\/a>/g,'').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/\n{2,}/g,'\n').trim();
   async function notify(x){const L=plain(x.text).split('\n'),o={body:L.slice(1).join('\n'),tag:'hs'+x.id,icon:'icon-192.png',badge:'icon-192.png',data:{url:'./#notify'}};
     try{const r=await navigator.serviceWorker?.getRegistration();if(r){await r.showNotification(L[0],o);return}}catch(e){}
     try{const n=new Notification(L[0],o);n.onclick=()=>{focus();show('notify');n.close()}}catch(e){}}
   async function poll(){if(!anyOn()||!canN||Notification.permission!=='granted')return;
     const d=await load(true);if(!d)return;const lastId=getJ('bnLast',0),fresh=(d.items||[]).filter(x=>x.id>lastId&&on[x.cat]&&!(x.cat==='sig'&&x.st&&off[x.st])).reverse();
-    setJ('bnLast',Math.max(lastId,maxId(d)));for(const x of fresh.slice(-5))await notify(x);
+    setJ('bnLast',Math.max(lastId,maxId(d)));if(!pushOn)for(const x of fresh.slice(-5))await notify(x);
     if(fresh.length&&document.getElementById('notifyView').classList.contains('on'))render(d)}
-  setInterval(poll,3*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setTimeout(poll,4000);
+  setInterval(poll,3*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setTimeout(poll,4000);setTimeout(()=>{if(anyOn()||pushOn)pushSync()},6000);
   function render(d){last=d;const ch=(d&&d.channels)||{};
     const sts=STS(),nOn=sts.filter(([k])=>!off[k]).length;
     $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc${k==='sig'?' pick':''}"><div class="bd"${k==='sig'?' id="sgOpen"':''}><b>${n}${k==='sig'?`<em>${nOn===sts.length?'全部策略':nOn+'／'+sts.length+' 個策略'} ${pickOpen?'▾':'›'}</em>`:''}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`
       +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
     $('#tgCats').querySelectorAll('.sw[data-k]').forEach(b=>b.onclick=()=>toggle(b.dataset.k));
     $('#sgOpen').onclick=e=>{if(e.target.closest('a'))return;pickOpen=!pickOpen;render(last)};
-    $('#tgCats').querySelectorAll('.sw[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(off[k])delete off[k];else off[k]=true;setJ('bnSigOff',off);render(last)});
-    $('#tgCats').querySelectorAll('.sgpick .all button').forEach(b=>b.onclick=()=>{off={};if(b.dataset.a==='0')sts.forEach(([k])=>off[k]=true);setJ('bnSigOff',off);render(last)});hint();
+    $('#tgCats').querySelectorAll('.sw[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(off[k])delete off[k];else off[k]=true;setJ('bnSigOff',off);render(last);pushLater()});
+    $('#tgCats').querySelectorAll('.sgpick .all button').forEach(b=>b.onclick=()=>{off={};if(b.dataset.a==='0')sts.forEach(([k])=>off[k]=true);setJ('bnSigOff',off);render(last);pushLater()});hint();
     const it=((d&&d.items)||[]).filter(x=>flt==='all'||x.cat===flt),nm=Object.fromEntries(CATS.map(c=>[c[0],c[2]]));
     $('#tgChips').innerHTML=[['all','全部'],...CATS.map(c=>[c[0],c[2]])].map(([k,n])=>`<button data-k="${k}" class="${k===flt?'on':''}">${n}</button>`).join('');
     $('#tgChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{flt=b.dataset.k;render(last)});
