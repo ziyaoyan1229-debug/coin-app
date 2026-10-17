@@ -41,17 +41,25 @@ jobs:
           ID=$(curl -fsS -H "$H" "$API/storage/kv/namespaces?per_page=100" | jq -r '.result[] | select(.title=="hexstack-push-subs") | .id' | head -1)
           if [ -z "$ID" ]; then ID=$(curl -fsS -X POST -H "$H" -H 'Content-Type: application/json' -d '{"title":"hexstack-push-subs"}' "$API/storage/kv/namespaces" | jq -r .result.id); fi
           [ -n "$ID" ] && [ "$ID" != null ] || { echo '建 KV 失敗（API Token 權限要有 Workers KV Storage: Edit）'; exit 1; }
+          # workers.dev 子網域：還沒註冊就用 hexstack-<帳號前 6 碼> 註冊一個（之後可在 Cloudflare 改）
+          SUB=$(curl -fsS -H "$H" "$API/workers/subdomain" | jq -r '.result.subdomain // empty' || true)
+          if [ -z "$SUB" ]; then
+            for N in hexstack "hexstack-${CLOUDFLARE_ACCOUNT_ID:0:6}" "hs-$CLOUDFLARE_ACCOUNT_ID"; do
+              SUB=$(curl -sS -X PUT -H "$H" -H 'Content-Type: application/json' -d "{\"subdomain\":\"$N\"}" "$API/workers/subdomain" | jq -r '.result.subdomain // empty')
+              [ -n "$SUB" ] && break
+            done
+            [ -n "$SUB" ] || { echo '註冊 workers.dev 子網域失敗'; exit 1; }
+            echo "已註冊 $SUB.workers.dev"
+          fi
           cd worker
           printf 'name = "hexstack-push"\nmain = "push.js"\ncompatibility_date = "2025-01-01"\nworkers_dev = true\n\n[[kv_namespaces]]\nbinding = "SUBS"\nid = "%s"\n' "$ID" > wrangler.toml
           npx -y wrangler@4 deploy
           KEY="${PUSH_KEY_IN:-$(printf '%s' "${CLOUDFLARE_API_TOKEN}hexstack-push" | sha256sum | cut -d' ' -f1)}"
           printf '%s' "$KEY" | npx -y wrangler@4 secret put PUSH_KEY
-          SUB=$(curl -fsS -H "$H" "$API/workers/subdomain" | jq -r .result.subdomain)
           URL="https://hexstack-push.$SUB.workers.dev"
           echo "推播後端：$URL"
-          sleep 5
-          curl -fsS "$URL/vapid" > /dev/null && echo '後端正常'
-          echo "已訂閱裝置：$(curl -fsS -H "Authorization: Bearer $KEY" "$URL/stats")"
+          for i in $(seq 1 24); do curl -fsS "$URL/vapid" > /dev/null 2>&1 && { echo '後端正常'; break; }; sleep 10; done   # 新註冊的子網域要一點時間生效
+          echo "已訂閱裝置：$(curl -sS -H "Authorization: Bearer $KEY" "$URL/stats")"
           if [ -n "$TEST" ]; then
             curl -fsS -X POST -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
               -d '{"items":[{"title":"✅ HexStack 背景推播測試","body":"收到這則就代表 App 關著也能收到通知了。","url":"./#notify","tag":"hs-test"}]}' "$URL/send"; echo
