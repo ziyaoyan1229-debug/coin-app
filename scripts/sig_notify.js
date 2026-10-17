@@ -1,5 +1,6 @@
 // 策略信號：用 App 同一套回測引擎（index.html 裡的「策略回測引擎」）和預設最佳參數，
 // 把 data 分支最新的 15 分 K 接成 1 小時 K，算 8 個策略在 BTC／ETH 最近 3 天的進出場，寫成 signals.json 給 tg_notify.py 發通知。
+// 有設定 CF_API_TOKEN、CF_ACCOUNT_ID 時，也照使用者在 App 鎖定的參數各算一份（訊號帶 lk）。
 // 用法：node scripts/sig_notify.js <資料夾（含 BTCUSDT_15m.csv、ETHUSDT_15m.csv；signals.json 也寫在這）>
 // 只用 Node 內建模組；資金費率不補（內建資料之後算 0），策略 8 的 5 分點火只到內建資料尾端。
 const fs = require('fs'), path = require('path'), vm = require('vm');
@@ -45,18 +46,40 @@ const simulate = vm.runInThisContext('(' + simSrc + ')');
 const NAME = {}; for (const m of html.matchAll(/<option value="(\w+)">(\d+)\.\s*([^<]+)<\/option>/g)) if (BEST[m[1]]) NAME[m[1]] = m[3].trim();
 const LOCK = { knife: 'ETH', knifeB: 'BTC' };
 const out = [], D1 = 86400;
-for (const st of Object.keys(NAME)) for (const sym of ['BTC', 'ETH']) {
-  if (!BEST[st][sym] || (LOCK[st] && LOCK[st] !== sym)) continue;
+function marks(st, sym, p, kp, extra) {
   try {
     const Hb = E.load(sym), t1 = Hb.T[Hb.n - 1] + 3600;
-    const r = simulate(st, sym, t1 - 370 * D1, t1, Object.assign({ capital: 1000 }, BEST[st][sym]));
+    const r = simulate(st, sym, t1 - 370 * D1, t1, Object.assign({ capital: 1000 }, BEST[st][sym], p));
     for (const m of r.marks || []) if (m.t >= t1 - 3 * D1 && m.type !== 'liq') {
       const i = Math.min(Hb.n - 1, Math.max(0, Math.floor((m.t - Hb.T[0]) / 3600) - 1));
-      out.push({ key: `${st}|${sym}|${m.t}|${m.type}|${m.side || 1}`, st, name: NAME[st], sym, t: m.t, type: m.type, side: m.side || 1, text: m.text || '', price: Math.round(Hb.C[i] * 100) / 100 });
+      out.push(Object.assign({ key: `${kp}${st}|${sym}|${m.t}|${m.type}|${m.side || 1}`, st, name: NAME[st], sym, t: m.t, type: m.type, side: m.side || 1, text: m.text || '', price: Math.round(Hb.C[i] * 100) / 100 }, extra));
     }
   } catch (e) { console.log(st, sym, '算不出來', e.message); }
 }
-out.sort((a, b) => a.t - b.t);
-const H0 = E.load('BTC');
-fs.writeFileSync(path.join(D, 'signals.json'), JSON.stringify({ asof: H0.T[H0.n - 1] + 3600, marks: out }));
-console.log('signals.json：最近 3 天', out.length, '個訊號');
+for (const st of Object.keys(NAME)) for (const sym of ['BTC', 'ETH']) {
+  if (!BEST[st][sym] || (LOCK[st] && LOCK[st] !== sym)) continue;
+  marks(st, sym, {}, '', {});
+}
+// 使用者在 App 鎖定的策略參數（推播後端 /locks）：每組各算一次，訊號帶 lk，只推給鎖定那組的裝置
+async function locked() {
+  const tok = (process.env.CF_API_TOKEN || '').trim(), acc = (process.env.CF_ACCOUNT_ID || '').trim();
+  if (!tok || !acc) return;
+  try {
+    const sub = (await (await fetch(`https://api.cloudflare.com/client/v4/accounts/${acc}/workers/subdomain`, { headers: { Authorization: 'Bearer ' + tok } })).json()).result.subdomain;
+    const key = (process.env.PUSH_KEY || '').trim() || require('crypto').createHash('sha256').update(tok + 'hexstack-push').digest('hex');
+    const L = await (await fetch(`https://hexstack-push.${sub}.workers.dev/locks`, { headers: { Authorization: 'Bearer ' + key } })).json();
+    let n = 0;
+    for (const x of (Array.isArray(L) ? L : []).slice(0, 300)) {
+      if (!NAME[x.st] || !BEST[x.st] || !BEST[x.st][x.sym] || (LOCK[x.st] && LOCK[x.st] !== x.sym) || !/^[0-9a-f]{12}$/.test(x.h)) { console.log('略過', x.st, x.sym); continue; }
+      delete (x.p || {}).capital;
+      marks(x.st, x.sym, x.p || {}, 'L' + x.h + '|', { lk: x.h }); n++;
+    }
+    console.log('鎖定參數：', n, '組');
+  } catch (e) { console.log('讀鎖定參數失敗', e.message); }
+}
+locked().then(() => {
+  out.sort((a, b) => a.t - b.t);
+  const H0 = E.load('BTC');
+  fs.writeFileSync(path.join(D, 'signals.json'), JSON.stringify({ asof: H0.T[H0.n - 1] + 3600, marks: out }));
+  console.log('signals.json：最近 3 天', out.length, '個訊號');
+});

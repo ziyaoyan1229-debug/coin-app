@@ -1,11 +1,13 @@
 // HexStack 推播後端（Cloudflare Worker，免費方案）：收手機的推播訂閱，幫任何程式把通知推到 iPhone／Android／電腦。
 // 由 .github/workflows/push.yml 自動部署；KV（SUBS）存訂閱與 VAPID 金鑰（第一次用到時自動產生），PUSH_KEY 是發送用密鑰（部署時設定）。
 //   GET  /vapid                         → { key }：給 App 訂閱用的公鑰
-//   POST /sub    { sub, cats, off }      → 登記或更新一台裝置（cats＝要收的類別，off＝策略信號裡關掉的策略）
+//   POST /sub    { sub, cats, off, locks } → 登記或更新一台裝置（cats＝要收的類別，off＝策略信號裡關掉的策略，locks＝{ 'st|sym': 參數 } 鎖定的策略參數）
 //   POST /unsub  { endpoint }            → 取消
+//   GET  /locks  Authorization: Bearer <PUSH_KEY> → [{ h, st, sym, p }]：所有裝置鎖定的策略參數（不重複），給 sig_notify.js 照各自參數算信號
 //   POST /test   { endpoint }            → 推一則測試通知給這台（App 通知頁的測試按鈕）
 //   POST /send   Authorization: Bearer <PUSH_KEY>
-//                { items: [{ title, body, url, cat, st, tag }] }  → 推給有開該類別的裝置；回 { sent, gone, failed }
+//                { items: [{ title, body, url, cat, st, sym, lk, tag }] }  → 推給有開該類別的裝置；回 { sent, gone, failed }
+//                策略信號：有 lk 的只推給鎖定那組參數的裝置；沒有 lk 的（預設參數），鎖定了同一個策略＋幣的裝置不推
 //   GET  /stats  Authorization: Bearer <PUSH_KEY> → { subs }
 // 其他程式要推通知：照 /send 的格式送一個 POST 就好（cat 不填＝所有裝置都收）。
 const SITE = 'https://ziyaoyan1229-debug.github.io/coin-app/';
@@ -55,6 +57,20 @@ export async function pushOne(v, sub, msg) {
   const body = await encrypt(sub, JSON.stringify(msg));
   return fetch(sub.endpoint, { method: 'POST', body, headers: { Authorization: await vapidHeader(v, sub.endpoint), 'Content-Encoding': 'aes128gcm', 'Content-Type': 'application/octet-stream', TTL: '86400', Urgency: 'high' } });
 }
+// 鎖定參數的代號：策略|幣|排序後的參數 做 SHA-256 取前 12 碼（App 用同一個算法）
+export const canon = (st, sym, p) => st + '|' + sym + '|' + JSON.stringify(Object.keys(p).filter(k => k !== 'capital').sort().map(k => [k, p[k]]));
+export const lockId = async (st, sym, p) => [...new Uint8Array(await S.digest('SHA-256', enc.encode(canon(st, sym, p))))].slice(0, 6).map(b => b.toString(16).padStart(2, '0')).join('');
+async function cleanLocks(L) {
+  const out = {}, h = {};
+  for (const [k, p] of Object.entries(L && typeof L === 'object' ? L : {}).slice(0, 30)) {
+    const m = /^(\w{1,12})\|(BTC|ETH)$/.exec(k);
+    if (!m || !p || typeof p !== 'object') continue;
+    const q = {};
+    for (const [a, v] of Object.entries(p).slice(0, 80)) if (/^\w{1,20}$/.test(a) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || typeof v === 'string' && v.length <= 20)) q[a] = v;
+    out[k] = q; h[k] = await lockId(m[1], m[2], q);
+  }
+  return [out, h];
+}
 const idOf = async ep => 'sub:' + b64u(await S.digest('SHA-256', enc.encode(ep))).slice(0, 32);
 const authed = (req, env) => env.PUSH_KEY && req.headers.get('authorization') === 'Bearer ' + env.PUSH_KEY;
 async function allSubs(env) {
@@ -72,9 +88,10 @@ export default {
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;
         if (!s || typeof s.endpoint !== 'string' || !/^https:\/\//.test(s.endpoint) || !s.keys || !s.keys.p256dh || !s.keys.auth) return json({ error: 'bad subscription' }, 400);
-        const rec = { sub: { endpoint: s.endpoint, keys: { p256dh: s.keys.p256dh, auth: s.keys.auth } }, cats: d.cats || {}, off: d.off || {}, at: Date.now() };
+        const [locks, lockh] = await cleanLocks(d.locks);
+        const rec = { sub: { endpoint: s.endpoint, keys: { p256dh: s.keys.p256dh, auth: s.keys.auth } }, cats: d.cats || {}, off: d.off || {}, locks, lockh, at: Date.now() };
         await env.SUBS.put(await idOf(s.endpoint), JSON.stringify(rec));
-        return json({ ok: true });
+        return json({ ok: true, lockh });
       }
       if (p === '/test' && req.method === 'POST') {   // App 的「發測試通知」：只推給已登記的這一台，20 秒最多一次
         const d = await req.json(), k = d && d.endpoint && await idOf(d.endpoint), r = k && await env.SUBS.get(k, 'json');
@@ -94,7 +111,8 @@ export default {
         for (const [k, r] of subs) {
           for (const m of items) {
             if (m.cat && !r.cats[m.cat]) continue;
-            if (m.cat === 'sig' && m.st && r.off[m.st]) continue;
+            const lh = r.lockh || {};
+            if (m.lk ? !Object.values(lh).includes(m.lk) : m.cat === 'sig' && m.st && (r.off[m.st] || lh[m.st + '|' + m.sym])) continue;
             try {
               const res = await pushOne(v, r.sub, { title: String(m.title || 'HexStack').slice(0, 120), body: String(m.body || '').slice(0, 1500), url: m.url || './#notify', tag: m.tag || undefined });
               if (res.status === 404 || res.status === 410) { await env.SUBS.delete(k); gone++; break; }
@@ -103,6 +121,12 @@ export default {
           }
         }
         return json({ sent, gone, failed, subs: subs.length });
+      }
+      if (p === '/locks') {
+        if (!authed(req, env)) return json({ error: 'unauthorized' }, 401);
+        const u = new Map();
+        for (const [, r] of await allSubs(env)) if (r.cats && r.cats.sig) for (const [k, h] of Object.entries(r.lockh || {})) if (!u.has(h)) { const [st, sym] = k.split('|'); u.set(h, { h, st, sym, p: r.locks[k] }); }
+        return json([...u.values()]);
       }
       if (p === '/stats') { if (!authed(req, env)) return json({ error: 'unauthorized' }, 401); return json({ subs: (await allSubs(env)).length }); }
       return json({ name: 'HexStack push', ok: true });

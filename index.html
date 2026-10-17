@@ -165,7 +165,7 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 #stratView .tools{flex-wrap:nowrap;flex:none}
 #right{background:transparent!important;padding:0 10px 20px!important}
 .field input,.field select{padding:10px 10px;border-radius:10px;font-size:16px}
-.btnrow{display:flex;gap:8px;margin-top:8px}.btnrow .btn{margin:0;padding:11px 8px;border-radius:10px}
+#lockBtn.on{border-color:var(--acc);color:var(--acc)}.btnrow{display:flex;gap:8px;margin-top:8px}.btnrow .btn{margin:0;padding:11px 8px;border-radius:10px}
 .stats{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:10px!important;border:0!important;gap:6px!important}
 .stat{border-radius:12px!important;padding:8px 9px!important}
 .stat .v{font-size:15px!important}
@@ -631,6 +631,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
         <option value="knifeB">7. BTC 日線飛刀＋量價出場</option>
         <option value="my">8. 我的系統：威科夫＋形態＋POC＋量能</option>
       </select></div>
+    <button class="btn ghost" id="lockBtn" type="button" style="width:100%;margin:0 0 4px">🔒 鎖定這組參數收通知</button><p class="small" id="lockHint" style="margin:0 2px 8px"></p>
     <details class="sdet" id="sDet"><summary><span class="k">參數</span><span id="sDetSum"></span></summary><div class="in">
     <div class="row2">
       <div class="field"><label>標的</label><select id="sSym"><option>BTC</option><option>ETH</option></select></div>
@@ -2147,9 +2148,21 @@ function buildParams(){
     if(typ==='sel')return `<div class="field"><label>${lab}</label><select data-k="${k}">${a.map(([v,t])=>`<option value="${v}" ${String(v)===String(cur[k])?'selected':''}>${t}</option>`).join('')}</select>${typeof b==='string'?`<div class="hint">${b}</div>`:''}</div>`;
     if(typ==='chk')return `<div class="field"><label><input data-k="${k}" type="checkbox" ${cur[k]?'checked':''}> ${lab}</label></div>`;}).join('');
   document.querySelectorAll('#params [data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;cur[k]=el.type==='checkbox'?el.checked:(el.tagName==='SELECT'&&isNaN(+el.value)?el.value:+el.value);setMyP(st,sym,cur);schedule()});
-  renderExplain();
+  renderExplain();SigLock.ui();
 }
-let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250)}
+// 策略鎖定：把目前這個策略＋幣的參數鎖起來（localStorage sigLock＝{ 'st|sym': 參數 }），推播後端照每台裝置鎖的參數另外算信號推給它；
+// 鎖了的策略＋幣不再收預設參數的信號。改了參數要再按一次「更新鎖定」才會改用新的
+const SigLock=(()=>{const get=()=>{try{return JSON.parse(localStorage.getItem('sigLock'))||{}}catch(e){return{}}},
+  put=L=>{try{Object.keys(L).length?localStorage.setItem('sigLock',JSON.stringify(L)):localStorage.removeItem('sigLock')}catch(e){}},
+  clean=p=>{const o={};for(const k of Object.keys(p))if(k!=='capital')o[k]=p[k];return o},same=(a,b)=>JSON.stringify(Object.entries(a).sort())===JSON.stringify(Object.entries(b).sort());
+  function ui(){const b=$('#lockBtn'),h=$('#lockHint');if(!b)return;const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym,on=L[k],eq=on&&same(on,clean(cur||{}));
+    b.textContent=!on?'🔒 鎖定這組參數收通知':eq?'✓ 已鎖定：通知用這組參數（點一下解除）':'🔄 參數改過了，點一下更新鎖定';b.classList.toggle('on',!!on);
+    const n=Object.keys(L).length,cats=(()=>{try{return JSON.parse(localStorage.getItem('bnCats'))||{}}catch(e){return{}}})();
+    h.textContent=!on?`鎖定後，${sym} 的這個策略會照你現在的參數發進出場通知，不再用預設參數。`:(!cats.sig?'還要到「通知」打開「策略信號」，並允許通知，才收得到。':`已鎖定 ${n} 個策略＋幣。App 關著也會照你的參數推播（每 15 分鐘算一次）。`)}
+  function toggle(){const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym;
+    if(L[k]&&same(L[k],clean(cur||{})))delete L[k];else L[k]=clean(cur||{});put(L);ui();window.NotifyTab&&NotifyTab.sync()}
+  return {get,ui,toggle}})();window.SigLock=SigLock;
+let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){return st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}
 function clearSim(){pcs&&pcs.setData([]);pcs&&pcs.setMarkers([]);eqs&&eqs.setData([]);bhs&&bhs.setData([]);$('#stats').innerHTML='';$('#tradeTable').innerHTML='';$('#levTable').innerHTML='';$('#legend').innerHTML=''}
@@ -2263,7 +2276,7 @@ $('#sPeriod').onchange=()=>{$('#customDates').style.display=$('#sPeriod').value=
 ['#sFrom','#sTo','#sCap'].forEach(s=>$(s).onchange=runSim);
 ['#sStrat','#sSym','#sPeriod'].forEach(s=>sortSel($(s)));
 lockSym();
-$('#runBtn').onclick=runSim;$('#resetBtn').onclick=()=>{try{localStorage.removeItem('myp_'+$('#sStrat').value+'_'+$('#sSym').value)}catch(e){}buildParams();runSim()};
+$('#runBtn').onclick=runSim;$('#lockBtn').onclick=SigLock.toggle;$('#resetBtn').onclick=()=>{try{localStorage.removeItem('myp_'+$('#sStrat').value+'_'+$('#sSym').value)}catch(e){}buildParams();runSim()};
 
 // ───────── 我的回測紀錄：每次跑完存在這台裝置（localStorage 'runlog'），可排序、加星、套用、匯出入 ─────────
 const RunLog=(()=>{const K='runlog',MAX=300;let L=[],last='';const JOBS=[];const pane=$('#rlPane');
@@ -2370,6 +2383,8 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const STS=()=>[...document.querySelectorAll('#cvStrat option')].filter(o=>o.value&&(typeof BEST==='undefined'||BEST[o.value])).map(o=>[o.value,o.textContent.replace(/^\d+\.\s*/,'')]);
   const canN='Notification' in window,iosWeb=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches);
   const maxId=d=>Math.max(0,...((d&&d.items)||[]).map(x=>x.id||0));
+  // 別人鎖定參數算出來的信號（有 lk）不顯示；自己鎖的才顯示
+  const mine=x=>!x.lk||Object.values(getJ('sigLockH',{})).includes(x.lk);
   // 背景推播：data 分支的 push.json 有推播後端網址（worker/push.js）時，向後端登記這台裝置要收的類別，App 關著也收得到；登記成功（bnPush）就不再由 App 自己跳通知，免得重複
   const PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',PDEF='https://hexstack-push.hexstack-df20e2.workers.dev',canP='PushManager' in window&&'serviceWorker' in navigator;
   let pushOn=!!getJ('bnPush',false),pt;
@@ -2391,7 +2406,8 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
       else if(Notification.permission==='granted'){const k=(await (await fetch(base+'/vapid')).json()).key;
         if(s&&s.options&&s.options.applicationServerKey&&b64(s.options.applicationServerKey)!==k){await s.unsubscribe().catch(()=>{});s=null}
         if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k)});
-        ok=(await post(base+'/sub',{sub:s.toJSON(),cats:on,off})).ok}}catch(e){}
+        const r=await post(base+'/sub',{sub:s.toJSON(),cats:on,off,locks:window.SigLock?SigLock.get():{}});ok=r.ok;
+        if(ok){const j=await r.json().catch(()=>({}));setJ('sigLockH',j.lockh||{})}}}catch(e){}
     pushOn=ok;setJ('bnPush',ok);hint()}
   function tBtn(){const b=$('#bnTest');if(b){b.hidden=!(canN&&anyOn()&&Notification.permission==='granted');b.onclick=test}}
   const pushLater=()=>{clearTimeout(pt);pt=setTimeout(pushSync,800)};
@@ -2409,19 +2425,19 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
     try{const r=await navigator.serviceWorker?.getRegistration();if(r){await r.showNotification(L[0],o);return}}catch(e){}
     try{const n=new Notification(L[0],o);n.onclick=()=>{focus();show('notify');n.close()}}catch(e){}}
   async function poll(){if(!anyOn()||!canN||Notification.permission!=='granted')return;
-    const d=await load(true);if(!d)return;const lastId=getJ('bnLast',0),fresh=(d.items||[]).filter(x=>x.id>lastId&&on[x.cat]&&!(x.cat==='sig'&&x.st&&off[x.st])).reverse();
+    const d=await load(true);if(!d)return;const lastId=getJ('bnLast',0),fresh=(d.items||[]).filter(x=>x.id>lastId&&on[x.cat]&&mine(x)&&!(x.cat==='sig'&&x.st&&off[x.st]&&!x.lk)).reverse();
     setJ('bnLast',Math.max(lastId,maxId(d)));if(!pushOn)for(const x of fresh.slice(-5))await notify(x);
     if(fresh.length&&document.getElementById('notifyView').classList.contains('on'))render(d)}
   setInterval(poll,3*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});setTimeout(poll,4000);setTimeout(()=>{if(anyOn()||pushOn)pushSync()},6000);
   function render(d){last=d;const ch=(d&&d.channels)||{};
     const sts=STS(),nOn=sts.filter(([k])=>!off[k]).length;
     $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc${k==='sig'?' pick':''}"><div class="bd"${k==='sig'?' id="sgOpen"':''}><b>${n}${k==='sig'?`<em>${nOn===sts.length?'全部策略':nOn+'／'+sts.length+' 個策略'} ${pickOpen?'▾':'›'}</em>`:''}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`
-      +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
+      +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}${Object.keys(window.SigLock?SigLock.get():{}).filter(x=>x.startsWith(sk+'|')).map(x=>' 🔒'+x.split('|')[1]).join('')}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
     $('#tgCats').querySelectorAll('.sw[data-k]').forEach(b=>b.onclick=()=>toggle(b.dataset.k));
     $('#sgOpen').onclick=e=>{if(e.target.closest('a'))return;pickOpen=!pickOpen;render(last)};
     $('#tgCats').querySelectorAll('.sw[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(off[k])delete off[k];else off[k]=true;setJ('bnSigOff',off);render(last);pushLater()});
     $('#tgCats').querySelectorAll('.sgpick .all button').forEach(b=>b.onclick=()=>{off={};if(b.dataset.a==='0')sts.forEach(([k])=>off[k]=true);setJ('bnSigOff',off);render(last);pushLater()});hint();
-    const it=((d&&d.items)||[]).filter(x=>flt==='all'||x.cat===flt),nm=Object.fromEntries(CATS.map(c=>[c[0],c[2]]));
+    const it=((d&&d.items)||[]).filter(x=>(flt==='all'||x.cat===flt)&&mine(x)),nm=Object.fromEntries(CATS.map(c=>[c[0],c[2]]));
     $('#tgChips').innerHTML=[['all','全部'],...CATS.map(c=>[c[0],c[2]])].map(([k,n])=>`<button data-k="${k}" class="${k===flt?'on':''}">${n}</button>`).join('');
     $('#tgChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{flt=b.dataset.k;render(last)});
     const all=(d&&d.items)||[];$('#tgAt').textContent=all.length?'最新 '+all[0].t.slice(5).replace('-','/'):'';
@@ -2431,7 +2447,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
     if(!d)try{d=JSON.parse(localStorage.getItem('tglog')||'null')}catch(e){}
     return d}
   async function open(){render(await load(false))}
-  return {open}})();
+  return {open,sync:pushLater}})();
 window.NotifyTab=NotifyTab;
 {const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'news')}   // 一打開預設在市場分析（滾輪：左今日訊號、右查看價格）
 })();

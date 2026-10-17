@@ -147,8 +147,9 @@ for m in S.get('marks') or []:
         continue
     side = '多' if m.get('side', 1) > 0 else '空'
     ic = {'entry': '🟢' if side == '多' else '🔴', 'add': '➕', 'stop': '⛔'}.get(m['type'], '🟠')
-    add('sig', f"{ic} <b>{esc(m['sym'])} {side}單{TY.get(m['type'], m['type'])}</b>　約 {f0(m['price']) if m['sym'] == 'BTC' else format(m['price'], ',.1f')}\n{esc(m['name'])}" + (f"（{esc(m['text'])}）" if m.get('text') else '') + f"\n台灣 {time.strftime('%m/%d %H:%M', time.gmtime(m['t'] + TW))} 收線\n\n<i>回測規則自動訊號，非投資建議</i>", st=m['st'], sym=m['sym'])
-st['sig'] = st['sig'][-400:]
+    lk = {'lk': m['lk']} if m.get('lk') else {}   # 使用者鎖定參數算出來的：只推給那些裝置，不發 Telegram
+    add('sig', f"{ic} <b>{esc(m['sym'])} {side}單{TY.get(m['type'], m['type'])}</b>　約 {f0(m['price']) if m['sym'] == 'BTC' else format(m['price'], ',.1f')}\n{esc(m['name'])}" + (f"（{esc(m['text'])}）" if m.get('text') else '') + ('\n🔒 你鎖定的參數' if lk else '') + f"\n台灣 {time.strftime('%m/%d %H:%M', time.gmtime(m['t'] + TW))} 收線\n\n<i>回測規則自動訊號，非投資建議</i>", st=m['st'], sym=m['sym'], **lk)
+st['sig'] = st['sig'][-3000:]
 
 # ── 美股開盤／收盤（MSTR、MSTU，紐約時間判斷，含夏令） ──
 def ny_offset(t):
@@ -238,14 +239,14 @@ for c, name in CATS:
     chat = CH[c] if TG else ''
     if not chat:
         continue
-    mine = [m for cc, m, _ in msgs if cc == c]
+    mine = [m for cc, m, kw in msgs if cc == c and not kw.get('lk')]
     if not st['init'].get(c):
         mine = [m for m in mine if m.startswith('☀️') or m.startswith('📅')] or [f'✅ HexStack「{name}」通知已開啟。\n<a href="{SITE}#notify">打開 App</a>']
         st['init'][c] = True
     for m in mine:
         if send(chat, m):
             sent += 1
-st['log'] = [x for x in st['log'] if x.get('id')][:60]   # 舊版沒有 id 的紀錄丟掉
+st['log'] = [x for x in st['log'] if x.get('id')][:120]   # 舊版沒有 id 的紀錄丟掉
 print('通知：產生', len(msgs), '則，Telegram 發出', sent)
 with open(STATE, 'w', encoding='utf-8') as f:
     json.dump(st, f, ensure_ascii=False)
@@ -272,7 +273,7 @@ if CF_TOKEN and CF_ACC:
         for x in fresh:
             L = [l.strip() for l in re.sub(r'<[^>]+>', '', re.sub(r'<a [^>]*>.*?</a>', '', x['text'])).split('\n')]
             L = [html.unescape(l) for l in L if l]
-            items.append(dict(title=L[0] if L else 'HexStack', body='\n'.join(L[1:]), cat=x['cat'], st=x.get('st'), tag=f"hs{x['id']}", url='./#notify'))
+            items.append(dict(title=L[0] if L else 'HexStack', body='\n'.join(L[1:]), cat=x['cat'], st=x.get('st'), sym=x.get('sym'), lk=x.get('lk'), tag=f"hs{x['id']}", url='./#notify'))
         for i in range(0, len(items), 20):
             print('背景推播：', cf('', dict(items=items[i:i + 20]), key, url + '/send'))
     except Exception as e:
