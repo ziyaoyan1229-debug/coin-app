@@ -642,7 +642,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 </style>
 <section id="stratView" class="view picking">
   <div id="sBack"><button id="sBackBtn" type="button">‹ 全部策略</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
-  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" class="on">策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList"></div><div id="myPane" hidden></div><div id="rlPane" hidden><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label></div><div id="rlList"></div><div class="btnrow" style="margin-top:8px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
+  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" class="on">策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList"></div><div id="myPane" hidden></div><div id="rlPane" hidden><div class="btnrow" style="margin:0 0 10px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label><label><input type="checkbox" id="rlStar"> 只看 ⭐</label></div><div id="rlList"></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
   <div class="col" id="left"><div class="ctl">
     <div class="field"><label>策略</label>
       <select id="sStrat">
@@ -676,7 +676,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
       <div class="field"><label>開始</label><input id="sFrom" type="date" value="2024-01-01" min="2020-02-01" max="2026-09-30"></div>
       <div class="field"><label>結束</label><input id="sTo" type="date" value="2026-09-30" min="2020-02-01" max="2026-10-01"></div>
     </div>
-    <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn ghost" id="cmpBtn" style="margin-top:8px;width:100%">疊加其他策略比較</button><div id="optSel"></div><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費 0.07%、滑價 0.02%（停損 0.03%，可在上面取消勾選）、真實資金費率（可取消勾選）、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div><div id="optPane"></div></div>
+    <h3>參數</h3><div id="params"></div><div class="btnrow" hidden><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn ghost" id="cmpBtn" hidden style="margin-top:8px;width:100%">疊加其他策略比較</button><div id="optSel"></div><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費 0.07%、滑價 0.02%（停損 0.03%，可在上面取消勾選）、真實資金費率（可取消勾選）、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div><div id="optPane"></div></div>
   <div class="col" id="center">
         <div class="simcard"><div class="eqcap">資金曲線<span><i></i>策略　<i class="bh"></i>買進持有</span></div><div id="eqChart"></div><div class="split" id="pSplit" title="上下拖動調整兩張圖的高度，點兩下恢復"></div><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
     <div class="legend" id="legend"></div><div id="priceChart" style="position:relative"></div></div>
@@ -2594,8 +2594,8 @@ const RunLog=(()=>{const K='runlog',MAX=300;let L=[],last='';const JOBS=[];const
   function job(label,sub){const j={label,sub,f:0};JOBS.push(j);render();let lastR=0;
     return{set(f){j.f=f;const now=Date.now();if(now-lastR>250){lastR=now;render()}},end(){const i=JOBS.indexOf(j);if(i>=0)JOBS.splice(i,1);render()}}}
   function render(){setCnt();if(!pane||pane.hidden)return;
-    const st=$('#sStrat').value,only=$('#rlCur').checked,so=$('#rlSort').value;
-    let A=L.filter(x=>!only||x.st===st);A=A.slice().sort(so==='m'?(a,b)=>b.mult-a.mult:so==='d'?(a,b)=>a.mdd-b.mdd:(a,b)=>b.at-a.at);
+    const st=$('#sStrat').value,only=$('#rlCur').checked,star=$('#rlStar').checked,so=$('#rlSort').value;
+    let A=L.filter(x=>(!only||x.st===st)&&(!star||x.star));A=A.slice().sort(so==='m'?(a,b)=>b.mult-a.mult:so==='d'?(a,b)=>a.mdd-b.mdd:(a,b)=>b.at-a.at);
     const R=JOBS.map(j=>`<div class="rlrun"><div class="h"><b>${esc(j.label)}</b><span>${Math.round(j.f*100)}%</span></div><div class="sub">${esc(j.sub)}</div><div class="bar"><i style="width:${(j.f*100).toFixed(1)}%"></i></div></div>`).join('');
     const C=A.slice(0,60).map(x=>{const df=diff(x),O=x.kind==='opt';return `<div class="rli${x.id===last?' now':''}" data-id="${x.id}"><div class="h"><button class="star${x.star?' on':''}" title="加星號">${x.star?'★':'☆'}</button><span class="t">${O?'找最佳參數・':''}${esc(sName(x.st))}・${x.sym}</span><span class="done">完成</span><span class="ago">${ago(x.at)}</span></div>
       <div class="m">${esc(pName(x))}・本金 ${fmt(x.cap)}${O?`・試了 ${x.cnt} 組`:''}</div>
@@ -2612,7 +2612,7 @@ const RunLog=(()=>{const K='runlog',MAX=300;let L=[],last='';const JOBS=[];const
     setMyP(x.st,x.sym,Object.assign({},BEST[x.st][x.sym],x.p));buildParams();runSim();$('#stratView').classList.remove('picking');$('#stratView').scrollTop=0;setTimeout(()=>dispatchEvent(new Event('resize')),30)}
   $('#rlList').addEventListener('click',e=>{const b=e.target.closest('button'),it=e.target.closest('.rli');if(!b||!it)return;const i=L.findIndex(y=>y.id===it.dataset.id);if(i<0)return;
     if(b.classList.contains('star')){L[i].star=!L[i].star;save();render()}else if(b.dataset.a==='del'){L.splice(i,1);save();render()}else if(b.dataset.a==='use')use(L[i])});
-  $('#rlSort').onchange=render;$('#rlCur').onchange=render;$('#sStrat').addEventListener('change',render);
+  $('#rlSort').onchange=render;$('#rlCur').onchange=render;$('#rlStar').onchange=render;$('#sStrat').addEventListener('change',render);
   $('#rlClr').onclick=()=>{const n=L.filter(x=>!x.star).length;if(!n||!confirm(`刪掉 ${n} 筆沒加 ★ 的紀錄？`))return;L=L.filter(x=>x.star);save();render()};
   $('#rlExp').onclick=()=>{const my={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('myp_'))my[k]=JSON.parse(localStorage.getItem(k))}}catch(e){}
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'HexStack',v:1,at:Date.now(),runs:L,params:my})],{type:'application/json'}));a.download='HexStack回測紀錄_'+d10(Date.now()/1000)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
@@ -2684,6 +2684,23 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   function stats(st,sym,p){const H=E.load(sym),t1=H.T[H.n-1]+3600,k=st+sym+t1+JSON.stringify(p);if(memo[k])return memo[k];
     const P=Object.assign({capital:1000},BEST[st][sym],p),a=simulate(st,sym,ts('2020-03-13'),t1,P),b=simulate(st,sym,t1-365*D1,t1,P);
     return memo[k]={all:a,y1:b,now:SigTab.one(st,sym,t1,p)}}
+  // 策略比較：我的策略全部用 2020 至今回測，資金曲線疊在一起（對數刻度）＋績效表（照報酬÷回撤排）
+  let cmpOn=false;const CC=['#f5c542','#4c8dff','#26a69a','#d63cff','#ef5350','#8bc34a','#ff8a65','#ba68c8','#4dd0e1','#a1887f'];
+  function cmp(){const b=$('#myCmpBox');if(!b)return;const L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+    if(ks.length<2){b.innerHTML='<div class="card" style="padding:12px 14px;margin-bottom:10px">至少要有 2 個我的策略才能比較。</div>';return}
+    b.innerHTML='<div class="card" style="padding:12px 14px;margin-bottom:10px">計算中…</div>';const R=[];let i=0;
+    const step=()=>{if(!cmpOn||!$('#myCmpBox'))return;if(i<ks.length){const k=ks[i],[st,sym]=SigLock.part(k);try{const r=stats(st,sym,L[k]);R.push({k,name:SigLock.name(k),sym,r:r.all,y:r.y1,c:CC[i%CC.length]})}catch(e){}i++;$('#myCmpBox .card').textContent=`計算中 ${i}／${ks.length}…`;setTimeout(step,0);return}
+      draw(R)};setTimeout(step,20)}
+  function draw(R){const W=360,H=200,P=6,A=R.filter(x=>x.r.eq&&x.r.eq.length);let t0=Infinity,t1=-Infinity,v0=Infinity,v1=-Infinity;
+    A.forEach(x=>x.r.eq.forEach(([t,v])=>{if(t<t0)t0=t;if(t>t1)t1=t;const lv=Math.log10(Math.max(v,1));if(lv<v0)v0=lv;if(lv>v1)v1=lv}));if(v1-v0<0.1){v1+=0.05;v0-=0.05}
+    const X=t=>P+(t-t0)/(t1-t0||1)*(W-2*P),Y=v=>H-P-(Math.log10(Math.max(v,1))-v0)/(v1-v0)*(H-2*P);
+    const lines=A.map(x=>{const e=x.r.eq,n=e.length,st=Math.max(1,Math.floor(n/240));let d='';for(let j=0;j<n;j+=st)d+=(d?'L':'M')+X(e[j][0]).toFixed(1)+','+Y(e[j][1]).toFixed(1);d+='L'+X(e[n-1][0]).toFixed(1)+','+Y(e[n-1][1]).toFixed(1);return `<path d="${d}" fill="none" stroke="${x.c}" stroke-width="1.6"/>`}).join('');
+    const base=`<line x1="${P}" x2="${W-P}" y1="${Y(1000).toFixed(1)}" y2="${Y(1000).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3 4" stroke-width="1" opacity=".6"/>`;
+    const sc=x=>x.r.liq?-1:(x.r.mult-1)/Math.max(x.r.mdd,0.05),S=R.slice().sort((a,b)=>sc(b)-sc(a));
+    $('#myCmpBox').innerHTML=`<div class="card mycmp" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:700;margin-bottom:4px">策略比較（2020 至今，本金 1,000）</div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${base}${lines}</svg>
+      <div class="small" style="color:var(--muted);margin:2px 0 8px">資金曲線用對數刻度，虛線＝本金 1,000。${new Date(t0*1000).getFullYear()} → ${new Date(t1*1000).getFullYear()}</div>
+      <table class="cmpt" style="width:100%"><tr><th>策略</th><th>倍數</th><th>回撤</th><th>近一年</th><th>報酬÷回撤</th></tr>${S.map(x=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${x.c};vertical-align:middle;margin-right:6px"></i>${esc(x.name)} <span class="small">${x.sym}</span></td><td class="${x.r.mult>=1?'pos':'neg'}">${x.r.liq?'爆倉':fmt(x.r.mult,2)}</td><td>${pct(x.r.mdd)}</td><td class="${x.y.mult>=1?'pos':'neg'}">${x.y.liq?'爆倉':((x.y.mult-1)*100).toFixed(1)+'%'}</td><td>${x.r.liq?'—':fmt(sc(x),2)}</td></tr>`).join('')}</table></div>`}
   // 新增：1. 功能庫挑進出場指標（或從範例開始）→ 2. 取名 → 下一步到參數頁（3. 設參數，4. 看回測，按儲存）
   let mode='lib',dir='long',pin=[],pout=[],psin=[],psout=[];
   const chips=a=>a.length?`<div class="chips2">${a.map(id=>`<span>${esc(Engine.CUSLIB[id][0])}</span>`).join('')}</div>`:'';
@@ -2704,7 +2721,8 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
   function syncSym(){const st=$('#maSt'),sy=$('#maSym');if(!st||!sy)return;const o=ONLY[st.value];[...sy.options].forEach(x=>x.disabled=!!o&&x.value!==o||!BEST[st.value][x.value]);if(sy.selectedOptions[0].disabled)sy.value=[...sy.options].find(x=>!x.disabled).value}
   function render(){count();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
-    const top=`<div id="optJobs"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
+    const top=`<div id="optJobs"></div><button class="btn ghost" id="myCmp" style="width:100%;margin:0 0 8px"${cmpOn?' aria-pressed="true"':''}>${cmpOn?'收起策略比較':'📊 策略比較'}</button><div id="myCmpBox"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
+    if(cmpOn)setTimeout(cmp,0);
     if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     box().innerHTML=top+`<p class="mtip">${sigOn()?'通知會照每張卡的參數推播，App 關著也收得到。':'<b>還沒開通知</b>：到「通知」打開「策略信號」，下面開著通知的策略才會推播。'}</p>`+ks.map(k=>{const[st,sym]=SigLock.part(k);
       return `<div class="card mys" data-k="${esc(k)}"><div class="hd"><b>${esc(SigLock.name(k))}</b><span class="sym">${sym}</span><span class="small" style="color:var(--muted);font-weight:500">通知</span><button class="sw${P[k]?'':' on'}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div>
@@ -2725,7 +2743,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   document.addEventListener('change',e=>{if(e.target.id==='maSt')syncSym();if(e.target.id==='maDir'){const k=keep();dir=e.target.value;render();k()}});
   const keep=()=>{const v={sym:$('#maSym')&&$('#maSym').value,dir:$('#maDir')&&$('#maDir').value,name:$('#maName')&&$('#maName').value};
     return ()=>{if(v.sym&&$('#maSym'))$('#maSym').value=v.sym;if(v.dir&&$('#maDir'))$('#maDir').value=v.dir;if(v.name&&$('#maName'))$('#maName').value=v.name;syncSym()}};
-  document.addEventListener('click',e=>{if(e.target.id==='myAdd'){adding=true;mode='lib';dir='long';pin=[];pout=[];psin=[];psout=[];render();return}
+  document.addEventListener('click',e=>{if(e.target.id==='myCmp'){cmpOn=!cmpOn;render();return}if(e.target.id==='myAdd'){adding=true;mode='lib';dir='long';pin=[];pout=[];psin=[];psout=[];render();return}
     const mm=e.target.closest('#maMode button');if(mm){const k=keep();mode=mm.dataset.m;render();k();return}
     const f=e.target.closest('#myPane .madd');if(f){const a=e.target.closest('[data-a]');if(!a)return;
       if(a.dataset.a==='cancel'){adding=false;render();return}
@@ -2743,6 +2761,13 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     if(a.dataset.a==='ren'){const n=prompt('新名字',SigLock.name(k));if(n&&n.trim()){SigLock.rename(k,n.trim());render()}return}
     goEdit(st,sym,SigLock.get()[k],k)});
   return {render,count,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k)}}})();window.MyStrat=MyStrat;
+// 第一次打開：「我的策略」先放兩個做多範例（海龜、均線金叉死叉），通知先關著；移除後不會再放回來
+(()=>{try{if(localStorage.getItem('mySeed'))return;localStorage.setItem('mySeed','1');
+  const J=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return {}}},cl=p=>{const o=Object.assign({},p);delete o.capital;return o};
+  const L=J('sigLock'),N=J('sigLockName'),O=J('sigLockOff');
+  L['tur|BTC|ex1']=cl(Object.assign({},BEST.tur.BTC,{dir:'long'}));N['tur|BTC|ex1']='範例：海龜（做多）';O['tur|BTC|ex1']=true;
+  L['cus|BTC|ex2']=cl(BEST.cus.BTC);N['cus|BTC|ex2']='範例：均線金叉做多、死叉出場';O['cus|BTC|ex2']=true;
+  localStorage.setItem('sigLock',JSON.stringify(L));localStorage.setItem('sigLockName',JSON.stringify(N));localStorage.setItem('sigLockOff',JSON.stringify(O))}catch(e){}})();
 
 // ── 通知 ──
 // 通知頁：Telegram 頻道（data 分支的 tg_log.json 由 scripts/tg_notify.py 寫：channel＝頻道連結，items＝最近發出的通知）
