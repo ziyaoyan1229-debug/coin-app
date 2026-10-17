@@ -493,7 +493,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #notifyView .tgcats{padding:4px 14px}#notifyView .tgc{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}#notifyView .tgc:first-child{border-top:0}
 #notifyView .tgc .ic{font-size:20px;flex:none;width:28px;text-align:center}#notifyView .tgc .bd{flex:1;min-width:0}#notifyView .tgc .bd b{display:block;font-size:14.5px}#notifyView .tgc .bd span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:1px}
 #notifyView .tgjoin{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-weight:700;font-size:13px;text-decoration:none}
-#notifyView .sw{flex:none;position:relative;width:46px;height:28px;border-radius:999px;background:#5b5967;border:0;padding:0;cursor:pointer;transition:background .2s}#notifyView .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}#notifyView .sw.on{background:#f2c661}#notifyView .sw.on::after{transform:translateX(18px)}:root[data-theme="light"] #notifyView .sw{background:#cfcdd8}:root[data-theme="light"] #notifyView .sw.on{background:#f2c661}#notifyView .tgc .bd a{color:var(--acc);text-decoration:none;font-size:12px}#notifyView .bnhint{font-size:12px;color:var(--muted);line-height:1.6;padding:2px 2px 0}#notifyView .bnhint b{color:var(--warn)}
+:is(#notifyView,#myPane) .sw{flex:none;position:relative;width:46px;height:28px;border-radius:999px;background:#5b5967;border:0;padding:0;cursor:pointer;transition:background .2s}:is(#notifyView,#myPane) .sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}:is(#notifyView,#myPane) .sw.on{background:#f2c661}:is(#notifyView,#myPane) .sw.on::after{transform:translateX(18px)}:root[data-theme="light"] :is(#notifyView,#myPane) .sw{background:#cfcdd8}:root[data-theme="light"] :is(#notifyView,#myPane) .sw.on{background:#f2c661}#notifyView .tgc .bd a{color:var(--acc);text-decoration:none;font-size:12px}#notifyView .bnhint{font-size:12px;color:var(--muted);line-height:1.6;padding:2px 2px 0}#notifyView .bnhint b{color:var(--warn)}
 #notifyView .tgc.pick .bd{cursor:pointer}#notifyView .tgc .bd em{font-style:normal;color:var(--acc);font-size:12px;margin-left:6px;font-weight:600}#notifyView .sgpick{padding:2px 0 10px 12px;border-left:2px solid var(--line);margin:0 0 6px 2px}#notifyView .sgpick .tgc{padding:8px 0;border-top:0}#notifyView .sgpick .tgc b{font-size:13.5px;font-weight:600}#notifyView .sgpick .sw{transform:scale(.85)}#notifyView .sgpick .all{display:flex;gap:14px;font-size:12px;padding:4px 0 2px}#notifyView .sgpick .all button{background:none;border:0;color:var(--acc);padding:0;cursor:pointer;font-size:12px}
 .tlines>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .optl{display:flex;flex-direction:column;gap:8px;margin-top:8px}.optl .oc{border:1px solid var(--line);border-radius:12px;padding:10px 12px}.optl .oc.base{opacity:.75}.optl .oh{display:flex;align-items:center;gap:10px;font-size:13px}.optl .oh span{flex:1;color:var(--muted)}.optl .oh i{font-style:normal;font-weight:700}.optl .optUse{margin:0;padding:4px 12px;width:auto}.optl .ops{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:12.5px;color:var(--muted)}.optl .op b{color:var(--text);font-weight:600;margin-left:2px}.optl .op.ch b{color:var(--acc)}.optl .op s{margin-left:4px;font-size:11px;opacity:.7}
@@ -594,7 +594,11 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 /* 策略分析：先列策略，點了才進回測畫面 */
 #stratView.picking>.col{display:none!important}
 #stratView:not(.picking)>#sPick{display:none}
-#sTab{margin:12px 12px 0}#sTab button{flex:1}#sTab #rlCnt{margin-left:4px;font-size:12px;opacity:.75}
+#sTab{margin:12px 12px 0}#sTab button{flex:1}#sTab #rlCnt,#sTab #myCnt{margin-left:4px;font-size:12px;opacity:.75}
+#myPane{padding:12px}#myPane .mys{margin-bottom:10px;padding:12px 14px}#myPane .mys .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}#myPane .mys .hd b{flex:1;min-width:0}
+#myPane .mys .hd .sym{font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
+#myPane .mst{display:flex;gap:6px;margin:10px 0 8px}#myPane .mst div{flex:1;background:var(--panel2);border-radius:10px;padding:7px 8px;font-size:11.5px;color:var(--muted)}#myPane .mst div b{display:block;font-size:15px;color:var(--text);margin-top:2px}
+#myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#myPane .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
 .rlrun{background:var(--panel2);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px}.rlrun .h{display:flex;justify-content:space-between;gap:8px;font-weight:700}.rlrun .h span{color:var(--acc);font-family:ui-monospace,Menlo,monospace}
 .rlrun .sub{color:var(--muted);font-size:12px;margin:2px 0 7px}.rlrun .bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--muted) 25%,transparent);overflow:hidden}.rlrun .bar i{display:block;height:100%;background:var(--accbg,var(--acc));border-radius:3px;transition:width .3s}
@@ -618,7 +622,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 </style>
 <section id="stratView" class="view picking">
   <div id="sBack"><button id="sBackBtn" type="button">‹ 全部策略</button></div>
-  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="list" class="on">策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList"></div><div id="rlPane" hidden><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label></div><div id="rlList"></div><div class="btnrow" style="margin-top:8px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
+  <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" class="on">策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList"></div><div id="myPane" hidden></div><div id="rlPane" hidden><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label></div><div id="rlList"></div><div class="btnrow" style="margin-top:8px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
   <div class="col" id="left"><div class="ctl">
     <div class="field"><label>策略</label>
       <select id="sStrat">
@@ -2136,6 +2140,7 @@ function initStrat(){
   freePan(()=>pChart,$('#priceChart'),$('#sTools'));
   sDrawer=Drawer({chart:()=>pChart,series:()=>pcs,el:$('#priceChart'),bar:$('#sTools'),bars:()=>simBars,tf:()=>E.H4,key:()=>'sdraw_'+$('#sSym').value});
   buildParams();runSim();
+  MyStrat.count();if(Object.keys(SigLock.get()).length)$('#sTab [data-t="mine"]').click();   // 有鎖定的策略就先看「我的策略」
 }
 // 自己調過的參數存在這台裝置，下次打開還在；按「恢復最佳參數」才清掉
 const myP=(st,sym)=>{try{return JSON.parse(localStorage.getItem('myp_'+st+'_'+sym))||{}}catch(e){return{}}};
@@ -2155,13 +2160,18 @@ function buildParams(){
 const SigLock=(()=>{const get=()=>{try{return JSON.parse(localStorage.getItem('sigLock'))||{}}catch(e){return{}}},
   put=L=>{try{Object.keys(L).length?localStorage.setItem('sigLock',JSON.stringify(L)):localStorage.removeItem('sigLock')}catch(e){}},
   clean=p=>{const o={};for(const k of Object.keys(p))if(k!=='capital')o[k]=p[k];return o},same=(a,b)=>JSON.stringify(Object.entries(a).sort())===JSON.stringify(Object.entries(b).sort());
-  function ui(){const b=$('#lockBtn'),h=$('#lockHint');if(!b)return;const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym,on=L[k],eq=on&&same(on,clean(cur||{}));
+  function ui(){const b=$('#lockBtn'),h=$('#lockHint');if(!b)return;const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym,on=L[k],eq=on&&same(clean(Object.assign({},BEST[st][sym],on)),clean(cur||{}));
     b.textContent=!on?'🔒 鎖定我的策略':eq?'✓ 已鎖定我的策略（點一下解除）':'🔄 參數改過了，點一下更新鎖定';b.classList.toggle('on',!!on);
     const n=Object.keys(L).length,cats=(()=>{try{return JSON.parse(localStorage.getItem('bnCats'))||{}}catch(e){return{}}})();
     h.textContent=!on?`鎖定後，${sym} 的這個策略會照你現在的參數發進出場通知，不再用預設參數。`:(!cats.sig?'還要到「通知」打開「策略信號」，並允許通知，才收得到。':`已鎖定 ${n} 個策略＋幣。App 關著也會照你的參數推播（每 15 分鐘算一次）。`)}
   function toggle(){const st=$('#sStrat').value,sym=$('#sSym').value,L=get(),k=st+'|'+sym;
-    if(L[k]&&same(L[k],clean(cur||{})))delete L[k];else L[k]=clean(cur||{});put(L);ui();window.NotifyTab&&NotifyTab.sync()}
-  return {get,ui,toggle}})();window.SigLock=SigLock;
+    if(L[k]&&same(clean(Object.assign({},BEST[st][sym],L[k])),clean(cur||{})))delete L[k];else L[k]=clean(cur||{});put(L);ui();window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset();window.MyStrat&&MyStrat.count()}
+  // 暫停通知（sigLockOff）：策略還留在「我的策略」，只是不推播
+  const paused=()=>{try{return JSON.parse(localStorage.getItem('sigLockOff'))||{}}catch(e){return{}}},
+    active=()=>{const L=get(),P=paused(),o={};for(const k in L)if(!P[k])o[k]=L[k];return o},
+    pause=(k,v)=>{const P=paused();if(v)P[k]=true;else delete P[k];try{localStorage.setItem('sigLockOff',JSON.stringify(P))}catch(e){}window.NotifyTab&&NotifyTab.sync()},
+    remove=k=>{const L=get();delete L[k];put(L);pause(k,false);ui()};
+  return {get,ui,toggle,paused,active,pause,remove}})();window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){return st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}
@@ -2321,8 +2331,8 @@ const RunLog=(()=>{const K='runlog',MAX=300;let L=[],last='';const JOBS=[];const
       for(const k in (j.params||{}))if(/^myp_\w+_\w+$/.test(k))try{localStorage.setItem(k,JSON.stringify(j.params[k]))}catch(e){}
       L.sort((a,b)=>b.at-a.at);save();render();alert(`匯入 ${n} 筆紀錄`)}catch(err){alert('這個檔案不是 HexStack 的回測紀錄')}};
   // 策略清單頁的兩個分頁：策略／回測紀錄
-  $('#sTab').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const lg=b.dataset.t==='log';
-    $('#sTab').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#sList').hidden=lg;pane.hidden=!lg;$('#stratView').scrollTop=0;if(lg)render()});
+  $('#sTab').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.t,lg=t==='log';
+    $('#sTab').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#sList').hidden=t!=='list';pane.hidden=!lg;$('#myPane').hidden=t!=='mine';$('#stratView').scrollTop=0;if(lg)render();if(t==='mine')MyStrat.render()});
   render();return{add,render,job,sName,pName:pName}})();window.RunLog=RunLog;
 
 // ───────── 右側說明 ─────────
@@ -2340,8 +2350,10 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
   const nm=st=>{const o=[...$('#sStrat').options].find(x=>x.value===st);return o?o.textContent.replace(/^\d+\.\s*/,''):st};
   const ORDER=['brk','box','poc','dense','tur','knife','knifeB','my'];
   const LOCK={knife:'ETH',knifeB:'BTC'};
-  function one(st,sym,t1){const best=BEST[st]&&BEST[st][sym];if(!best||(LOCK[st]&&LOCK[st]!==sym))return null;
-    const r=simulate(st,sym,t1-370*D1,t1,Object.assign({capital:1000},best)),tr=r.trades||[],L=tr[tr.length-1],H=E.load(sym),last=H.C[H.C.length-1];
+  // 鎖定了的策略＋幣用自己的參數（跟推播一致），其他用預設最佳參數
+  function one(st,sym,t1,mp){const best=BEST[st]&&BEST[st][sym];if(!best||(LOCK[st]&&LOCK[st]!==sym))return null;
+    const my=mp||(window.SigLock&&SigLock.get()[st+'|'+sym]);
+    const r=simulate(st,sym,t1-370*D1,t1,Object.assign({capital:1000},best,my||{})),tr=r.trades||[],L=tr[tr.length-1],H=E.load(sym),last=H.C[H.C.length-1];
     let hold=false,side=1,inT=0,avg=0,outT=0,stop=false;
     if(L&&'expo' in L){   // 箱體：記的是每次加減碼，expo>0 代表還有部位
       hold=L.expo>1e-9;let k=tr.length-1;while(k>0&&tr[k-1].expo>1e-9)k--;side=tr[k].side||1;inT=tr[k].t;avg=tr[k].px;outT=L.t}
@@ -2351,20 +2363,49 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     else if(L){const d=Math.max(0,Math.round((t1-outT)/D1));txt=`空手　上次${stop?'停損':'出場'} ${md(outT)}（${d} 天前）`}
     else txt='空手　這一年沒有交易';
     if(recent.length)txt+=`<br><span class="tbadge">24h 內</span> ${recent.slice(-3).map(m=>`${md(m.t)} ${m.text||(m.type==='entry'?'進場':m.type==='stop'?'停損':'出場')}`).join('、')}`;
-    return {txt,hot:recent.length>0}}
-  function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=String(t1);if(busy||k===key)return;busy=true;
+    return {txt,hot:recent.length>0,my:!!my}}
+  function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=t1+JSON.stringify(window.SigLock?SigLock.get():{});if(busy||k===key)return;busy=true;
     $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];ORDER.forEach(st=>['BTC','ETH'].forEach(sym=>{if(BEST[st]&&BEST[st][sym])jobs.push([st,sym])}));
     try{const c=JSON.parse(localStorage.getItem('sig')||'null');if(c&&c.k===k){render(c.res);key=k;busy=false;dispatchEvent(new Event('sigdone'));return}}catch(e){}
     const res={};let i=0;box().innerHTML=`<div class="card empty">計算中 0／${jobs.length}…</div>`;
     const step=()=>{if(i>=jobs.length){render(res);key=k;busy=false;try{localStorage.setItem('sig',JSON.stringify({k,res}))}catch(e){}dispatchEvent(new Event('sigdone'));return}const [st,sym]=jobs[i++];try{(res[st]=res[st]||{})[sym]=one(st,sym,t1)}catch(e){(res[st]=res[st]||{})[sym]={txt:'這次算不出來',hot:false}}
       box().firstChild.textContent=`計算中 ${i}／${jobs.length}…`;setTimeout(step,0)};setTimeout(step,30)}
   function render(res){box().innerHTML=ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
-    return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
+    return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}${x.my?' 🔒':''}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
   // 點一列：跳到策略分析的那個策略、那個幣
   document.addEventListener('click',e=>{const c=e.target.closest('#sigBox .sgc');if(!c)return;const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
     $('#nav_strat').click();const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+c.dataset.st+'"]');if(b)b.click()});
-  return {open,reset(){key=''}}})();
+  return {open,one,nm,md,reset(){key=''}}})();
 window.SigTab=SigTab;
+
+// 我的策略：鎖定的策略＋幣一張卡，放參數的回測成績、今天的狀態、通知開關（App 的核心：手機回測 → 自訂參數 → 照自己的參數收通知）
+const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const sigOn=()=>{try{return !!(JSON.parse(localStorage.getItem('bnCats'))||{}).sig}catch(e){return false}};
+  function count(){const n=Object.keys(SigLock.get()).length,c=$('#myCnt');if(c)c.textContent=n?n:''}
+  function stats(st,sym,p){const H=E.load(sym),t1=H.T[H.n-1]+3600,k=st+sym+t1+JSON.stringify(p);if(memo[k])return memo[k];
+    const P=Object.assign({capital:1000},BEST[st][sym],p),a=simulate(st,sym,ts('2020-03-13'),t1,P),b=simulate(st,sym,t1-365*D1,t1,P);
+    return memo[k]={all:a,y1:b,now:SigTab.one(st,sym,t1,p)}}
+  function render(){count();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=k.split('|');return BEST[st]&&BEST[st][sym]});
+    if(!ks.length){box().innerHTML=`<div class="card empty" style="line-height:1.8">還沒有鎖定的策略。<br>到「策略」選一個策略，調好參數後按「🔒 鎖定我的策略」，就會出現在這裡。<br>鎖定後，進出場通知會照你的參數推播。</div>`;return}
+    box().innerHTML=`<p class="mtip">${sigOn()?'通知會照下面每張卡的參數推播，App 關著也收得到。':'<b>還沒開通知</b>：到「通知」打開「策略信號」，下面打開的策略才會推播。'}</p>`+ks.map(k=>{const[st,sym]=k.split('|');
+      return `<div class="card mys" data-k="${esc(k)}"><div class="hd"><b>${esc(SigTab.nm(st))}</b><span class="sym">${sym}</span><span class="small" style="color:var(--muted);font-weight:500">通知</span><button class="sw${P[k]?'':' on'}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div>
+        <div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div><div class="mnow small">計算中…</div>
+        <div class="btnrow"><button class="btn ghost" data-a="open">打開調整</button><button class="btn ghost" data-a="del">移除</button></div></div>`}).join('');
+    let i=0;const step=()=>{if(i>=ks.length)return;const k=ks[i++],[st,sym]=k.split('|'),c=box().querySelector(`.mys[data-k="${CSS.escape(k)}"]`);
+      if(c)try{const r=stats(st,sym,L[k]),m=c.querySelectorAll('.mst b'),cls=x=>x>=1?'pos':'neg';
+        m[0].innerHTML=r.all.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.all.mult)}">×${fmt(r.all.mult,2)}</span>`;m[1].textContent=pct(r.all.mdd);
+        m[2].innerHTML=r.y1.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.y1.mult)}">${r.y1.mult>=1?'+':''}${((r.y1.mult-1)*100).toFixed(1)}%</span>`;
+        c.querySelector('.mnow').innerHTML=r.now?r.now.txt:''}catch(e){c.querySelector('.mnow').textContent='這次算不出來'}
+      setTimeout(step,0)};setTimeout(step,30)}
+  document.addEventListener('click',e=>{const c=e.target.closest('#myPane .mys');if(!c)return;const k=c.dataset.k,[st,sym]=k.split('|');
+    if(e.target.closest('.sw')){const P=SigLock.paused();SigLock.pause(k,!P[k]);render();return}
+    const a=e.target.closest('[data-a]');if(!a)return;
+    if(a.dataset.a==='del'){if(confirm(`把「${SigTab.nm(st)}（${sym}）」從我的策略移除？
+移除後這個策略會改回預設參數的通知。`)){SigLock.remove(k);SigTab.reset();render()}return}
+    setMyP(st,sym,Object.assign({},BEST[st][sym],SigLock.get()[k]));   // 打開時載入鎖定的那組參數
+    const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+st+'"]');if(b)b.click()});
+  return {render,count}})();window.MyStrat=MyStrat;
 
 // ── 通知 ──
 // 通知頁：Telegram 頻道（data 分支的 tg_log.json 由 scripts/tg_notify.py 寫：channel＝頻道連結，items＝最近發出的通知）
@@ -2406,7 +2447,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
       else if(Notification.permission==='granted'){const k=(await (await fetch(base+'/vapid')).json()).key;
         if(s&&s.options&&s.options.applicationServerKey&&b64(s.options.applicationServerKey)!==k){await s.unsubscribe().catch(()=>{});s=null}
         if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k)});
-        const r=await post(base+'/sub',{sub:s.toJSON(),cats:on,off,locks:window.SigLock?SigLock.get():{}});ok=r.ok;
+        const r=await post(base+'/sub',{sub:s.toJSON(),cats:on,off,locks:window.SigLock?SigLock.active():{}});ok=r.ok;
         if(ok){const j=await r.json().catch(()=>({}));setJ('sigLockH',j.lockh||{})}}}catch(e){}
     pushOn=ok;setJ('bnPush',ok);hint()}
   function tBtn(){const b=$('#bnTest');if(b){b.hidden=!(canN&&anyOn()&&Notification.permission==='granted');b.onclick=test}}
@@ -2432,7 +2473,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   function render(d){last=d;const ch=(d&&d.channels)||{};
     const sts=STS(),nOn=sts.filter(([k])=>!off[k]).length;
     $('#tgCats').innerHTML=CATS.map(([k,ic,n,ds])=>`<div class="tgc${k==='sig'?' pick':''}"><div class="bd"${k==='sig'?' id="sgOpen"':''}><b>${n}${k==='sig'?`<em>${nOn===sts.length?'全部策略':nOn+'／'+sts.length+' 個策略'} ${pickOpen?'▾':'›'}</em>`:''}</b><span>${ds}${ch[k]?`　<a href="${esc(ch[k])}" target="_blank" rel="noopener">Telegram 頻道 ›</a>`:''}</span></div><button class="sw${on[k]?' on':''}" data-k="${k}" role="switch" aria-checked="${!!on[k]}" aria-label="${n}"></button></div>`
-      +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}${Object.keys(window.SigLock?SigLock.get():{}).filter(x=>x.startsWith(sk+'|')).map(x=>' 🔒'+x.split('|')[1]).join('')}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
+      +(k==='sig'&&pickOpen?`<div class="sgpick"><div class="all"><button data-a="1">全選</button><button data-a="0">全不選</button></div>${sts.map(([sk,sn])=>`<div class="tgc"><div class="bd"><b>${sn}${Object.keys(window.SigLock?SigLock.active():{}).filter(x=>x.startsWith(sk+'|')).map(x=>' 🔒'+x.split('|')[1]).join('')}</b></div><button class="sw${off[sk]?'':' on'}" data-s="${sk}" role="switch" aria-checked="${!off[sk]}" aria-label="${sn}"></button></div>`).join('')}</div>`:'')).join('');
     $('#tgCats').querySelectorAll('.sw[data-k]').forEach(b=>b.onclick=()=>toggle(b.dataset.k));
     $('#sgOpen').onclick=e=>{if(e.target.closest('a'))return;pickOpen=!pickOpen;render(last)};
     $('#tgCats').querySelectorAll('.sw[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(off[k])delete off[k];else off[k]=true;setJ('bnSigOff',off);render(last);pushLater()});
