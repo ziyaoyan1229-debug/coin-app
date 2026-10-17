@@ -529,7 +529,12 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 <script>try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage.getItem('autoNight')==='1'&&(h>=22||h<6))t='night';if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script>
 // 語言：設定裡選 English 時，整頁的介面文字用字典（i18n/en.json）換成英文；新聞、市場分析等 AI 產生的內容維持中文
-(function(){var L;try{L=localStorage.getItem('lang')}catch(e){}window.LANG=L==='en'?'en':'zh';if(LANG!=='en')return;
+(function(){var L;try{L=localStorage.getItem('lang');
+    if(/[?&]lang=zh/.test(location.search)){localStorage.removeItem('lang');L=null}
+    // 上一次用英文開啟沒撐過 8 秒就當掉了：這次自動切回中文，避免一直打不開
+    if(L==='en'&&localStorage.getItem('langBoot')){localStorage.removeItem('lang');localStorage.removeItem('langBoot');L=null;window.__langFail=1}
+    if(L==='en'){localStorage.setItem('langBoot','1');setTimeout(function(){try{localStorage.removeItem('langBoot')}catch(e){}},5000)}}catch(e){}
+  window.LANG=L==='en'?'en':'zh';if(LANG!=='en')return;
   document.documentElement.lang='en';
   var CJ='一-鿿　-〿！-～',HAS=/[一-鿿]/,SEG=new RegExp('['+CJ+'](?:[^<>`\'"${}\\n\\\\|]*['+CJ+'…])?','g'),
     NUM=/[-+]?\d[\d,]*(?:\.\d+)?/g,PIECE=/[一-鿿Ａ-Ｚａ-ｚ０-９]+/g,EDGE=/^([、，。：；！？　\s]*)([\s\S]*?)([、，。：；！？　\s]*)$/,
@@ -550,16 +555,17 @@ body,body[class]{background:var(--page);background-attachment:fixed}
     var o=t.replace(SEG,seg).replace(/ {2,}/g,' ').replace(/ ([,.:;!?)%])/g,'$1').replace(/\( /g,'(');return lead+o.trim()+trail}
   window.T=tr;
   var SKIP='script,style,textarea,[data-noi18n]',AT=['placeholder','title','aria-label'];
-  function el(e){if(e.closest&&e.closest(SKIP))return;for(var i=0;i<AT.length;i++){var a=e.getAttribute&&e.getAttribute(AT[i]);if(a&&HAS.test(a))e.setAttribute(AT[i],tr(a))}
+  function el(e){if(e.closest&&e.closest(SKIP))return;for(var i=0;i<AT.length;i++){var a=e.getAttribute&&e.getAttribute(AT[i]);if(a&&HAS.test(a)){var w=tr(a);if(w!==a&&!(e.__tr&&e.__tr[AT[i]]===a)){e.__tr=e.__tr||{};e.__tr[AT[i]]=w;e.setAttribute(AT[i],w)}}}
     if(e.tagName==='INPUT'&&(e.type==='button'||e.type==='submit')&&HAS.test(e.value))e.value=tr(e.value)}
-  function walk(n){if(!n)return;if(n.nodeType===3){var p=n.parentNode;if(p&&p.closest&&p.closest(SKIP)&&!p.closest('.hxl'))return;var v=n.nodeValue;if(HAS.test(v)){var w=tr(v);if(w!==v)n.nodeValue=w}return}
+  var DONE=new WeakMap();
+  function walk(n){if(!n)return;if(n.nodeType===3){if(DONE.get(n)===n.nodeValue)return;var p=n.parentNode;if(p&&p.closest&&p.closest(SKIP)&&!p.closest('.hxl'))return;var v=n.nodeValue;if(HAS.test(v)){var w=tr(v);DONE.set(n,w);if(w!==v)n.nodeValue=w}return}
     if(n.nodeType!==1)return;if(n.closest(SKIP)&&!n.querySelector('.hxl')&&!n.closest('.hxl'))return;el(n);var q=n.querySelectorAll('[placeholder],[title],[aria-label],input[type=button]');for(var i=0;i<q.length;i++)el(q[i]);
     var tw=document.createTreeWalker(n,4),x,list=[];while(x=tw.nextNode())list.push(x);for(i=0;i<list.length;i++)walk(list[i])}
   var _a=window.alert,_c=window.confirm,_p=window.prompt;window.alert=function(m){return _a.call(window,tr(String(m)))};window.confirm=function(m){return _c.call(window,tr(String(m)))};window.prompt=function(m,d){return _p.call(window,tr(String(m)),d)};
   var ready=fetch('i18n/en.json').then(function(r){return r.json()}).then(function(j){D=j}).catch(function(){});
   var start=function(){ready.then(function(){walk(document.body);document.title=tr(document.title);
-    new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){var m=ms[i];if(m.type==='characterData')walk(m.target);else if(m.type==='attributes')el(m.target);else for(var j=0;j<m.addedNodes.length;j++)walk(m.addedNodes[j])}})
-      .observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:AT})})};
+    var cnt=0,win=Date.now(),mo=new MutationObserver(function(ms){var now=Date.now();if(now-win>1000){win=now;cnt=0}cnt+=ms.length;if(cnt>4000){mo.disconnect();return}for(var i=0;i<ms.length;i++){var m=ms[i];if(m.type==='characterData')walk(m.target);else if(m.type==='attributes')el(m.target);else for(var j=0;j<m.addedNodes.length;j++)walk(m.addedNodes[j])}})
+      mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:AT})})};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();
 </script>
 </head>
@@ -3481,8 +3487,8 @@ window.__openEv=openEv;
     h.addEventListener('click',e=>{if(e.target.closest('a,button'))return;const on=sec.classList.toggle('shut');try{localStorage.setItem(key,on?'1':'0')}catch(_){}});
     const card=sec.querySelector('.card:last-of-type')||sec.querySelector('.card');if(!card)return;
     const btn=document.createElement('button');btn.type='button';btn.className='morebtn';btn.style.display='none';card.after(btn);
-    btn.onclick=()=>{const open=card.classList.toggle('open');card.classList.toggle('clamp',!open);btn.textContent=open?'收起 ▴':'展開全部 ▾';if(!open)sec.scrollIntoView({block:'start',behavior:'smooth'})};
-    sec.__fit=()=>{if(card.classList.contains('open'))return;card.classList.remove('clamp');const long=card.scrollHeight>H+80;card.classList.toggle('clamp',long);btn.style.display=long?'':'none';btn.textContent='展開全部 ▾'}});
+    btn.onclick=()=>{const open=card.classList.toggle('open');card.classList.toggle('clamp',!open);btn.dataset.s=open?'less':'more';btn.textContent=open?'收起 ▴':'展開全部 ▾';if(!open)sec.scrollIntoView({block:'start',behavior:'smooth'})};
+    sec.__fit=()=>{if(card.classList.contains('open'))return;card.classList.remove('clamp');const long=card.scrollHeight>H+80;card.classList.toggle('clamp',long);btn.style.display=long?'':'none';if(btn.dataset.s!=='more'){btn.dataset.s='more';btn.textContent='展開全部 ▾'}}});
   let t=0;const fit=()=>{clearTimeout(t);t=setTimeout(()=>secs.forEach(s=>s.__fit&&s.__fit()),120)};
   new MutationObserver(fit).observe(document.getElementById('newsView'),{childList:true,subtree:true});addEventListener('resize',fit);fit()})();
 // 今日摘要：BTC／ETH 價格、恐懼貪婪、下一個事件、今日訊號（用今日訊號頁算過的結果）；點各格跳到對應的地方
