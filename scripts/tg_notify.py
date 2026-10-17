@@ -148,7 +148,7 @@ for m in S.get('marks') or []:
     side = '多' if m.get('side', 1) > 0 else '空'
     ic = {'entry': '🟢' if side == '多' else '🔴', 'add': '➕', 'stop': '⛔'}.get(m['type'], '🟠')
     lk = {'lk': m['lk']} if m.get('lk') else {}   # 使用者鎖定參數算出來的：只推給那些裝置，不發 Telegram
-    add('sig', f"{ic} <b>{esc(m['sym'])} {side}單{TY.get(m['type'], m['type'])}</b>　約 {f0(m['price']) if m['sym'] == 'BTC' else format(m['price'], ',.1f')}\n{esc(m['name'])}" + (f"（{esc(m['text'])}）" if m.get('text') else '') + ('\n🔒 你鎖定的參數' if lk else '') + f"\n台灣 {time.strftime('%m/%d %H:%M', time.gmtime(m['t'] + TW))} 收線\n\n<i>回測規則自動訊號，非投資建議</i>", st=m['st'], sym=m['sym'], **lk)
+    add('sig', f"{ic} <b>{esc(m['sym'])} {side}單{TY.get(m['type'], m['type'])}</b>　約 {f0(m['price']) if m['sym'] == 'BTC' else format(m['price'], ',.1f')}\n{esc(m['name'])}" + (f"（{esc(m['text'])}）" if m.get('text') else '') + ('\n🔒 我的策略' if lk else '') + f"\n台灣 {time.strftime('%m/%d %H:%M', time.gmtime(m['t'] + TW))} 收線\n\n<i>回測規則自動訊號，非投資建議</i>", st=m['st'], sym=m['sym'], **lk)
 st['sig'] = st['sig'][-3000:]
 
 # ── 美股開盤／收盤（MSTR、MSTU，紐約時間判斷，含夏令） ──

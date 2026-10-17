@@ -1,7 +1,8 @@
 // HexStack 推播後端（Cloudflare Worker，免費方案）：收手機的推播訂閱，幫任何程式把通知推到 iPhone／Android／電腦。
 // 由 .github/workflows/push.yml 自動部署；KV（SUBS）存訂閱與 VAPID 金鑰（第一次用到時自動產生），PUSH_KEY 是發送用密鑰（部署時設定）。
 //   GET  /vapid                         → { key }：給 App 訂閱用的公鑰
-//   POST /sub    { sub, cats, off, locks } → 登記或更新一台裝置（cats＝要收的類別，off＝策略信號裡關掉的策略，locks＝{ 'st|sym': 參數 } 鎖定的策略參數）
+//   POST /sub    { sub, cats, off, locks, names } → 登記或更新一台裝置（cats＝要收的類別，off＝策略信號裡關掉的策略，
+//                locks＝{ 'st|sym|編號': 參數 } 我的策略的參數，names＝{ 同樣的 key: 使用者取的名字 }）
 //   POST /unsub  { endpoint }            → 取消
 //   GET  /locks  Authorization: Bearer <PUSH_KEY> → [{ h, st, sym, p }]：所有裝置鎖定的策略參數（不重複），給 sig_notify.js 照各自參數算信號
 //   POST /test   { endpoint }            → 推一則測試通知給這台（App 通知頁的測試按鈕）
@@ -63,7 +64,7 @@ export const lockId = async (st, sym, p) => [...new Uint8Array(await S.digest('S
 async function cleanLocks(L) {
   const out = {}, h = {};
   for (const [k, p] of Object.entries(L && typeof L === 'object' ? L : {}).slice(0, 30)) {
-    const m = /^(\w{1,12})\|(BTC|ETH)$/.exec(k);
+    const m = /^(\w{1,12})\|(BTC|ETH)(\|\w{1,12})?$/.exec(k);   // 策略|幣|編號（同一個策略可以存好幾份）
     if (!m || !p || typeof p !== 'object') continue;
     const q = {};
     for (const [a, v] of Object.entries(p).slice(0, 80)) if (/^\w{1,20}$/.test(a) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || typeof v === 'string' && v.length <= 20)) q[a] = v;
@@ -88,8 +89,9 @@ export default {
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;
         if (!s || typeof s.endpoint !== 'string' || !/^https:\/\//.test(s.endpoint) || !s.keys || !s.keys.p256dh || !s.keys.auth) return json({ error: 'bad subscription' }, 400);
-        const [locks, lockh] = await cleanLocks(d.locks);
-        const rec = { sub: { endpoint: s.endpoint, keys: { p256dh: s.keys.p256dh, auth: s.keys.auth } }, cats: d.cats || {}, off: d.off || {}, locks, lockh, at: Date.now() };
+        const [locks, lockh] = await cleanLocks(d.locks), names = {};
+        for (const k in lockh) if (d.names && typeof d.names[k] === 'string') names[k] = d.names[k].slice(0, 20);
+        const rec = { sub: { endpoint: s.endpoint, keys: { p256dh: s.keys.p256dh, auth: s.keys.auth } }, cats: d.cats || {}, off: d.off || {}, locks, lockh, names, at: Date.now() };
         await env.SUBS.put(await idOf(s.endpoint), JSON.stringify(rec));
         return json({ ok: true, lockh });
       }
@@ -111,10 +113,12 @@ export default {
         for (const [k, r] of subs) {
           for (const m of items) {
             if (m.cat && !r.cats[m.cat]) continue;
-            const lh = r.lockh || {};
-            if (m.lk ? !Object.values(lh).includes(m.lk) : m.cat === 'sig' && m.st && (r.off[m.st] || lh[m.st + '|' + m.sym])) continue;
+            const lh = r.lockh || {}, mine = m.lk && Object.keys(lh).find(k => lh[k] === m.lk);
+            if (m.lk ? !mine : m.cat === 'sig' && m.st && (r.off[m.st] || Object.keys(lh).some(k => k.startsWith(m.st + '|' + m.sym)))) continue;
+            let body = String(m.body || '');
+            if (mine && r.names && r.names[mine]) body = body.replace('🔒 我的策略', '🔒 我的策略：' + r.names[mine]);   // 換成使用者取的名字
             try {
-              const res = await pushOne(v, r.sub, { title: String(m.title || 'HexStack').slice(0, 120), body: String(m.body || '').slice(0, 1500), url: m.url || './#notify', tag: m.tag || undefined });
+              const res = await pushOne(v, r.sub, { title: String(m.title || 'HexStack').slice(0, 120), body: body.slice(0, 1500), url: m.url || './#notify', tag: m.tag || undefined });
               if (res.status === 404 || res.status === 410) { await env.SUBS.delete(k); gone++; break; }
               if (res.ok) sent++; else failed++;
             } catch (e) { failed++; }
