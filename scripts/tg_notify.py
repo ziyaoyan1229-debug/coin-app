@@ -8,8 +8,10 @@ Secrets：TG_TOKEN（機器人 token）＋每類頻道（@公開頻道名稱）�
   TG_CH_MKT 市場分析：早上 8 點早報、市場分析更新
   TG_CH_LV  關鍵價位：BTC 站上／跌破市場分析寫的支撐、壓力
   TG_CH_FG  恐懼貪婪極端：低於 20 或高於 80
-沒設定的類別就不發（TG_CHAT 有設的話，沒有自己頻道的類別都發到 TG_CHAT）。每類第一次執行只記狀態，不補發舊的。"""
-import calendar, html, json, os, re, sys, time, urllib.parse, urllib.request
+沒設定的類別就不發（TG_CHAT 有設的話，沒有自己頻道的類別都發到 TG_CHAT）。每類第一次執行只記狀態，不補發舊的。
+背景推播（iPhone 主畫面 App、Android、電腦，App 關著也收得到）：有設定 CF_API_TOKEN、CF_ACCOUNT_ID 時，
+  找出 worker/push.js 部署後的網址寫進 push.json（App 用它訂閱），再把這次新的通知送給推播後端，由後端依各裝置開的類別推出去。"""
+import calendar, hashlib, html, json, os, re, sys, time, urllib.parse, urllib.request
 
 NEWS, D = sys.argv[1], sys.argv[2]
 TOKEN = os.environ.get('TG_TOKEN', '').strip()
@@ -229,6 +231,7 @@ if fg:
 for c, m, kw in msgs:
     st['seq'] = st.get('seq', 0) + 1
     st['log'].insert(0, dict(id=st['seq'], ts=int(now), t=time.strftime('%Y-%m-%d %H:%M', time.gmtime(now + TW)), cat=c, text=m, **kw))   # 策略信號多記 st、sym，網站可以只通知選的策略
+fresh = st['log'][:len(msgs)][::-1]   # 這次新增的（舊到新），給背景推播
 # ── 發送：每類頻道各自第一次只發「已開啟」 ──
 sent = 0
 for c, name in CATS:
@@ -250,3 +253,27 @@ with open(STATE, 'w', encoding='utf-8') as f:
 link = lambda c: os.environ.get('TG_LINK_' + c.upper(), '').strip() or (f'https://t.me/{CH[c][1:]}' if CH[c].startswith('@') else '')
 with open(os.path.join(D, 'tg_log.json'), 'w', encoding='utf-8') as f:
     json.dump(dict(channels={c: link(c) for c, _ in CATS}, items=st['log']), f, ensure_ascii=False)
+
+# ── 背景推播：送到 Cloudflare 上的推播後端（worker/push.js，由 push.yml 部署）──
+CF_TOKEN, CF_ACC = os.environ.get('CF_API_TOKEN', '').strip(), os.environ.get('CF_ACCOUNT_ID', '').strip()
+if CF_TOKEN and CF_ACC:
+    def cf(path, data=None, key=None, url=None):
+        req = urllib.request.Request(url or f'https://api.cloudflare.com/client/v4/accounts/{CF_ACC}{path}', data=data and json.dumps(data).encode(),
+                                     headers={'Authorization': 'Bearer ' + (key or CF_TOKEN), 'Content-Type': 'application/json', 'User-Agent': 'HexStack'})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.load(r)
+    try:
+        sub = cf('/workers/subdomain')['result']['subdomain']
+        url = f'https://hexstack-push.{sub}.workers.dev'
+        with open(os.path.join(D, 'push.json'), 'w', encoding='utf-8') as f:
+            json.dump(dict(url=url), f)
+        key = os.environ.get('PUSH_KEY', '').strip() or hashlib.sha256((CF_TOKEN + 'hexstack-push').encode()).hexdigest()
+        items = []
+        for x in fresh:
+            L = [l.strip() for l in re.sub(r'<[^>]+>', '', re.sub(r'<a [^>]*>.*?</a>', '', x['text'])).split('\n')]
+            L = [html.unescape(l) for l in L if l]
+            items.append(dict(title=L[0] if L else 'HexStack', body='\n'.join(L[1:]), cat=x['cat'], st=x.get('st'), tag=f"hs{x['id']}", url='./#notify'))
+        for i in range(0, len(items), 20):
+            print('背景推播：', cf('', dict(items=items[i:i + 20]), key, url + '/send'))
+    except Exception as e:
+        print('背景推播失敗', getattr(e, 'code', ''), str(e)[:200])
