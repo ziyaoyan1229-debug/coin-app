@@ -677,7 +677,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap">
-  <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。</div><div class="card tgcats" id="tgCats"><div class="empty">讀取中…</div></div><div class="bnhint" id="bnHint"></div></div>
+  <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。</div><div class="card tgcats" id="tgCats"><div class="empty">讀取中…</div></div><div class="bnhint" id="bnHint"></div><button class="btn" id="bnTest" hidden style="margin:2px 2px 8px">發測試通知</button></div>
   <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog"><div class="empty">讀取中…</div></div></div>
   <div class="foot">通知內容每 15 分鐘更新一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
 </div></section>
@@ -2371,14 +2371,21 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const canN='Notification' in window,iosWeb=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches);
   const maxId=d=>Math.max(0,...((d&&d.items)||[]).map(x=>x.id||0));
   // 背景推播：data 分支的 push.json 有推播後端網址（worker/push.js）時，向後端登記這台裝置要收的類別，App 關著也收得到；登記成功（bnPush）就不再由 App 自己跳通知，免得重複
-  const PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',canP='PushManager' in window&&'serviceWorker' in navigator;
+  const PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',PDEF='https://hexstack-push.hexstack-df20e2.workers.dev',canP='PushManager' in window&&'serviceWorker' in navigator;
   let pushOn=!!getJ('bnPush',false),pt;
   const u8=k=>{k=k.replace(/-/g,'+').replace(/_/g,'/');return Uint8Array.from(atob(k+'='.repeat((4-k.length%4)%4)),c=>c.charCodeAt(0))};
   const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   const post=(u,d)=>fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(d)});
+  let pb=null;const pBase=async()=>pb||(pb=await fetch(PJ,{cache:'no-store'}).then(r=>r.ok?r.json():{}).then(d=>d.url||PDEF).catch(()=>PDEF));
+  // 測試按鈕：先確定這台已登記，再請後端推一則測試通知給這台；沒有背景推播時就直接跳一則本機通知
+  async function test(){const b=$('#bnTest');b.disabled=true;b.textContent='發送中…';let msg='';
+    try{await pushSync();const reg=canP&&await navigator.serviceWorker.getRegistration(),s=reg&&await reg.pushManager.getSubscription();
+      if(pushOn&&s){const r=await post(await pBase()+'/test',{endpoint:s.endpoint});msg=r.ok?'已送出，幾秒內會收到（可以先把 App 關掉或鎖螢幕試試）':r.status===429?'太快了，20 秒後再試':'送出失敗（'+r.status+'）'}
+      else{await notify({id:'test',text:'✅ HexStack 測試通知\n這台目前只有 App 開著時會跳通知。'});msg='這台沒有背景推播，已跳一則本機通知'}}catch(e){msg='送出失敗'}
+    b.textContent=msg;setTimeout(()=>{b.textContent='發測試通知';b.disabled=false},5000)}
   async function pushSync(){if(!canP)return;let ok=false;
     try{const reg=await navigator.serviceWorker.getRegistration();if(!reg)return;
-      const base=(await (await fetch(PJ,{cache:'no-store'})).json()).url;if(!base)throw 0;
+      const base=await pBase();
       let s=await reg.pushManager.getSubscription();
       if(!anyOn()){if(s){await post(base+'/unsub',{endpoint:s.endpoint}).catch(()=>{});await s.unsubscribe().catch(()=>{})}}
       else if(Notification.permission==='granted'){const k=(await (await fetch(base+'/vapid')).json()).key;
@@ -2386,8 +2393,9 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
         if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k)});
         ok=(await post(base+'/sub',{sub:s.toJSON(),cats:on,off})).ok}}catch(e){}
     pushOn=ok;setJ('bnPush',ok);hint()}
+  function tBtn(){const b=$('#bnTest');if(b){b.hidden=!(canN&&anyOn()&&Notification.permission==='granted');b.onclick=test}}
   const pushLater=()=>{clearTimeout(pt);pt=setTimeout(pushSync,800)};
-  function hint(){const h=$('#bnHint');if(!h)return;
+  function hint(){tBtn();const h=$('#bnHint');if(!h)return;
     h.innerHTML=!canN?(iosWeb?'<b>iPhone 要先在 Safari 按「分享 → 加入主畫面」，從主畫面打開 App 才能開通知。</b>':'<b>這個瀏覽器不支援通知。</b>')
       :Notification.permission==='denied'?'<b>通知被瀏覽器封鎖了</b>，請到瀏覽器的網站設定把通知改成允許。'
       :anyOn()?(pushOn?'背景推播已開啟：App 關著、鎖螢幕也收得到。':'App 開著時才會跳通知（電腦放在背景分頁也可以）；手機切到別的 App 或鎖螢幕時收不到，回到 App 會補跳。'):'第一次打開開關時，瀏覽器會問你要不要允許通知，選「允許」。'}

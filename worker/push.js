@@ -3,6 +3,7 @@
 //   GET  /vapid                         → { key }：給 App 訂閱用的公鑰
 //   POST /sub    { sub, cats, off }      → 登記或更新一台裝置（cats＝要收的類別，off＝策略信號裡關掉的策略）
 //   POST /unsub  { endpoint }            → 取消
+//   POST /test   { endpoint }            → 推一則測試通知給這台（App 通知頁的測試按鈕）
 //   POST /send   Authorization: Bearer <PUSH_KEY>
 //                { items: [{ title, body, url, cat, st, tag }] }  → 推給有開該類別的裝置；回 { sent, gone, failed }
 //   GET  /stats  Authorization: Bearer <PUSH_KEY> → { subs }
@@ -74,6 +75,15 @@ export default {
         const rec = { sub: { endpoint: s.endpoint, keys: { p256dh: s.keys.p256dh, auth: s.keys.auth } }, cats: d.cats || {}, off: d.off || {}, at: Date.now() };
         await env.SUBS.put(await idOf(s.endpoint), JSON.stringify(rec));
         return json({ ok: true });
+      }
+      if (p === '/test' && req.method === 'POST') {   // App 的「發測試通知」：只推給已登記的這一台，20 秒最多一次
+        const d = await req.json(), k = d && d.endpoint && await idOf(d.endpoint), r = k && await env.SUBS.get(k, 'json');
+        if (!r) return json({ error: 'not subscribed' }, 404);
+        if (Date.now() - (r.test || 0) < 20000) return json({ error: 'too soon' }, 429);
+        r.test = Date.now(); await env.SUBS.put(k, JSON.stringify(r));
+        const res = await pushOne(await vapid(env), r.sub, { title: '✅ HexStack 測試通知', body: '收到這則就代表背景推播正常，App 關著、鎖螢幕也收得到。', url: './#notify', tag: 'hs-test' });
+        if (res.status === 404 || res.status === 410) { await env.SUBS.delete(k); return json({ error: 'gone' }, 410); }
+        return json({ ok: res.ok, status: res.status });
       }
       if (p === '/unsub' && req.method === 'POST') { const d = await req.json(); if (d && d.endpoint) await env.SUBS.delete(await idOf(d.endpoint)); return json({ ok: true }); }
       if (p === '/send' && req.method === 'POST') {
