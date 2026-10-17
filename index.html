@@ -527,6 +527,41 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 @media (prefers-reduced-motion:reduce){#themeToast.on{animation:none}:root[data-theme="light"] *{transition:none!important}}
 </style>
 <script>try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage.getItem('autoNight')==='1'&&(h>=22||h<6))t='night';if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>
+// 語言：設定裡選 English 時，整頁的介面文字用字典（i18n/en.json）換成英文；新聞、市場分析等 AI 產生的內容維持中文
+(function(){var L;try{L=localStorage.getItem('lang')}catch(e){}window.LANG=L==='en'?'en':'zh';if(LANG!=='en')return;
+  document.documentElement.lang='en';
+  var CJ='一-鿿　-〿！-～',HAS=/[一-鿿]/,SEG=new RegExp('['+CJ+'](?:[^<>`\'"${}\\n\\\\|]*['+CJ+'…])?','g'),
+    NUM=/[-+]?\d[\d,]*(?:\.\d+)?/g,PIECE=/[一-鿿Ａ-Ｚａ-ｚ０-９]+/g,EDGE=/^([、，。：；！？　\s]*)([\s\S]*?)([、，。：；！？　\s]*)$/,
+    PU={'（':' (','）':') ','，':', ','。':'. ','：':': ','、':', ','；':'; ','！':'! ','？':'? ','「':'"','」':'"','『':'"','』':'"','／':'/','　':' ','～':'~','【':'[','】':']','＋':'+','％':'%','＝':'=','《':'"','》':'"'},D={};
+  var pu=function(t){return t.replace(/[（），。：、；！？「」『』／　～【】＋％＝《》]/g,function(c){return PU[c]})};
+  var fill=function(v,nums){var i=0;return v.replace(/#/g,function(){return i<nums.length?nums[i++]:'#'})};
+  // 整段字典裡沒有：從左到右，每個中文字開頭都挑字典裡最長的詞（數字先換成 #，換完再填回去）
+  var CJK1=/[一-鿿]/;
+  function greedy(core){var nums=core.match(NUM)||[],n=core.replace(NUM,'#'),o='',i=0,q=0;
+    var take=function(v){return v.replace(/#/g,function(){return q<nums.length?nums[q++]:'#'})};
+    while(i<n.length){var c=n[i];if(c==='#'){o+=q<nums.length?nums[q++]:'#';i++;continue}
+      if(CJK1.test(c)){var hit=0;for(var L=Math.min(28,n.length-i);L>0;L--){var w=n.substr(i,L);if(D[w]!=null&&(L>1||!/[一-鿿]/.test(n[i+1]||''))){o+=' '+take(D[w])+' ';i+=L;hit=1;break}}if(hit)continue}
+      o+=c;i++}
+    return o}
+  function seg(t){var m=t.match(EDGE),core=m[2];if(!core)return pu(t);var nums=core.match(NUM)||[],k=core.replace(NUM,'#'),v=D[k];
+    v=v==null?greedy(core):fill(v,nums);return pu(m[1])+pu(v)+pu(m[3])}
+  function tr(t){if(!t||!HAS.test(t))return t;t=t.replace(/(\d[\d,]*(?:\.\d+)?)\s*萬/g,function(m,n){var v=parseFloat(n.replace(/,/g,''))*1e4;return v>=1e6?(+(v/1e6).toFixed(2))+'M':(+(v/1e3).toFixed(1))+'k'}).replace(/(\d(?:\.\d+)?)\s*成/g,function(m,n){return (+(n*10).toFixed(1))+'%'});if(!HAS.test(t))return t;var lead=t.match(/^\s*/)[0],trail=t.match(/\s*$/)[0];
+    var o=t.replace(SEG,seg).replace(/ {2,}/g,' ').replace(/ ([,.:;!?)%])/g,'$1').replace(/\( /g,'(');return lead+o.trim()+trail}
+  window.T=tr;
+  var SKIP='script,style,textarea,[data-noi18n]',AT=['placeholder','title','aria-label'];
+  function el(e){if(e.closest&&e.closest(SKIP))return;for(var i=0;i<AT.length;i++){var a=e.getAttribute&&e.getAttribute(AT[i]);if(a&&HAS.test(a))e.setAttribute(AT[i],tr(a))}
+    if(e.tagName==='INPUT'&&(e.type==='button'||e.type==='submit')&&HAS.test(e.value))e.value=tr(e.value)}
+  function walk(n){if(!n)return;if(n.nodeType===3){var p=n.parentNode;if(p&&p.closest&&p.closest(SKIP)&&!p.closest('.hxl'))return;var v=n.nodeValue;if(HAS.test(v)){var w=tr(v);if(w!==v)n.nodeValue=w}return}
+    if(n.nodeType!==1)return;if(n.closest(SKIP)&&!n.querySelector('.hxl')&&!n.closest('.hxl'))return;el(n);var q=n.querySelectorAll('[placeholder],[title],[aria-label],input[type=button]');for(var i=0;i<q.length;i++)el(q[i]);
+    var tw=document.createTreeWalker(n,4),x,list=[];while(x=tw.nextNode())list.push(x);for(i=0;i<list.length;i++)walk(list[i])}
+  var _a=window.alert,_c=window.confirm,_p=window.prompt;window.alert=function(m){return _a.call(window,tr(String(m)))};window.confirm=function(m){return _c.call(window,tr(String(m)))};window.prompt=function(m,d){return _p.call(window,tr(String(m)),d)};
+  var ready=fetch('i18n/en.json').then(function(r){return r.json()}).then(function(j){D=j}).catch(function(){});
+  var start=function(){ready.then(function(){walk(document.body);document.title=tr(document.title);
+    new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){var m=ms[i];if(m.type==='characterData')walk(m.target);else if(m.type==='attributes')el(m.target);else for(var j=0;j<m.addedNodes.length;j++)walk(m.addedNodes[j])}})
+      .observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:AT})})};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();
+</script>
 </head>
 <body>
 <!-- 開場畫面：logo 三層六角依序疊上；網頁載完、即時價格、市場分析、恐懼貪婪、模擬盤都抓完（至少 1.5 秒、最多 15 秒）才淡出 -->
@@ -717,13 +752,13 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 <section id="newsView" class="view"><div class="wrap">
   <div class="sect"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
   <div class="sect" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">整理中…</div></div></div></div>
-  <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox"></div></div>
+  <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox" data-noi18n></div></div>
   <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
-  <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div>
+  <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
-  <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox"></div></div>
-  <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
-  <div class="sect"><h2>重大消息</h2><div class="chips" id="newsChips"></div><div class="card" id="newsBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox" data-noi18n></div></div>
+  <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect"><h2>重大消息</h2><div class="chips" id="newsChips"></div><div class="card" id="newsBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
   <div class="foot">回測資料：Binance 永續 2020-01 ～ 2026-09・時間為台灣時間<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
@@ -734,7 +769,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap"><button class="nback" id="ntBack" type="button">‹ 設定</button>
   <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。</div><div class="card tgcats" id="tgCats"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div><div class="bnhint" id="bnHint"></div><button class="btn" id="bnTest" hidden style="margin:2px 2px 8px">發測試通知</button></div>
-  <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
   <div class="foot">通知內容每 15 分鐘更新一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 設定 ───────── -->
@@ -743,6 +778,8 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="sect"><h2>外觀</h2><div class="card"><div class="seg tset" id="themeSeg"><button data-t="dark">預設</button><button data-t="night">深夜</button><button data-t="light">白天</button></div>
     <label class="anrow"><input type="checkbox" id="autoNight"> 晚上 22:00～早上 6:00 自動切到深夜模式</label>
     <div class="small" style="margin-top:8px">也可以點右上角的按鈕依序切換。</div></div></div>
+  <div class="sect"><h2>語言 Language</h2><div class="card"><div class="seg tset" id="langSeg"><button data-l="zh">中文</button><button data-l="en">English</button></div>
+    <div class="small" style="margin-top:8px">新聞和市場分析的內容是每天自動整理的中文，切到英文時這些內容維持中文。</div></div></div>
   <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
   <div class="sect"><h2>App</h2><div class="card"><button class="gbtn" id="setUpd" style="margin-top:0">更新到最新版</button>
     <div class="small" style="margin-top:8px">主畫面上的 App 沒看到新版時按這裡：清掉舊的暫存並重新載入。</div>
@@ -1943,6 +1980,7 @@ function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.tex
   const nm=document.querySelector('#newsView .ana .meta');$('#setNews').textContent=nm?nm.textContent.replace(/^.*更新：/,'').trim():'—';
   if($('#setVer').textContent==='—')fetch('sw.js',{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/coin-app-(v\d+)/);if(m)$('#setVer').textContent=m[1]}).catch(()=>{});}
 document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>window.__setTheme(b.dataset.t));
+document.querySelectorAll('#langSeg button').forEach(b=>{b.classList.toggle('on',b.dataset.l===window.LANG);b.onclick=()=>{if(b.dataset.l===window.LANG)return;try{localStorage.setItem('lang',b.dataset.l)}catch(e){}location.reload()}});
 {const c=$('#autoNight');c.checked=autoNightOn();c.onchange=()=>{localSet('autoNight',c.checked?'1':'0');applyTheme()};let last=effTheme();setInterval(()=>{const e=effTheme();if(e!==last){last=e;applyTheme()}},60000)}
 $('#setUpd').onclick=async()=>{const b=$('#setUpd');b.disabled=true;b.innerHTML='<span class="spin"></span> 更新中…';
   try{if(window.caches){for(const k of await caches.keys())if(k.startsWith('coin-app'))await caches.delete(k)}
