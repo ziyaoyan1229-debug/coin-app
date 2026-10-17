@@ -166,7 +166,7 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 #right{background:transparent!important;padding:0 10px 20px!important}
 .field input,.field select{padding:10px 10px;border-radius:10px;font-size:16px}
 #lockBtn.on{border-color:var(--acc);color:var(--acc)}.btnrow{display:flex;gap:8px;margin-top:8px}
-.rb{margin-bottom:12px;grid-column:1/-1}#libPick .lph .btn{width:auto;flex:none}#maMode button{flex:1}.rbh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;margin:6px 0}.rbh select{width:auto;font-size:12px;padding:3px 6px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px}
+.levf{grid-column:1/-1}.levr{display:flex;align-items:center;gap:10px}.levr input[type=range]{flex:1;accent-color:var(--acc)}.levr input[type=number]{width:84px;flex:none}.rb{margin-bottom:12px;grid-column:1/-1}#libPick .lph .btn{width:auto;flex:none}#maMode button{flex:1}.rbh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;margin:6px 0}.rbh select{width:auto;font-size:12px;padding:3px 6px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px}
 .rbr{background:var(--panel2);border-radius:10px;padding:8px 10px;margin-bottom:6px}.rbr .t{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}.rbr .t b{flex:1}.rbr .x{background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:0 4px}
 .rbp{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.rbp label{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted)}.rbp input{width:64px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:3px 6px;font:inherit;font-size:12.5px}
 .rbe{font-size:12px;color:var(--muted);padding:4px 2px 6px}.rbadd{width:100%;margin:0 0 4px!important;font-size:13px;padding:8px!important}
@@ -614,6 +614,17 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 .rli .done{flex:none;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}.rli .ago{flex:none;font-size:11px;color:var(--muted);font-weight:400}
 .rlsec{font-size:12px;color:var(--muted);margin:6px 2px 4px}
 #stratView.picking>#sBack{display:none}
+#sBack{flex-wrap:wrap}#dTab{flex:1 1 100%;margin:4px 2px 0}#dTab button{flex:1}
+#optPane{margin-top:10px}#optPane:empty{display:none}.optsel{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.optsel label{display:flex;align-items:center;gap:5px;font-size:12.5px;padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:var(--panel2)}.optsel input{accent-color:var(--acc);margin:0}
+.ojob{background:var(--panel);border:1px solid var(--line);border-radius:var(--r,12px);padding:12px 14px;margin-bottom:10px;font-size:13px}.ojob .h{display:flex;align-items:center;gap:8px;font-weight:700}.ojob .h b{flex:1;min-width:0}.ojob .h .x{background:none;border:0;color:var(--muted);font-size:15px;cursor:pointer}
+.ojob .sub{color:var(--muted);font-size:12px;margin:3px 0 8px}.ojob .bar{height:7px;border-radius:4px;background:color-mix(in srgb,var(--muted) 25%,transparent);overflow:hidden}.ojob .bar i{display:block;height:100%;background:var(--acc);transition:width .25s}
+.ojob .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--acc);border-right-color:transparent;border-radius:50%;animation:ospin .8s linear infinite;flex:none}@keyframes ospin{to{transform:rotate(360deg)}}
+#optBtn .spin{display:inline-block;width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ospin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@media (max-width:959px){#stratView[data-d="p"] #center,#stratView[data-d="p"] #right,#stratView[data-d="p"] #optPane{display:none!important}
+  #stratView[data-d="r"] #left{display:none!important}
+  #stratView[data-d="o"] #center,#stratView[data-d="o"] #right,#stratView[data-d="o"] #left .ctl{display:none!important}#stratView[data-d="o"] #optPane{display:block;margin-top:0}
+  #stratView[data-d="p"] details.sdet>summary{display:none}}
+@media (min-width:960px){#dTab{display:none}}
 #sList{padding:12px 12px 24px;display:flex;flex-direction:column;gap:10px}
 #sList .hd{font-size:13px;color:var(--muted);padding:2px 4px}
 .scard{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--r,12px);padding:14px;color:var(--text);font:inherit;cursor:pointer}
@@ -627,10 +638,10 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
 .scard .tg span{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
 .scard .ar{flex:none;color:var(--muted);align-self:center;font-size:18px}
 #sBack{display:flex;align-items:center;gap:8px;padding:8px 10px 0}
-#sBack button{display:flex;align-items:center;gap:4px;background:transparent;border:0;color:var(--acc);font:inherit;font-size:15px;padding:6px 4px;cursor:pointer}
+#sBack>button{display:flex;align-items:center;gap:4px;background:transparent;border:0;color:var(--acc);font:inherit;font-size:15px;padding:6px 4px;cursor:pointer}
 </style>
 <section id="stratView" class="view picking">
-  <div id="sBack"><button id="sBackBtn" type="button">‹ 全部策略</button></div>
+  <div id="sBack"><button id="sBackBtn" type="button">‹ 全部策略</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
   <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="mine">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" class="on">策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList"></div><div id="myPane" hidden></div><div id="rlPane" hidden><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label></div><div id="rlList"></div><div class="btnrow" style="margin-top:8px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
   <div class="col" id="left"><div class="ctl">
     <div class="field"><label>策略</label>
@@ -665,7 +676,7 @@ window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addE
       <div class="field"><label>開始</label><input id="sFrom" type="date" value="2024-01-01" min="2020-02-01" max="2026-09-30"></div>
       <div class="field"><label>結束</label><input id="sTo" type="date" value="2026-09-30" min="2020-02-01" max="2026-10-01"></div>
     </div>
-    <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn ghost" id="cmpBtn" style="margin-top:8px;width:100%">疊加其他策略比較</button><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費 0.07%、滑價 0.02%（停損 0.03%，可在上面取消勾選）、真實資金費率（可取消勾選）、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div></div>
+    <h3>參數</h3><div id="params"></div><div class="btnrow"><button class="btn ghost" id="resetBtn">恢復最佳參數</button><button class="btn ghost" id="levBtn">各槓桿比較</button></div><button class="btn ghost" id="cmpBtn" style="margin-top:8px;width:100%">疊加其他策略比較</button><div id="optSel"></div><button class="btn" id="optBtn" style="margin-top:8px">一鍵找最佳參數</button><p class="small">改參數會自動重算。成本：手續費 0.07%、滑價 0.02%（停損 0.03%，可在上面取消勾選）、真實資金費率（可取消勾選）、維持保證金 0.5%。停損與爆倉用 1 小時低點判斷。</p><button class="btn" id="runBtn" style="display:none">執行模擬</button></div></details></div><div id="optPane"></div></div>
   <div class="col" id="center">
         <div class="simcard"><div class="eqcap">資金曲線<span><i></i>策略　<i class="bh"></i>買進持有</span></div><div id="eqChart"></div><div class="split" id="pSplit" title="上下拖動調整兩張圖的高度，點兩下恢復"></div><div class="toolbar"><span class="tools" id="sTools"><button class="ddbtn" data-act="auto" title="上下拖動後，按這裡恢復自動縮放（也可以在圖上點兩下）">⤢ 自動縮放</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span><span class="small">點一下線選取，再按「刪除」或 Delete 鍵。圖可以上下左右拖、滾輪縮放、拖右邊價格軸縮放上下</span></div>
     <div class="legend" id="legend"></div><div id="priceChart" style="position:relative"></div></div>
@@ -876,6 +887,8 @@ N.createChart=function(el,opts){
   }
 
   const COST = { fee: 0.0007, slip: 0.0002, stopSlip: 0.0003, mm: 0.005 };
+  // 複利：倉位照當下權益算；關掉（p.comp===false）就照起始資金算（虧到比起始資金少時照剩下的）
+  const sz = (p, e) => p.comp === false ? Math.min(e, p.capital) : e;
 
   // 方向：long 只做多、short 只做空、both 牛市做多熊市做空。回傳 t 時刻允許的方向（1／-1／0）
   function sideFn(p) {
@@ -923,7 +936,7 @@ N.createChart=function(el,opts){
         const w = sw === 2 ? (c > HI[i] ? 1 : -1) : sw;
         const body = w * (c - B.O[i]) / atr[i];
         if (body >= p.body && (w > 0 ? c > HI[i] : c < LOn[i])) {
-          const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip);
+          const dq = p.lev * sz(p, cash) / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip);
           stop = c - w * p.stopAtr * atr[i];
           cur = { entryT: tEnd, entry: c, stop, lev: p.lev, side: w, eqBefore: cash + fe, why: '', vr, body };
           marks.push({ t: tEnd, px: c, type: 'entry', side: w, text: `${w > 0 ? '多' : '空'} ${fmt(c)}` });
@@ -979,7 +992,7 @@ N.createChart=function(el,opts){
       // perBox：每一段在同一個箱子最多進幾次（0＝不限；舊參數 once＝1 次）
       const lim = p.perBox != null ? +p.perBox : (p.once ? 1 : 0);
       if (lim) { const key = why + '|' + curBb + '|' + curTb, n = onceCnt.get(key) || 0; if (n >= lim) return false; onceCnt.set(key, n + 1); }
-      const Ep = E(px), dq = Math.min(frac * p.lev * Ep / px, Math.max(0, p.lev * Ep / px - q));
+      const Ep = sz(p, E(px)), dq = Math.min(frac * p.lev * Ep / px, Math.max(0, p.lev * Ep / px - q));
       if (dq * px < 1) return false;
       const fe = dq * px * COST.fee; cash -= fe; fees += fe;
       if (!q) cyc = { t0: t, eq0: Ep, n: 0, Tb0: curTb, Bb0: curBb, caught: p.caughtAt === 'now' };
@@ -1242,7 +1255,7 @@ N.createChart=function(el,opts){
         const c = cE, tEnd = tE;
         let stop = p.stopMode === 'poc' ? poc[i] * (1 - 0.002) : p.stopMode === 'bar' ? b.L[i] * (1 - 0.001) : p.stopMode === 'pct' ? c * (1 - p.stopPct) : c - p.stopAtr * at;
         if (stop >= c * 0.999) stop = c - p.stopAtr * at;
-        const e = E(c), risk = e * p.risk, dist = c * (1 + COST.slip) - stop * (1 - COST.stopSlip) + c * 2 * COST.fee;
+        const e = sz(p, E(c)), risk = e * p.risk, dist = c * (1 + COST.slip) - stop * (1 - COST.stopSlip) + c * 2 * COST.fee;
         let dq = risk / dist; const room = p.lev * e - Q() * c; dq = Math.min(dq, Math.max(0, room) / c);
         if (dq * c > e * 0.01) {
           // 停損上移：加倉時舊單停損移到保本（或上一單進場價）
@@ -1324,7 +1337,7 @@ N.createChart=function(el,opts){
     }
     // 開一單（海龜：每單大小相同；所有單的停損一起移到最新一單 − 2N）
     function add(px, t) {
-      const e = E(px), room = p.lev * e - Q() * px, q = Math.min(uq, Math.max(0, room) / px);
+      const e = sz(p, E(px)), room = p.lev * e - Q() * px, q = Math.min(uq, Math.max(0, room) / px);
       if (q * px < e * 0.01) return false;
       const fill = px * (1 + s * COST.slip), fe = q * px * COST.fee; cash -= fe; fees += fe; wave.pnl -= fe;
       units.push({ q, px: fill }); const ns = fill - s * p.stopN * N0;
@@ -1391,7 +1404,7 @@ N.createChart=function(el,opts){
           // S1 過濾：上一筆賺錢就跳過這次突破（跳過後重置），但 55 根突破一定進（保險）
           if (ok && p.entry === 's1' && p.s1skip && lastWin && !(w > 0 ? c > H55[i] : c < L55[i])) { lastWin = false; ok = false; }
           if (!ok) continue;
-          s = w; N0 = N[i]; uq = cash * p.risk / ((firstStop ? Math.abs(c - firstStop) : p.stopN * N0) + c * (COST.slip + COST.stopSlip + 2 * COST.fee));
+          s = w; N0 = N[i]; uq = sz(p, cash) * p.risk / ((firstStop ? Math.abs(c - firstStop) : p.stopN * N0) + c * (COST.slip + COST.stopSlip + 2 * COST.fee));
           wave = { entryT: tEnd, entry: c, px: [], n: 0, pnl: 0, why: '', side: w, N: N0 };
           if (!add(c, tEnd)) { s = 0; wave = null; continue; }
           imp = 0; shrunk = false;
@@ -1461,7 +1474,7 @@ N.createChart=function(el,opts){
           else if (p.entry === 'both') ok = r === w && (rib(i - 1) !== w || (w > 0 ? B.L[i] <= e21[i] && c > e8[i] : B.H[i] >= e21[i] && c < e8[i]));
           else if (p.entry === 'cross') ok = w * (e8[i] - e21[i]) > 0 && w * (e8[i - 1] - e21[i - 1]) <= 0 && w * (c - e55[i]) > 0;
           if (!ok || !slopeOk) continue;
-          const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip);
+          const dq = p.lev * sz(p, cash) / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip);
           stop = p.stopAtr ? c - w * p.stopAtr * atr[i] : 0;
           cur = { entryT: tEnd, entry: c, stop, lev: p.lev, side: w, eqBefore: cash + fe, why: '' };
           marks.push({ t: tEnd, px: c, type: 'entry', side: w, text: `${w > 0 ? '多' : '空'} ${fmt(c)}` });
@@ -1515,7 +1528,7 @@ N.createChart=function(el,opts){
         if (why) close(c * (1 - s * COST.slip), why, tEnd);
         // 滾倉：每順勢 rollStep 加一次，把總倉位補到「權益 × rollLev」；舊止損往前移到上一次加倉價
         else if (p.roll && cur.adds < (p.rollMax || 3) && s * (c / cur.lastAdd - 1) >= p.rollStep) {
-          const tq = (p.rollLev || p.lev) * E(c) / c;
+          const tq = (p.rollLev || p.lev) * sz(p, E(c)) / c;
           if (tq > q) {
             const dq = tq - q, px = c * (1 + s * COST.slip), fe = dq * c * COST.fee; cash -= fe; fees += fe;
             avg = (q * avg + dq * px) / tq; q = tq; cur.adds++;
@@ -1533,7 +1546,7 @@ N.createChart=function(el,opts){
             marks.push({ t: tEnd, px: c, type: 'exit', side: s, text: '高點減倉' });
           } else if (cur.trim && (cur.tpk = s > 0 ? Math.max(cur.tpk, c) : Math.min(cur.tpk, c)) &&
             (p.rePb ? s * (1 - c / cur.tpk) >= p.rePb : s * (c / ea[i] - 1) <= (p.reTol || 0))) {
-            const tq = (p.rollLev || p.lev) * E(c) / c;
+            const tq = (p.rollLev || p.lev) * sz(p, E(c)) / c;
             if (tq > q) { const dq = tq - q, px = c * (1 + s * COST.slip), fe = dq * c * COST.fee; cash -= fe; fees += fe; avg = (q * avg + dq * px) / tq; q = tq;
               marks.push({ t: tEnd, px: c, type: 'add', side: s, text: '回踩補倉' }); }
             cur.trim = false;
@@ -1546,7 +1559,7 @@ N.createChart=function(el,opts){
           const brk = w > 0 ? c > hi(i) && B.C[i - 1] <= hi(i - 1) : c < lo(i) && B.C[i - 1] >= lo(i - 1);
           const order = !p.order || (w > 0 ? ea[i] > eb[i] : ea[i] < eb[i]);
           if (!brk || !order || !dense(i - 1)) continue;
-          const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip);
+          const dq = p.lev * sz(p, cash) / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip);
           stop = p.stopAtr ? (w > 0 ? lo(i) - p.stopAtr * atr[i] : hi(i) + p.stopAtr * atr[i]) : 0;
           cur = { entryT: tEnd, entry: c, stop, lev: p.lev, side: w, eqBefore: cash + fe, why: '', vr: spread[i - 1] * 100, adds: 0, lastAdd: c };
           marks.push({ t: tEnd, px: c, type: 'entry', side: w, text: `${w > 0 ? '多' : '空'} ${fmt(c)}` });
@@ -1582,7 +1595,7 @@ N.createChart=function(el,opts){
     function closeAll(px, why, t) { for (const u of units) { const fe = u.q * px * COST.fee, pl_ = s * u.q * (px - u.px) - fe; cash += pl_; fees += fe; wave.pnl += pl_; }
       wave.exitT = t; wave.exit = px; wave.why = why; wave.eqAfter = cash; trades.push(wave); marks.push({ t, px, type: 'exit', side: s, text: why }); units = []; s = 0; wave = null; outI = curI; }
     function open(w, px, st, why, t, i, lv) {
-      const e = E(px), dist = Math.abs(px - st) + px * (COST.slip + COST.stopSlip + 2 * COST.fee); if (!(dist > 0)) return;
+      const e = sz(p, E(px)), dist = Math.abs(px - st) + px * (COST.slip + COST.stopSlip + 2 * COST.fee); if (!(dist > 0)) return;
       let q = e * p.risk * curRk / dist; const room = p.lev * e - Q() * px; q = Math.min(q, Math.max(0, room) / px); if (q * px < e * 0.01) return;
       const fill = px * (1 + w * COST.slip), fe = q * px * COST.fee; cash -= fe; fees += fe;
       if (!units.length) { s = w; wave = { entryT: t, entry: px, px: [], n: 0, pnl: 0, why: '', side: w, setup: why }; stop = st; }
@@ -1831,7 +1844,7 @@ N.createChart=function(el,opts){
         } }
       if (!q) { const L = all(IN, R.any, i), S = both && all(SIN, R.sany, i), w = both ? (L && !S ? 1 : S && !L ? -1 : 0) : L ? w0 : 0;
         if (w && isFinite(c)) {
-          const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = q0 = dq; s = w; avg = c * (1 + w * COST.slip); best = avg; bars = 0; adds = 0; lastPx = c; tp1Done = false;
+          const dq = p.lev * sz(p, cash) / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = q0 = dq; s = w; avg = c * (1 + w * COST.slip); best = avg; bars = 0; adds = 0; lastPx = c; tp1Done = false;
           const sp = p.stopPct > 0 ? avg * (1 - w * p.stopPct / 100) : 0, sa = atr && isFinite(atr[i]) ? c - w * p.stopAtr * atr[i] : 0;
           stop = sp && sa ? (w > 0 ? Math.max(sp, sa) : Math.min(sp, sa)) : sp || sa;
           cur = { entryT: tEnd, entry: c, px: [c], stop, lev: p.lev, side: w, eqBefore: cash + fe, why: '' };
@@ -2251,17 +2264,17 @@ const BEST={
  tur:{BTC:{dir:'both2',tf:8,entry:'s1',s1skip:true,exit:'low',lev:10,risk:0.02,maxU:4,atrN:20,entryN:20,exitN:10,stopN:2,addN:0.5,regime:'none',funding:true},
       ETH:{dir:'both2',tf:8,entry:'s2',s1skip:true,exit:'low',lev:10,risk:0.02,maxU:4,atrN:20,entryN:55,exitN:20,stopN:2,addN:0.5,regime:'none',funding:true}}};
 const PDEF={
- cus:[['dir','做多／做空','sel',[['long','做多'],['short','做空'],['both','雙向（做多、做空各自設進出場）']]],['tf','K 棒週期','sel',[[1,'1 小時'],[4,'4 小時'],[8,'8 小時'],[24,'日線']]],['lev','槓桿（倍）','num',0.5,20,0.5,'進場名目＝權益×槓桿'],
+ cus:[['dir','做多／做空','sel',[['long','做多'],['short','做空'],['both','雙向（做多、做空各自設進出場）']]],['tf','K 棒週期','sel',[[1,'1 小時'],[4,'4 小時'],[8,'8 小時'],[24,'日線']]],['lev','槓桿（倍）','num',0.1,200,0.1,'進場名目＝權益×槓桿'],
    ['stopPct','停損（%）','num',0,50,0.5,'0＝不設'],['stopAtr','ATR 停損（倍）','num',0,10,0.5,'0＝不設；兩個都設取比較近的'],['tp','停利（%）','num',0,500,1,'0＝不設'],['trail','移動停損（%）','num',0,50,0.5,'從最高點回落幾 % 出場，0＝不設'],['maxBars','最多持有（根）','num',0,1000,1,'0＝不限'],
    ['addMax','最多加倉次數','num',0,10,1,'0＝不加倉'],['addSize','每次加倉（第一筆的幾倍）','num',0.1,3,0.1,''],['addPct','順勢幾 % 加一次','num',0,100,0.5,'從上次進場價算，0＝只看加倉條件'],
-   ['tp1Pct','第一段停利（%）','num',0,500,1,'到了先賣一部分，0＝不設'],['tp1Frac','第一段賣出比例','num',0.1,1,0.05,'0.5＝賣一半'],['partFrac','分批出場條件每次賣出比例','num',0.1,1,0.05,'分批出場條件出現時賣掉目前部位的幾成'],['funding','計資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- brk:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空（熊市才做）'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷'],['lev','真實槓桿（倍）','num',1,20,0.5,'進場名目＝權益×槓桿'],['n','突破回看（4h 根數）','num',6,360,6,'60 根＝10 天'],['body','實體 ≥ ATR 倍數','num',0,5,0.1,''],['vr','量比門檻（倍）','num',1,20,0.5,'這根量 ÷ 前 N 根中位數'],['vrWin','量比回看（根）','num',6,360,6,''],['atrN','ATR 長度（根）','num',2,100,1,''],['stopAtr','停損距離（ATR 倍數）','num',0.5,10,0.5,'多單停在進場價下方、空單停在上方'],['exitN','出場：跌破（空單：突破）前 N 根低（高）點','num',6,540,6,'60＝10 天、120＝20 天、180＝30 天'],['regime','牛市過濾','sel',[['none','不過濾（雙向時用週線）'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- box:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空（熊市才做）'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷'],['lev','真實槓桿上限（倍）','num',1,20,0.5,'總倉位名目 ÷ 權益的上限'],['sell','箱頂出場比例','sel',[[1,'100%'],[0.8,'80%'],[0.6,'60%'],[0.3,'30%'],[0,'0%（不出）']]],['k','箱體轉折（左右各 k 天）','num',2,20,1,''],['full','③ 破箱底影線收回重倉（槓桿上限的幾成）','num',0.05,1,0.05,''],['perBox','每一段在同一個箱子最多進幾次（0＝不限）','num',0,10,1,'1＝飛刀模式，每段只接一次'],['longExit','出場方式','sel',[['fail','收盤跌破箱體失敗線'],['w50','超長線：BTC 週線跌破 50 週線才出'],['ma200','超長線：BTC 200 日線轉下彎才出'],['never','超長線：不出場（只看爆倉）']]],['runExit','抓到波段後改用','sel',[['off','不改（照上面出場）'],['lowN','跌破前 N 天低點才出'],['entryBox','跌破進場時的箱底才出（不跟著新箱子上移）'],['k2','跌破大一級箱底（前後 k2 天轉折）'],['ema','日線收盤跌破 EMA N']],'抓到波段＝收盤站上進場時的箱頂'],['rN','長線：N 天','num',10,300,5,'跌破 N 天低點或 EMA N'],['k2','長線：大一級箱體 k2','num',5,90,5,''],['runNoAdd','抓到波段後不再加倉','chk'],['grade','信號分級（看離一年高點多遠）','chk'],['gNear','劣質：離一年高點不到幾 %','num',0,0.5,0.05,'0.15＝離高點 15% 以內，多半是高檔整理不是底'],['gC','劣質信號倉位倍數','num',0,1,0.1,'0＝不進'],['gDeep','優質：從一年高點跌超過幾 %','num',0.1,0.9,0.05,'威科夫吸籌通常在大跌之後'],['gA','優質信號倉位倍數','num',0.5,3,0.1,''],['gB','普通信號倉位倍數','num',0.1,2,0.1,''],['runBE','抓到波段後跌回成本價就出','chk'],['wickStop','停損設在反轉 K 的下影線底部','chk'],['wickBuf','影線停損再往下留多少','num',0,0.05,0.001,'0.01＝影線最低點下方 1%；打到就全部出場'],['stage','分段吸籌（前期低位小倉＋量縮加碼）','chk'],['sEarly','① 箱體前期低位小倉（幾成）','num',0,1,0.05,'箱底出現後 earlyD 天內、價格在箱子下半部，進一次'],['earlyD','前期＝箱底出現後幾天內','num',1,60,1,''],['lowZ','低位＝箱子由下往上的比例','num',0.1,1,0.05,'0.4＝箱子下面 40%'],['sVol','② 量縮加碼（幾成）','num',0,1,0.05,'在低位、而且 1 天均量 < 10 天量中位數 × 量縮門檻'],['vc','量縮門檻','num',0.2,1,0.05,'0.6＝量只剩平常 6 成'],['volCool','量縮加碼間隔（4h 根數）','num',1,60,1,'6＝1 天最多一次'],['touch','④ 碰到箱底區就先進（幾成，0＝不用）','num',0,1,0.05,'不用等下影線：價格一碰到「箱底＋下面的距離」就掛單小倉買；同一個箱底只進一次（除非下面設了間隔）'],['touchCool','碰箱底：每次碰都加，間隔幾根 4h（0＝同一個箱底只進一次）','num',0,60,1,'12＝每 2 天最多加一次'],['small','守住箱底小加倉（幾成）','num',0,1,0.05,''],['brk','跌破箱底至少','num',0,0.05,0.001,'0.003＝0.3%'],['near','箱底區：離箱底在','num',0,0.1,0.001,'0.03＝箱底上方 3% 以內就算碰到'],['wick','下影線 ≥ K 棒全長','num',0.1,0.9,0.05,'0.5＝一半'],['stopx','箱體失敗：收盤低於箱底','num',0.01,0.3,0.01,'0.08＝8%'],['regime','牛市過濾','sel',[['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎'],['none','不過濾（雙向時用週線）']]],['hmin','箱高下限','num',0,1,0.01,''],['hmax','箱高上限','num',0.05,3,0.05,''],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- dense:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['n1','短均線 EMA','num',5,100,1,''],['n2','中均線 EMA','num',10,200,1,''],['n3','長均線 EMA','num',20,400,1,''],['sq','密集門檻：三線價差 ≤ 價格的','num',0.005,0.2,0.005,'0.06＝三條均線最高最低差在 6% 以內'],['look','密集要發生在最近幾根內','num',1,100,1,''],['order','多單要 EMA短 > EMA中（空單相反）','chk'],['exit','出場','sel',[['c3','收盤穿過長均線'],['c2','收盤穿過中均線'],['x12','短均線穿過中均線'],['c1','收盤穿過短均線']]],['stopAtr','停損：三線最低點 − ATR 倍數（0＝不設）','num',0,10,0.5,''],['atrN','ATR 根數','num',5,60,1,''],['lev','真實槓桿（倍）','num',1,10,0.5,'進場倉位＝權益 × 槓桿'],['roll','滾倉（幣哥式：浮盈加倉）','chk'],['rollLev','滾倉後總槓桿上限（倍）','num',1,10,0.5,'加倉時把總倉位補到「當下權益 × 這個倍數」'],['rollStep','每順勢多少加一次','num',0.01,0.5,0.01,'0.05＝離上次進場／加倉價再走 5%'],['rollMax','最多加幾次','num',1,10,1,''],['rollSL','加倉後止損','sel',[['none','不動，照均線出場'],['prev','移到上一次加倉價'],['be','移到持倉均價（保本）']]],['tp','大漲先減倉、回調再補回','chk','回測多數組合變差，預設不開'],['tpX','收盤離短均線超過多少就減倉','num',0.05,1,0.01,'0.15＝高於 EMA短 15%'],['tpFrac','減掉幾成','num',0.1,0.9,0.05,''],['rePb','從高點回調多少補回（0＝回到短均線才補）','num',0,0.5,0.01,''],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- rib:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['entry','進場','sel',[['align','彩帶剛排好（EMA8>13>21>34>55）'],['pullback','彩帶排好後回踩 EMA21、收回 EMA8 上'],['both','剛排好＋回踩都進'],['cross','EMA8 穿過 EMA21，且收在 EMA55 上']]],['slope','EMA55 要上彎（比 N 根前高，0＝不看）','num',0,60,1,'10＝比 10 根前高才進'],['exit','出場','sel',[['c55','收盤跌破 EMA55'],['e13e34','EMA13 跌破 EMA34'],['e8e34','EMA8 跌破 EMA34'],['e8e21','EMA8 跌破 EMA21'],['c34','收盤跌破 EMA34'],['c21','收盤跌破 EMA21'],['unalign','彩帶不再排列']]],['stopAtr','停損：進場價 − ATR 倍數（0＝不設）','num',0,10,0.5,''],['atrN','ATR 根數','num',5,60,1,''],['lev','真實槓桿（倍）','num',1,10,0.5,'倉位＝權益 × 槓桿，不加倉'],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- knife:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','反轉 K 用哪個週期','sel',[['24','日線'],['4','4 小時']],'箱體一律用日線畫；4 小時＝在日線箱底找 4H 的反轉 K'],['k','箱體：前後幾天的轉折高低點','num',2,30,1,'預設 5；3～8 都穩，10 以上變差'],['near','碰箱底：低點在箱底上方幾 % 以內','num',0,0.1,0.005,''],['wick','下影線 ≥ 這根 K 全長的','num',0,1,0.05,'0.3＝30%'],['hmin','箱體高度最小','num',0,0.5,0.01,''],['hmax','箱體高度最大','num',0.1,2,0.05,''],['kStop','第 1 單停損','sel',[['wick','反轉 K 的影線底部'],['2N','進場價 − 2N（海龜原版）']]],['wickBuf','影線底部再往下留','num',0,0.05,0.001,'0.005＝0.5%'],['lev','槓桿上限（倍）','num',1,50,1,'倉位大小由停損距離決定，槓桿只是上限'],['risk','每單風險（權益比例）','num',0.005,0.1,0.005,'0.02＝停損打到虧權益 2%'],['maxU','最多幾單（海龜加倉）','num',1,10,1,''],['addN','每漲幾個 N 加一單','num',0.25,3,0.25,'原版 0.5N'],['stopN','加倉後停損＝最後一單 − 幾個 N','num',0.5,5,0.5,'只往上移、不往下'],['exitN','出場：跌破前幾根 K 低點','num',5,200,5,'S1＝10、S2＝20；4 小時要跟日線一樣長就 ×6（60／120）'],['split','分批出場（不加單時建議開，最多幾單設 1、每單風險調大）','chk'],['tp','分批 1：停利','sel',[['none','不停利'],['box','碰箱頂'],['1','賺 1R（R＝進場到停損）'],['1.5','賺 1.5R'],['2','賺 2R'],['3','賺 3R'],['5','賺 5R']],'開分批才有用'],['tpF','分批 1 出幾成','num',0.1,0.9,0.1,'0.3＝原始倉位 30%'],['xF','分批 2：跌破上面那個低點出幾成','num',0,1,0.1,'0.5＝原始倉位 50%'],['exitN2','分批 3：剩下的跌破前幾根 K 低點全出','num',10,200,5,''],['be','先出一點後停損移到進場價（保本）','chk'],['reent','保本被打掉後怎麼再進','sel',[['knife','等下一根飛刀信號'],['brk','飛刀信號或突破前 N 根高點（趨勢還沒破就追回來）']]],['reN','再進：突破前幾根高點','num',10,100,5,'選第二種才有用'],['atrN','N＝ATR 天數','num',5,60,1,''],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- tur:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['entry','系統','sel',[['s1','S1：突破前 20 根高點進、跌破前 10 根低點出'],['s2','S2：突破前 55 根高點進、跌破前 20 根低點出']]],['s1skip','S1 上一筆賺錢就跳過下一次突破（55 根突破仍會進）','chk'],['entryN','突破回看根數（S1＝20、S2＝55）','num',10,200,5,''],['exitN','出場回看根數（S1＝10、S2＝20）','num',5,100,5,''],['lev','槓桿上限（倍）','num',1,30,1,'總倉位名目 ÷ 權益的上限'],['risk','每單風險（權益比例）','num',0.005,0.1,0.005,'0.02＝打到 2N 停損虧權益 2%'],['maxU','最多幾單','num',1,10,1,'原版 4 單'],['addN','每漲幾個 N 加一單','num',0.25,3,0.25,'原版 0.5N'],['stopN','停損＝最後一單 − 幾個 N','num',0.5,5,0.5,'原版 2N；加倉時所有單的停損一起上移'],['atrN','N＝ATR 根數','num',5,60,1,'原版 20'],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']],
- poc:[['lev','槓桿上限（倍）','num',1,30,1,'總倉位名目 ÷ 權益的上限'],['risk','每單風險（權益比例）','num',0.005,0.2,0.005,'0.05＝1/20：停損打到只虧權益 5%'],['maxU','一波最多幾單','num',1,20,1,''],['stopMode','停損位置','sel',[['poc','POC 下方 0.2%'],['atr','進場價 − ATR 倍數'],['pct','進場價 − 固定百分比'],['bar','突破那根 K 的低點']]],['stopAtr','ATR 倍數（停損選 ATR 時）','num',0.5,10,0.5,'1h ATR（24 根）'],['stopPct','百分比（停損選百分比時）','num',0.005,0.2,0.005,'0.02＝2%'],['trail','加倉時舊單停損','sel',[['be','移到保本（各自進場價）'],['all','全部移到新單的停損'],['none','不動']]],['be1R','走出 xR 後該單移保本','chk'],['beR','保本距離 x（R＝進場到停損）','num',0.25,5,0.25,'1＝走出 1 倍停損距離就保本'],['pb','第 1 單也可以：回踩 POC 附近後放量突破','chk'],['pbExt','回踩前要先走出 POC 上方幾 %','num',0,0.2,0.01,'0.04＝4%'],['pbNear','回踩：低點到 POC 上方幾 % 以內','num',0,0.05,0.005,''],['pbWin','回踩要在前幾小時內','num',12,336,12,''],['pbBrk','回踩後突破前幾小時高點就進','num',6,168,6,'原本要突破 168 小時高點'],['exit','出場訊號','sel',[['low1h','1h 收盤跌破前 N 根低點'],['ema4h','4h 收盤跌破 EMA10'],['none','不用（只看下面的「漲不上去」）']]],['stall','分批出場：短時間漲不上去','sel',[['off','不用'],['hi','N 小時沒創這波新高'],['roc','收盤沒比 N 小時前高']],'每觸發一次平 1/k，之後重新計時；跟上面的訊號誰先到算誰'],['stallN','漲不上去：N（小時）','num',6,336,6,'太短（24 以下）會太早下車'],['vex','分批出場：用量能判斷漲不上去','sel',[['off','不用'],['div','創這波新高但量不夠（量價背離）'],['dn','放量下跌'],['fade','N 小時沒新高、量一路縮']],'量＝這根 1h 量 ÷ 前 168 根中位數'],['vexR','量能門檻（倍）','num',0.3,8,0.1,'背離：低於這個算量不夠；放量下跌：高於這個算放量；萎縮：平均低於這個'],['vexN','萎縮：看前幾小時','num',6,168,6,''],['vexCool','量能出場後至少隔幾小時才能再觸發','num',1,72,1,''],['exitLow','N（1h 根數，出場訊號選 1h 時）','num',6,240,6,'24＝1 天'],['exitMode','出場時平多少','sel',[['lifo','開了 k 單，每次訊號平 1/k，最後加的先平'],['even','開了 k 單，每次訊號平 1/k，每單等比例'],['units','依單數平（開幾單平幾成）'],['all','全部平'],['ladder','回落逐層平（每跌破一單開倉價平一成）']]],['step','依單數平：每單平幾成','num',0.01,1,0.0001,'0.1＝1 單平 10%、10 單平 100%；剩下的停損移到出場那根 K 低點'],['tpBE','部分出場後，剩下的單停損移到各自進場價（尾端保本）','chk'],['tpTrail','部分出場後，剩下的停損移到那根 K 低點（比保本更緊）','chk'],['brkN','創新高回看（1h 根數）','num',12,720,12,'168＝7 天'],['pocH','POC 計算區間（1h 根數）','num',24,720,24,'168＝7 天'],['vr','量比門檻（倍）','num',1,20,0.5,'這根量 ÷ 前 7 天中位數'],['body','實體 ≥ ATR 倍數','num',0,5,0.1,''],['addBrk','加倉突破回看（1h 根數，0＝跟第 1 單一樣）','num',0,720,6,'12＝收盤創 12 小時新高就加；第 1 單還是要 7 天新高'],['addVr','加倉量比門檻（0＝同上）','num',0,20,0.5,''],['vr1','第 1 單量比門檻（倍，0＝同上）','num',0,20,0.5,'只管每一波的第 1 單；加倉照上面的量比'],['sqz','第 1 單前 7 天高低差 ≤（0＝不看）','num',0,0.5,0.01,'0.08＝7 天內振幅 8% 以內才算盤整後突破'],['trend','第 1 單趨勢過濾','sel',[['none','不看'],['h4','4h 收在 EMA55 上、且 EMA55 上彎'],['d1','日線收在 EMA50 上']]],['closeTop','第 1 單收在 K 棒上緣（0＝不看）','num',0,1,0.05,'0.7＝收盤在這根 K 高低範圍的上 30%'],['cool','上一波結束後冷卻（小時，0＝不看）','num',0,720,12,''],['pocUp','POC 要比 N 根前高（0＝不看）','num',0,336,12,''],['maxExt','離 POC 不超過幾倍 ATR（0＝不看）','num',0,20,0.5,'避免追太遠'],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']]};
+   ['tp1Pct','第一段停利（%）','num',0,500,1,'到了先賣一部分，0＝不設'],['tp1Frac','第一段賣出比例','num',0.1,1,0.05,'0.5＝賣一半'],['partFrac','分批出場條件每次賣出比例','num',0.1,1,0.05,'分批出場條件出現時賣掉目前部位的幾成'],['funding','計資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ brk:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空（熊市才做）'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷'],['lev','真實槓桿（倍）','num',0.1,200,0.1,'進場名目＝權益×槓桿'],['n','突破回看（4h 根數）','num',6,360,6,'60 根＝10 天'],['body','實體 ≥ ATR 倍數','num',0,5,0.1,''],['vr','量比門檻（倍）','num',1,20,0.5,'這根量 ÷ 前 N 根中位數'],['vrWin','量比回看（根）','num',6,360,6,''],['atrN','ATR 長度（根）','num',2,100,1,''],['stopAtr','停損距離（ATR 倍數）','num',0.5,10,0.5,'多單停在進場價下方、空單停在上方'],['exitN','出場：跌破（空單：突破）前 N 根低（高）點','num',6,540,6,'60＝10 天、120＝20 天、180＝30 天'],['regime','牛市過濾','sel',[['none','不過濾（雙向時用週線）'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ box:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空（熊市才做）'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷'],['lev','真實槓桿上限（倍）','num',0.1,200,0.1,'總倉位名目 ÷ 權益的上限'],['sell','箱頂出場比例','sel',[[1,'100%'],[0.8,'80%'],[0.6,'60%'],[0.3,'30%'],[0,'0%（不出）']]],['k','箱體轉折（左右各 k 天）','num',2,20,1,''],['full','③ 破箱底影線收回重倉（槓桿上限的幾成）','num',0.05,1,0.05,''],['perBox','每一段在同一個箱子最多進幾次（0＝不限）','num',0,10,1,'1＝飛刀模式，每段只接一次'],['longExit','出場方式','sel',[['fail','收盤跌破箱體失敗線'],['w50','超長線：BTC 週線跌破 50 週線才出'],['ma200','超長線：BTC 200 日線轉下彎才出'],['never','超長線：不出場（只看爆倉）']]],['runExit','抓到波段後改用','sel',[['off','不改（照上面出場）'],['lowN','跌破前 N 天低點才出'],['entryBox','跌破進場時的箱底才出（不跟著新箱子上移）'],['k2','跌破大一級箱底（前後 k2 天轉折）'],['ema','日線收盤跌破 EMA N']],'抓到波段＝收盤站上進場時的箱頂'],['rN','長線：N 天','num',10,300,5,'跌破 N 天低點或 EMA N'],['k2','長線：大一級箱體 k2','num',5,90,5,''],['runNoAdd','抓到波段後不再加倉','chk'],['grade','信號分級（看離一年高點多遠）','chk'],['gNear','劣質：離一年高點不到幾 %','num',0,0.5,0.05,'0.15＝離高點 15% 以內，多半是高檔整理不是底'],['gC','劣質信號倉位倍數','num',0,1,0.1,'0＝不進'],['gDeep','優質：從一年高點跌超過幾 %','num',0.1,0.9,0.05,'威科夫吸籌通常在大跌之後'],['gA','優質信號倉位倍數','num',0.5,3,0.1,''],['gB','普通信號倉位倍數','num',0.1,2,0.1,''],['runBE','抓到波段後跌回成本價就出','chk'],['wickStop','停損設在反轉 K 的下影線底部','chk'],['wickBuf','影線停損再往下留多少','num',0,0.05,0.001,'0.01＝影線最低點下方 1%；打到就全部出場'],['stage','分段吸籌（前期低位小倉＋量縮加碼）','chk'],['sEarly','① 箱體前期低位小倉（幾成）','num',0,1,0.05,'箱底出現後 earlyD 天內、價格在箱子下半部，進一次'],['earlyD','前期＝箱底出現後幾天內','num',1,60,1,''],['lowZ','低位＝箱子由下往上的比例','num',0.1,1,0.05,'0.4＝箱子下面 40%'],['sVol','② 量縮加碼（幾成）','num',0,1,0.05,'在低位、而且 1 天均量 < 10 天量中位數 × 量縮門檻'],['vc','量縮門檻','num',0.2,1,0.05,'0.6＝量只剩平常 6 成'],['volCool','量縮加碼間隔（4h 根數）','num',1,60,1,'6＝1 天最多一次'],['touch','④ 碰到箱底區就先進（幾成，0＝不用）','num',0,1,0.05,'不用等下影線：價格一碰到「箱底＋下面的距離」就掛單小倉買；同一個箱底只進一次（除非下面設了間隔）'],['touchCool','碰箱底：每次碰都加，間隔幾根 4h（0＝同一個箱底只進一次）','num',0,60,1,'12＝每 2 天最多加一次'],['small','守住箱底小加倉（幾成）','num',0,1,0.05,''],['brk','跌破箱底至少','num',0,0.05,0.001,'0.003＝0.3%'],['near','箱底區：離箱底在','num',0,0.1,0.001,'0.03＝箱底上方 3% 以內就算碰到'],['wick','下影線 ≥ K 棒全長','num',0.1,0.9,0.05,'0.5＝一半'],['stopx','箱體失敗：收盤低於箱底','num',0.01,0.3,0.01,'0.08＝8%'],['regime','牛市過濾','sel',[['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎'],['none','不過濾（雙向時用週線）']]],['hmin','箱高下限','num',0,1,0.01,''],['hmax','箱高上限','num',0.05,3,0.05,''],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ dense:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['n1','短均線 EMA','num',5,100,1,''],['n2','中均線 EMA','num',10,200,1,''],['n3','長均線 EMA','num',20,400,1,''],['sq','密集門檻：三線價差 ≤ 價格的','num',0.005,0.2,0.005,'0.06＝三條均線最高最低差在 6% 以內'],['look','密集要發生在最近幾根內','num',1,100,1,''],['order','多單要 EMA短 > EMA中（空單相反）','chk'],['exit','出場','sel',[['c3','收盤穿過長均線'],['c2','收盤穿過中均線'],['x12','短均線穿過中均線'],['c1','收盤穿過短均線']]],['stopAtr','停損：三線最低點 − ATR 倍數（0＝不設）','num',0,10,0.5,''],['atrN','ATR 根數','num',5,60,1,''],['lev','真實槓桿（倍）','num',0.1,200,0.1,'進場倉位＝權益 × 槓桿'],['roll','滾倉（幣哥式：浮盈加倉）','chk'],['rollLev','滾倉後總槓桿上限（倍）','num',1,10,0.5,'加倉時把總倉位補到「當下權益 × 這個倍數」'],['rollStep','每順勢多少加一次','num',0.01,0.5,0.01,'0.05＝離上次進場／加倉價再走 5%'],['rollMax','最多加幾次','num',1,10,1,''],['rollSL','加倉後止損','sel',[['none','不動，照均線出場'],['prev','移到上一次加倉價'],['be','移到持倉均價（保本）']]],['tp','大漲先減倉、回調再補回','chk','回測多數組合變差，預設不開'],['tpX','收盤離短均線超過多少就減倉','num',0.05,1,0.01,'0.15＝高於 EMA短 15%'],['tpFrac','減掉幾成','num',0.1,0.9,0.05,''],['rePb','從高點回調多少補回（0＝回到短均線才補）','num',0,0.5,0.01,''],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ rib:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['entry','進場','sel',[['align','彩帶剛排好（EMA8>13>21>34>55）'],['pullback','彩帶排好後回踩 EMA21、收回 EMA8 上'],['both','剛排好＋回踩都進'],['cross','EMA8 穿過 EMA21，且收在 EMA55 上']]],['slope','EMA55 要上彎（比 N 根前高，0＝不看）','num',0,60,1,'10＝比 10 根前高才進'],['exit','出場','sel',[['c55','收盤跌破 EMA55'],['e13e34','EMA13 跌破 EMA34'],['e8e34','EMA8 跌破 EMA34'],['e8e21','EMA8 跌破 EMA21'],['c34','收盤跌破 EMA34'],['c21','收盤跌破 EMA21'],['unalign','彩帶不再排列']]],['stopAtr','停損：進場價 − ATR 倍數（0＝不設）','num',0,10,0.5,''],['atrN','ATR 根數','num',5,60,1,''],['lev','真實槓桿（倍）','num',0.1,200,0.1,'倉位＝權益 × 槓桿，不加倉'],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ knife:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','反轉 K 用哪個週期','sel',[['24','日線'],['4','4 小時']],'箱體一律用日線畫；4 小時＝在日線箱底找 4H 的反轉 K'],['k','箱體：前後幾天的轉折高低點','num',2,30,1,'預設 5；3～8 都穩，10 以上變差'],['near','碰箱底：低點在箱底上方幾 % 以內','num',0,0.1,0.005,''],['wick','下影線 ≥ 這根 K 全長的','num',0,1,0.05,'0.3＝30%'],['hmin','箱體高度最小','num',0,0.5,0.01,''],['hmax','箱體高度最大','num',0.1,2,0.05,''],['kStop','第 1 單停損','sel',[['wick','反轉 K 的影線底部'],['2N','進場價 − 2N（海龜原版）']]],['wickBuf','影線底部再往下留','num',0,0.05,0.001,'0.005＝0.5%'],['lev','槓桿上限（倍）','num',0.1,200,0.1,'倉位大小由停損距離決定，槓桿只是上限'],['risk','每單風險（權益比例）','num',0.005,0.1,0.005,'0.02＝停損打到虧權益 2%'],['maxU','最多幾單（海龜加倉）','num',1,10,1,''],['addN','每漲幾個 N 加一單','num',0.25,3,0.25,'原版 0.5N'],['stopN','加倉後停損＝最後一單 − 幾個 N','num',0.5,5,0.5,'只往上移、不往下'],['exitN','出場：跌破前幾根 K 低點','num',5,200,5,'S1＝10、S2＝20；4 小時要跟日線一樣長就 ×6（60／120）'],['split','分批出場（不加單時建議開，最多幾單設 1、每單風險調大）','chk'],['tp','分批 1：停利','sel',[['none','不停利'],['box','碰箱頂'],['1','賺 1R（R＝進場到停損）'],['1.5','賺 1.5R'],['2','賺 2R'],['3','賺 3R'],['5','賺 5R']],'開分批才有用'],['tpF','分批 1 出幾成','num',0.1,0.9,0.1,'0.3＝原始倉位 30%'],['xF','分批 2：跌破上面那個低點出幾成','num',0,1,0.1,'0.5＝原始倉位 50%'],['exitN2','分批 3：剩下的跌破前幾根 K 低點全出','num',10,200,5,''],['be','先出一點後停損移到進場價（保本）','chk'],['reent','保本被打掉後怎麼再進','sel',[['knife','等下一根飛刀信號'],['brk','飛刀信號或突破前 N 根高點（趨勢還沒破就追回來）']]],['reN','再進：突破前幾根高點','num',10,100,5,'選第二種才有用'],['atrN','N＝ATR 天數','num',5,60,1,''],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ tur:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['entry','系統','sel',[['s1','S1：突破前 20 根高點進、跌破前 10 根低點出'],['s2','S2：突破前 55 根高點進、跌破前 20 根低點出']]],['s1skip','S1 上一筆賺錢就跳過下一次突破（55 根突破仍會進）','chk'],['entryN','突破回看根數（S1＝20、S2＝55）','num',10,200,5,''],['exitN','出場回看根數（S1＝10、S2＝20）','num',5,100,5,''],['lev','槓桿上限（倍）','num',0.1,200,0.1,'總倉位名目 ÷ 權益的上限'],['risk','每單風險（權益比例）','num',0.005,0.1,0.005,'0.02＝打到 2N 停損虧權益 2%'],['maxU','最多幾單','num',1,10,1,'原版 4 單'],['addN','每漲幾個 N 加一單','num',0.25,3,0.25,'原版 0.5N'],['stopN','停損＝最後一單 − 幾個 N','num',0.5,5,0.5,'原版 2N；加倉時所有單的停損一起上移'],['atrN','N＝ATR 根數','num',5,60,1,'原版 20'],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']],
+ poc:[['lev','槓桿上限（倍）','num',0.1,200,0.1,'總倉位名目 ÷ 權益的上限'],['risk','每單風險（權益比例）','num',0.005,0.2,0.005,'0.05＝1/20：停損打到只虧權益 5%'],['maxU','一波最多幾單','num',1,20,1,''],['stopMode','停損位置','sel',[['poc','POC 下方 0.2%'],['atr','進場價 − ATR 倍數'],['pct','進場價 − 固定百分比'],['bar','突破那根 K 的低點']]],['stopAtr','ATR 倍數（停損選 ATR 時）','num',0.5,10,0.5,'1h ATR（24 根）'],['stopPct','百分比（停損選百分比時）','num',0.005,0.2,0.005,'0.02＝2%'],['trail','加倉時舊單停損','sel',[['be','移到保本（各自進場價）'],['all','全部移到新單的停損'],['none','不動']]],['be1R','走出 xR 後該單移保本','chk'],['beR','保本距離 x（R＝進場到停損）','num',0.25,5,0.25,'1＝走出 1 倍停損距離就保本'],['pb','第 1 單也可以：回踩 POC 附近後放量突破','chk'],['pbExt','回踩前要先走出 POC 上方幾 %','num',0,0.2,0.01,'0.04＝4%'],['pbNear','回踩：低點到 POC 上方幾 % 以內','num',0,0.05,0.005,''],['pbWin','回踩要在前幾小時內','num',12,336,12,''],['pbBrk','回踩後突破前幾小時高點就進','num',6,168,6,'原本要突破 168 小時高點'],['exit','出場訊號','sel',[['low1h','1h 收盤跌破前 N 根低點'],['ema4h','4h 收盤跌破 EMA10'],['none','不用（只看下面的「漲不上去」）']]],['stall','分批出場：短時間漲不上去','sel',[['off','不用'],['hi','N 小時沒創這波新高'],['roc','收盤沒比 N 小時前高']],'每觸發一次平 1/k，之後重新計時；跟上面的訊號誰先到算誰'],['stallN','漲不上去：N（小時）','num',6,336,6,'太短（24 以下）會太早下車'],['vex','分批出場：用量能判斷漲不上去','sel',[['off','不用'],['div','創這波新高但量不夠（量價背離）'],['dn','放量下跌'],['fade','N 小時沒新高、量一路縮']],'量＝這根 1h 量 ÷ 前 168 根中位數'],['vexR','量能門檻（倍）','num',0.3,8,0.1,'背離：低於這個算量不夠；放量下跌：高於這個算放量；萎縮：平均低於這個'],['vexN','萎縮：看前幾小時','num',6,168,6,''],['vexCool','量能出場後至少隔幾小時才能再觸發','num',1,72,1,''],['exitLow','N（1h 根數，出場訊號選 1h 時）','num',6,240,6,'24＝1 天'],['exitMode','出場時平多少','sel',[['lifo','開了 k 單，每次訊號平 1/k，最後加的先平'],['even','開了 k 單，每次訊號平 1/k，每單等比例'],['units','依單數平（開幾單平幾成）'],['all','全部平'],['ladder','回落逐層平（每跌破一單開倉價平一成）']]],['step','依單數平：每單平幾成','num',0.01,1,0.0001,'0.1＝1 單平 10%、10 單平 100%；剩下的停損移到出場那根 K 低點'],['tpBE','部分出場後，剩下的單停損移到各自進場價（尾端保本）','chk'],['tpTrail','部分出場後，剩下的停損移到那根 K 低點（比保本更緊）','chk'],['brkN','創新高回看（1h 根數）','num',12,720,12,'168＝7 天'],['pocH','POC 計算區間（1h 根數）','num',24,720,24,'168＝7 天'],['vr','量比門檻（倍）','num',1,20,0.5,'這根量 ÷ 前 7 天中位數'],['body','實體 ≥ ATR 倍數','num',0,5,0.1,''],['addBrk','加倉突破回看（1h 根數，0＝跟第 1 單一樣）','num',0,720,6,'12＝收盤創 12 小時新高就加；第 1 單還是要 7 天新高'],['addVr','加倉量比門檻（0＝同上）','num',0,20,0.5,''],['vr1','第 1 單量比門檻（倍，0＝同上）','num',0,20,0.5,'只管每一波的第 1 單；加倉照上面的量比'],['sqz','第 1 單前 7 天高低差 ≤（0＝不看）','num',0,0.5,0.01,'0.08＝7 天內振幅 8% 以內才算盤整後突破'],['trend','第 1 單趨勢過濾','sel',[['none','不看'],['h4','4h 收在 EMA55 上、且 EMA55 上彎'],['d1','日線收在 EMA50 上']]],['closeTop','第 1 單收在 K 棒上緣（0＝不看）','num',0,1,0.05,'0.7＝收盤在這根 K 高低範圍的上 30%'],['cool','上一波結束後冷卻（小時，0＝不看）','num',0,720,12,''],['pocUp','POC 要比 N 根前高（0＝不看）','num',0,336,12,''],['maxExt','離 POC 不超過幾倍 ATR（0＝不看）','num',0,20,0.5,'避免追太遠'],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']]};
 // 策略 7：BTC 版飛刀，出場改用量價規則
 BEST.knifeB={BTC:Object.assign({},BEST.knife.BTC,{exit:'volLow',vtf:0,vN:20,vx:2.5,shr:0.5,upN:1,vLow:0,reach:1,reVol:false,reent:'brk',reN:10})};BEST.knifeB.ETH=Object.assign({},BEST.knifeB.BTC,{k:5});
 PDEF.knifeB=(()=>{const a=PDEF.knife.slice(),k=a.findIndex(x=>x[0]==='exitN');a.splice(k,0,
@@ -2278,7 +2291,7 @@ PDEF.knifeB=(()=>{const a=PDEF.knife.slice(),k=a.findIndex(x=>x[0]==='exitN');a.
 BEST.my={BTC:{dir:'long',lev:10,risk:0.02,maxU:3,wyN:13,wyVx:1.5,wySym:'BTC',wyMode:'size',wyOff:0.5,sowExit:false,exitDist:false,distShort:false,setups:'brk,reclaim,hold,tri,dbl',pocH:168,vrWin:168,vx:3.5,brkN:168,near:0.005,ext:0.03,pbWin:48,kp:3,tol:0.015,stopAtr:2,maxStop:0.08,fbH:12,fbTol:0.005,beR:1,exitN:120,dblExit:false,cool:0,funding:true}};
 Object.assign(BEST.my.BTC,{h4b:true,h4N:30,slA:2,probe:1,ignWait:12,qSize:false,ignTh:1.46,ignSp:0.54,qW:[1.64,3.82],qM:[1.56,2.22]});
 BEST.my.ETH=Object.assign({},BEST.my.BTC,{vx:3,wyN:20,wyVx:1.4,h4b:true,qSize:true,ignTh:1.41,ignSp:0.55,qW:[1.19,3.25],qM:[1.39,1.94]});
-for(const st in BEST)for(const k in BEST[st])if(!('slip' in BEST[st][k]))BEST[st][k].slip=true;   // 滑價預設計入，可在參數頁取消勾選
+for(const st in BEST)for(const k in BEST[st]){const b=BEST[st][k];if(!('slip' in b))b.slip=true;if(!('comp' in b))b.comp=true}   // 滑價、複利預設開，可在參數頁取消勾選
 PDEF.my=[['dir','做多／做空','sel',[['long','只做多'],['both','多空都做（熊市做空）']],'回測：空單整體不賺，預設只做多'],
   ['wyMode','週線威科夫怎麼用','sel',[['size','決定倉位：牛市開大、其他開小'],['filter','當濾網：只有牛市才做多']],'牛＝SOS／JOC 之後；UTAD 之後算派發；SOW 之後算熊'],
   ['wyOff','非牛市時倉位打幾折','num',0,1,0.25,'0.5＝半倉；0＝不做（等於濾網）'],
@@ -2294,7 +2307,7 @@ PDEF.my=[['dir','做多／做空','sel',[['long','只做多'],['both','多空都
   ['pbWin','回踩後幾小時內收回才算','num',12,168,12,''],
   ['tol','雙重頂底／三角：兩個高低點差距','num',0.005,0.05,0.005,'0.015＝1.5% 以內算同一高度'],
   ['kp','4 小時轉折點：左右各幾根','num',2,6,1,''],
-  ['lev','槓桿上限（倍）','num',1,30,1,''],
+  ['lev','槓桿上限（倍）','num',0.1,200,0.1,''],
   ['risk','每單風險（權益比例）','num',0.005,0.1,0.005,'牛市用全額，非牛市乘上上面的折數'],
   ['maxU','一波最多幾單','num',1,8,1,'價格比上一單高才加'],
   ['stopAtr','放量突破的停損：ATR 倍數','num',0.5,5,0.5,'其他形態停在形態低點下方'],
@@ -2311,7 +2324,7 @@ PDEF.my=[['dir','做多／做空','sel',[['long','只做多'],['both','多空都
   ['probe','4h 收盤先進幾成（試倉）','num',0,1,0.25,'剩下的等 5 分點火再加；0＝只等點火才進、1＝收盤直接全倉'],
   ['ignWait','等 5 分點火最多幾小時','num',1,48,1,''],
   ['qSize','信號越強倉位越重（只影響 4h 突破單）','chk','依 4h 突破那根「漲幅×量比」和那根裡最強的 5 分 K，0～4 分對應 0.25／0.5／1／1.5／2 倍'],
-  ['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk']];
+  ['funding','計入資金費率','chk'],['slip','計入滑價（進出場各 0.02%，停損 0.03%）','chk'],['comp','複利（倉位照目前資金算；取消＝每次都照起始資金下單）','chk']];
 let pChart,eChart,pcs,pvs,eqs,bhs,lines=[],cur={},simBars=null,sDrawer;
 function initStrat(){
   pChart=LightweightCharts.createChart($('#priceChart'),chartOpts());
@@ -2375,12 +2388,15 @@ function buildParams(){
   const st=$('#sStrat').value,sym=$('#sSym').value;
   const best=BEST[st][sym];cur=Object.assign({},best,myP(st,sym));
   $('#params').innerHTML=(st==='cus'?Rules.html(cur):'')+PDEF[st].map(([k,lab,typ,a,b,step,hint])=>{
+    if(typ==='num'&&k==='lev')return `<div class="field levf"><label>${lab}</label><div class="levr"><input type="range" id="levR" min="0" max="200" step="0.5" value="${Math.min(200,cur[k])}" aria-label="槓桿"><input data-k="${k}" type="number" min="${a}" max="${b}" step="${step}" value="${cur[k]}"></div>${hint?`<div class="hint">${hint}；0.1～200 倍</div>`:''}</div>`;
     if(typ==='num')return `<div class="field"><label>${lab}</label><input data-k="${k}" type="number" min="${a}" max="${b}" step="${step}" value="${cur[k]}">${hint?`<div class="hint">${hint}</div>`:''}</div>`;
     if(typ==='sel')return `<div class="field"><label>${lab}</label><select data-k="${k}">${a.map(([v,t])=>`<option value="${v}" ${String(v)===String(cur[k])?'selected':''}>${t}</option>`).join('')}</select>${typeof b==='string'?`<div class="hint">${b}</div>`:''}</div>`;
     if(typ==='chk')return `<div class="field"><label><input data-k="${k}" type="checkbox" ${cur[k]?'checked':''}> ${lab}</label></div>`;}).join('');
   if(st==='cus')Rules.bind(st,sym);
   document.querySelectorAll('#params [data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;cur[k]=el.type==='checkbox'?el.checked:(el.tagName==='SELECT'&&isNaN(+el.value)?el.value:+el.value);setMyP(st,sym,cur);if(st==='cus'&&k==='dir')buildParams();schedule()});
-  renderExplain();SigLock.ui();
+  {const lr=$('#levR'),n=$('#params [data-k=lev]');if(lr&&n){const h=n.onchange;n.onchange=()=>{n.value=Math.min(200,Math.max(0.1,+n.value||1));lr.value=n.value;h()};
+    lr.oninput=()=>{n.value=Math.max(0.1,+lr.value)};lr.onchange=()=>{n.value=Math.max(0.1,+lr.value);n.onchange()}}}   // 槓桿：拉桿 0～200 倍，旁邊可以直接打數字
+  renderExplain();SigLock.ui();if(window.Opt)Opt.sel();
 }
 // 我的策略（存檔）：localStorage sigLock＝{ 'st|sym|id': 參數 }、sigLockName＝{ key: 名字 }、sigLockOff＝{ key: true（暫停通知）}（舊版 key 沒有 |id 也照用）
 // 推播後端照每台裝置存的參數另外算信號推給它；有存的策略＋幣不再收預設參數的信號。
@@ -2413,7 +2429,8 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
     pause=(k,v)=>{const P=paused();if(v)P[k]=true;else delete P[k];W('sigLockOff',P);window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset()},
     remove=k=>{const L=get();delete L[k];put(L);const N=names();delete N[k];W('sigLockName',N);pause(k,false);if(edit===k)edit=null;ui()},
     rename=(k,n)=>{const N=names();N[k]=n.slice(0,20);W('sigLockName',N);window.NotifyTab&&NotifyTab.sync()};
-  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit}})();window.SigLock=SigLock;
+  const editName=()=>{const e=editing();return e?(typeof e==='string'?name(e):e.name):null};
+  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit,editName}})();window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
@@ -2495,32 +2512,63 @@ $('#cmpBtn').onclick=()=>{if(cmpLines.length){cmpClear();$('#levTable').innerHTM
     $('#levTable').innerHTML=`<h3>策略對照（${sym}，同期間、同本金，其他策略用預設最佳參數）</h3><table class="cmpt"><tr><th>策略</th><th>倍數</th><th>回撤</th><th>報酬÷回撤</th></tr>${rows.map(([n,c,r])=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${c};vertical-align:middle;margin-right:6px"></i>${n.replace(/^\d+\.\s*/,'')}</td><td class="${r.mult>=1?'pos':'neg'}">${r.liq?'爆倉':fmt(r.mult,2)}</td><td>${pct(r.mdd)}</td><td>${r.liq?'—':fmt((r.mult-1)/Math.max(r.mdd,0.05),2)}</td></tr>`).join('')}</table><p class="small">下面權益圖：金色＝目前策略，彩色細線＝其他策略。改參數或換策略會自動取消對照。</p>`;
     $('#cmpBtn').textContent='取消策略對照';$('#cmpBtn').classList.add('on');
   }finally{$('#busy').style.display='none'}},10)};
-// 一鍵最佳化：槓桿不動，挑前 4 個數字參數，各試 ×0.5～×1.5，隨機組 40 組＋目前參數；分批算不卡畫面。
-// 排名用「報酬÷最大回撤」（回撤至少算 5%），爆倉的不列；點「套用」把那組參數填回去重算
-$('#optBtn').onclick=()=>{const st=$('#sStrat').value,sym=$('#sSym').value,box=$('#levTable'),btn=$('#optBtn');if(btn.disabled)return;
-  const defs=(PDEF[st]||[]).filter(d=>d[2]==='num'&&d[0]!=='lev'&&typeof cur[d[0]]==='number').slice(0,4);
-  if(!defs.length){box.innerHTML='<p class="small">這個策略沒有可以自動調的數字參數。</p>';return}
-  const snap=(d,v)=>{const [,, ,a,b,st_]=d;v=Math.min(b,Math.max(a,v));v=Math.round(v/st_)*st_;return +v.toFixed(6)};
-  const cand=defs.map(d=>[...new Set([0.5,0.75,1,1.25,1.5].map(f=>snap(d,cur[d[0]]*f)))]);
-  const seen=new Set(),combos=[defs.map(d=>cur[d[0]])];seen.add(combos[0].join());let guard=0;
-  while(combos.length<41&&guard++<2000){const c=cand.map(a=>a[Math.floor(Math.random()*a.length)]),k=c.join();if(!seen.has(k)){seen.add(k);combos.push(c)}}
-  const[t0,t1]=period(),cap=+$('#sCap').value||1000,res=[],c0=Object.assign({},cur),so=$('#sPeriod'),per=so.value==='custom'?null:so.options[so.selectedIndex].textContent;let i=0;btn.disabled=true;
-  const job=RunLog.job('找最佳參數・'+RunLog.sName(st)+'・'+sym,(per||tw(t0).slice(0,10)+' → '+tw(t1).slice(0,10))+'・共 '+combos.length+' 組');
-  const show=()=>{job.set(i/combos.length);box.innerHTML=`<h3>最佳化中 ${i}／${combos.length}…</h3><p class="small">每組都用同一段期間重跑回測。可以先離開這頁，到「‹ 全部策略 › 回測紀錄」看進度，跑完會標「完成」。</p>`};show();box.scrollIntoView({behavior:'smooth',block:'nearest'});
-  const step=()=>{const end=Math.min(combos.length,i+3);for(;i<end;i++){const c=combos[i],p=Object.assign({capital:cap},c0);defs.forEach((d,j)=>p[d[0]]=c[j]);
-      try{const r=simulate(st,sym,t0,t1,p);if(!r.liq)res.push({c,mult:r.mult,mdd:r.mdd,score:(r.mult-1)/Math.max(r.mdd,0.05),base:i===0})}catch(e){}}
-    if(i<combos.length){show();setTimeout(step,0);return}
-    btn.disabled=false;job.end();res.sort((a,b)=>b.score-a.score);const top=res.filter(r=>!r.base).slice(0,5),base=res.find(r=>r.base);
-    if(top[0]){const bp=Object.assign({},c0);defs.forEach((d,j)=>bp[d[0]]=top[0].c[j]);RunLog.add({kind:'opt',st,sym,t0,t1,per,cap,p:bp,mult:top[0].mult,mdd:top[0].mdd,base:base?{mult:base.mult,mdd:base.mdd}:null,cnt:combos.length})}
-    if($('#sStrat').value!==st||$('#sSym').value!==sym){box.innerHTML='';return}
-    const lab=d=>d[1].replace(/（.*?）/g,'');
-    // 每一名列成一張卡：參數名稱＋數值，跟目前不同的標黃並註明原本的值（手機上不用左右滑表格對欄位）
+// 策略內頁三個分頁（手機）：策略參數／績效／最佳參數；寬螢幕全部一起顯示
+const DTab=(()=>{const SV=$('#stratView');function set(d){SV.dataset.d=d;$('#dTab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.d===d));
+    if(d==='p'){const x=$('#sDet');if(x)x.open=true}if(d==='o')Opt.pane();SV.scrollTop=0;if(d==='r')setTimeout(()=>dispatchEvent(new Event('resize')),30)}
+  $('#dTab').addEventListener('click',e=>{const b=e.target.closest('button');if(b)set(b.dataset.d)});['#levBtn','#cmpBtn'].forEach(x=>$(x).addEventListener('click',()=>setTimeout(()=>set('r'),20)));SV.dataset.d='r';return {set}})();window.DTab=DTab;   // 各槓桿比較、策略對照的結果在「績效」
+// 一鍵最佳化：槓桿不動，在「策略參數」勾要調的數字參數（預設前 4 個），各試 ×0.5～×1.5，隨機組 40～60 組＋目前參數；分批算不卡畫面。
+// 按下去跳到「我的策略」顯示進度條和預估時間，跑完點卡片看「最佳參數」前 5 名，按「套用」填回參數。排名用「報酬÷最大回撤」（回撤至少算 5%），爆倉的不列
+const Opt=(()=>{const SEL={},RES={},JOBS=[];let lastP=0;
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const nums=st=>(PDEF[st]||[]).filter(d=>d[2]==='num'&&d[0]!=='lev'&&typeof cur[d[0]]==='number');
+  const lab=d=>d[1].replace(/（.*?）/g,'');
+  function sel(){const st=$('#sStrat').value,N=nums(st),box=$('#optSel');if(!box)return;if(!N.length){box.innerHTML='';return}
+    const S=SEL[st]||(SEL[st]=N.slice(0,4).map(d=>d[0]));
+    box.innerHTML=`<div class="small" style="margin-top:10px">要最佳化哪些參數（槓桿不動）</div><div class="optsel">${N.map(d=>`<label><input type="checkbox" value="${d[0]}"${S.includes(d[0])?' checked':''}>${esc(lab(d))}</label>`).join('')}</div>`;
+    box.querySelectorAll('input').forEach(x=>x.onchange=()=>{SEL[st]=[...box.querySelectorAll('input:checked')].map(y=>y.value)})}
+  const eta=s=>s<60?Math.max(1,Math.round(s))+' 秒':Math.round(s/60)+' 分鐘';
+  function paint(){const b=$('#optJobs');if(!b)return;
+    b.innerHTML=JOBS.map((j,k)=>{const f=j.i/j.n,el=(Date.now()-j.at)/1000,left=j.i?el/j.i*(j.n-j.i):NaN,t=RES[j.key];
+      return j.done?`<div class="ojob" data-k="${k}"><div class="h"><span>✅</span><b>找最佳參數完成・${esc(j.name)}・${j.sym}</b><button class="x" data-x="${k}" aria-label="關掉">✕</button></div>
+        <div class="sub">${t&&t.top[0]?`第 1 名報酬 ${fmt(t.top[0].mult,2)} 倍、回撤 ${pct(t.top[0].mdd)}${t.base?`（目前 ${fmt(t.base.mult,2)} 倍、${pct(t.base.mdd)}）`:''}`:'沒有找到不爆倉的組合'}</div><button class="btn ghost" data-go="${k}" style="width:100%">看最佳參數前 5 名 ›</button></div>`
+      :`<div class="ojob"><div class="h"><span class="spin"></span><b>找最佳參數中・${esc(j.name)}・${j.sym}</b><span style="color:var(--acc)">${Math.round(f*100)}%</span></div>
+        <div class="sub">${j.i}／${j.n} 組　${isFinite(left)?'預估還要 '+eta(left):'估算中…'}</div><div class="bar"><i style="width:${(f*100).toFixed(1)}%"></i></div></div>`}).join('')}
+  document.addEventListener('click',e=>{const x=e.target.closest('#optJobs [data-x]');if(x){JOBS.splice(+x.dataset.x,1);paint();return}
+    const g=e.target.closest('#optJobs [data-go]');if(!g)return;const j=JOBS[+g.dataset.go];if(!j)return;
+    const ss=$('#sSym');if(ss.value!==j.sym){ss.value=j.sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+j.st+'"]');if(b)b.click();DTab.set('o')});
+  function pane(){const st=$('#sStrat').value,sym=$('#sSym').value,box=$('#optPane'),r=RES[st+'|'+sym],run=JOBS.find(j=>!j.done&&j.key===st+'|'+sym);
+    if(!r){box.innerHTML=`<div class="card" style="padding:14px;line-height:1.7">${run?`正在找最佳參數（${run.i}／${run.n} 組），跑完會列在這裡。`:'還沒找過最佳參數。到「策略參數」勾要調的參數，按「一鍵找最佳參數」，跑完前 5 名會列在這裡，可以直接套用。'}</div>`;return}
+    const {defs,top,base}=r;
     const prm=(c,cmp)=>defs.map((d,j)=>{const ch=cmp&&c[j]!==cur[d[0]];return `<span class="op${ch?' ch':''}">${lab(d)} <b>${c[j]}</b>${ch?`<s>${cur[d[0]]}</s>`:''}</span>`}).join('');
-    const renderTop=()=>{box.innerHTML=`<h3>最佳參數前 5 名（槓桿 ${cur.lev??'—'} 倍不變）</h3><p class="small">排名＝報酬÷最大回撤。只是這段期間的回測，換期間可能就不是最好，建議換幾段期間比對再用。黃色＝跟目前不同的參數。</p>
+    box.innerHTML=`<div class="card" style="padding:12px 14px"><h3 style="margin:0 0 6px">最佳參數前 5 名（${esc(r.per)}，槓桿 ${r.lev??'—'} 倍不變）</h3><p class="small">排名＝報酬÷最大回撤，試了 ${r.cnt} 組。只是這段期間的回測，換期間可能就不是最好。黃色＝跟目前不同的參數。</p>
       <div class="optl">${base?`<div class="oc base"><div class="oh"><b>目前參數</b><span>報酬 ${fmt(base.mult,2)} 倍・回撤 ${pct(base.mdd)}</span></div><div class="ops">${prm(base.c,false)}</div></div>`:''}
-      ${top.map((r,k)=>`<div class="oc"><div class="oh"><b>第 ${k+1} 名</b><span>報酬 <i class="${r.mult>=1?'pos':'neg'}">${fmt(r.mult,2)}</i> 倍・回撤 ${pct(r.mdd)}</span><button class="btn ghost optUse" data-k="${k}">套用</button></div><div class="ops">${prm(r.c,true)}</div></div>`).join('')}</div>`;
-    box.querySelectorAll('.optUse').forEach(b=>b.onclick=()=>{const r=top[+b.dataset.k];defs.forEach((d,j)=>{cur[d[0]]=r.c[j];const inp=document.querySelector(`#params [data-k="${d[0]}"]`);if(inp)inp.value=r.c[j]});runSim();setTimeout(renderTop,80)})};renderTop()};
-  setTimeout(step,30)};
+      ${top.map((x,k)=>`<div class="oc"><div class="oh"><b>第 ${k+1} 名</b><span>報酬 <i class="${x.mult>=1?'pos':'neg'}">${fmt(x.mult,2)}</i> 倍・回撤 ${pct(x.mdd)}</span><button class="btn ghost optUse" data-k="${k}">套用</button></div><div class="ops">${prm(x.c,true)}</div></div>`).join('')||'<p class="small">這些組合都爆倉了，換參數或降槓桿再試。</p>'}</div></div>`;
+    box.querySelectorAll('.optUse').forEach(b=>b.onclick=()=>{const x=top[+b.dataset.k];defs.forEach((d,j)=>cur[d[0]]=x.c[j]);setMyP(st,sym,cur);buildParams();runSim();pane();
+      b.textContent='已套用';const t=$('#themeToast');if(t){t.textContent='已套用，到「績效」看回測';t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1600)}})}
+  function start(){const st=$('#sStrat').value,sym=$('#sSym').value,btn=$('#optBtn'),key=st+'|'+sym;if(btn.disabled)return;
+    if(JOBS.some(j=>!j.done&&j.key===key)){alert('這個策略正在找最佳參數');return}
+    const N=nums(st),S=SEL[st]||N.slice(0,4).map(d=>d[0]),defs=N.filter(d=>S.includes(d[0]));
+    if(!defs.length){alert(N.length?'先勾至少一個要最佳化的參數':'這個策略沒有可以自動調的數字參數。');return}
+    const snap=(d,v)=>{const [,, ,a,b,st_]=d;v=Math.min(b,Math.max(a,v));v=Math.round(v/st_)*st_;return +v.toFixed(6)};
+    const cand=defs.map(d=>[...new Set([0.5,0.75,1,1.25,1.5].map(f=>snap(d,cur[d[0]]*f)))]),want=defs.length>4?61:41;
+    const seen=new Set(),combos=[defs.map(d=>cur[d[0]])];seen.add(combos[0].join());let guard=0;
+    while(combos.length<want&&guard++<3000){const c=cand.map(a=>a[Math.floor(Math.random()*a.length)]),k=c.join();if(!seen.has(k)){seen.add(k);combos.push(c)}}
+    const[t0,t1]=period(),cap=+$('#sCap').value||1000,res=[],c0=Object.assign({},cur),so=$('#sPeriod'),per=so.value==='custom'?tw(t0).slice(0,10)+' → '+tw(t1).slice(0,10):so.options[so.selectedIndex].textContent;
+    const name=SigLock.editName()||RunLog.sName(st),j={key,st,sym,name,i:0,n:combos.length,at:Date.now(),done:false};
+    JOBS.unshift(j);const job=RunLog.job('找最佳參數・'+RunLog.sName(st)+'・'+sym,per+'・共 '+combos.length+' 組');
+    btn.disabled=true;btn.innerHTML='<span class="spin"></span>開始計算…';
+    setTimeout(()=>{btn.disabled=false;btn.textContent='一鍵找最佳參數';StratNav.pick(true);$('#sTab [data-t="mine"]').click();paint()},500);   // 轉一下圈就跳到「我的策略」看進度
+    const step=()=>{const end=Math.min(combos.length,j.i+3);for(;j.i<end;j.i++){const c=combos[j.i],p=Object.assign({capital:cap},c0);defs.forEach((d,k)=>p[d[0]]=c[k]);
+        try{const r=simulate(st,sym,t0,t1,p);if(!r.liq)res.push({c,mult:r.mult,mdd:r.mdd,score:(r.mult-1)/Math.max(r.mdd,0.05),base:j.i===0})}catch(e){}}
+      job.set(j.i/j.n);const now=Date.now();if(now-lastP>250){lastP=now;paint()}
+      if(j.i<combos.length){setTimeout(step,0);return}
+      job.end();res.sort((a,b)=>b.score-a.score);const top=res.filter(r=>!r.base).slice(0,5),base=res.find(r=>r.base);
+      RES[key]={defs,top,base,per,cnt:combos.length,lev:c0.lev};j.done=true;paint();
+      if(top[0]){const bp=Object.assign({},c0);defs.forEach((d,k)=>bp[d[0]]=top[0].c[k]);RunLog.add({kind:'opt',st,sym,t0,t1,per:so.value==='custom'?null:per,cap,p:bp,mult:top[0].mult,mdd:top[0].mdd,base:base?{mult:base.mult,mdd:base.mdd}:null,cnt:combos.length})}
+      if($('#stratView').dataset.d==='o')pane()};
+    setTimeout(step,30)}
+  $('#optBtn').onclick=start;
+  return {sel,paint,pane}})();window.Opt=Opt;
 // 策略 6 只給 ETH 用：選它就切到 ETH、BTC 藏起來
 function lockSym(){const st=$('#sStrat').value,only=st==='knife'?'ETH':st==='knifeB'?'BTC':'',ss=$('#sSym');[...ss.options].forEach(o=>o.hidden=!!only&&o.value!==only);if(only&&ss.value!==only)ss.value=only;ss.dispatchEvent(new Event('sync'))}
 $('#sStrat').onchange=()=>{lockSym();buildParams();runSim()};
@@ -2656,14 +2704,14 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
   function syncSym(){const st=$('#maSt'),sy=$('#maSym');if(!st||!sy)return;const o=ONLY[st.value];[...sy.options].forEach(x=>x.disabled=!!o&&x.value!==o||!BEST[st.value][x.value]);if(sy.selectedOptions[0].disabled)sy.value=[...sy.options].find(x=>!x.disabled).value}
   function render(){count();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
-    const top=`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
-    if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();return}
+    const top=`<div id="optJobs"></div><button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
+    if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     box().innerHTML=top+`<p class="mtip">${sigOn()?'通知會照每張卡的參數推播，App 關著也收得到。':'<b>還沒開通知</b>：到「通知」打開「策略信號」，下面開著通知的策略才會推播。'}</p>`+ks.map(k=>{const[st,sym]=SigLock.part(k);
       return `<div class="card mys" data-k="${esc(k)}"><div class="hd"><b>${esc(SigLock.name(k))}</b><span class="sym">${sym}</span><span class="small" style="color:var(--muted);font-weight:500">通知</span><button class="sw${P[k]?'':' on'}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div>
         <div class="small" style="color:var(--muted);margin-top:2px">${esc(st==='cus'?Rules.sum(L[k]):SigLock.nm(st))}</div>
         <div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div><div class="mnow small">計算中…</div>
         <div class="btnrow"><button class="btn ghost" data-a="open">打開調整</button><button class="btn ghost" data-a="ren">改名</button><button class="btn ghost" data-a="del">移除</button></div></div>`}).join('');
-    syncSym();
+    syncSym();window.Opt&&Opt.paint();
     let i=0;const step=()=>{if(i>=ks.length)return;const k=ks[i++],[st,sym]=SigLock.part(k),c=box().querySelector(`.mys[data-k="${CSS.escape(k)}"]`);
       if(c)try{const r=stats(st,sym,L[k]),m=c.querySelectorAll('.mst b'),cls=x=>x>=1?'pos':'neg';
         m[0].innerHTML=r.all.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.all.mult)}">×${fmt(r.all.mult,2)}</span>`;m[1].textContent=pct(r.all.mdd);
@@ -2673,7 +2721,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   // 到參數頁：帶入參數（p＝null 用預設最佳參數），標記正在編輯哪一個
   function goEdit(st,sym,p,ed){setMyP(st,sym,Object.assign({},BEST[st][sym],p||{}));const same=$('#sStrat').value===st&&$('#sSym').value===sym;
     const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+st+'"]');if(b)b.click();
-    if($('#sStrat').value!==st){$('#sStrat').value=st;$('#sStrat').dispatchEvent(new Event('change'))}if(same){buildParams();runSim()}SigLock.setEdit(ed);const d=$('#sDet');if(d)d.open=true}   // 第 3 步：直接打開參數區
+    if($('#sStrat').value!==st){$('#sStrat').value=st;$('#sStrat').dispatchEvent(new Event('change'))}if(same){buildParams();runSim()}SigLock.setEdit(ed);const d=$('#sDet');if(d)d.open=true;window.DTab&&DTab.set('p')}   // 第 3 步：直接打開參數區
   document.addEventListener('change',e=>{if(e.target.id==='maSt')syncSym();if(e.target.id==='maDir'){const k=keep();dir=e.target.value;render();k()}});
   const keep=()=>{const v={sym:$('#maSym')&&$('#maSym').value,dir:$('#maDir')&&$('#maDir').value,name:$('#maName')&&$('#maName').value};
     return ()=>{if(v.sym&&$('#maSym'))$('#maSym').value=v.sym;if(v.dir&&$('#maDir'))$('#maDir').value=v.dir;if(v.name&&$('#maName'))$('#maName').value=v.name;syncSym()}};
@@ -2942,7 +2990,7 @@ $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
   const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   list.innerHTML='<div class="hd">範例策略：點一個看回測，或到「我的策略」新增自己的</div>'+[...sel.options].map(o=>{const m=o.textContent.match(/^(\d+)\.\s*(.*)$/)||[0,'',o.textContent],I=INFO[o.value]||['',[]];
     return `<button class="scard" type="button" data-v="${o.value}"><span class="no">${m[1]}</span><span class="bd"><span class="nm">${esc(m[2])}</span>${I[0]?`<span class="ds" style="display:block">${esc(I[0])}</span>`:''}<span class="tg">${I[1].map(t=>`<span>${esc(t)}</span>`).join('')}</span></span><span class="ar" aria-hidden="true">›</span></button>`}).join('');
-  const pick=on=>{SV.classList.toggle('picking',on);SV.scrollTop=0;if(!on)setTimeout(()=>dispatchEvent(new Event('resize')),30)};
+  const pick=on=>{SV.classList.toggle('picking',on);SV.scrollTop=0;if(!on){window.DTab&&DTab.set('r');setTimeout(()=>dispatchEvent(new Event('resize')),30)}};window.StratNav={pick};
   list.addEventListener('click',e=>{const b=e.target.closest('.scard');if(!b)return;if(sel.value!==b.dataset.v){sel.value=b.dataset.v;sel.dispatchEvent(new Event('change'))}pick(false)});
   $('#sBackBtn').onclick=()=>pick(true);
   // 從底部「策略分析」進來一律先看清單
