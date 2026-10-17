@@ -2526,6 +2526,8 @@ function drawSim(st,sym,t0,t1,r,p){
   eqs.setData(r.eq.map(([t,v])=>({time:t+TZ,value:Math.max(v,1e-6)})));
   const c0=B.C[lowerB(B.T,t0)];bhs.setData(r.eq.map(([t,v])=>{const k=lowerB(B.T,t-E.H4);return{time:t+TZ,value:p.capital*B.C[Math.min(k,B.C.length-1)]/c0}}));
   pChart.timeScale().setVisibleRange({from:t0+TZ,to:t1+TZ});eChart.timeScale().fitContent();sDrawer&&sDrawer.reload();
+  // 從今日訊號點進來：把最新（今天）那根 K 線放在圖的正中間
+  if(Date.now()<(window.__focusToday||0)&&cd.length){const L=cd.length-1,N=45;setTimeout(()=>{try{pChart.timeScale().setVisibleLogicalRange({from:L-N,to:L+N})}catch(e){}},0)}
   // 統計
   const PO=st==='my'||st==='poc'||st==='tur'||(st==='knife'||st==='knifeB'),pw=PO?r.trades.filter(x=>x.pnl>0).length:0,pu=PO&&r.trades.length?r.trades.reduce((a,x)=>a+x.n,0)/r.trades.length:0;
   const BR=st==='brk'||st==='rib'||st==='dense'||st==='cus',tr=BR?r.trades:r.trades.filter(x=>!ADD.includes(x.type));
@@ -2756,7 +2758,7 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}${x.my?' 🔒':''}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
   // 點一列：跳到策略分析的那個策略、那個幣
   document.addEventListener('click',e=>{const sw=e.target.closest('#sigBox .sw[data-n]');if(sw){e.stopPropagation();const k=sw.dataset.n,P=SigLock.paused(),on=!!P[k];SigLock.pause(k,!on);sw.classList.toggle('on',on);sw.setAttribute('aria-checked',on);return}
-    const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
+    const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){window.__focusToday=Date.now()+4000;$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
     $('#nav_strat').click();const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+c.dataset.st+'"]');if(b)b.click()});
   return {open,one,nm,md,reset(){key=''}}})();
 window.SigTab=SigTab;
