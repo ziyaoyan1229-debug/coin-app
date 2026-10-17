@@ -1,4 +1,4 @@
-# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、MSTR／MSTU 美股盤中 1 小時 K（MSTR_1h.csv、MSTU_1h.csv）、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json）、策略信號（sig_notify.js）、Telegram 推播（tg_notify.py），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
+# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、scripts/markets.json 列的多幣種日 K（data/d/）、MSTR／MSTU 美股盤中 1 小時 K（MSTR_1h.csv、MSTU_1h.csv）、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json）、策略信號（sig_notify.js）、Telegram 推播（tg_notify.py），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
 name: klines
 on:
   schedule:
@@ -24,6 +24,12 @@ jobs:
           sparse-checkout-cone-mode: false
       - name: 抓 K 線
         run: python3 scripts/fetch_klines.py out/data
+      - name: 多幣種日 K（主流幣、熱門幣、美股、原物料；給網站「查看價格 › 更多」；舊檔先拿回來只補最近幾天；失敗不影響 K 線）
+        continue-on-error: true
+        run: |
+          git fetch -q --depth 1 origin data || true
+          git archive origin/data data/d 2>/dev/null | tar -x -C out 2>/dev/null || true
+          python3 scripts/fetch_daily.py out/data
       - name: 算模擬盤（給網站「模擬盤」分頁；失敗不影響 K 線）
         continue-on-error: true
         run: |

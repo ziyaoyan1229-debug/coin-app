@@ -137,6 +137,15 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 .coins::-webkit-scrollbar{display:none}
 .coin{flex:none;min-width:142px;scroll-snap-align:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;cursor:pointer;text-align:left;color:var(--text);display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;align-items:center;transition:transform .12s}
 .coin:active{transform:scale(.97)}
+.coin.more{min-width:118px}
+#xmSheet{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center}#xmSheet.on{display:flex}
+#xmSheet .xbox{background:var(--panel);border:1px solid var(--line);border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:82vh;display:flex;flex-direction:column;padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
+#xmSheet .xhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#xmSheet .xhd .x{background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer}
+#xmQ{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;margin-bottom:8px}
+#xmTab{display:flex;gap:4px;margin-bottom:6px}#xmTab button{flex:1}
+#xmList{overflow-y:auto;flex:1;min-height:200px}
+.xrow{display:grid;grid-template-columns:64px minmax(0,1fr) auto 62px;gap:8px;align-items:center;width:100%;padding:10px 4px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--text);text-align:left;cursor:pointer;font-size:14px}
+.xrow .xs{font-weight:700}.xrow .xn{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xrow .xp{font-variant-numeric:tabular-nums}.xrow .xc{text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums}
 .coin.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
 .coin .ic{grid-row:1/3;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
 .coin .nm{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2061,7 +2070,7 @@ function stkHourBars(rows,tf){const o={T:[],O:[],H:[],L:[],C:[],V:[],F:[]};let d
     if(tf===3600||k%4===0){o.T.push(t);o.O.push(op);o.H.push(hi);o.L.push(lo);o.C.push(cl);o.V.push(vo);o.F.push(0)}
     else{const j=o.T.length-1;o.H[j]=Math.max(o.H[j],hi);o.L[j]=Math.min(o.L[j],lo);o.C[j]=cl;o.V[j]+=vo}}
   return o}
-const symName=s=>cvIntra&&s===cvSym?s+'（美股盤中）':({BTC:'BTCUSDT',ETH:'ETHUSDT',MSTR:'MSTR（收盤價）',MSTU:'MSTU（收盤價）',MSTR_MSTU:'MSTR＋MSTU（指數，畫面最左邊＝1）'})[s]||s;
+const symName=s=>/^X:/.test(s)?(i=>i?`${i.name}（${s.slice(2)}）`:s.slice(2))(window.XM&&XM.info(s.slice(2))):cvIntra&&s===cvSym?s+'（美股盤中）':({BTC:'BTCUSDT',ETH:'ETHUSDT',MSTR:'MSTR（收盤價）',MSTU:'MSTU（收盤價）',MSTR_MSTU:'MSTR＋MSTU（指數，畫面最左邊＝1）'})[s]||s;
 // 股票只有每日收盤價：開＝前一天收，高低＝開收較大／較小。週線從週一開始
 function stockBars(sym,tf){const S=window.STK[sym],n=S.d.length,o={T:[],O:[],H:[],L:[],C:[],V:[],F:[],k:[]};let cur=-1,prev=null;
   for(let i=0;i<n;i++){const c=S.c[i];if(c==null)continue;const t=S.d[i]*86400,op=prev==null?c:prev;prev=c;
@@ -2155,8 +2164,9 @@ function legendVals(p){const o=IND(),v=(s)=>{if(!p)return null;const x=p.seriesD
   const items=[];if(cvSym==='MSTR_MSTU'){const a=v(xs.MSTU),b=v(xs.MSTUS);items.push(one(a==null&&b!=null?'MSTU 指數（上市前模擬，虛線）':'MSTU 指數','#f5a524',a==null?b:a,3));items.push(one('BTC 指數','#9aa3b2',v(xs.BTCI),3))}
   document.querySelectorAll('#indPanel [data-ind]').forEach(x=>{const k=x.dataset.ind;if(x.checked&&R[k]){const h=R[k]();if(h)items.push(h)}});
   $('#indLegend').innerHTML=items.join('')||''}
-function showOhlc(d,p){if(!d){const n=cvBars&&cvBars.T.length;if(!n)return;const i=n-1;$('#ohlc').innerHTML=`${symName(cvSym)} ${tfName(cvTf)}　最新 ${STKSYM(cvSym)&&!cvIntra?tw(cvBars.T[i]).slice(0,10):tw(cvBars.T[i])}　收 <b>${fmt(cvBars.C[i],cvSym==='MSTR_MSTU'?3:1)}</b>`;legendVals(null);return}
-  const ch_=d.close/d.open-1;$('#ohlc').innerHTML=`${STKSYM(cvSym)&&!cvIntra?tw(p.time-TZ).slice(0,10)+(cvSym==='MSTU'&&p.time-TZ<STK.MSTU.d[STK.MSTU.sim]*86400?'（上市前模擬：2×MSTR－費用）':cvSym==='MSTR_MSTU'?'（MSTR 指數）':'（收盤價合成 K 棒）'):tw(p.time-TZ)}　開 ${fmt(d.open,cvSym==='MSTR_MSTU'?3:1)}　高 ${fmt(d.high,cvSym==='MSTR_MSTU'?3:1)}　低 ${fmt(d.low,cvSym==='MSTR_MSTU'?3:1)}　收 <b class="${ch_>=0?'pos':'neg'}">${fmt(d.close,cvSym==='MSTR_MSTU'?3:1)}</b>　${(ch_*100).toFixed(2)}%`;legendVals(p)}
+const ohD=()=>cvSym==='MSTR_MSTU'?3:cvPrec>2?cvPrec:1;let cvPrec=2;
+function showOhlc(d,p){if(!d){const n=cvBars&&cvBars.T.length;if(!n)return;const i=n-1;$('#ohlc').innerHTML=`${symName(cvSym)} ${tfName(cvTf)}　最新 ${STKSYM(cvSym)&&!cvIntra?tw(cvBars.T[i]).slice(0,10):tw(cvBars.T[i])}　收 <b>${fmt(cvBars.C[i],ohD())}</b>`;legendVals(null);return}
+  const ch_=d.close/d.open-1;$('#ohlc').innerHTML=`${STKSYM(cvSym)&&!cvIntra?tw(p.time-TZ).slice(0,10)+(cvSym==='MSTU'&&p.time-TZ<STK.MSTU.d[STK.MSTU.sim]*86400?'（上市前模擬：2×MSTR－費用）':cvSym==='MSTR_MSTU'?'（MSTR 指數）':'（收盤價合成 K 棒）'):tw(p.time-TZ)}　開 ${fmt(d.open,ohD())}　高 ${fmt(d.high,ohD())}　低 ${fmt(d.low,ohD())}　收 <b class="${ch_>=0?'pos':'neg'}">${fmt(d.close,ohD())}</b>　${(ch_*100).toFixed(2)}%`;legendVals(p)}
 // K 線上標策略買賣點：用「今日訊號」同一套預設參數回測最近兩年，把進出場標在目前的週期上
 const SOC={};
 // 策略買賣點旁的「自動縮放」「刪除」：直接按繪圖工具列裡的同一顆，刪除跟著它能不能按
@@ -2184,15 +2194,20 @@ async function drawChart(fit){
   const minute=cvTf<3600;$('#monthWrap').style.display=minute?'':'none';$('#rangeWrap').style.display=minute?'none':'';
   let B;msg('');
   cvIntra=false;
+  if(/^X:/.test(cvSym)){const want=cvSym+cvTf,xs_=cvSym.slice(2);if(!cvBars||!cvBars.x)msg('讀取資料…');
+    try{B=await window.XM.bars(xs_,cvTf)}catch(e){if(cvTf<86400){msg(`${xs_} 沒有 1H／4H 即時資料，先顯示日線。`);setTimeout(()=>msg(''),2500);cvTf=86400;$('#cvTf').value='86400';$('#cvTf').dispatchEvent(new Event('sync'));try{B=await window.XM.bars(xs_,cvTf)}catch(e2){}}
+      if(!B){msg(`${xs_} 的資料暫時抓不到（排程第一次跑完後就會有）。`);cs.setData([]);vs.setData([]);fs.setData([]);Object.values(ind).forEach(s=>s.setData([]));cvBars=null;return}}
+    if(want!==cvSym+cvTf)return;B.x=1;msg('')}
   if(stk&&STKI(cvSym,cvTf)){const want=cvSym+cvTf;msg('讀取盤中資料…');
     try{const rows=await stkHourRows(cvSym);if(want!==cvSym+cvTf)return;B=stkHourBars(rows,cvTf);cvIntra=true;msg('')}
     catch(e){msg(`${cvSym} 盤中資料暫時抓不到，先顯示日線。`);setTimeout(()=>msg(''),2500);cvTf=86400;$('#cvTf').value='86400';$('#cvTf').dispatchEvent(new Event('sync'))}}
   if(stk&&!B)B=stockBars(cvSym==='MSTU'?'MSTU':'MSTR',cvTf);
   if(cvSym==='MSTR_MSTU'&&!cvIntra)B=idxBars(B);   // MSTR＋MSTU 用指數比（MSTU 上市日＝1），不直接比價格：MSTU 的調整後價格是反向合併還原後的數字，跟券商顯示的不同
-  else if(minute){const ym=$('#cvMonth').value;msg('讀取分鐘資料…');
+  else if(minute&&!B){const ym=$('#cvMonth').value;msg('讀取分鐘資料…');
     try{const ms=[];try{ms.push(await loadMonth(cvSym,prevMonth(ym)))}catch(e){}ms.push(await loadMonth(cvSym,ym));B=minuteBars(cvSym,cvTf,ms);msg('')}
     catch(e){msg(`找不到 ${cvSym} ${ym} 的分鐘資料檔。<br><span class="small">分鐘資料放在 D:\\binance_data\\app_build\\m1\\</span>`);cs.setData([]);vs.setData([]);fs.setData([]);Object.values(ind).forEach(s=>s.setData([]));cvBars=null;return}}
-  else if(!stk)B=hourBars(cvSym,cvTf);
+  else if(!stk&&!B)B=hourBars(cvSym,cvTf);
+  {const lv=B.C[B.C.length-1]||1,pr=cvSym==='MSTR_MSTU'?3:lv<0.0001?8:lv<0.01?6:lv<1?5:lv<10?4:2;if(pr!==cvPrec){cvPrec=pr;cs.applyOptions({priceFormat:{type:'price',precision:pr,minMove:+(10**-pr).toFixed(pr)}})}}
   cvBars=B;const n=B.T.length,o=IND(),cd=new Array(n),vd=[],fd=[];
   for(let i=0;i<n;i++){const t=B.T[i]+TZ;cd[i]={time:t,open:B.O[i],high:B.H[i],low:B.L[i],close:B.C[i]};if(cvSym==='MSTU'&&!cvIntra&&B.k&&B.k[i]<STK.MSTU.sim){const g=B.C[i]>=B.O[i]?'rgba(139,149,167,.75)':'rgba(139,149,167,.4)';cd[i].color=g;cd[i].wickColor=g;cd[i].borderColor=g}
     if(o.VOL&&(!stk||cvIntra))vd.push({time:t,value:B.V[i],color:B.C[i]>=B.O[i]?'rgba(38,166,154,.45)':'rgba(239,83,80,.45)'});
@@ -3027,7 +3042,7 @@ async function syncAll(){if(syncing)return;syncing=true;
     const sk=(await Promise.all(['MSTR','MSTU'].map(syncStk))).some(Boolean);
     try{await loadMstrMeta();extendMstr()}catch(e){console.warn('MSTR 基本面延伸失敗',e)}
     if(sk){delete DD.MSTR;delete DD.MSTU;const s=$('#cvSym').value;if((s==='MSTR'||s==='MSTU'||s==='MSTR_MSTU')&&window.__redraw)window.__redraw()}
-    await fetchLive();renderCoins();if(started)$('#snapBox').innerHTML=snapCards()}
+    await fetchLive();if(XM.recent().length)await XM.ticks().catch(()=>{});renderCoins();if(/^X:/.test($('#cvSym').value)&&window.__redraw)window.__redraw();if(started)$('#snapBox').innerHTML=snapCards()}
   finally{syncing=false}}
 
 // ── 幣種卡片 ──
@@ -3042,12 +3057,78 @@ function spark(cv,C,up){const w=cv.clientWidth||44,h=cv.clientHeight||18,r=devic
   const col=getComputedStyle(document.documentElement).getPropertyValue(up?'--up':'--down').trim();
   g.beginPath();C.forEach((v,i)=>i?g.lineTo(x(i),y(v)):g.moveTo(x(i),y(v)));g.strokeStyle=col;g.lineWidth=1.4;g.stroke();
   g.lineTo(w,h);g.lineTo(0,h);g.closePath();const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,col+'40');gr.addColorStop(1,col+'00');g.fillStyle=gr;g.fill()}
+// ── 更多標的（主流幣、熱門幣、美股、原物料）：日 K 由 GitHub 排程每 15 分鐘存到 data 分支 data/d/；即時與 1H／4H 由手機直接向幣安拿 ──
+const XM=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/d/',CATS=['主流','熱門','美股','原物料'];
+  // 美股、原物料：幣安永續合約的代號可能不同，從合約清單找（找不到就只有日 K）
+  const ALIAS={XAU:['XAU','GOLD'],XAG:['XAG','SILVER'],WTI:['CL','WTI','USOIL','OIL'],BRENT:['BZ','BRENT','UKOIL']};
+  let IDX=null,idxAt=0,PERP=null,TK={},tkAt=0;const DLY={},esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const ls=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+  async function list(){if(IDX&&Date.now()-idxAt<300000)return IDX;
+    try{const r=await fetch(URL+'index.json',{cache:'no-store'});if(r.ok){IDX=(await r.json()).list;idxAt=Date.now();ls('xmIdx',IDX)}}catch(e){}
+    if(!IDX)IDX=ls('xmIdx')||[];return IDX}
+  const info=s=>(IDX||ls('xmIdx')||[]).find(x=>x.s===s);
+  async function perps(){if(PERP)return PERP;const c=ls('xmPerp');if(c&&Date.now()-c.at<86400000)return PERP=c.m;
+    const m={};try{const j=await getJ(['https://fapi.binance.com/fapi/v1/exchangeInfo']);if(j&&j.symbols){const S=j.symbols.filter(x=>x.quoteAsset==='USDT'&&x.status==='TRADING');
+      for(const it of (IDX||[]).filter(x=>x.src!=='bn')){const want=ALIAS[it.s]||[it.s];const f=S.find(x=>want.includes(x.baseAsset));if(f)m[it.s]=f.symbol}
+      ls('xmPerp',{at:Date.now(),m})}}catch(e){}return PERP=m}
+  async function ticks(){if(Date.now()-tkAt<20000)return TK;const L=await list(),bn=L.filter(x=>x.src==='bn').map(x=>x.s+'USDT'),P=await perps();
+    const a=bn.length?await getJ(['https://data-api.binance.vision/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(bn)),'https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(bn))]):null;
+    const pv=Object.values(P),b=pv.length?await getJ(['https://fapi.binance.com/fapi/v1/ticker/24hr']):null;
+    const T={};(a||[]).forEach(x=>T[x.symbol.replace(/USDT$/,'')]={px:+x.lastPrice,ch:+x.priceChangePercent/100});
+    if(b)for(const s in P){const x=b.find(y=>y.symbol===P[s]);if(x)T[s]={px:+x.lastPrice,ch:+x.priceChangePercent/100,perp:1}}
+    if(a||b){TK=T;tkAt=Date.now()}return TK}
+  const pf=v=>fmt(v,v<0.01?8:v<1?5:v<10?4:2);
+  const quote=s=>{const t=TK[s],i=info(s);return t?t:i?{px:i.px,ch:i.ch}:null};
+  async function daily(s){const c=DLY[s];if(c&&Date.now()-c.at<300000)return c.B;
+    const r=await fetch(URL+s+'.csv',{cache:'no-store'});if(!r.ok)throw new Error('no data');
+    const B={T:[],O:[],H:[],L:[],C:[],V:[]};for(const ln of (await r.text()).trim().split('\n').slice(1)){const a=ln.split(',');B.T.push(+a[0]);B.O.push(+a[1]);B.H.push(+a[2]);B.L.push(+a[3]);B.C.push(+a[4]);B.V.push(+a[5])}
+    if(!B.T.length)throw new Error('empty');DLY[s]={B,at:Date.now()};return B}
+  const kl=r=>({t:r[0]/1000,o:+r[1],h:+r[2],l:+r[3],c:+r[4],v:+r[7]});
+  async function klines(s,iv,start){const i=info(s),q=start?`&startTime=${start*1000}`:'';
+    if(!i||i.src==='bn')return (await getJ([`https://data-api.binance.vision/api/v3/klines?symbol=${s}USDT&interval=${iv}&limit=1000${q}`,`https://api.binance.com/api/v3/klines?symbol=${s}USDT&interval=${iv}&limit=1000${q}`])||[]).map(kl);
+    const P=await perps();if(!P[s])return null;return (await getJ([`https://fapi.binance.com/fapi/v1/klines?symbol=${P[s]}&interval=${iv}&limit=1000${q}`])||[]).map(kl)}
+  const intra=s=>{const i=info(s);return !i||i.src==='bn'||!PERP||!!PERP[s]};
+  async function bars(s,tf){await list();
+    if(tf<86400){const k=await klines(s,tf===3600?'1h':tf===7200?'2h':tf===14400?'4h':'8h');if(!k||!k.length)throw new Error('intra');
+      return{T:k.map(x=>x.t),O:k.map(x=>x.o),H:k.map(x=>x.h),L:k.map(x=>x.l),C:k.map(x=>x.c),V:k.map(x=>x.v),F:k.map(()=>0)}}
+    const D=await daily(s),B={T:D.T.slice(),O:D.O.slice(),H:D.H.slice(),L:D.L.slice(),C:D.C.slice(),V:D.V.slice()};
+    // 幣：用幣安日 K 把最後幾天換成即時（含今天還沒收完的那根）；美股、原物料的日 K 是期貨／股票本身，不跟永續合約混接
+    if(info(s)&&info(s).src==='bn'){try{const k=await klines(s,'1d',B.T[B.T.length-1]);for(const x of k||[]){let j=B.T.lastIndexOf(x.t);if(j<0){if(x.t<B.T[B.T.length-1])continue;['T','O','H','L','C','V'].forEach(f=>B[f].push(0));j=B.T.length-1}
+      B.T[j]=x.t;B.O[j]=x.o;B.H[j]=x.h;B.L[j]=x.l;B.C[j]=x.c;B.V[j]=x.v}}catch(e){}}
+    if(tf>=604800){const W={T:[],O:[],H:[],L:[],C:[],V:[]};let wk=null;
+      for(let i=0;i<B.T.length;i++){const w=Math.floor((B.T[i]/86400+3)/7);if(w!==wk){wk=w;W.T.push((w*7-3)*86400);W.O.push(B.O[i]);W.H.push(B.H[i]);W.L.push(B.L[i]);W.C.push(B.C[i]);W.V.push(B.V[i])}
+        else{const k=W.T.length-1;W.H[k]=Math.max(W.H[k],B.H[i]);W.L[k]=Math.min(W.L[k],B.L[i]);W.C[k]=B.C[i];W.V[k]+=B.V[i]}}Object.assign(B,W)}
+    B.F=B.T.map(()=>0);return B}
+  // 最近看過的（顯示在價格卡片列）
+  const recent=()=>ls('xmRecent')||[],touch=s=>{ls('xmRecent',[s,...recent().filter(x=>x!==s)].slice(0,6))};
+  function pick(s){touch(s);const sel=$('#cvSym');if(!sel.querySelector(`option[value="X:${s}"]`)){const o=document.createElement('option');o.value='X:'+s;o.textContent=s;sel.appendChild(o)}
+    if(sel.value!=='X:'+s){sel.value='X:'+s;sel.dispatchEvent(new Event('change'))}close();renderCoins()}
+  // 選單
+  let tab='全部',q='';
+  function rows(){const L=IDX||[],k=q.trim().toUpperCase();
+    return L.filter(x=>(tab==='全部'||x.cat===tab)&&(!k||x.s.includes(k)||x.name.toUpperCase().includes(k))).map(x=>{const v=quote(x.s)||{};
+      return `<button class="xrow" type="button" data-s="${esc(x.s)}"><span class="xs">${esc(x.s)}</span><span class="xn">${esc(x.name)}</span><span class="xp">${v.px!=null?'$'+pf(v.px):'—'}</span><span class="xc ${cls(v.ch||0)}">${v.ch!=null?sg(v.ch):''}</span></button>`}).join('')||'<p class="small" style="padding:14px">找不到，或資料還沒準備好（排程第一次跑完後就會出現）。</p>'}
+  function paint(){const b=$('#xmList');if(b)b.innerHTML=rows()}
+  function open(){let m=$('#xmSheet');if(!m){m=document.createElement('div');m.id='xmSheet';m.innerHTML=`<div class="xbox" role="dialog" aria-label="選擇標的"><div class="xhd"><b>選擇標的</b><button class="x" type="button" aria-label="關閉">✕</button></div>
+      <input id="xmQ" type="search" placeholder="搜尋代號或名稱，例如 SOL、黃金" autocomplete="off"><div class="seg" id="xmTab">${['全部',...CATS].map(c=>`<button type="button" data-c="${c}">${c}</button>`).join('')}</div>
+      <div id="xmList"></div><p class="small" style="margin:6px 2px 0">日 K 每 15 分鐘更新；幣的即時價格和 1H／4H 直接向幣安拿。美股、原物料的日 K 是股票和期貨本身的價格。</p></div>`;document.body.appendChild(m);
+      m.onclick=e=>{if(e.target===m||e.target.closest('.x'))return close();const t=e.target.closest('#xmTab button');if(t){tab=t.dataset.c;seg();paint();return}const r=e.target.closest('.xrow');if(r)pick(r.dataset.s)};
+      $('#xmQ').oninput=e=>{q=e.target.value;paint()}}
+    m.classList.add('on');seg();paint();list().then(()=>{paint();return ticks()}).then(paint)}
+  const seg=()=>document.querySelectorAll('#xmTab button').forEach(b=>b.classList.toggle('on',b.dataset.c===tab));
+  function close(){const m=$('#xmSheet');if(m)m.classList.remove('on')}
+  return{list,ticks,quote,info,bars,intra,perps,recent,pick,open,pf}})();window.XM=XM;
 function renderCoins(){const box=$('#coins');if(!box)return;const curSym=$('#cvSym').value;
   box.innerHTML=COINS.map(c=>{const d=D(c.sym),L=LIVE[c.sym];const last=d.C[d.C.length-1];
     const px=L?L.px:last,ch=L?L.ch:last/ago(d,30)-1;
     return `<button class="coin${c.k===curSym?' on':''}" data-k="${c.k}" title="${c.name}"><span class="ic" style="background:${c.col}">${c.ic}</span><span class="nm">${c.lab||c.k}</span><span class="ch ${cls(ch)}">${sg(ch)}<span class="small"> ${L?'24h':'30天'}</span></span><span class="px">$${fmt(px,px<1000?2:0)}</span></button>`}).join('');
-  box.querySelectorAll('.coin').forEach((el,i)=>{const c=COINS[i];
-    el.onclick=()=>{const s=$('#cvSym');if(s.value!==c.k){s.value=c.k;s.dispatchEvent(new Event('change'))}renderCoins()}})}
+  // 最近看過的其他標的＋「更多」
+  box.innerHTML+=XM.recent().map(s=>{const v=XM.quote(s)||{},i=XM.info(s);
+    return `<button class="coin${'X:'+s===curSym?' on':''}" data-x="${s}" title="${i?i.name:s}"><span class="ic" style="background:#4b5563">${s.slice(0,3)}</span><span class="nm">${s}</span><span class="ch ${cls(v.ch||0)}">${v.ch!=null?sg(v.ch):''}<span class="small"> 24h</span></span><span class="px">${v.px!=null?'$'+XM.pf(v.px):'—'}</span></button>`}).join('')+
+    '<button class="coin more" type="button" id="xmMore"><span class="ic" style="background:var(--acc)">＋</span><span class="nm">更多</span><span class="px" style="font-size:12.5px;font-weight:600;color:var(--muted)">幣・美股・原物料</span></button>';
+  box.querySelectorAll('.coin[data-k]').forEach((el,i)=>{const c=COINS[i];
+    el.onclick=()=>{const s=$('#cvSym');if(s.value!==c.k){s.value=c.k;s.dispatchEvent(new Event('change'))}renderCoins()}});
+  box.querySelectorAll('.coin[data-x]').forEach(el=>el.onclick=()=>XM.pick(el.dataset.x));$('#xmMore').onclick=()=>XM.open()}
 $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
 // ── 策略分析：先列策略，點了才進回測畫面 ──
 (function(){const SV=$('#stratView'),sel=$('#sStrat'),list=$('#sList');if(!SV||!sel||!list)return;
@@ -3385,7 +3466,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 (function(){const bar=document.querySelector('#chartView .toolbar'),sel=$('#cvTf');if(!bar||!sel)return;
   const seg=document.createElement('div');seg.className='seg';
   seg.innerHTML=[[3600,'1H'],[14400,'4H'],[86400,'日'],[604800,'週']].map(([v,t])=>`<button data-v="${v}">${t}</button>`).join('');bar.prepend(seg);
-  const upd=()=>{const stk=/^(MSTR|MSTU|MSTR_MSTU)$/.test($('#cvSym').value);seg.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===sel.value);b.disabled=stk&&+b.dataset.v<86400&&!window.STKI($('#cvSym').value,+b.dataset.v)})};
+  const upd=()=>{const stk=/^(MSTR|MSTU|MSTR_MSTU)$/.test($('#cvSym').value);seg.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===sel.value);const xv=$('#cvSym').value;b.disabled=stk&&+b.dataset.v<86400&&!window.STKI(xv,+b.dataset.v)||/^X:/.test(xv)&&+b.dataset.v<86400&&!XM.intra(xv.slice(2))})};
   seg.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event('change'));upd()};
   sel.addEventListener('change',upd);sel.addEventListener('sync',upd);$('#cvSym').addEventListener('change',()=>setTimeout(upd,0));upd();
   const pen=document.createElement('button');pen.className='ddbtn pen';pen.title='畫線工具';pen.setAttribute('aria-label','畫線工具');pen.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l3.8-1 11-11a2.1 2.1 0 0 0-2.8-2.8l-11 11z"/><path d="M14 7l3 3"/><path d="M14 21h7"/></svg>';

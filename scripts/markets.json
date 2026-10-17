@@ -1,0 +1,414 @@
+[
+{
+"s": "BTC",
+"name": "Bitcoin",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "ETH",
+"name": "Ethereum",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "BNB",
+"name": "BNB",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "SOL",
+"name": "Solana",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "XRP",
+"name": "XRP",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "DOGE",
+"name": "Dogecoin",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "ADA",
+"name": "Cardano",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "TRX",
+"name": "TRON",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "TON",
+"name": "Toncoin",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "AVAX",
+"name": "Avalanche",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "LINK",
+"name": "Chainlink",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "DOT",
+"name": "Polkadot",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "BCH",
+"name": "Bitcoin Cash",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "LTC",
+"name": "Litecoin",
+"cat": "主流",
+"src": "bn"
+},
+{
+"s": "SUI",
+"name": "Sui",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "NEAR",
+"name": "NEAR",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "APT",
+"name": "Aptos",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ARB",
+"name": "Arbitrum",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "OP",
+"name": "Optimism",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "PEPE",
+"name": "Pepe",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "SHIB",
+"name": "Shiba Inu",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "WIF",
+"name": "dogwifhat",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "BONK",
+"name": "Bonk",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "FLOKI",
+"name": "Floki",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "FET",
+"name": "Fetch.ai",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "RENDER",
+"name": "Render",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "TAO",
+"name": "Bittensor",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "INJ",
+"name": "Injective",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "TIA",
+"name": "Celestia",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "SEI",
+"name": "Sei",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "HBAR",
+"name": "Hedera",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "XLM",
+"name": "Stellar",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "UNI",
+"name": "Uniswap",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "AAVE",
+"name": "Aave",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ATOM",
+"name": "Cosmos",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ETC",
+"name": "Ethereum Classic",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "FIL",
+"name": "Filecoin",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ICP",
+"name": "Internet Computer",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ENA",
+"name": "Ethena",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ONDO",
+"name": "Ondo",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "JUP",
+"name": "Jupiter",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "TRUMP",
+"name": "TRUMP",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "WLD",
+"name": "Worldcoin",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "POL",
+"name": "Polygon",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "LDO",
+"name": "Lido",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "PENDLE",
+"name": "Pendle",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "CRV",
+"name": "Curve",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "ALGO",
+"name": "Algorand",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "VET",
+"name": "VeChain",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "STX",
+"name": "Stacks",
+"cat": "熱門",
+"src": "bn"
+},
+{
+"s": "TSLA",
+"name": "特斯拉",
+"cat": "美股",
+"src": "yf",
+"yf": "TSLA"
+},
+{
+"s": "NVDA",
+"name": "輝達",
+"cat": "美股",
+"src": "yf",
+"yf": "NVDA"
+},
+{
+"s": "AAPL",
+"name": "蘋果",
+"cat": "美股",
+"src": "yf",
+"yf": "AAPL"
+},
+{
+"s": "MSFT",
+"name": "微軟",
+"cat": "美股",
+"src": "yf",
+"yf": "MSFT"
+},
+{
+"s": "AMZN",
+"name": "亞馬遜",
+"cat": "美股",
+"src": "yf",
+"yf": "AMZN"
+},
+{
+"s": "GOOGL",
+"name": "Google",
+"cat": "美股",
+"src": "yf",
+"yf": "GOOGL"
+},
+{
+"s": "META",
+"name": "Meta",
+"cat": "美股",
+"src": "yf",
+"yf": "META"
+},
+{
+"s": "AMD",
+"name": "超微",
+"cat": "美股",
+"src": "yf",
+"yf": "AMD"
+},
+{
+"s": "PLTR",
+"name": "Palantir",
+"cat": "美股",
+"src": "yf",
+"yf": "PLTR"
+},
+{
+"s": "COIN",
+"name": "Coinbase",
+"cat": "美股",
+"src": "yf",
+"yf": "COIN"
+},
+{
+"s": "HOOD",
+"name": "Robinhood",
+"cat": "美股",
+"src": "yf",
+"yf": "HOOD"
+},
+{
+"s": "CRCL",
+"name": "Circle",
+"cat": "美股",
+"src": "yf",
+"yf": "CRCL"
+},
+{
+"s": "XAU",
+"name": "黃金",
+"cat": "原物料",
+"src": "yf",
+"yf": "GC=F"
+},
+{
+"s": "XAG",
+"name": "白銀",
+"cat": "原物料",
+"src": "yf",
+"yf": "SI=F"
+},
+{
+"s": "WTI",
+"name": "WTI 原油",
+"cat": "原物料",
+"src": "yf",
+"yf": "CL=F"
+},
+{
+"s": "BRENT",
+"name": "布蘭特原油",
+"cat": "原物料",
+"src": "yf",
+"yf": "BZ=F"
+}
+]
