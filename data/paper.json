@@ -1,0 +1,28 @@
+{
+ "strategy": "S-03 突破確認（10/15 07:17 版）",
+ "start": "2026-10-15 00:00",
+ "updated": "2026-10-18 01:54",
+ "last_bar": "2026-10-18 01:30",
+ "equity": 1.0,
+ "positions": [],
+ "closed": [],
+ "signals24": [],
+ "market": {
+  "BTC": {
+   "price": 81296.39,
+   "h4_ema200": 82015.45,
+   "above_h4": false,
+   "d1_ema50": 80407.25,
+   "above_d1": true,
+   "high24": 81820.93
+  },
+  "ETH": {
+   "price": 2406.62,
+   "h4_ema200": 2536.15,
+   "above_h4": false,
+   "d1_ema50": 2487.85,
+   "above_d1": false,
+   "high24": 2441.66
+  }
+ }
+}

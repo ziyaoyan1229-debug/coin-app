@@ -1,0 +1,1 @@
+{"asof":1792256400,"marks":[{"key":"box|BTC|1792094400|add|1","st":"box","name":"箱體飛刀（分段接底）","sym":"BTC","t":1792094400,"type":"add","side":1,"text":"守住箱底","price":82384.7},{"key":"dense|BTC|1792166400|exit|1","st":"dense","name":"均線密集（EMA20／60／120）","sym":"BTC","t":1792166400,"type":"exit","side":1,"text":"收盤穿過 EMA120","price":81353.1}]}
