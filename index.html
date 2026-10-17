@@ -1735,7 +1735,41 @@ N.createChart=function(el,opts){
     obvUp: ['OBV 在均線之上（資金流入）', '成交量', [['OBV 均線', 20, 2, 200, 1]], (B, a) => { const o = obvArr(B), m = smaArr(o, a); return i => o[i] > m[i]; }],
     obvDn: ['OBV 在均線之下（資金流出）', '成交量', [['OBV 均線', 20, 2, 200, 1]], (B, a) => { const o = obvArr(B), m = smaArr(o, a); return i => o[i] < m[i]; }],
     atrUp: ['波動放大（ATR 高於 N 根前 k 倍）', '波動', [['ATR 長度', 14, 2, 100, 1], ['倍數', 1.5, 1, 5, 0.1]], (B, a, b) => { const r = atrArr(B, a); return i => i >= a && r[i] > b * r[i - a]; }],
+    kcHi: ['突破肯特納通道上軌', '通道', [['EMA', 20, 5, 200, 1], ['ATR 倍數', 2, 0.5, 5, 0.1]], (B, a, b) => { const m = emaArr(B.C, a), r = atrArr(B, a); return i => B.C[i] > m[i] + b * r[i]; }],
+    kcLo: ['跌破肯特納通道下軌', '通道', [['EMA', 20, 5, 200, 1], ['ATR 倍數', 2, 0.5, 5, 0.1]], (B, a, b) => { const m = emaArr(B.C, a), r = atrArr(B, a); return i => B.C[i] < m[i] - b * r[i]; }],
+    emaAlign: ['均線多頭排列（短＞中＞長）', '均線', [['短 EMA', 20, 2, 200, 1], ['中 EMA', 60, 5, 300, 1], ['長 EMA', 120, 10, 400, 1]], (B, a, b, c) => { const x = emaArr(B.C, a), y = emaArr(B.C, b), z = emaArr(B.C, c); return i => x[i] > y[i] && y[i] > z[i]; }],
+    emaAlignDn: ['均線空頭排列（短＜中＜長）', '均線', [['短 EMA', 20, 2, 200, 1], ['中 EMA', 60, 5, 300, 1], ['長 EMA', 120, 10, 400, 1]], (B, a, b, c) => { const x = emaArr(B.C, a), y = emaArr(B.C, b), z = emaArr(B.C, c); return i => x[i] < y[i] && y[i] < z[i]; }],
+    cciLo: ['CCI 低於（超賣）', '震盪指標', [['CCI 長度', 20, 5, 200, 1], ['低於', -100, -300, 0, 10]], (B, a, b) => { const c = cciArr(B, a); return i => c[i] < b; }],
+    cciHi: ['CCI 高於（超買）', '震盪指標', [['CCI 長度', 20, 5, 200, 1], ['高於', 100, 0, 300, 10]], (B, a, b) => { const c = cciArr(B, a); return i => c[i] > b; }],
+    wrLo: ['威廉指標 %R 低於（超賣）', '震盪指標', [['長度', 14, 2, 100, 1], ['低於', -80, -100, 0, 1]], (B, a, b) => { const k = kdRaw(B, a); return i => k[i] - 100 < b; }],
+    wrHi: ['威廉指標 %R 高於（超買）', '震盪指標', [['長度', 14, 2, 100, 1], ['高於', -20, -100, 0, 1]], (B, a, b) => { const k = kdRaw(B, a); return i => k[i] - 100 > b; }],
+    srsiUp: ['Stoch RSI 從低檔向上穿越', '震盪指標', [['RSI 長度', 14, 2, 100, 1], ['低檔', 20, 1, 50, 1]], (B, a, b) => { const r = stochOf(rsiArr(B.C, a), a); return i => crossN(r, b, i, true); }],
+    srsiDn: ['Stoch RSI 從高檔向下穿越', '震盪指標', [['RSI 長度', 14, 2, 100, 1], ['高檔', 80, 50, 99, 1]], (B, a, b) => { const r = stochOf(rsiArr(B.C, a), a); return i => crossN(r, b, i, false); }],
+    mfiLo: ['MFI 低於（資金超賣）', '成交量', [['長度', 14, 2, 100, 1], ['低於', 20, 1, 99, 1]], (B, a, b) => { const r = mfiArr(B, a); return i => r[i] < b; }],
+    mfiHi: ['MFI 高於（資金超買）', '成交量', [['長度', 14, 2, 100, 1], ['高於', 80, 1, 99, 1]], (B, a, b) => { const r = mfiArr(B, a); return i => r[i] > b; }],
+    sarUp: ['拋物線 SAR 翻多', '趨勢指標', [['加速因子 %', 2, 0.5, 10, 0.5], ['上限 %', 20, 5, 50, 1]], (B, a, b) => { const d = sarArr(B, a / 100, b / 100); return i => i > 0 && d[i] > 0 && d[i - 1] < 0; }],
+    sarDn: ['拋物線 SAR 翻空', '趨勢指標', [['加速因子 %', 2, 0.5, 10, 0.5], ['上限 %', 20, 5, 50, 1]], (B, a, b) => { const d = sarArr(B, a / 100, b / 100); return i => i > 0 && d[i] < 0 && d[i - 1] > 0; }],
+    aroonUp: ['Aroon 多方（上升線高於下降線且 ＞ 門檻）', '趨勢指標', [['長度', 25, 5, 200, 1], ['門檻', 70, 1, 100, 1]], (B, a, b) => { const r = aroonArr(B, a); return i => r[0][i] > b && r[0][i] > r[1][i]; }],
+    aroonDn: ['Aroon 空方（下降線高於上升線且 ＞ 門檻）', '趨勢指標', [['長度', 25, 5, 200, 1], ['門檻', 70, 1, 100, 1]], (B, a, b) => { const r = aroonArr(B, a); return i => r[1][i] > b && r[1][i] > r[0][i]; }],
+    hammer: ['長下影線（錘子線）', 'K 線型態', [['下影線 ≥ 實體幾倍', 2, 1, 10, 0.5]], (B, a) => i => { const bd = Math.abs(B.C[i] - B.O[i]), lw = Math.min(B.C[i], B.O[i]) - B.L[i], uw = B.H[i] - Math.max(B.C[i], B.O[i]); return lw >= a * Math.max(bd, (B.H[i] - B.L[i]) * 0.05) && uw <= lw / 2; }],
+    star: ['長上影線（射擊之星）', 'K 線型態', [['上影線 ≥ 實體幾倍', 2, 1, 10, 0.5]], (B, a) => i => { const bd = Math.abs(B.C[i] - B.O[i]), lw = Math.min(B.C[i], B.O[i]) - B.L[i], uw = B.H[i] - Math.max(B.C[i], B.O[i]); return uw >= a * Math.max(bd, (B.H[i] - B.L[i]) * 0.05) && lw <= uw / 2; }],
+    engUp: ['多頭吞噬', 'K 線型態', [], B => i => i > 0 && B.C[i - 1] < B.O[i - 1] && B.C[i] > B.O[i] && B.C[i] >= B.O[i - 1] && B.O[i] <= B.C[i - 1]],
+    engDn: ['空頭吞噬', 'K 線型態', [], B => i => i > 0 && B.C[i - 1] > B.O[i - 1] && B.C[i] < B.O[i] && B.C[i] <= B.O[i - 1] && B.O[i] >= B.C[i - 1]],
+    insideBrk: ['內包線後突破（收盤破母線高點）', 'K 線型態', [], B => i => i > 1 && B.H[i - 1] <= B.H[i - 2] && B.L[i - 1] >= B.L[i - 2] && B.C[i] > B.H[i - 2]],
   };
+  function cciArr(B, n) { const m = B.C.length, tp = new Float64Array(m), r = new Float64Array(m).fill(NaN); for (let i = 0; i < m; i++) tp[i] = (B.H[i] + B.L[i] + B.C[i]) / 3; const ma = smaArr(tp, n);
+    for (let i = n - 1; i < m; i++) { let d = 0; for (let j = i - n + 1; j <= i; j++) d += Math.abs(tp[j] - ma[i]); d /= n; r[i] = d ? (tp[i] - ma[i]) / (0.015 * d) : 0; } return r; }
+  function kdRaw(B, n) { const m = B.C.length, r = new Float64Array(m).fill(NaN); for (let i = n - 1; i < m; i++) { let h = -Infinity, l = Infinity; for (let j = i - n + 1; j <= i; j++) { if (B.H[j] > h) h = B.H[j]; if (B.L[j] < l) l = B.L[j]; } r[i] = h > l ? 100 * (B.C[i] - l) / (h - l) : 50; } return r; }
+  function stochOf(x, n) { const m = x.length, r = new Float64Array(m).fill(NaN); for (let i = n - 1; i < m; i++) { let h = -Infinity, l = Infinity, ok = true; for (let j = i - n + 1; j <= i; j++) { if (!isFinite(x[j])) { ok = false; break; } if (x[j] > h) h = x[j]; if (x[j] < l) l = x[j]; } if (ok) r[i] = h > l ? 100 * (x[i] - l) / (h - l) : 50; } return smaArr(r.map(v => (isFinite(v) ? v : 50)), 3); }
+  function mfiArr(B, n) { const m = B.C.length, r = new Float64Array(m).fill(NaN), tp = i => (B.H[i] + B.L[i] + B.C[i]) / 3;
+    for (let i = n; i < m; i++) { let up = 0, dn = 0; for (let j = i - n + 1; j <= i; j++) { const f = tp(j) * B.V[j]; if (tp(j) > tp(j - 1)) up += f; else if (tp(j) < tp(j - 1)) dn += f; } r[i] = dn ? 100 - 100 / (1 + up / dn) : 100; } return r; }
+  function sarArr(B, af0, mx) { const m = B.C.length, d = new Float64Array(m).fill(NaN); if (m < 3) return d; let up = B.C[1] >= B.C[0], sar = up ? B.L[0] : B.H[0], ep = up ? B.H[1] : B.L[1], af = af0;
+    for (let i = 2; i < m; i++) { sar = sar + af * (ep - sar);
+      if (up) { sar = Math.min(sar, B.L[i - 1], B.L[i - 2]); if (B.L[i] < sar) { up = false; sar = ep; ep = B.L[i]; af = af0; } else if (B.H[i] > ep) { ep = B.H[i]; af = Math.min(mx, af + af0); } }
+      else { sar = Math.max(sar, B.H[i - 1], B.H[i - 2]); if (B.H[i] > sar) { up = true; sar = ep; ep = B.H[i]; af = af0; } else if (B.L[i] < ep) { ep = B.L[i]; af = Math.min(mx, af + af0); } }
+      d[i] = up ? 1 : -1; } return d; }
+  function aroonArr(B, n) { const m = B.C.length, U = new Float64Array(m).fill(NaN), D = new Float64Array(m).fill(NaN);
+    for (let i = n; i < m; i++) { let hi = i - n, lo = i - n; for (let j = i - n; j <= i; j++) { if (B.H[j] >= B.H[hi]) hi = j; if (B.L[j] <= B.L[lo]) lo = j; } U[i] = 100 * (n - (i - hi)) / n; D[i] = 100 * (n - (i - lo)) / n; } return [U, D]; }
   function kdArr(B, n) { const m = B.C.length, K = new Float64Array(m).fill(NaN), D = new Float64Array(m).fill(NaN); let k = 50, d = 50;
     for (let i = n - 1; i < m; i++) { let h = -Infinity, l = Infinity; for (let j = i - n + 1; j <= i; j++) { if (B.H[j] > h) h = B.H[j]; if (B.L[j] < l) l = B.L[j]; } const rsv = h > l ? 100 * (B.C[i] - l) / (h - l) : 50; k = k * 2 / 3 + rsv / 3; d = d * 2 / 3 + k / 3; K[i] = k; D[i] = d; } return [K, D]; }
   function macdArr(C, a, b, c) { const f = emaArr(C, a), s = emaArr(C, b), m = new Float64Array(C.length); for (let i = 0; i < C.length; i++) m[i] = f[i] - s[i]; return [m, emaArr(m, c)]; }
@@ -1743,27 +1777,34 @@ N.createChart=function(el,opts){
   function ichiCloud(B, a, b) { const m = B.C.length, A = new Float64Array(m).fill(NaN), Bs = new Float64Array(m).fill(NaN), mid = (i, n) => { let h = -Infinity, l = Infinity; for (let j = i - n + 1; j <= i; j++) { if (B.H[j] > h) h = B.H[j]; if (B.L[j] < l) l = B.L[j]; } return (h + l) / 2; };
     for (let i = 2 * b - 1 + b; i < m; i++) { const k = i - b; A[i] = (mid(k, a) + mid(k, b)) / 2; Bs[i] = mid(k, 2 * b); } return [A, Bs]; }
   function parseRules(s) { let r; try { r = typeof s === 'string' ? JSON.parse(s) : s; } catch (e) { r = null; } r = r || {};
-    const ok = x => Array.isArray(x) && CUSLIB[x[0]]; return { in: (r.in || []).filter(ok).slice(0, 8), out: (r.out || []).filter(ok).slice(0, 8), any: r.any ? 1 : 0 }; }
+    const ok = x => Array.isArray(x) && CUSLIB[x[0]], g = k => (r[k] || []).filter(ok).slice(0, 8); return { in: g('in'), out: g('out'), add: g('add'), part: g('part'), any: r.any ? 1 : 0 }; }
   function cusFn(B, sym, tf, blk) { const key = 'cus' + sym + tf + JSON.stringify(blk); if (cache[key]) return cache[key]; const L = CUSLIB[blk[0]], P = L[2].map((d, k) => (isFinite(+blk[k + 1]) ? +blk[k + 1] : d[1]));
     const f = L[3](B, ...P), m = B.C.length, r = new Uint8Array(m); for (let i = 0; i < m; i++) r[i] = f(i) ? 1 : 0; return (cache[key] = r); }
+  // 加倉、分批出場的條件只在「剛出現」那根觸發（前一根不成立），避免條件持續成立時每根都觸發
+  // 加倉：加倉條件任一出現、或順勢走了 addPct%（從上次進場／加倉價算），每次加「第一筆的 addSize 倍」，最多 addMax 次
+  // 分批出場：分批出場條件任一出現、或第一段停利 tp1Pct% 到了，賣出目前部位的 partFrac／tp1Frac；全部出場照出場條件、停損、停利、移動停損、持有上限
   function runCustom(sym, t0, t1, p) {
     const b = load(sym), tf = (+p.tf || 4) * H1, B = resample(sym, tf), R = parseRules(p.rules), w = p.dir === 'short' ? -1 : 1;
-    const IN = R.in.map(x => cusFn(B, sym, tf, x)), OUT = R.out.map(x => cusFn(B, sym, tf, x)), atr = p.stopAtr > 0 ? atrArr(B, 14) : null;
-    let cash = p.capital, q = 0, s = 0, avg = 0, stop = 0, best = 0, bars = 0, liq = false, peak = cash, mdd = 0, fund = 0, fees = 0;
+    const F = a => a.map(x => cusFn(B, sym, tf, x)), IN = F(R.in), OUT = F(R.out), ADD = F(R.add), PART = F(R.part), atr = p.stopAtr > 0 ? atrArr(B, 14) : null;
+    const addMax = Math.max(0, Math.round(+p.addMax || 0)), addSize = +p.addSize > 0 ? +p.addSize : 1, addPct = +p.addPct || 0;
+    const partFrac = Math.min(1, Math.max(0, +p.partFrac || 0.5)), tp1 = +p.tp1Pct || 0, tp1Frac = Math.min(1, Math.max(0, +p.tp1Frac || 0.5));
+    let cash = p.capital, q = 0, s = 0, avg = 0, stop = 0, best = 0, bars = 0, q0 = 0, adds = 0, lastPx = 0, tp1Done = false, liq = false, peak = cash, mdd = 0, fund = 0, fees = 0;
     const trades = [], eq = [], marks = []; let cur = null;
     const i0 = lower(B.T, t0), i1 = lower(B.T, t1);
     const E = px => cash + s * q * (px - avg);
-    function close(px, why, t, type) {
-      const fe = q * px * COST.fee; cash += s * q * (px - avg) - fe; fees += fe;
-      cur.exitT = t; cur.exit = px; cur.why = why; cur.ret = s * (px / cur.entry - 1); cur.eqAfter = cash; trades.push(cur); cur = null;
-      marks.push({ t, px, type: type || 'exit', side: s, text: why }); q = 0; s = 0;
+    function sell(dq, px, why, t, type) {   // 賣掉 dq（全部就結束這筆）
+      dq = Math.min(dq, q); const fe = dq * px * COST.fee; cash += s * dq * (px - avg) - fe; fees += fe; q -= dq;
+      marks.push({ t, px, type, side: s, text: why });
+      if (q <= q0 * 1e-9) { cur.exitT = t; cur.exit = px; cur.why = why; cur.ret = s * (px / cur.entry - 1); cur.eqAfter = cash; trades.push(cur); cur = null; q = 0; s = 0; }
     }
+    const close = (px, why, t, type) => sell(q, px, why, t, type || 'exit');
     for (let i = i0; i < i1; i++) {
       if (q) {
         for (let j = B.hs[i]; j < B.he[i]; j++) {
           if (p.funding && b.F[j]) { const c = s * q * b.O[j] * b.F[j]; cash -= c; fund += c; }
           const adv = s > 0 ? b.L[j] : b.H[j], fav = s > 0 ? b.H[j] : b.L[j];
-          if (stop && (s > 0 ? adv <= stop : adv >= stop)) { close((s > 0 ? Math.min(b.O[j], stop) : Math.max(b.O[j], stop)) * (1 - s * COST.stopSlip), best !== avg && p.trail > 0 ? '移動停損' : '停損', b.T[j], 'stop'); break; }
+          if (stop && (s > 0 ? adv <= stop : adv >= stop)) { close((s > 0 ? Math.min(b.O[j], stop) : Math.max(b.O[j], stop)) * (1 - s * COST.stopSlip), p.trail > 0 && s * (stop - avg) > 0 ? '移動停損' : '停損', b.T[j], 'stop'); break; }
+          if (tp1 > 0 && !tp1Done && s * (fav / avg - 1) >= tp1 / 100) { tp1Done = true; sell(q * tp1Frac, avg * (1 + s * tp1 / 100), `第一段停利 ${tp1}%`, b.T[j], 'tp'); if (!q) break; }
           if (p.tp > 0 && s * (fav / avg - 1) >= p.tp / 100) { close(avg * (1 + s * p.tp / 100), `停利 ${p.tp}%`, b.T[j], 'tp'); break; }
           if (E(adv) <= COST.mm * q * adv) { liq = true; cash = 0; q = 0; cur.exitT = b.T[j]; cur.why = '爆倉'; cur.exit = adv; cur.ret = -1; trades.push(cur); cur = null; marks.push({ t: b.T[j], px: adv, type: 'liq', text: '爆倉' }); break; }
           if (p.trail > 0) { best = s > 0 ? Math.max(best, fav) : Math.min(best, fav); const ts = best * (1 - s * p.trail / 100); stop = stop ? (s > 0 ? Math.max(stop, ts) : Math.min(stop, ts)) : ts; }
@@ -1774,13 +1815,22 @@ N.createChart=function(el,opts){
       if (q) { bars++; let why = '';
         for (let k = 0; k < OUT.length && !why; k++) if (OUT[k][i]) why = CUSLIB[R.out[k][0]][0];
         if (!why && p.maxBars > 0 && bars >= p.maxBars) why = `持有 ${p.maxBars} 根到期`;
-        if (why) close(c * (1 - s * COST.slip), why, tEnd); }
-      if (!q && IN.length) { let go = R.any ? false : true; for (const a of IN) { if (R.any) go = go || !!a[i]; else go = go && !!a[i]; }
+        if (why) close(c * (1 - s * COST.slip), why, tEnd);
+        else {
+          let pw = ''; for (let k = 0; k < PART.length && !pw; k++) if (PART[k][i] && !PART[k][i - 1]) pw = CUSLIB[R.part[k][0]][0];
+          if (pw) sell(q * partFrac, c * (1 - s * COST.slip), '分批出場：' + pw, tEnd, 'tp');
+          if (q && adds < addMax) { let aw = ''; for (let k = 0; k < ADD.length && !aw; k++) if (ADD[k][i] && !ADD[k][i - 1]) aw = CUSLIB[R.add[k][0]][0];
+            if (!aw && addPct > 0 && s * (c / lastPx - 1) >= addPct / 100) aw = `順勢 ${addPct}%`;
+            if (aw) { const dq = q0 * addSize, px = c * (1 + s * COST.slip), fe = dq * c * COST.fee;
+              if (E(c) - fe > COST.mm * (q + dq) * c * 2) { cash -= fe; fees += fe; avg = (avg * q + px * dq) / (q + dq); q += dq; adds++; lastPx = c; cur.px.push(c);
+                marks.push({ t: tEnd, px: c, type: 'add', side: s, text: `加倉 ${adds}：${aw}` }); } } }
+        } }
+      if (!q && IN.length) { let go = !R.any; for (const a of IN) { if (R.any) go = go || !!a[i]; else go = go && !!a[i]; }
         if (go && isFinite(c)) {
-          const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = dq; s = w; avg = c * (1 + w * COST.slip); best = avg; bars = 0;
+          const dq = p.lev * cash / c, fe = dq * c * COST.fee; cash -= fe; fees += fe; q = q0 = dq; s = w; avg = c * (1 + w * COST.slip); best = avg; bars = 0; adds = 0; lastPx = c; tp1Done = false;
           const sp = p.stopPct > 0 ? avg * (1 - w * p.stopPct / 100) : 0, sa = atr && isFinite(atr[i]) ? c - w * p.stopAtr * atr[i] : 0;
           stop = sp && sa ? (w > 0 ? Math.max(sp, sa) : Math.min(sp, sa)) : sp || sa;
-          cur = { entryT: tEnd, entry: c, stop, lev: p.lev, side: w, eqBefore: cash + fe, why: '' };
+          cur = { entryT: tEnd, entry: c, px: [c], stop, lev: p.lev, side: w, eqBefore: cash + fe, why: '' };
           marks.push({ t: tEnd, px: c, type: 'entry', side: w, text: `${w > 0 ? '多' : '空'} ${fmt(c)}` });
         }
       }
@@ -2180,8 +2230,8 @@ $('#cvStrat').onchange=()=>drawChart(false);
 // ───────── 策略模擬 ─────────
 // 預設＝回測最佳參數（依標的）
 const BEST={
- cus:{BTC:{rules:'{"in":[["emaUp",20,60]],"out":[["emaDn",20,60]],"any":0}',dir:'long',tf:4,lev:1,stopPct:8,stopAtr:0,tp:0,trail:0,maxBars:0,funding:true},
-      ETH:{rules:'{"in":[["emaUp",20,60]],"out":[["emaDn",20,60]],"any":0}',dir:'long',tf:4,lev:1,stopPct:8,stopAtr:0,tp:0,trail:0,maxBars:0,funding:true}},
+ cus:{BTC:{rules:'{"in":[["emaUp",20,60]],"out":[["emaDn",20,60]],"any":0}',dir:'long',tf:4,lev:1,stopPct:8,stopAtr:0,tp:0,trail:0,maxBars:0,addMax:0,addSize:1,addPct:0,partFrac:0.5,tp1Pct:0,tp1Frac:0.5,funding:true},
+      ETH:{rules:'{"in":[["emaUp",20,60]],"out":[["emaDn",20,60]],"any":0}',dir:'long',tf:4,lev:1,stopPct:8,stopAtr:0,tp:0,trail:0,maxBars:0,addMax:0,addSize:1,addPct:0,partFrac:0.5,tp1Pct:0,tp1Frac:0.5,funding:true}},
  brk:{BTC:{lev:6,n:60,body:0.5,vr:3,vrWin:60,atrN:14,stopAtr:3,exitN:60,regime:'w50',dir:'both2',funding:true},
       ETH:{lev:4,n:60,body:0.5,vr:3,vrWin:60,atrN:14,stopAtr:3,exitN:180,regime:'w50',dir:'both',funding:true}},
  box:{BTC:{lev:2,sell:0,k:5,full:0.5,small:0.2,perBox:1,longExit:'fail',runExit:'off',caughtAt:'top',rN:100,k2:30,runNoAdd:false,runBE:false,grade:true,gNear:0.15,gC:0,gDeep:0.3,gA:1,gB:1,gWick:0.5,gClose:0,gWickX:1,wickStop:false,wickBuf:0.01,stage:true,sEarly:0.15,sVol:0.25,vc:0.6,lowZ:0.4,earlyD:10,volCool:6,touch:0.15,touchCool:0,brk:0.003,near:0.03,wick:0.5,stopx:0.08,regime:'none',dir:'long',hmin:0.06,hmax:0.6,funding:true},
@@ -2198,7 +2248,9 @@ const BEST={
       ETH:{dir:'both2',tf:8,entry:'s2',s1skip:true,exit:'low',lev:10,risk:0.02,maxU:4,atrN:20,entryN:55,exitN:20,stopN:2,addN:0.5,regime:'none',funding:true}}};
 const PDEF={
  cus:[['dir','做多／做空','sel',[['long','做多'],['short','做空']]],['tf','K 棒週期','sel',[[1,'1 小時'],[4,'4 小時'],[8,'8 小時'],[24,'日線']]],['lev','槓桿（倍）','num',0.5,20,0.5,'進場名目＝權益×槓桿'],
-   ['stopPct','停損（%）','num',0,50,0.5,'0＝不設'],['stopAtr','ATR 停損（倍）','num',0,10,0.5,'0＝不設；兩個都設取比較近的'],['tp','停利（%）','num',0,500,1,'0＝不設'],['trail','移動停損（%）','num',0,50,0.5,'從最高點回落幾 % 出場，0＝不設'],['maxBars','最多持有（根）','num',0,1000,1,'0＝不限'],['funding','計資金費率','chk']],
+   ['stopPct','停損（%）','num',0,50,0.5,'0＝不設'],['stopAtr','ATR 停損（倍）','num',0,10,0.5,'0＝不設；兩個都設取比較近的'],['tp','停利（%）','num',0,500,1,'0＝不設'],['trail','移動停損（%）','num',0,50,0.5,'從最高點回落幾 % 出場，0＝不設'],['maxBars','最多持有（根）','num',0,1000,1,'0＝不限'],
+   ['addMax','最多加倉次數','num',0,10,1,'0＝不加倉'],['addSize','每次加倉（第一筆的幾倍）','num',0.1,3,0.1,''],['addPct','順勢幾 % 加一次','num',0,100,0.5,'從上次進場價算，0＝只看加倉條件'],
+   ['tp1Pct','第一段停利（%）','num',0,500,1,'到了先賣一部分，0＝不設'],['tp1Frac','第一段賣出比例','num',0.1,1,0.05,'0.5＝賣一半'],['partFrac','分批出場條件每次賣出比例','num',0.1,1,0.05,'分批出場條件出現時賣掉目前部位的幾成'],['funding','計資金費率','chk']],
  brk:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空（熊市才做）'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷'],['lev','真實槓桿（倍）','num',1,20,0.5,'進場名目＝權益×槓桿'],['n','突破回看（4h 根數）','num',6,360,6,'60 根＝10 天'],['body','實體 ≥ ATR 倍數','num',0,5,0.1,''],['vr','量比門檻（倍）','num',1,20,0.5,'這根量 ÷ 前 N 根中位數'],['vrWin','量比回看（根）','num',6,360,6,''],['atrN','ATR 長度（根）','num',2,100,1,''],['stopAtr','停損距離（ATR 倍數）','num',0.5,10,0.5,'多單停在進場價下方、空單停在上方'],['exitN','出場：跌破（空單：突破）前 N 根低（高）點','num',6,540,6,'60＝10 天、120＝20 天、180＝30 天'],['regime','牛市過濾','sel',[['none','不過濾（雙向時用週線）'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk']],
  box:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空（熊市才做）'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷'],['lev','真實槓桿上限（倍）','num',1,20,0.5,'總倉位名目 ÷ 權益的上限'],['sell','箱頂出場比例','sel',[[1,'100%'],[0.8,'80%'],[0.6,'60%'],[0.3,'30%'],[0,'0%（不出）']]],['k','箱體轉折（左右各 k 天）','num',2,20,1,''],['full','③ 破箱底影線收回重倉（槓桿上限的幾成）','num',0.05,1,0.05,''],['perBox','每一段在同一個箱子最多進幾次（0＝不限）','num',0,10,1,'1＝飛刀模式，每段只接一次'],['longExit','出場方式','sel',[['fail','收盤跌破箱體失敗線'],['w50','超長線：BTC 週線跌破 50 週線才出'],['ma200','超長線：BTC 200 日線轉下彎才出'],['never','超長線：不出場（只看爆倉）']]],['runExit','抓到波段後改用','sel',[['off','不改（照上面出場）'],['lowN','跌破前 N 天低點才出'],['entryBox','跌破進場時的箱底才出（不跟著新箱子上移）'],['k2','跌破大一級箱底（前後 k2 天轉折）'],['ema','日線收盤跌破 EMA N']],'抓到波段＝收盤站上進場時的箱頂'],['rN','長線：N 天','num',10,300,5,'跌破 N 天低點或 EMA N'],['k2','長線：大一級箱體 k2','num',5,90,5,''],['runNoAdd','抓到波段後不再加倉','chk'],['grade','信號分級（看離一年高點多遠）','chk'],['gNear','劣質：離一年高點不到幾 %','num',0,0.5,0.05,'0.15＝離高點 15% 以內，多半是高檔整理不是底'],['gC','劣質信號倉位倍數','num',0,1,0.1,'0＝不進'],['gDeep','優質：從一年高點跌超過幾 %','num',0.1,0.9,0.05,'威科夫吸籌通常在大跌之後'],['gA','優質信號倉位倍數','num',0.5,3,0.1,''],['gB','普通信號倉位倍數','num',0.1,2,0.1,''],['runBE','抓到波段後跌回成本價就出','chk'],['wickStop','停損設在反轉 K 的下影線底部','chk'],['wickBuf','影線停損再往下留多少','num',0,0.05,0.001,'0.01＝影線最低點下方 1%；打到就全部出場'],['stage','分段吸籌（前期低位小倉＋量縮加碼）','chk'],['sEarly','① 箱體前期低位小倉（幾成）','num',0,1,0.05,'箱底出現後 earlyD 天內、價格在箱子下半部，進一次'],['earlyD','前期＝箱底出現後幾天內','num',1,60,1,''],['lowZ','低位＝箱子由下往上的比例','num',0.1,1,0.05,'0.4＝箱子下面 40%'],['sVol','② 量縮加碼（幾成）','num',0,1,0.05,'在低位、而且 1 天均量 < 10 天量中位數 × 量縮門檻'],['vc','量縮門檻','num',0.2,1,0.05,'0.6＝量只剩平常 6 成'],['volCool','量縮加碼間隔（4h 根數）','num',1,60,1,'6＝1 天最多一次'],['touch','④ 碰到箱底區就先進（幾成，0＝不用）','num',0,1,0.05,'不用等下影線：價格一碰到「箱底＋下面的距離」就掛單小倉買；同一個箱底只進一次（除非下面設了間隔）'],['touchCool','碰箱底：每次碰都加，間隔幾根 4h（0＝同一個箱底只進一次）','num',0,60,1,'12＝每 2 天最多加一次'],['small','守住箱底小加倉（幾成）','num',0,1,0.05,''],['brk','跌破箱底至少','num',0,0.05,0.001,'0.003＝0.3%'],['near','箱底區：離箱底在','num',0,0.1,0.001,'0.03＝箱底上方 3% 以內就算碰到'],['wick','下影線 ≥ K 棒全長','num',0.1,0.9,0.05,'0.5＝一半'],['stopx','箱體失敗：收盤低於箱底','num',0.01,0.3,0.01,'0.08＝8%'],['regime','牛市過濾','sel',[['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎'],['none','不過濾（雙向時用週線）']]],['hmin','箱高下限','num',0,1,0.01,''],['hmax','箱高上限','num',0.05,3,0.05,''],['funding','計入資金費率','chk']],
  dense:[['dir','做多／做空','sel',[['long','只做多'],['short','只做空'],['both','雙向：牛市只做多、熊市只做空'],['both2','雙向：多單照做，熊市另外做空']],'牛熊用下面的「牛市過濾」判斷；不過濾時用 BTC 50 週線'],['tf','K 棒週期','sel',[['24','日線'],['8','8 小時'],['4','4 小時']]],['n1','短均線 EMA','num',5,100,1,''],['n2','中均線 EMA','num',10,200,1,''],['n3','長均線 EMA','num',20,400,1,''],['sq','密集門檻：三線價差 ≤ 價格的','num',0.005,0.2,0.005,'0.06＝三條均線最高最低差在 6% 以內'],['look','密集要發生在最近幾根內','num',1,100,1,''],['order','多單要 EMA短 > EMA中（空單相反）','chk'],['exit','出場','sel',[['c3','收盤穿過長均線'],['c2','收盤穿過中均線'],['x12','短均線穿過中均線'],['c1','收盤穿過短均線']]],['stopAtr','停損：三線最低點 − ATR 倍數（0＝不設）','num',0,10,0.5,''],['atrN','ATR 根數','num',5,60,1,''],['lev','真實槓桿（倍）','num',1,10,0.5,'進場倉位＝權益 × 槓桿'],['roll','滾倉（幣哥式：浮盈加倉）','chk'],['rollLev','滾倉後總槓桿上限（倍）','num',1,10,0.5,'加倉時把總倉位補到「當下權益 × 這個倍數」'],['rollStep','每順勢多少加一次','num',0.01,0.5,0.01,'0.05＝離上次進場／加倉價再走 5%'],['rollMax','最多加幾次','num',1,10,1,''],['rollSL','加倉後止損','sel',[['none','不動，照均線出場'],['prev','移到上一次加倉價'],['be','移到持倉均價（保本）']]],['tp','大漲先減倉、回調再補回','chk','回測多數組合變差，預設不開'],['tpX','收盤離短均線超過多少就減倉','num',0.05,1,0.01,'0.15＝高於 EMA短 15%'],['tpFrac','減掉幾成','num',0.1,0.9,0.05,''],['rePb','從高點回調多少補回（0＝回到短均線才補）','num',0,0.5,0.01,''],['regime','牛市過濾','sel',[['none','不過濾'],['w50','BTC 週線在 50 週線上'],['ma200up','BTC 200 日線上彎']]],['funding','計入資金費率','chk']],
@@ -2283,20 +2335,24 @@ const LibPick=(()=>{let cb=null;const L=()=>Engine.CUSLIB,esc=t=>String(t).repla
 const Rules=(()=>{const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const get=p=>Engine.parseRules(p&&p.rules),blk=id=>[id,...Engine.CUSLIB[id][2].map(d=>d[1])];
   const name=b=>Engine.CUSLIB[b[0]][0],desc=b=>{const P=Engine.CUSLIB[b[0]][2];return name(b)+(P.length?'（'+P.map((d,k)=>b[k+1]??d[1]).join('、')+'）':'')};
-  const sum=p=>{const r=get(p);return '進場：'+(r.in.map(name).join(r.any?' 或 ':'＋')||'未設定')+'；出場：'+(r.out.map(name).join(' 或 ')||'只靠停損停利')};
+  const sum=p=>{const r=get(p);return '進場：'+(r.in.map(name).join(r.any?' 或 ':'＋')||'未設定')+'；出場：'+(r.out.map(name).join(' 或 ')||'只靠停損停利')+(r.add.length||p.addMax>0?'；有加倉':'')+(r.part.length||p.tp1Pct>0?'；分批出場':'')};
   function rows(r,g){return r[g].length?r[g].map((b,k)=>`<div class="rbr"><div class="t"><b>${esc(name(b))}</b><button class="x" type="button" data-g="${g}" data-i="${k}" aria-label="刪除">✕</button></div>
       <div class="rbp">${Engine.CUSLIB[b[0]][2].map((d,j)=>`<label>${esc(d[0])}<input type="number" data-g="${g}" data-i="${k}" data-j="${j+1}" min="${d[2]}" max="${d[3]}" step="${d[4]}" value="${b[j+1]??d[1]}"></label>`).join('')}</div></div>`).join('')
-      :`<div class="rbe">${g==='in'?'還沒有進場條件':'沒有出場條件：只靠下面的停損、停利、移動停損、持有上限出場'}</div>`}
+      :`<div class="rbe">${({in:'還沒有進場條件',out:'沒有出場條件：只靠下面的停損、停利、移動停損、持有上限出場',add:'不用指標加倉（也可以用下面「順勢幾 % 加一次」）',part:'不用指標分批出場（也可以用下面「第一段停利」）'})[g]}</div>`}
   function html(p){const r=get(p);return `<div class="rb"><div class="rbh">進場條件<select id="rbAny"><option value="0"${r.any?'':' selected'}>全部符合才進場</option><option value="1"${r.any?' selected':''}>任一符合就進場</option></select></div>${rows(r,'in')}<button class="btn ghost rbadd" type="button" data-add="in">＋ 從功能庫加進場條件</button>
-    <div class="rbh">出場條件（任一符合就出場）</div>${rows(r,'out')}<button class="btn ghost rbadd" type="button" data-add="out">＋ 從功能庫加出場條件</button></div>`}
+    <div class="rbh">出場條件（任一符合就全部出場）</div>${rows(r,'out')}<button class="btn ghost rbadd" type="button" data-add="out">＋ 從功能庫加出場條件</button>
+    <div class="rbh">加倉條件（持倉中出現就加一次，次數看下面「最多加倉次數」）</div>${rows(r,'add')}<button class="btn ghost rbadd" type="button" data-add="add">＋ 從功能庫加加倉條件</button>
+    <div class="rbh">分批出場條件（出現就先賣一部分）</div>${rows(r,'part')}<button class="btn ghost rbadd" type="button" data-add="part">＋ 從功能庫加分批出場條件</button></div>`}
   function bind(st,sym){const P=$('#params'),save=r=>{cur.rules=JSON.stringify(r);setMyP(st,sym,cur);buildParams();schedule()};
     $('#rbAny').onchange=e=>{const r=get(cur);r.any=+e.target.value;save(r)};
     P.querySelectorAll('.rbr .x').forEach(b=>b.onclick=()=>{const r=get(cur);r[b.dataset.g].splice(+b.dataset.i,1);save(r)});
     P.querySelectorAll('.rbp input').forEach(el=>el.onchange=()=>{const r=get(cur);r[el.dataset.g][+el.dataset.i][+el.dataset.j]=+el.value;cur.rules=JSON.stringify(r);setMyP(st,sym,cur);schedule()});
-    P.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const g=b.dataset.add;LibPick.open(g==='in'?'加進場條件':'加出場條件',ids=>{const r=get(cur);r[g].push(...ids.map(blk));r[g]=r[g].slice(0,8);save(r)})})}
+    P.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const g=b.dataset.add;LibPick.open(({in:'加進場條件',out:'加出場條件',add:'加加倉條件',part:'加分批出場條件'})[g],ids=>{const r=get(cur);r[g].push(...ids.map(blk));r[g]=r[g].slice(0,8);save(r)})})}
   function explain(p,sym){const r=get(p),li=a=>a.map(b=>`<li>${esc(desc(b))}</li>`).join('');
     return `<h2>自訂策略（${sym}）</h2><p>從功能庫自己組的策略。每根 ${({1:'1 小時',4:'4 小時',8:'8 小時',24:'日線'})[p.tf]||'4 小時'} K 收盤時判斷，收盤價成交；停損、停利用 1 小時高低點判斷。</p>
       <h4>進場（${r.any?'任一符合':'全部符合'}，${p.dir==='short'?'做空':'做多'}）</h4><ul>${li(r.in)||'<li>還沒設定</li>'}</ul><h4>出場（任一符合）</h4><ul>${li(r.out)||'<li>沒有指標出場</li>'}</ul>
+      ${p.addMax>0?`<h4>加倉（最多 ${p.addMax} 次，每次第一筆的 ${p.addSize} 倍）</h4><ul>${li(r.add)}${p.addPct>0?`<li>順勢 ${p.addPct}% 加一次</li>`:''}${!r.add.length&&!(p.addPct>0)?'<li>沒有設加倉條件，不會加倉</li>':''}</ul>`:''}
+      ${r.part.length||p.tp1Pct>0?`<h4>分批出場</h4><ul>${r.part.length?r.part.map(b=>`<li>${esc(desc(b))}出現時賣 ${Math.round((p.partFrac||0.5)*100)}%</li>`).join(''):''}${p.tp1Pct>0?`<li>第一段停利 ${p.tp1Pct}% 賣 ${Math.round((p.tp1Frac||0.5)*100)}%</li>`:''}</ul>`:''}
       <h4>風控</h4><ul><li>槓桿 ${p.lev} 倍</li>${p.stopPct>0?`<li>停損 ${p.stopPct}%</li>`:''}${p.stopAtr>0?`<li>ATR 停損 ${p.stopAtr} 倍</li>`:''}${p.tp>0?`<li>停利 ${p.tp}%</li>`:''}${p.trail>0?`<li>移動停損 ${p.trail}%</li>`:''}${p.maxBars>0?`<li>最多持有 ${p.maxBars} 根</li>`:''}</ul>
       <p class="small">成本：手續費＋滑價 0.07%（停損再加 0.03%）。回測只代表過去，不保證未來。</p>`}
   return {html,bind,explain,sum,blk,get}})();
@@ -2394,7 +2450,7 @@ function drawSim(st,sym,t0,t1,r,p){
   pChart.timeScale().setVisibleRange({from:t0+TZ,to:t1+TZ});eChart.timeScale().fitContent();sDrawer&&sDrawer.reload();
   // 統計
   const PO=st==='my'||st==='poc'||st==='tur'||(st==='knife'||st==='knifeB'),pw=PO?r.trades.filter(x=>x.pnl>0).length:0,pu=PO&&r.trades.length?r.trades.reduce((a,x)=>a+x.n,0)/r.trades.length:0;
-  const BR=st==='brk'||st==='rib'||st==='dense',tr=BR?r.trades:r.trades.filter(x=>!ADD.includes(x.type));
+  const BR=st==='brk'||st==='rib'||st==='dense'||st==='cus',tr=BR?r.trades:r.trades.filter(x=>!ADD.includes(x.type));
   const wins=BR?r.trades.filter(x=>x.ret>0).length:null;
   const bh=B.C[lowerB(B.T,t1)-1]/c0;
   // 期間內最低點到之後最高點的倍數（現貨理論上最多能賺幾倍）
@@ -2539,16 +2595,22 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     else txt='空手　這一年沒有交易';
     if(recent.length)txt+=`<br><span class="tbadge">24h 內</span> ${recent.slice(-3).map(m=>`${md(m.t)} ${m.text||(m.type==='entry'?'進場':m.type==='stop'?'停損':'出場')}`).join('、')}`;
     return {txt,hot:recent.length>0,my:!!my}}
-  function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=t1+JSON.stringify(window.SigLock?SigLock.active():{});if(busy||k===key)return;busy=true;
+  function open(){const t1=E.load('BTC').T.slice(-1)[0]+3600,k=t1+JSON.stringify(window.SigLock?[SigLock.get(),SigLock.names(),SigLock.paused()]:{});if(busy||k===key)return;busy=true;
     $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];ORDER.forEach(st=>['BTC','ETH'].forEach(sym=>{if(BEST[st]&&BEST[st][sym])jobs.push([st,sym])}));
+    // 我的策略裡的自組策略：照各自存的規則算，排在最上面
+    const L=window.SigLock?SigLock.get():{};Object.keys(L).forEach(k=>{const[st,sym]=k.split('|');if(st==='cus'&&BEST.cus[sym])jobs.push(['cus',sym,k])});
     try{const c=JSON.parse(localStorage.getItem('sig')||'null');if(c&&c.k===k){render(c.res);key=k;busy=false;dispatchEvent(new Event('sigdone'));return}}catch(e){}
     const res={};let i=0;box().innerHTML=`<div class="card empty">計算中 0／${jobs.length}…</div>`;
-    const step=()=>{if(i>=jobs.length){render(res);key=k;busy=false;try{localStorage.setItem('sig',JSON.stringify({k,res}))}catch(e){}dispatchEvent(new Event('sigdone'));return}const [st,sym]=jobs[i++];try{(res[st]=res[st]||{})[sym]=one(st,sym,t1)}catch(e){(res[st]=res[st]||{})[sym]={txt:'這次算不出來',hot:false}}
+    const step=()=>{if(i>=jobs.length){render(res);key=k;busy=false;try{localStorage.setItem('sig',JSON.stringify({k,res}))}catch(e){}dispatchEvent(new Event('sigdone'));return}const [st,sym,mk]=jobs[i++];
+      if(mk){try{(res.mine=res.mine||{})[mk]=one(st,sym,t1,L[mk])}catch(e){(res.mine=res.mine||{})[mk]={txt:'這次算不出來',hot:false}}}
+      else try{(res[st]=res[st]||{})[sym]=one(st,sym,t1)}catch(e){(res[st]=res[st]||{})[sym]={txt:'這次算不出來',hot:false}}
       box().firstChild.textContent=`計算中 ${i}／${jobs.length}…`;setTimeout(step,0)};setTimeout(step,30)}
-  function render(res){box().innerHTML=ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
+  function render(res){const M=res.mine||{},P=window.SigLock?SigLock.paused():{},mk=Object.keys(M).filter(k=>window.SigLock&&SigLock.get()[k]);
+    box().innerHTML=(mk.length?`<div class="small" style="color:var(--muted);margin:2px 2px 8px">我的自組策略</div>`+mk.map(k=>{const x=M[k],sym=k.split('|')[1];
+      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">🧩</span>${(SigLock.name(k)||'').replace(/[&<>]/g,'')}${P[k]?'<span class="small" style="color:var(--muted);font-weight:500">　通知暫停</span>':''}</div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join('')+`<div class="small" style="color:var(--muted);margin:12px 2px 8px">範例策略</div>`:'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
     return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}${x.my?' 🔒':''}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
   // 點一列：跳到策略分析的那個策略、那個幣
-  document.addEventListener('click',e=>{const c=e.target.closest('#sigBox .sgc');if(!c)return;const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
+  document.addEventListener('click',e=>{const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
     $('#nav_strat').click();const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+c.dataset.st+'"]');if(b)b.click()});
   return {open,one,nm,md,reset(){key=''}}})();
 window.SigTab=SigTab;
@@ -2617,7 +2679,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     if(a.dataset.a==='del'){if(confirm(`把「${SigLock.name(k)}」從我的策略移除？`)){SigLock.remove(k);SigTab.reset();render()}return}
     if(a.dataset.a==='ren'){const n=prompt('新名字',SigLock.name(k));if(n&&n.trim()){SigLock.rename(k,n.trim());render()}return}
     goEdit(st,sym,SigLock.get()[k],k)});
-  return {render,count}})();window.MyStrat=MyStrat;
+  return {render,count,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k)}}})();window.MyStrat=MyStrat;
 
 // ── 通知 ──
 // 通知頁：Telegram 頻道（data 分支的 tg_log.json 由 scripts/tg_notify.py 寫：channel＝頻道連結，items＝最近發出的通知）
