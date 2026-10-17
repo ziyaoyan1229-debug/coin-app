@@ -67,7 +67,7 @@ async function cleanLocks(L) {
     const m = /^(\w{1,12})\|(BTC|ETH)(\|\w{1,12})?$/.exec(k);   // 策略|幣|編號（同一個策略可以存好幾份）
     if (!m || !p || typeof p !== 'object') continue;
     const q = {};
-    for (const [a, v] of Object.entries(p).slice(0, 80)) if (/^\w{1,20}$/.test(a) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || typeof v === 'string' && v.length <= 20)) q[a] = v;
+    for (const [a, v] of Object.entries(p).slice(0, 80)) if (/^\w{1,20}$/.test(a) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || typeof v === 'string' && (v.length <= 20 || a === 'rules' && v.length <= 1500))) q[a] = v;   // rules＝自訂策略的積木（JSON 字串）
     out[k] = q; h[k] = await lockId(m[1], m[2], q);
   }
   return [out, h];

@@ -57,7 +57,7 @@ function marks(st, sym, p, kp, extra) {
   } catch (e) { console.log(st, sym, '算不出來', e.message); }
 }
 for (const st of Object.keys(NAME)) for (const sym of ['BTC', 'ETH']) {
-  if (!BEST[st][sym] || (LOCK[st] && LOCK[st] !== sym)) continue;
+  if (st === 'cus' || !BEST[st][sym] || (LOCK[st] && LOCK[st] !== sym)) continue;   // 自訂策略只照使用者存的規則算
   marks(st, sym, {}, '', {});
 }
 // 使用者在 App 鎖定的策略參數（推播後端 /locks）：每組各算一次，訊號帶 lk，只推給鎖定那組的裝置
