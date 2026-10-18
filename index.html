@@ -2417,8 +2417,8 @@ const BEST={
       ETH:{rules:'{"in":[["emaUp",20,60]],"out":[["emaDn",20,60]],"any":0}',dir:'long',tf:4,lev:1,stopPct:8,stopAtr:0,tp:0,trail:0,maxBars:0,addMax:0,addSize:1,addPct:0,partFrac:0.5,tp1Pct:0,tp1Frac:0.5,funding:true}},
  brk:{BTC:{lev:6,n:60,body:0.5,vr:3,vrWin:60,atrN:14,stopAtr:3,exitN:60,regime:'w50',dir:'both2',funding:true},
       ETH:{lev:4,n:60,body:0.5,vr:3,vrWin:60,atrN:14,stopAtr:3,exitN:180,regime:'w50',dir:'both',funding:true}},
- box:{BTC:{lev:2,sell:0,k:5,full:0.5,small:0.2,perBox:1,longExit:'fail',runExit:'off',caughtAt:'top',rN:100,k2:30,runNoAdd:false,runBE:false,grade:true,gNear:0.15,gC:0,gDeep:0.3,gA:1,gB:1,gWick:0.5,gClose:0,gWickX:1,wickStop:false,wickBuf:0.01,stage:true,sEarly:0.15,sVol:0.25,vc:0.6,lowZ:0.4,earlyD:10,volCool:6,touch:0.15,touchCool:0,brk:0.003,near:0.03,wick:0.5,stopx:0.08,regime:'none',dir:'long',hmin:0.06,hmax:0.6,funding:true},
-      ETH:{lev:2,sell:0,k:10,full:0.5,small:0.2,perBox:2,longExit:'fail',runExit:'lowN',caughtAt:'top',rN:100,k2:30,runNoAdd:true,runBE:false,grade:true,gNear:0.2,gC:0,gDeep:0.3,gA:2,gB:1,gWick:0.5,gClose:0,gWickX:1,wickStop:false,wickBuf:0.01,stage:true,sEarly:0.15,sVol:0.25,vc:0.6,lowZ:0.4,earlyD:10,volCool:6,touch:0.15,touchCool:12,brk:0.003,near:0.03,wick:0.5,stopx:0.03,regime:'ma200up',dir:'both',hmin:0.06,hmax:0.6,funding:true}},
+ box:{BTC:{lev:2,sell:0,k:5,full:0.5,small:0.2,perBox:1,longExit:'fail',runExit:'off',caughtAt:'top',rN:100,k2:30,runNoAdd:false,runBE:false,grade:true,gNear:0.15,gC:0,gDeep:0.3,gA:1,gB:1,gWick:0.5,gClose:0,gWickX:1,wickStop:false,wickBuf:0.01,stage:true,sEarly:0.15,sVol:0.25,vc:0.6,lowZ:0.4,earlyD:10,volCool:6,touch:0.1,touchCool:12,brk:0.003,near:0.02,wick:0.5,stopx:0.03,regime:'none',dir:'long',hmin:0.06,hmax:0.6,funding:true},
+      ETH:{lev:1,sell:0,k:3,full:0.5,small:0.2,perBox:1,longExit:'fail',runExit:'lowN',caughtAt:'top',rN:100,k2:30,runNoAdd:true,runBE:false,grade:true,gNear:0.2,gC:0,gDeep:0.3,gA:1,gB:1,gWick:0.5,gClose:0,gWickX:1,wickStop:false,wickBuf:0.01,stage:true,sEarly:0.15,sVol:0.25,vc:0.6,lowZ:0.4,earlyD:10,volCool:6,touch:0.15,touchCool:12,brk:0.003,near:0.02,wick:0.5,stopx:0.05,regime:'ma200up',dir:'both',hmin:0.06,hmax:0.6,funding:true}},
  poc:{BTC:{lev:10,risk:0.05,maxU:15,step:0.0667,addBrk:12,addVr:0,addBody:'',stopMode:'poc',stopAtr:2,stopPct:0.02,trail:'be',be1R:true,beR:1,stall:'hi',stallN:72,vex:'off',vexR:1.2,vexN:24,vexCool:24,pb:false,pbExt:0.04,pbNear:0.01,pbWin:168,pbBrk:24,exit:'low1h',exitLow:24,exitMode:'lifo',tpBE:true,tpTrail:false,brkN:168,pocH:168,vr:3,body:0.5,atrN:24,vrWin:168,regime:'none',funding:true,vr1:5,cool:0,trend:'none',pocUp:0,maxExt:0,sqzN:168,sqz:0.08,closeTop:0},
       ETH:{lev:10,risk:0.05,maxU:10,step:0.1,addBrk:0,addVr:0,addBody:'',stopMode:'poc',stopAtr:2,stopPct:0.02,trail:'be',be1R:true,beR:1,stall:'hi',stallN:72,vex:'div',vexR:1.2,vexN:24,vexCool:24,pb:true,pbExt:0.04,pbNear:0.01,pbWin:168,pbBrk:24,exit:'none',exitLow:24,exitMode:'lifo',tpBE:true,tpTrail:false,brkN:168,pocH:168,vr:3,body:0.5,atrN:24,vrWin:168,regime:'none',funding:true,vr1:5,cool:0,trend:'h4',pocUp:0,maxExt:0,sqzN:168,sqz:0,closeTop:0.7}},
  dense:{BTC:{dir:'both2',tf:8,n1:20,n2:60,n3:120,sq:0.06,look:20,minBars:1,order:false,exit:'c3',stopAtr:0,atrN:14,lev:1.5,roll:true,rollLev:2,rollStep:0.05,rollMax:3,rollSL:'none',regime:'none',funding:true},
@@ -2624,7 +2624,7 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
   return {get,ui,save,paused,active,forSym,pause,remove,rename,renameGroup,name,names:fullNames,nm,part,gid,gname,setName,groups,addSet,setEdit,editName,editKey,clean,dirty,create:(st,sym,n,p)=>{const k=create(st,sym,n,p);if(k){edit=k;done()}return k}}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
-function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
+function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}else if(sym!=='BTC'&&sym!=='ETH'){C.slip=o[0]*2.5;C.stopSlip=o[1]*2.5}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
 function clearSim(){pcs&&pcs.setData([]);pcs&&pcs.setMarkers([]);eqs&&eqs.setData([]);bhs&&bhs.setData([]);$('#stats').innerHTML='';$('#tradeTable').innerHTML='';$('#levTable').innerHTML='';$('#legend').innerHTML=''}
 function runSim(){if(cmpLines.length)cmpClear();
   const st=$('#sStrat').value,sym=$('#sSym').value;  $('#busy').style.display='block';
@@ -2958,7 +2958,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   const HD={};
   async function hourData(sym,from,prog){if(sym==='BTC'||sym==='ETH')return true;const c=HD[sym];if(c&&c.from<=from&&Date.now()-c.at<600000)return true;
     const now=Math.floor(Date.now()/3600000)*3600,rows=[];const t=Math.floor(from/3600)*3600;
-    const urls=s=>[`https://data-api.binance.vision/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`,`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`];
+    const urls=s=>[`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`,`https://data-api.binance.vision/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`,`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`];   // 先抓永續合約，沒有才用現貨
     const getJ=async us=>{for(const u of us){try{const r=await fetch(u);if(r.ok)return await r.json()}catch(e){}}return null};
     const starts=[];for(let s=t;s<now;s+=1000*3600)starts.push(s);let done=0;
     for(let i=0;i<starts.length;i+=5){const part=await Promise.all(starts.slice(i,i+5).map(s=>getJ(urls(s))));
@@ -2969,6 +2969,9 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const d={t0,n,sc,c0:0,dc:new Array(n),o:new Array(n),h:new Array(n),l:new Array(n),v:new Array(n),f:{}};let pc=0,last=null;
     for(let i=0;i<n;i++){const r=by.get(t0+i*3600)||[0,last[4],last[4],last[4],last[4],'0'];last=r;const C=Math.round(+r[4]*sc);
       d.dc[i]=C-pc;pc=C;d.o[i]=Math.round(+r[1]*sc)-C;d.h[i]=Math.round(+r[2]*sc)-C;d.l[i]=Math.round(+r[3]*sc)-C;d.v[i]=+r[5]}
+    // 永續的資金費率（每 8 小時）：只放記憶體，不存手機；抓不到就當 0
+    try{let s=t0*1000;const end=(t0+n*3600)*1000;for(let k=0;k<40&&s<end;k++){const r=await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${sym}USDT&startTime=${s}&limit=1000`);if(!r.ok)break;const j=await r.json();if(!j.length)break;
+      for(const x of j){const i=Math.round((Math.floor(x.fundingTime/3600000)*3600-t0)/3600);if(i>=0&&i<n)d.f[i]=Math.round(+x.fundingRate*1e6)}s=j[j.length-1].fundingTime+1;if(j.length<1000)break}}catch(e){}
     window.DATA[sym]=d;E.__clear&&E.__clear();HD[sym]={from,at:Date.now()};return true}
   // 幣種下拉（多選，預設清單前六個）；按開始比較就換到結果畫面，先用開機的載入方塊把選的幣全部載完再顯示
   const ccAll=()=>['BTC','ETH',...(window.XM?XM.group('熱門山寨幣').concat(XM.group('其他山寨幣')):[])].filter((x,i,a)=>a.indexOf(x)===i);
@@ -2988,7 +2991,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <div class="field ccrow"><label>幣種</label><div class="ccdd"><button type="button" id="ccDdBtn">${esc(ccBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="ccMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
         ${all.map(x=>`<button type="button" class="ccit${ccSel.includes(x)?' on':''}" data-s="${x}">${ccIc(x)}<span>${x}</span><i></i></button>`).join('')}</div></div></div>
-      <p class="small" style="margin:4px 0 8px">用這個策略存的參數，原封不動放到每個幣上回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），而且沒有算資金費率。</p>
+      <p class="small" style="margin:4px 0 8px">用這個策略存的參數，原封不動放到每個幣上回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；資料只放在記憶體，不佔手機空間。</p>
       <button class="btn" id="ccGo" type="button" style="width:100%">開始比較</button></div>`;
     $('#ccK').onchange=e=>ccK=e.target.value;
     $('#ccPer').onclick=e=>{const b=e.target.closest('button');if(!b)return;ccPer=+b.dataset.v;$('#ccPer').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
@@ -3019,7 +3022,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="stDdBtn">${esc(stBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="stMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
         ${ks.map(k=>`<button type="button" class="ccit${stSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))}</span><i></i></button>`).join('')}</div></div></div>
-      <p class="small" style="margin:4px 0 8px">每個策略用自己存的參數，放到同一個幣、同一段期間回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），而且沒有算資金費率。</p>
+      <p class="small" style="margin:4px 0 8px">每個策略用自己存的參數，放到同一個幣、同一段期間回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；資料只放在記憶體，不佔手機空間。</p>
       <button class="btn" id="stGo" type="button" style="width:100%">開始比較</button></div>`;
     const CM=$('#stCMenu'),csync=()=>{CM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stCoins.includes(b.dataset.s)));$('#stCBtn').firstChild.textContent=cTxt()};
     $('#stCBtn').onclick=e=>{e.stopPropagation();$('#stMenu').classList.remove('on');CM.classList.toggle('on')};
