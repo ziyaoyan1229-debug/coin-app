@@ -2546,7 +2546,7 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
   function done(){ui();window.syncCvStrat&&syncCvStrat();window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset();window.MyStrat&&MyStrat.count()}
   function save(asNew){const st=$('#sStrat').value,sym=$('#sSym').value,e0=editing(),e=asNew?null:e0,p=clean(cur||{});
     // 另存：同一個策略底下多一組參數（參數N），不另開新策略
-    if(asNew&&typeof e0==='string'){const k=addSet(gid(e0),e0);if(!k)return;const L=get();L[k]=p;put(L);edit=k;window.SigTab&&SigTab.reset();return done()}
+    if(asNew&&typeof e0==='string'){const k=addSet(gid(e0),e0);if(!k)return;const n=prompt('幫這組參數取個名字',setName(k));if(n==null){remove(k);return}if(n.trim())rename(k,n.trim());const L=get();L[k]=p;put(L);edit=k;window.SigTab&&SigTab.reset();return done()}
     if(typeof e==='string'){const L=get();L[e]=p;put(L);return done()}
     let n=e&&e.name;if(!n){n=prompt('幫這個策略取個名字',nm(st)+' '+sym);if(n==null)return;n=n.trim().slice(0,20)||nm(st)}
     const k=create(st,sym,n,p);if(k){edit=k;done()}}
@@ -3050,7 +3050,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     box().innerHTML=`<button class="nback" id="myGBack" type="button">‹ 我的策略</button>
       <div class="mygh"><b>${esc(SigLock.gname(x.g))}</b><span class="sym">${sym}</span><div class="small" style="color:var(--muted)">${esc(st==='cus'?Rules.sum(L[k0]):SigLock.nm(st))}</div></div>
       <button class="btn" id="myAddSet" type="button" style="width:100%;margin:0 0 6px">＋ 新增一組參數</button>
-      <p class="small" style="color:var(--muted);margin:0 2px 12px;line-height:1.6">新的一組會先複製「${esc(SigLock.setName(x.keys[0]))}」的參數，再點進去改。每組各自回測、各自推播。</p>`+
+      <p class="small" style="color:var(--muted);margin:0 2px 12px;line-height:1.6">新的一組會先複製「${esc(SigLock.setName(x.keys[0]))}」的參數，可以自己取名，再點進去改；名字旁的筆可以改名。每組各自回測、各自推播。</p>`+
       x.keys.map(k=>`<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.setName(k))}<button class="ic" type="button" data-a="ren" aria-label="改名">${ICE}</button>${x.keys.length>1?`<button class="ic" type="button" data-a="del" aria-label="移除">${ICD}</button>`:''}</b><span class="ar" aria-hidden="true">›</span></div>
         ${MST}<div class="mnow small"><span class="spin"></span> 計算中…</div><div class="mopt"></div></div>`).join('');
     syncSym();window.Opt&&Opt.paint();
@@ -3076,7 +3076,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
         adding=false;const k=SigLock.create('cus',sym,n,SigLock.clean(Object.assign({},BEST.cus[sym],{rules,dir})));if(!k)return;openG=SigLock.gid(k);render();goEdit('cus',sym,SigLock.get()[k],k);return}   // 按下一步就存進我的策略，之後改參數再按儲存
       const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;const k=SigLock.create(st,sym,n,SigLock.clean(Object.assign({},BEST[st][sym])));if(!k)return;openG=SigLock.gid(k);render();goEdit(st,sym,SigLock.get()[k],k);return}
     if(e.target.id==='myGBack'){openG=null;render();box().scrollIntoView&&$('#stratView').scrollTo&&$('#stratView').scrollTo(0,0);return}
-    if(e.target.id==='myAddSet'){const k=SigLock.addSet(openG);if(k){SigTab.reset();render();const[st,sym]=SigLock.part(k);goEdit(st,sym,SigLock.get()[k],k,'p')}return}   // 新增後直接進「策略參數」改
+    if(e.target.id==='myAddSet'){const k=SigLock.addSet(openG);if(k){const n=prompt('幫這組參數取個名字',SigLock.setName(k));if(n==null){SigLock.remove(k);return}if(n.trim())SigLock.rename(k,n.trim());SigTab.reset();render();const[st,sym]=SigLock.part(k);goEdit(st,sym,SigLock.get()[k],k,'p')}return}   // 新增後直接進「策略參數」改
     const gc=e.target.closest('#myPane .mysg');if(gc){const g=gc.dataset.g,ga=e.target.closest('[data-a]');
       if(ga&&ga.dataset.a==='gdel'){const ks=SigLock.groups().find(x=>x.g===g);if(ks&&confirm(`把「${SigLock.gname(g)}」（${ks.keys.length} 組參數）從我的策略移除？`)){ks.keys.forEach(k=>SigLock.remove(k));SigTab.reset();render()}return}
       if(ga&&ga.dataset.a==='gren'){const n=prompt('新名字',SigLock.gname(g));if(n&&n.trim()){SigLock.renameGroup(g,n.trim());render()}return}
