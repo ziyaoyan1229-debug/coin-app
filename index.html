@@ -665,16 +665,16 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 #myPane,#cmpPane{padding:12px}#myPane .mys{margin-bottom:10px;padding:12px 14px}#myPane .mys .hd{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px}#myPane .mys .hd b{flex:1;min-width:0}
 #myPane .mys{cursor:pointer}#myPane .mys .hd b{display:flex;align-items:center;gap:2px}#myPane .mys .ic{background:none;border:0;padding:4px 5px;color:var(--muted);cursor:pointer;flex:none;display:flex;align-items:center}#myPane .mys .ic:first-of-type{margin-left:4px}#myPane .mys .ic:active{color:var(--acc)}#myPane .mgo{font-size:12px;color:var(--acc);text-align:right;margin-top:6px}
 #myPane .mys .hd .sym{font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
-#myPane .mst{display:flex;gap:6px;margin:10px 0 8px}#myPane .mst div{flex:1;background:var(--panel2);border-radius:10px;padding:7px 8px;font-size:11.5px;color:var(--muted)}#myPane .mst div b{display:block;font-size:15px;color:var(--text);margin-top:2px}
+:is(#myPane,#cmpPane) .mst{display:flex;gap:6px;margin:10px 0 8px}:is(#myPane,#cmpPane) .mst div{flex:1;background:var(--panel2);border-radius:10px;padding:7px 8px;font-size:11.5px;color:var(--muted)}:is(#myPane,#cmpPane) .mst div b{display:block;font-size:15px;color:var(--text);margin-top:2px}
 #myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#cmpPane .ccchips{display:flex;flex-wrap:wrap;gap:6px}#cmpPane .ccchips button{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}#cmpPane .ccchips button.on{background:var(--acc);border-color:var(--acc);color:#fff}#cmpSeg{display:flex}#cmpSeg button{flex:1}
 #cmpPane .ccrow{display:flex;align-items:center;justify-content:space-between;gap:10px}#cmpPane .ccrow label{margin:0}
 #cmpPane .ccdd{position:relative;flex:1;max-width:72%;display:flex;justify-content:flex-end}
-:is(#ccDdBtn,#stDdBtn,#stCBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:is(#ccMenu,#stMenu,#stCMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu).on{display:block}
-:is(#ccMenu,#stMenu,#stCMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
-:is(#ccMenu,#stMenu,#stCMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
-:is(#ccMenu,#stMenu,#stCMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
-:is(#ccMenu,#stMenu,#stCMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
+:is(#ccDdBtn,#stDdBtn,#stCBtn,#pfDdBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu).on{display:block}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
 
 #myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
@@ -866,6 +866,8 @@ N.createChart=function(el,opts){
 <script>// 策略回測引擎（瀏覽器與 Node 共用）。資料是 1 小時 K；訊號用 4h／日線，停損與爆倉用 1h 低點判斷。
 (function (root) {
   const H1 = 3600, H4 = 4 * 3600, D1 = 86400;
+  // 目前回撤（給「回撤降倉」用）：每次記權益時更新，倉位在下一次開倉／加倉時照它縮
+  let DDcur = 0; const DDH = x => (DDcur = x);
   const cache = {};
 
   function load(sym) {
@@ -1041,7 +1043,7 @@ N.createChart=function(el,opts){
           marks.push({ t: tEnd, px: c, type: 'entry', side: w, text: `${w > 0 ? '多' : '空'} ${fmt(c)}` });
         }
       }
-      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak); eq.push([tEnd, e]);
+      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak)); eq.push([tEnd, e]);
     }
     if (q) { const c = B.C[i1 - 1]; cur.exitT = B.T[i1 - 1] + H4; cur.exit = c; cur.why = '期末持有中'; cur.ret = s * (c / cur.entry - 1); trades.push(cur); }
     const final = liq ? 0 : (q ? E(B.C[i1 - 1]) : cash);
@@ -1196,7 +1198,7 @@ N.createChart=function(el,opts){
           }
         }
       }
-      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak); eq.push([tEnd, e]);
+      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak)); eq.push([tEnd, e]);
     }
     const final = liq ? 0 : E(B.C[i1 - 1]);
     return summary(final, p.capital, mdd, liq, trades, eq, marks, fund, fees, { boxes: bx, cycles });
@@ -1385,7 +1387,7 @@ N.createChart=function(el,opts){
             if (hit) { const hs = units.filter(u => u.hitPx); for (const u of hs) cut(u, u.q, u.hitPx, '停損', b.T[i] + H1); units = units.filter(u => u.q > 1e-12); units.forEach(u => delete u.hitPx); marks.push({ t: b.T[i] + H1, px: hs[0].stop, type: 'stop', side: 1, text: '停損' }); endWave(b.T[i] + H1, '停損'); } }
         }
       }
-      if (tEnd % H4 === 0) { const e2 = E(c); peak = Math.max(peak, e2); mdd = Math.max(mdd, 1 - e2 / peak); eq.push([tEnd, e2]); }
+      if (tEnd % H4 === 0) { const e2 = E(c); peak = Math.max(peak, e2); mdd = Math.max(mdd, DDH(1 - e2 / peak)); eq.push([tEnd, e2]); }
       if (liq) break;
     }
     if (units.length && !liq) { wave.why = '期末持有中'; wave.exitT = b.T[i1 - 1] + H1; trades.push(wave); }
@@ -1476,7 +1478,7 @@ N.createChart=function(el,opts){
         if (VOL && VT !== B && units.length && s > 0 && (b.T[j] + H1) % (p.vtf * H1) === 0) {
           const t4 = b.T[j] + H1 - p.vtf * H1, k = lower(VT.T, t4); if (VT.T[k] === t4) { const w = volStep(k); if (w && p.reVol) beOut = s; if (w) closeAll(b.C[j] * (1 - COST.slip), w, b.T[j] + H1, 'exit'); if (liq) break outer; }
         }
-        const e = units.length ? E(b.C[j]) : cash; peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak);
+        const e = units.length ? E(b.C[j]) : cash; peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak));
         if ((b.T[j] + H1) % H4 === 0) eq.push([b.T[j] + H1, e]);
       }
       const c = B.C[i], tEnd = b.T[B.he[i] - 1] + H1;
@@ -1557,7 +1559,7 @@ N.createChart=function(el,opts){
           const adv = s > 0 ? b.L[j] : b.H[j], hit = stop && (s > 0 ? adv <= stop : adv >= stop), sp = hit ? (s > 0 ? Math.min(b.O[j], stop) : Math.max(b.O[j], stop)) * (1 - s * COST.stopSlip) : 0;
           if (hit && stopOk(E, q, sp)) { close(sp, '停損', b.T[j]); break; }
           if (hit || E(adv) <= COST.mm * q * adv) { liq = true; cash = 0; q = 0; Object.assign(cur, { exitT: b.T[j], why: '爆倉', exit: adv, ret: -1 }); trades.push(cur); cur = null; marks.push({ t: b.T[j], px: adv, type: 'liq', text: '爆倉' }); break; }
-          const e = E(b.C[j]); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak);
+          const e = E(b.C[j]); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak));
         }
         if (liq) break;
       }
@@ -1595,7 +1597,7 @@ N.createChart=function(el,opts){
           break;
         }
       }
-      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak); eq.push([tEnd, e]);
+      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak)); eq.push([tEnd, e]);
     }
     if (q && !liq) { const c = B.C[i1 - 1]; Object.assign(cur, { exitT: B.T[i1 - 1] + tf, exit: c, why: '期末持有中', ret: s * (c / cur.entry - 1) }); trades.push(cur); }
     const final = liq ? 0 : (q ? E(B.C[i1 - 1]) : cash);
@@ -1628,7 +1630,7 @@ N.createChart=function(el,opts){
           const adv = s > 0 ? b.L[j] : b.H[j], hit = stop && (s > 0 ? adv <= stop : adv >= stop), sp = hit ? (s > 0 ? Math.min(b.O[j], stop) : Math.max(b.O[j], stop)) * (1 - s * COST.stopSlip) : 0;
           if (hit && stopOk(E, q, sp)) { close(sp, '停損', b.T[j]); break; }
           if (hit || E(adv) <= COST.mm * q * adv) { liq = true; cash = 0; q = 0; Object.assign(cur, { exitT: b.T[j], why: '爆倉', exit: adv, ret: -1 }); trades.push(cur); cur = null; marks.push({ t: b.T[j], px: adv, type: 'liq', text: '爆倉' }); break; }
-          const e = E(b.C[j]); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak);
+          const e = E(b.C[j]); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak));
         }
         if (liq) break;
       }
@@ -1680,7 +1682,7 @@ N.createChart=function(el,opts){
           break;
         }
       }
-      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak); eq.push([tEnd, e]);
+      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak)); eq.push([tEnd, e]);
     }
     if (q && !liq) { const c = B.C[i1 - 1]; Object.assign(cur, { exitT: B.T[i1 - 1] + tf, exit: c, why: '期末持有中', ret: s * (c / cur.entry - 1) }); trades.push(cur); }
     const final = liq ? 0 : (q ? E(B.C[i1 - 1]) : cash);
@@ -1774,7 +1776,7 @@ N.createChart=function(el,opts){
         why = units.length ? '5分點火加倉' : '5分點火進場'; st_ = pend.stop; lv = pend.lvl; pMul = pend.mul; pend = null;
         curRk = rk * pMul; pMul = 1; const px = IG.ip[i];
         if (st_ < px * 0.999 && (px - st_) / px <= p.maxStop) open(1, px, st_, why, tEnd, i, lv);
-        if (tEnd % H4 === 0) { const e2 = E(c); peak = Math.max(peak, e2); mdd = Math.max(mdd, 1 - e2 / peak); eq.push([tEnd, e2]); }
+        if (tEnd % H4 === 0) { const e2 = E(c); peak = Math.max(peak, e2); mdd = Math.max(mdd, DDH(1 - e2 / peak)); eq.push([tEnd, e2]); }
         continue;
       }
       if (w > 0 && p.h4b && new4 && i4 > 43 && !units.length && !pend && B4.C[i4] > H4X[i4] && B4.C[i4 - 1] <= H4X[i4 - 1] && isFinite(A4[i4])) {
@@ -1797,7 +1799,7 @@ N.createChart=function(el,opts){
         if (!why && use.has('dbl') && ph.length >= 2) { const a = ph[ph.length - 2], z = ph[ph.length - 1]; if (Math.abs(z.px / a.px - 1) <= p.tol && z.i - a.i >= 3) { let nk = Infinity; for (let x = a.i; x <= z.i; x++) nk = Math.min(nk, B4.L[x]); if (c < nk && b.C[i - 1] >= nk && volOk) { why = '雙重頂跌破頸線'; lv = nk; st_ = Math.max(a.px, z.px) * (1 + 0.002); } } }
       }
       curRk = rk * pMul; pMul = 1; if (why && (w > 0 ? st_ < c * 0.999 : st_ > c * 1.001) && Math.abs(c - st_) / c <= p.maxStop) open(w, c, st_, why, tEnd, i, p.fbRef === 'entry' ? c : lv);
-      if (tEnd % H4 === 0) { const e2 = E(c); peak = Math.max(peak, e2); mdd = Math.max(mdd, 1 - e2 / peak); eq.push([tEnd, e2]); }
+      if (tEnd % H4 === 0) { const e2 = E(c); peak = Math.max(peak, e2); mdd = Math.max(mdd, DDH(1 - e2 / peak)); eq.push([tEnd, e2]); }
     }
     if (units.length && !liq) { wave.why = '期末持有中'; wave.exitT = b.T[i1 - 1] + H1; wave.pnl += E(b.C[i1 - 1]) - cash; trades.push(wave); }
     const final = liq ? 0 : E(b.C[i1 - 1]);
@@ -2002,7 +2004,7 @@ N.createChart=function(el,opts){
           marks.push({ t: tEnd, px: c, type: 'entry', side: w, text: `${w > 0 ? '多' : '空'} ${fmt(c)}` });
         }
       }
-      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, 1 - e / peak); eq.push([tEnd, e]);
+      const e = E(c); peak = Math.max(peak, e); mdd = Math.max(mdd, DDH(1 - e / peak)); eq.push([tEnd, e]);
     }
     if (q) { const c = B.C[i1 - 1]; cur.exitT = B.T[i1 - 1] + tf; cur.exit = c; cur.why = '期末持有中'; cur.ret = s * (c / cur.entry - 1); trades.push(cur); }
     const final = liq ? 0 : (q ? E(B.C[i1 - 1]) : cash);
@@ -2015,7 +2017,7 @@ N.createChart=function(el,opts){
   function lower(arr, t) { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] < t) lo = m + 1; else hi = m; } return lo; }
   function fmt(x) { return Math.round(x).toLocaleString('en-US'); }
 
-  root.Engine = { lastClosed, tClosed, __clear: () => { for (const k in cache) delete cache[k]; for (const k in IGN) delete IGN[k]; }, COST, set5, setIgn, ign1h, __get5: s => F5S[s], __slideMed: slideMed, wyckoff, runMy, load, resample, atrPrev, rollMaxPrev, rollMinPrev, regimeFn, sideFn, runBreakout, runBox, runPoc, runTurtle, runRibbon, runDense, runCustom, CUSLIB, parseRules, RIB, emaArr, pocPrev, boxes, H1, H4, D1 };
+  root.Engine = { ddNow: () => DDcur, ddSet: v => { DDcur = v; }, lastClosed, tClosed, __clear: () => { for (const k in cache) delete cache[k]; for (const k in IGN) delete IGN[k]; }, COST, set5, setIgn, ign1h, __get5: s => F5S[s], __slideMed: slideMed, wyckoff, runMy, load, resample, atrPrev, rollMaxPrev, rollMinPrev, regimeFn, sideFn, runBreakout, runBox, runPoc, runTurtle, runRibbon, runDense, runCustom, CUSLIB, parseRules, RIB, emaArr, pocPrev, boxes, H1, H4, D1 };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -2550,6 +2552,9 @@ const Rules=(()=>{const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':
 // 自己調過的參數存在這台裝置，下次打開還在；按「恢復最佳參數」才清掉
 const myP=(st,sym)=>{try{return JSON.parse(localStorage.getItem('myp_'+st+'_'+sym))||{}}catch(e){return{}}};
 const setMyP=(st,sym,c)=>{try{const b=BEST[st][sym],d={};for(const k in c)if(String(c[k])!==String(b[k]))d[k]=c[k];Object.keys(d).length?localStorage.setItem('myp_'+st+'_'+sym,JSON.stringify(d)):localStorage.removeItem('myp_'+st+'_'+sym)}catch(e){}};
+// 策略框架 v1：每個策略共用的「倉位倍數」與「回撤降倉」（預設 1 倍、關＝跟原版一樣）
+for(const st in PDEF)PDEF[st].push(['kMul','倉位倍數（k）','num',0.05,3,0.05,'槓桿與每筆風險同乘 k；1＝原版'],['ddCut','回撤降倉','sel',[['off','關'],['T1','回撤 >15% 新單減半、>30% 剩 1/5'],['lin','線性：倍數＝max(0.2, 1−2.5×回撤)']],'用這個策略自己的權益峰值算，只影響新開倉與加倉']);
+for(const st in BEST)for(const sy in BEST[st]){const b=BEST[st][sy];if(b.kMul==null)b.kMul=1;if(b.ddCut==null)b.ddCut='off'}
 function buildParams(){
   const st=$('#sStrat').value,sym=$('#sSym').value;
   const best=BEST[st][sym];cur=Object.assign({},best,myP(st,sym));
@@ -2624,7 +2629,12 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
   return {get,ui,save,paused,active,forSym,pause,remove,rename,renameGroup,name,names:fullNames,nm,part,gid,gname,setName,groups,addSet,setEdit,editName,editKey,clean,dirty,create:(st,sym,n,p)=>{const k=create(st,sym,n,p);if(k){edit=k;done()}return k}}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
-function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}else if(sym!=='BTC'&&sym!=='ETH'){C.slip=o[0]*2.5;C.stopSlip=o[1]*2.5}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
+// 策略框架 v1：倉位倍數 k（槓桿與每筆風險同乘 k）＋回撤降倉（照策略自己的權益峰值，只影響新開倉與加倉）
+const DDCUT={off:()=>1,T1:d=>d>0.30?0.2:d>0.15?0.5:1,lin:d=>Math.max(0.2,1-2.5*d)},KSC=new Set(['lev','risk','rollLev']);
+function fwP(p){const k=+p.kMul>0?+p.kMul:1,f=DDCUT[p.ddCut]||DDCUT.off;if(k===1&&f===DDCUT.off)return p;E.ddSet(0);
+  return new Proxy(p,{get:(o,key)=>KSC.has(key)&&typeof o[key]==='number'?o[key]*k*f(E.ddNow()):o[key]})}
+function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];p=p&&fwP(p);if(p&&p.slip===false){C.slip=0;C.stopSlip=0}else if(sym!=='BTC'&&sym!=='ETH'){C.slip=o[0]*2.5;C.stopSlip=o[1]*2.5}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
+window.__sim=simulate;window.__BEST=()=>BEST;   // 給測試與組合回測用
 function clearSim(){pcs&&pcs.setData([]);pcs&&pcs.setMarkers([]);eqs&&eqs.setData([]);bhs&&bhs.setData([]);$('#stats').innerHTML='';$('#tradeTable').innerHTML='';$('#levTable').innerHTML='';$('#legend').innerHTML=''}
 function runSim(){if(cmpLines.length)cmpClear();
   const st=$('#sStrat').value,sym=$('#sSym').value;  $('#busy').style.display='block';
@@ -2713,7 +2723,7 @@ const DTab=(()=>{const SV=$('#stratView');function set(d){SV.dataset.d=d;$('#dTa
 // 按下去跳到「我的策略」顯示進度條和預估時間，跑完點卡片看「最佳參數」前 5 名，按「套用」填回參數。參數只在樣本內（期間扣掉最後一年）挑，最後一年當樣本外驗證；排名看兩段「年化報酬÷回撤」較差的那段，樣本內爆倉的不列
 const Opt=(()=>{const SEL={},RES={},JOBS=[];let lastP=0;
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const nums=st=>(PDEF[st]||[]).filter(d=>d[2]==='num'&&d[0]!=='lev'&&typeof cur[d[0]]==='number');
+  const nums=st=>(PDEF[st]||[]).filter(d=>d[2]==='num'&&d[0]!=='lev'&&d[0]!=='kMul'&&typeof cur[d[0]]==='number');
   const lab=d=>d[1].replace(/（.*?）/g,'');
   function sel(){const st=$('#sStrat').value,N=nums(st),box=$('#optSel');if(!box)return;
     const S=SEL[st]||(SEL[st]=N.slice(0,4).map(d=>d[0]));
@@ -2941,19 +2951,19 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   function draw(R,title){const W=360,H=200,P=6,A=R.filter(x=>x.r.eq&&x.r.eq.length);let t0=Infinity,t1=-Infinity,v0=Infinity,v1=-Infinity;
     A.forEach(x=>x.r.eq.forEach(([t,v])=>{if(t<t0)t0=t;if(t>t1)t1=t;const lv=Math.log10(Math.max(v,1));if(lv<v0)v0=lv;if(lv>v1)v1=lv}));if(v1-v0<0.1){v1+=0.05;v0-=0.05}
     const X=t=>P+(t-t0)/(t1-t0||1)*(W-2*P),Y=v=>H-P-(Math.log10(Math.max(v,1))-v0)/(v1-v0)*(H-2*P);
-    const lines=A.map(x=>{const e=x.r.eq,n=e.length,st=Math.max(1,Math.floor(n/240));let d='';for(let j=0;j<n;j+=st)d+=(d?'L':'M')+X(e[j][0]).toFixed(1)+','+Y(e[j][1]).toFixed(1);d+='L'+X(e[n-1][0]).toFixed(1)+','+Y(e[n-1][1]).toFixed(1);return `<path d="${d}" fill="none" stroke="${x.c}" stroke-width="1.6"/>`}).join('');
+    const lines=A.map(x=>{const e=x.r.eq,n=e.length,st=Math.max(1,Math.floor(n/240));let d='';for(let j=0;j<n;j+=st)d+=(d?'L':'M')+X(e[j][0]).toFixed(1)+','+Y(e[j][1]).toFixed(1);d+='L'+X(e[n-1][0]).toFixed(1)+','+Y(e[n-1][1]).toFixed(1);return `<path d="${d}" fill="none" stroke="${x.c}" stroke-width="${x.pin?2.8:1.6}"/>`}).join('');
     const base=`<line x1="${P}" x2="${W-P}" y1="${Y(1000).toFixed(1)}" y2="${Y(1000).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3 4" stroke-width="1" opacity=".6"/>`;
-    const sc=x=>x.r.liq?-1:(x.r.mult-1)/Math.max(x.r.mdd,0.05),S=R.slice().sort((a,b)=>sc(b)-sc(a));
+    const sc=x=>x.r.liq?-1:(x.r.mult-1)/Math.max(x.r.mdd,0.05),S=R.slice().sort((a,b)=>(b.pin|0)-(a.pin|0)||sc(b)-sc(a));
     $('#myCmpBox').innerHTML=`<div class="card mycmp" style="padding:12px 14px;margin-bottom:10px"><div style="font-weight:700;margin-bottom:4px">${title||'策略差異（2020 至今，本金 1,000）'}</div>
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${base}${lines}</svg>
       <div class="small" style="color:var(--muted);margin:2px 0 8px">資金曲線用對數刻度，虛線＝本金 1,000。${new Date(t0*1000).getFullYear()} → ${new Date(t1*1000).getFullYear()}</div>
-      <table class="cmpt" style="width:100%"><tr><th>${R.coin?'幣種':'策略'}</th><th>倍數</th><th>回撤</th><th>近一年</th><th>報酬÷回撤</th></tr>${S.map(x=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${x.c};vertical-align:middle;margin-right:6px"></i>${esc(x.name)} <span class="small">${x.sym||''}</span></td><td class="${x.r.mult>=1?'pos':'neg'}">${x.bad?'—':x.r.liq?'爆倉':fmt(x.r.mult,2)}</td><td>${x.bad?'—':pct(x.r.mdd)}</td><td class="${x.y.mult>=1?'pos':'neg'}">${x.bad?'—':x.y.liq?'爆倉':((x.y.mult-1)*100).toFixed(1)+'%'}</td><td>${x.r.liq?'—':fmt(sc(x),2)}</td></tr>`).join('')}</table></div>`}
+      <table class="cmpt" style="width:100%"><tr><th>${R.coin?'幣種':'策略'}</th><th>倍數</th><th>回撤</th><th>${R.yLab||'近一年'}</th><th>報酬÷回撤</th></tr>${S.map(x=>`<tr><td style="white-space:normal"><i style="display:inline-block;width:10px;height:3px;background:${x.c};vertical-align:middle;margin-right:6px"></i>${esc(x.name)} <span class="small">${x.sym||''}</span></td><td class="${x.r.mult>=1?'pos':'neg'}">${x.bad?'—':x.r.liq?'爆倉':fmt(x.r.mult,2)}</td><td>${x.bad?'—':pct(x.r.mdd)}</td><td class="${x.y.mult>=1?'pos':'neg'}">${x.bad?'—':x.y.liq?'爆倉':((x.y.mult-1)*100).toFixed(1)+'%'}</td><td>${x.r.liq?'—':fmt(sc(x),2)}</td></tr>`).join('')}</table></div>`}
   // 策略比較分頁：策略差異（我的策略全部比）／幣種差異（同一個策略放到不同幣上跑）
   let cmpMode='st',ccK='',ccPer=730,ccSel=null,ccBusy=false;
   function cmpTab(){cmpOn=true;const P=$('#cmpPane');
-    P.innerHTML=`<div class="seg" id="cmpSeg" style="margin:0 0 10px"><button type="button" data-m="st"${cmpMode==='st'?' class="on"':''}>策略差異</button><button type="button" data-m="coin"${cmpMode==='coin'?' class="on"':''}>幣種差異</button></div><div id="ccForm"></div><div id="myCmpBox"></div>`;
+    P.innerHTML=`<div class="seg" id="cmpSeg" style="margin:0 0 10px"><button type="button" data-m="st"${cmpMode==='st'?' class="on"':''}>策略差異</button><button type="button" data-m="coin"${cmpMode==='coin'?' class="on"':''}>幣種差異</button><button type="button" data-m="pf"${cmpMode==='pf'?' class="on"':''}>組合回測</button></div><div id="ccForm"></div><div id="myCmpBox"></div>`;
     P.querySelector('#cmpSeg').onclick=e=>{const b=e.target.closest('button');if(!b||ccBusy)return;cmpMode=b.dataset.m;cmpTab()};
-    if(cmpMode==='st')stForm();else ccForm()}
+    if(cmpMode==='st')stForm();else if(cmpMode==='pf')pfForm();else ccForm()}
   // 1 小時 K：BTC、ETH 用內建資料；其他幣由手機向幣安現貨抓（缺的小時用前一根收盤補平），轉成引擎的格式
   const HD={};
   // 其他幣的 1 小時 K 與資金費率：第一次抓完存在手機（IndexedDB），之後只補缺的那段
@@ -3047,6 +3057,51 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       else{const k=b.dataset.k;stSel=stSel.includes(k)?stSel.filter(y=>y!==k):[...stSel,k]}sync()};
     document.addEventListener('click',()=>M.classList.remove('on'));
     $('#stGo').onclick=stRun}
+  // 組合回測（策略框架 v1）：勾幾個我的策略當子帳戶，資金平均分、不再平衡；整體放大＝每個子帳戶的倉位倍數再乘上去
+  const FW1=[['my','BTC',1.25,'off','我的系統'],['my','ETH',1,'off','我的系統'],['tur','BTC',0.5,'T1','海龜'],['dense','ETH',0.75,'lin','均線密集'],['dense','BTC',0.35,'off','均線密集'],['poc','ETH',0.35,'off','POC 堆倉'],['poc','BTC',0.35,'off','POC 堆倉']];
+  let pfSel=null,pfM=1.5;const OOS0=ts('2024-09-21');
+  function pfForm(){const ks=stKeys(),L=SigLock.get();pfSel=(pfSel||ks).filter(k=>ks.includes(k));
+    const fwHas=FW1.every(f=>ks.some(k=>{const[st,sym]=SigLock.part(k);return st===f[0]&&sym===f[1]&&+L[k].kMul===f[2]}));
+    const txt=()=>pfSel.length?`已選 ${pfSel.length} 個子帳戶`:'請選擇';
+    $('#myCmpBox').innerHTML='';$('#ccForm').hidden=false;
+    $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
+      <p class="small" style="margin:0 0 10px;line-height:1.6">把幾個我的策略當成子帳戶一起跑：資金平均分、不再平衡，每個子帳戶照自己的「倉位倍數」和「回撤降倉」設定。</p>
+      ${fwHas?'':`<button class="btn ghost" id="pfFw" type="button" style="width:100%;margin:0 0 10px">＋ 加入策略框架 v1 的 7 個子帳戶</button>`}
+      <div class="field ccrow"><label>子帳戶</label><div class="ccdd"><button type="button" id="pfDdBtn">${esc(txt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="pfMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
+        ${ks.map(k=>`<button type="button" class="ccit${pfSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))} <small style="color:var(--muted)">${SigLock.part(k)[1]}・k ${+L[k].kMul>0?+L[k].kMul:1}</small></span><i></i></button>`).join('')}</div></div></div>
+      <div class="field"><label>整體放大倍數</label><div class="seg" id="pfMul">${[1,1.25,1.5,2].map(v=>`<button type="button" data-v="${v}"${pfM===v?' class="on"':''}>×${v}</button>`).join('')}</div></div>
+      <button class="btn" id="pfGo" type="button" style="width:100%;margin-top:6px">開始回測</button></div>`;
+    const M=$('#pfMenu'),sync=()=>{$('#pfDdBtn').firstChild.textContent=txt();M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfSel.includes(b.dataset.k)))};
+    $('#pfDdBtn').onclick=e=>{e.stopPropagation();M.classList.toggle('on')};
+    M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='all')pfSel=ks.slice();else if(b.dataset.a==='none')pfSel=[];else{const k=b.dataset.k;pfSel=pfSel.includes(k)?pfSel.filter(y=>y!==k):[...pfSel,k]}sync()};
+    document.addEventListener('click',()=>M.classList.remove('on'));
+    $('#pfMul').onclick=e=>{const b=e.target.closest('button');if(!b)return;pfM=+b.dataset.v;$('#pfMul').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
+    if($('#pfFw'))$('#pfFw').onclick=()=>{if(Object.keys(L).length+FW1.length>30){alert('我的策略最多 30 組參數，先移除一些');return}const nk=[];
+      for(const[st,sym,k,dd,nm]of FW1){const key=SigLock.create(st,sym,'框架・'+nm+' '+sym,SigLock.clean(Object.assign({},BEST[st][sym],{kMul:k,ddCut:dd})));if(key){SigLock.pause(key,true);nk.push(key)}}
+      pfSel=nk;pfM=1.5;SigLock.setEdit(null);window.MyStrat&&MyStrat.count();pfForm()};   // 新增的子帳戶先關通知，要推播再到今日訊號打開
+    $('#pfGo').onclick=pfRun}
+  async function pfRun(){if(ccBusy)return;const L=SigLock.get(),ks=pfSel.filter(k=>L[k]);if(ks.length<2){alert('至少選 2 個子帳戶');return}
+    ccBusy=true;const gen=++ccGen,box=$('#myCmpBox'),m=pfM;$('#ccForm').hidden=true;
+    box.innerHTML=`<button class="nback" id="ccBack" type="button">‹ 重新選擇</button><div id="ccStage"></div>`;$('#ccBack').onclick=()=>{ccGen++;ccBusy=false;pfForm()};
+    const stage=$('#ccStage'),show=(t,f)=>{if(gen===ccGen)HXup(stage,t,f)};stage.innerHTML=HX('準備中…',0);
+    const syms=[...new Set(ks.map(k=>SigLock.part(k)[1]))];for(const[i,sy]of syms.entries()){show(`載入 ${sy}（${i+1}／${syms.length}）`,i/syms.length*.3);try{await hourData(sy,ts('2020-01-01')-60*D1)}catch(e){}if(gen!==ccGen)return}
+    const t0=ts('2020-01-01'),R=[],run=(k,a)=>{const[st,sym]=SigLock.part(k),P=Object.assign({capital:1000},BEST[st][sym],L[k]),H=E.load(sym),t1=Math.min(E.lastClosed?E.lastClosed(sym):H.T[H.n-1]+3600,H.T[H.n-1]+3600);
+      P.kMul=(+P.kMul>0?+P.kMul:1)*m;return simulate(st,sym,Math.max(a,H.T[0]+60*D1),t1,P)};
+    const C={full:[],oos:[]};
+    for(const[i,k]of ks.entries()){if(gen!==ccGen)return;show(`回測 ${SigLock.name(k)}（${i+1}／${ks.length}）`,.3+.7*i/ks.length);await new Promise(r=>setTimeout(r,0));
+      try{const r=run(k,t0),o=run(k,OOS0);C.full.push(r.eq);C.oos.push(o.eq);R.push({k,name:SigLock.name(k),sym:SigLock.part(k)[1],r,y:{mult:o.mult,liq:o.liq},c:CC[i%CC.length]})}catch(e){}}
+    if(gen!==ccGen)return;ccBusy=false;
+    // 每天取各子帳戶最後權益（還沒開始的當 1），組合＝平均
+    const comb=E2=>{const M=E2.map(e=>{const mp=new Map();for(const[t,v]of e)mp.set(t-t%D1,v/1000);return mp});let a=Infinity,b=-Infinity;M.forEach(mp=>mp.forEach((v,t)=>{if(t<a)a=t;if(t>b)b=t}));
+      const last=M.map(()=>1),eq=[];let peak=1,mdd=0,v=1;for(let d=a;d<=b;d+=D1){M.forEach((mp,i)=>{if(mp.has(d))last[i]=mp.get(d)});v=last.reduce((x,y)=>x+y,0)/last.length;peak=Math.max(peak,v);mdd=Math.max(mdd,1-v/peak);eq.push([d,v*1000])}
+      const yr=(b-a)/31557600;return{eq,mult:v,mdd,cagr:yr>0?Math.pow(Math.max(v,1e-9),1/yr)-1:0}};
+    const F=comb(C.full),O=comb(C.oos);
+    R.yLab='2024-09 後';    R.unshift({pin:1,name:'組合',sym:`${ks.length} 個子帳戶`,r:{eq:F.eq,mult:F.mult,mdd:F.mdd},y:{mult:O.mult},c:'var(--text)'});
+    const back=box.querySelector('#ccBack');draw(R,`組合回測（2020 至今，整體放大 ×${m}，本金 1,000）`);box.prepend(back);
+    const cls=x=>x>=1?'pos':'neg',f2=x=>fmt(x,2);
+    box.querySelector('.mycmp').insertAdjacentHTML('afterbegin',`<div class="mst" style="margin:0 0 10px"><div>2020 至今<b class="${cls(F.mult)}">×${f2(F.mult)}</b></div><div>年化<b>${(F.cagr*100).toFixed(0)}%</b></div><div>最大回撤<b>${pct(F.mdd)}</b></div></div>
+      <div class="mst" style="margin:0 0 10px"><div>2024-09-21 後<b class="${cls(O.mult)}">×${f2(O.mult)}</b></div><div>年化<b>${(O.cagr*100).toFixed(0)}%</b></div><div>最大回撤<b>${pct(O.mdd)}</b></div></div>`)}
   async function stRun(){if(ccBusy)return;const L=SigLock.get(),ks=stSel.filter(k=>L[k]),coins=stCoins.slice();
     if(!coins.length){alert('至少選一個幣種');return}
     if(ks.length*coins.length<2){alert('至少要有 2 組可以比較（多選幾個策略或幣種）');return}ccBusy=true;const gen=++ccGen;
