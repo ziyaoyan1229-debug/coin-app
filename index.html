@@ -669,12 +669,12 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 #myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#cmpPane .ccchips{display:flex;flex-wrap:wrap;gap:6px}#cmpPane .ccchips button{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}#cmpPane .ccchips button.on{background:var(--acc);border-color:var(--acc);color:#fff}#cmpSeg{display:flex}#cmpSeg button{flex:1}
 #cmpPane .ccrow{display:flex;align-items:center;justify-content:space-between;gap:10px}#cmpPane .ccrow label{margin:0}
 #cmpPane .ccdd{position:relative;flex:1;max-width:72%;display:flex;justify-content:flex-end}
-:is(#ccDdBtn,#stDdBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:is(#ccMenu,#stMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu).on{display:block}
-:is(#ccMenu,#stMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
-:is(#ccMenu,#stMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
-:is(#ccMenu,#stMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
-:is(#ccMenu,#stMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
+:is(#ccDdBtn,#stDdBtn,#stCBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(#ccMenu,#stMenu,#stCMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu).on{display:block}
+:is(#ccMenu,#stMenu,#stCMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
+:is(#ccMenu,#stMenu,#stCMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
+:is(#ccMenu,#stMenu,#stCMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
+:is(#ccMenu,#stMenu,#stCMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
 
 #myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
@@ -2898,53 +2898,65 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     document.addEventListener('click',()=>M.classList.remove('on'));
     $('#ccGo').onclick=coinRun}
   // 策略差異：選一個幣種、期間，再從下拉多選我的策略（預設全選）；按開始比較換到結果畫面，用載入方塊算完再顯示
-  let stCoin='BTC',stSel=null;
+  let stCoins=['BTC'],stSel=null;
   const stKeys=()=>{const L=SigLock.get();return Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]})};
   const stBtnTxt=()=>stSel.length?(stSel.length===1?SigLock.name(stSel[0]):`已選 ${stSel.length} 個策略`):'請選擇';
   function stForm(){const ks=stKeys();
     if(ks.length<2){$('#ccForm').innerHTML='<div class="card" style="padding:12px 14px">至少要有 2 個我的策略才能比較。</div>';$('#myCmpBox').innerHTML='';return}
     if(window.XM&&!ccListed){$('#myCmpBox').innerHTML='';$('#ccForm').innerHTML=HX('載入幣種清單…');const gen=ccGen;
       Promise.all([XM.list(),XM.icons()]).catch(()=>{}).then(()=>{ccListed=true;if(gen===ccGen&&cmpMode==='st'&&$('#ccForm'))stForm()});return}
-    const all=ccAll();if(!all.includes(stCoin))stCoin=all[0]||'BTC';
+    const all=ccAll();stCoins=stCoins.filter(x=>all.includes(x));if(!stCoins.length)stCoins=[all[0]||'BTC'];
+    const cTxt=()=>stCoins.length?(stCoins.length<=3?stCoins.join('、'):stCoins.slice(0,3).join('、')+` 等 ${stCoins.length} 個`):'請選擇';
     stSel=(stSel||ks).filter(k=>ks.includes(k));if(!stSel.length)stSel=ks.slice();
     $('#myCmpBox').innerHTML='';$('#ccForm').hidden=false;
     $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
-      <div class="field"><label>幣種</label><select id="stCoin">${all.map(x=>`<option value="${x}"${x===stCoin?' selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="field ccrow"><label>幣種</label><div class="ccdd"><button type="button" id="stCBtn">${esc(cTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="stCMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
+        ${all.map(x=>`<button type="button" class="ccit${stCoins.includes(x)?' on':''}" data-s="${x}">${ccIc(x)}<span>${x}</span><i></i></button>`).join('')}</div></div></div>
       <div class="field"><label>期間</label><div class="seg" id="ccPer">${[[365,'近一年'],[730,'近兩年'],[0,'2020 至今']].map(([v,t])=>`<button type="button" data-v="${v}"${ccPer===v?' class="on"':''}>${t}</button>`).join('')}</div></div>
       <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="stDdBtn">${esc(stBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="stMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
         ${ks.map(k=>`<button type="button" class="ccit${stSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))}</span><i></i></button>`).join('')}</div></div></div>
       <p class="small" style="margin:4px 0 8px">每個策略用自己存的參數，放到同一個幣、同一段期間回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），而且沒有算資金費率。</p>
       <button class="btn" id="stGo" type="button" style="width:100%">開始比較</button></div>`;
-    $('#stCoin').onchange=e=>stCoin=e.target.value;
+    const CM=$('#stCMenu'),csync=()=>{CM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stCoins.includes(b.dataset.s)));$('#stCBtn').firstChild.textContent=cTxt()};
+    $('#stCBtn').onclick=e=>{e.stopPropagation();$('#stMenu').classList.remove('on');CM.classList.toggle('on')};
+    CM.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;
+      if(b.dataset.a==='all')stCoins=all.slice();else if(b.dataset.a==='none')stCoins=[];
+      else{const x=b.dataset.s;stCoins=stCoins.includes(x)?stCoins.filter(y=>y!==x):[...stCoins,x]}csync()};
+    document.addEventListener('click',()=>CM.classList.remove('on'));
     $('#ccPer').onclick=e=>{const b=e.target.closest('button');if(!b)return;ccPer=+b.dataset.v;$('#ccPer').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
     const M=$('#stMenu'),sync=()=>{M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stSel.includes(b.dataset.k)));$('#stDdBtn').firstChild.textContent=stBtnTxt()};
-    $('#stDdBtn').onclick=e=>{e.stopPropagation();M.classList.toggle('on')};
+    $('#stDdBtn').onclick=e=>{e.stopPropagation();$('#stCMenu').classList.remove('on');M.classList.toggle('on')};
     M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;
       if(b.dataset.a==='all')stSel=ks.slice();else if(b.dataset.a==='none')stSel=[];
       else{const k=b.dataset.k;stSel=stSel.includes(k)?stSel.filter(y=>y!==k):[...stSel,k]}sync()};
     document.addEventListener('click',()=>M.classList.remove('on'));
     $('#stGo').onclick=stRun}
-  async function stRun(){if(ccBusy)return;const L=SigLock.get(),ks=stSel.filter(k=>L[k]);
-    if(ks.length<2){alert('至少選 2 個策略來比較');return}ccBusy=true;const gen=++ccGen,coin=stCoin;
-    const now=Math.floor(Date.now()/1000),from=ccPer?now-ccPer*D1:ts('2020-03-13'),box=$('#myCmpBox'),R=[],n=ks.length;
+  async function stRun(){if(ccBusy)return;const L=SigLock.get(),ks=stSel.filter(k=>L[k]),coins=stCoins.slice();
+    if(!coins.length){alert('至少選一個幣種');return}
+    if(ks.length*coins.length<2){alert('至少要有 2 組可以比較（多選幾個策略或幣種）');return}ccBusy=true;const gen=++ccGen;
+    const now=Math.floor(Date.now()/1000),from=ccPer?now-ccPer*D1:ts('2020-03-13'),box=$('#myCmpBox'),R=[],nc=coins.length,N=nc*ks.length;
     $('#ccForm').hidden=true;
     box.innerHTML=`<button class="nback" id="ccBack" type="button">‹ 重新選擇</button><div id="ccStage"></div>`;
     $('#ccBack').onclick=()=>{ccGen++;ccBusy=false;stForm()};
     const stage=$('#ccStage');stage.innerHTML=HX('準備中…',0);const show=(t,f)=>{if(gen===ccGen)HXup(stage,t,f)};
-    let ok=false;try{ok=await hourData(coin,from-60*D1,f=>show(`載入 ${coin} 1 小時 K`,f*.5))}catch(e){}
-    if(gen!==ccGen)return;
-    if(!ok){ccBusy=false;stage.innerHTML=`<div class="card" style="padding:12px 14px">抓不到 ${esc(coin)} 的 1 小時 K，請稍後再試或換一個幣。</div>`;return}
-    const base=coin==='BTC'||coin==='ETH'?0:.5;
-    for(let i=0;i<n;i++){const k=ks[i];if(gen!==ccGen)return;show(`回測 ${SigLock.name(k)}（${i+1}／${n}）`,base+(1-base)*i/n);await new Promise(r=>setTimeout(r,0));
+    // 先把選的幣全部載完（前 60%），再一組一組回測（後 40%）
+    const ok={};
+    for(let c=0;c<nc;c++){const coin=coins[c];if(gen!==ccGen)return;show(`載入 ${coin} 1 小時 K（${c+1}／${nc}）`,c/nc*.6);
+      let r=false;try{r=await hourData(coin,from-60*D1,f=>show(`載入 ${coin} 1 小時 K（${c+1}／${nc}）`,(c+f)/nc*.6))}catch(e){}ok[coin]=r}
+    let j=0;
+    for(const coin of coins){for(const k of ks){if(gen!==ccGen)return;const nm=SigLock.name(k),col=CC[j%CC.length];
+      show(`回測 ${nm}・${coin}（${j+1}／${N}）`,.6+.4*j/N);await new Promise(r=>setTimeout(r,0));j++;
+      if(!ok[coin]){R.push({bad:1,name:nm,sym:coin+' 抓不到資料',r:{liq:true,mult:0,mdd:0,eq:[]},y:{mult:0,liq:true},c:col});continue}
       const[st,sym0]=SigLock.part(k);
       try{const H=E.load(coin),t1=H.T[H.n-1]+3600,a0=Math.max(from,H.T[0]+60*D1),P=Object.assign({capital:1000},BEST[st][sym0],L[k]);
         const r=simulate(st,coin,a0,t1,P),y=simulate(st,coin,Math.max(a0,t1-365*D1),t1,P);
-        R.push({k,name:SigLock.name(k),sym:a0>from+D1?'從 '+new Date(a0*1000).toISOString().slice(0,7)+' 開始':coin,r,y,c:CC[i%CC.length]})}
-      catch(e){R.push({bad:1,name:SigLock.name(k),sym:'這個策略不支援 '+coin,r:{liq:true,mult:0,mdd:0,eq:[]},y:{mult:0,liq:true},c:CC[i%CC.length]})}}
+        R.push({k,name:nm,sym:coin+(a0>from+D1?'（從 '+new Date(a0*1000).toISOString().slice(0,7)+' 開始）':''),r,y,c:col})}
+      catch(e){R.push({bad:1,name:nm,sym:'這個策略不支援 '+coin,r:{liq:true,mult:0,mdd:0,eq:[]},y:{mult:0,liq:true},c:col})}}}
     if(gen!==ccGen)return;ccBusy=false;
     const back=box.querySelector('#ccBack');
-    draw(R,`策略差異：${esc(coin)}（${ccPer===365?'近一年':ccPer===730?'近兩年':'2020 至今'}，本金 1,000）`);
+    draw(R,`策略差異：${esc(coins.length<=3?coins.join('、'):coins.slice(0,3).join('、')+' 等 '+coins.length+' 個幣')}（${ccPer===365?'近一年':ccPer===730?'近兩年':'2020 至今'}，本金 1,000）`);
     box.prepend(back)}
   const ccLoader=(t,f)=>HX(t,f/100);
   async function coinRun(){if(ccBusy)return;const L=SigLock.get(),p=L[ccK];if(!p)return;const[st,sym0]=SigLock.part(ccK),coins=[sym0,...ccSel.filter(x=>x!==sym0)];
