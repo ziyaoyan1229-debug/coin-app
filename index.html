@@ -723,9 +723,11 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 #busy{left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%);z-index:200;padding:22px 30px!important;border-radius:18px!important;background:radial-gradient(circle at 50% 40%,#3a1d7a,#160b34 75%)!important;color:#f3ecff!important;text-align:center;font-size:13px;box-shadow:0 12px 40px rgba(0,0,0,.5)}#busy .hxs{margin:0 auto 10px}
 #grpLoad{background:radial-gradient(circle at 50% 40%,color-mix(in srgb,#3a1d7a 97%,transparent),color-mix(in srgb,#160b34 97%,transparent) 75%)!important;color:#f3ecff!important}#grpLoad .tx{opacity:.85;font-size:14px}
 @media (prefers-reduced-motion:reduce){.hxs b,.spin{animation:none}}
+#myPane .mgsets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}#myPane .mgsets span{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--chip,rgba(255,255,255,.06));color:var(--text)}#myPane .mgsets em{font-style:normal;margin-left:auto;color:var(--acc);font-size:13px;font-weight:600}
+#myPane .mygh{padding:2px 4px 12px}#myPane .mygh b{font-size:18px}#myPane .mygh .sym{margin-left:8px;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--chip,rgba(255,255,255,.06))}#myPane .mys .ar{color:var(--muted);font-size:20px;margin-left:auto}
 </style>
 <section id="stratView" class="view picking">
-  <div id="sBack"><button id="sBackBtn" type="button">‹ 我的策略</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
+  <div id="sBack"><button id="sBackBtn" type="button">‹ 參數組</button><div class="seg" id="dTab"><button type="button" data-d="p">策略參數</button><button type="button" data-d="r" class="on">績效</button><button type="button" data-d="o">最佳參數</button></div></div>
   <div id="sPick"><div class="seg" id="sTab"><button type="button" data-t="cmp">策略比較</button><button type="button" data-t="mine" class="on">我的策略<span id="myCnt"></span></button><button type="button" data-t="list" hidden>策略</button><button type="button" data-t="log">回測紀錄<span id="rlCnt"></span></button></div><div id="sList" hidden></div><div id="cmpPane" hidden></div><div id="myPane"></div><div id="rlPane" hidden><div class="btnrow" style="margin:0 0 10px"><button class="btn ghost" id="rlExp">匯出備份</button><button class="btn ghost" id="rlImp">匯入</button><button class="btn ghost" id="rlClr">清除未加★</button></div><p class="small" style="margin:0 0 8px">每次回測、一鍵找最佳參數都會記在這裡，只存在這台裝置上（不會上傳）。跑到一半的排在最上面；點「套用」把那組參數放回去重跑；加 ★ 的不會被自動清掉。</p><div class="rlbar"><select id="rlSort"><option value="t">最新</option><option value="m">報酬最高</option><option value="d">回撤最小</option></select><label><input type="checkbox" id="rlCur"> 只看目前策略</label><label><input type="checkbox" id="rlStar"> 只看 ⭐</label></div><div id="rlList"></div><input type="file" id="rlFile" accept=".json,application/json" hidden></div></div>
   <div class="col" id="left"><div class="ctl">
     <div class="field"><label>策略</label>
@@ -740,7 +742,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
         <option value="my">8. 我的系統：威科夫＋形態＋POC＋量能</option>
         <option value="cus">9. 自訂策略（功能庫）</option>
       </select></div>
-    <button class="btn ghost" id="lockBtn" type="button" style="width:100%;margin:0 0 4px">＋ 存成我的策略</button><button class="btn ghost" id="lockNew" type="button" hidden style="width:100%;margin:0 0 4px;font-size:13px;padding:8px">另存成新的我的策略</button><p class="small" id="lockHint" style="margin:0 2px 8px"></p>
+    <button class="btn ghost" id="lockBtn" type="button" style="width:100%;margin:0 0 4px">＋ 存成我的策略</button><button class="btn ghost" id="lockNew" type="button" hidden style="width:100%;margin:0 0 4px;font-size:13px;padding:8px">＋ 另存成新的一組參數</button><p class="small" id="lockHint" style="margin:0 2px 8px"></p>
     <details class="sdet" id="sDet"><summary><span class="k">參數</span><span id="sDetSum"></span></summary><div class="in">
     <div class="row2">
       <div class="field"><label>標的</label><select id="sSym"><option>BTC</option><option>ETH</option></select></div>
@@ -2507,8 +2509,19 @@ function buildParams(){
 // 流程：我的策略「＋ 新增」選策略、幣、取名 → 到參數頁調參數、看回測 → 按「儲存」；從卡片「打開調整」進來改完也是按「儲存」
 const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},W=(k,v)=>{try{Object.keys(v).length?localStorage.setItem(k,JSON.stringify(v)):localStorage.removeItem(k)}catch(e){}};
   const get=()=>J('sigLock',{}),put=L=>W('sigLock',L),names=()=>J('sigLockName',{}),paused=()=>J('sigLockOff',{});
+  // 參數組：一個策略（gid）底下可以有好幾組參數（參數1、參數2…），每一組還是一個獨立的 lock key（推播、訊號照舊一組一組算）
+  // sigLockGrp＝{ key: gid }、sigGrpName＝{ gid: 策略名字 }；sigLockName 存的是組名（參數1…）
+  // 舊資料（還沒分組的、範例、匯入的）：每個自成一個策略，名字搬到策略上，這組叫「參數1」
+  const gnames=()=>J('sigGrpName',{});
+  const grps=()=>{const L=get(),G=J('sigLockGrp',{});let ch=0,GN,N;
+    for(const k of Object.keys(L))if(!G[k]){GN=GN||gnames();N=N||names();G[k]=k;GN[k]=N[k]||nm(k.split('|')[0]);N[k]='參數1';ch=1}
+    if(ch){W('sigLockGrp',G);W('sigGrpName',GN);W('sigLockName',N)}return G};
   const part=k=>k.split('|'),nm=st=>{const o=[...$('#sStrat').options].find(x=>x.value===st);return o?o.textContent.replace(/^\d+\.\s*/,''):st};
-  const name=k=>names()[k]||nm(part(k)[0]);
+  const gid=k=>grps()[k]||k,gname=g=>gnames()[g]||nm(part(g)[0]),setName=k=>names()[k]||'參數1';
+  const name=k=>gname(gid(k))+'・'+setName(k);
+  const fullNames=()=>{const o={};for(const k of Object.keys(get()))o[k]=name(k);return o};
+  // 策略清單：照建立順序分組 [{g, keys}]
+  const groups=()=>{const L=get(),G=grps(),o=[],m={};for(const k of Object.keys(L)){const g=G[k]||k;if(!m[g]){m[g]={g,keys:[]};o.push(m[g])}m[g].keys.push(k)}return o};
   const clean=p=>{const o={};for(const k of Object.keys(p))if(k!=='capital')o[k]=p[k];return o},same=(a,b)=>JSON.stringify(Object.entries(a).sort())===JSON.stringify(Object.entries(b).sort());
   let edit=null;   // 正在編輯的：已存的 key，或新增中的 { st, sym, name }
   const setEdit=e=>{edit=e;ui()};
@@ -2522,21 +2535,33 @@ const SigLock=(()=>{const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k
     h.textContent=!e?'調好參數、看完回測，按上面存成你自己的策略，取個名字；之後會照這組參數推播進出場。'
       :typeof e!=='string'?'先調參數、看下面的回測，滿意再按儲存。':eq?(!cats.sig?'要到「通知」打開「策略信號」並允許通知，才收得到推播。':'App 關著也會照這組參數推播（每 15 分鐘算一次）。'):'參數改過了，按上面儲存才會改用新的參數推播。'}
   function create(st,sym,nmv,p){const L=get();if(Object.keys(L).length>=30){alert('我的策略最多 30 個，先移除一些');return null}
-    const k=st+'|'+sym+'|'+Date.now().toString(36);L[k]=p;put(L);const N=names();N[k]=nmv;W('sigLockName',N);return k}
+    const k=st+'|'+sym+'|'+Date.now().toString(36);L[k]=p;put(L);const N=names();N[k]='參數1';W('sigLockName',N);
+    const G=grps();G[k]=k;W('sigLockGrp',G);const GN=gnames();GN[k]=nmv;W('sigGrpName',GN);return k}
+  // 新增一組參數：從這個策略的某一組複製，取名「參數N」
+  function addSet(g,from){const L=get();if(Object.keys(L).length>=30){alert('我的策略最多 30 組參數，先移除一些');return null}
+    const ks=groups().find(x=>x.g===g);if(!ks)return null;const src=from&&L[from]?from:ks.keys[0],[st,sym]=part(src);
+    const k=st+'|'+sym+'|'+Date.now().toString(36);L[k]=Object.assign({},L[src]);put(L);const G=grps();G[k]=g;W('sigLockGrp',G);
+    const N=names(),used=new Set(ks.keys.map(x=>N[x]));let i=ks.keys.length+1;while(used.has('參數'+i))i++;N[k]='參數'+i;W('sigLockName',N);
+    const P=paused();if(P[src]){P[k]=true;W('sigLockOff',P)}done();return k}
   function done(){ui();window.syncCvStrat&&syncCvStrat();window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset();window.MyStrat&&MyStrat.count()}
-  function save(asNew){const st=$('#sStrat').value,sym=$('#sSym').value,e=asNew?null:editing(),p=clean(cur||{});
+  function save(asNew){const st=$('#sStrat').value,sym=$('#sSym').value,e0=editing(),e=asNew?null:e0,p=clean(cur||{});
+    // 另存：同一個策略底下多一組參數（參數N），不另開新策略
+    if(asNew&&typeof e0==='string'){const k=addSet(gid(e0),e0);if(!k)return;const L=get();L[k]=p;put(L);edit=k;window.SigTab&&SigTab.reset();return done()}
     if(typeof e==='string'){const L=get();L[e]=p;put(L);return done()}
     let n=e&&e.name;if(!n){n=prompt('幫這個策略取個名字',nm(st)+' '+sym);if(n==null)return;n=n.trim().slice(0,20)||nm(st)}
     const k=create(st,sym,n,p);if(k){edit=k;done()}}
   const active=()=>{const L=get(),P=paused(),o={};for(const k in L)if(!P[k])o[k]=L[k];return o},
     forSym=(st,sym)=>{const A=active(),k=Object.keys(A).find(k=>{const[a,b]=part(k);return a===st&&b===sym});return k?A[k]:null},
     pause=(k,v)=>{const P=paused();if(v)P[k]=true;else delete P[k];W('sigLockOff',P);window.NotifyTab&&NotifyTab.sync();window.SigTab&&SigTab.reset()},
-    remove=k=>{const L=get();delete L[k];put(L);const N=names();delete N[k];W('sigLockName',N);pause(k,false);if(edit===k)edit=null;ui()},
-    rename=(k,n)=>{const N=names();N[k]=n.slice(0,20);W('sigLockName',N);window.NotifyTab&&NotifyTab.sync()};
+    remove=k=>{const L=get();delete L[k];put(L);const N=names();delete N[k];W('sigLockName',N);
+      const G=grps(),g=G[k]||k;delete G[k];W('sigLockGrp',G);if(!Object.values(G).includes(g)){const GN=gnames();delete GN[g];W('sigGrpName',GN)}
+      pause(k,false);if(edit===k)edit=null;ui()},
+    rename=(k,n)=>{const N=names();N[k]=n.slice(0,20);W('sigLockName',N);window.NotifyTab&&NotifyTab.sync()},
+    renameGroup=(g,n)=>{const GN=gnames();GN[g]=n.slice(0,20);W('sigGrpName',GN);window.NotifyTab&&NotifyTab.sync()};
   const editName=()=>{const e=editing();return e?(typeof e==='string'?name(e):e.name):null};
   const editKey=()=>{const e=editing();return typeof e==='string'?e:null};
   const dirty=()=>{const e=editing();if(typeof e!=='string')return false;const st=$('#sStrat').value,sym=$('#sSym').value;return !same(clean(Object.assign({},BEST[st][sym],get()[e])),clean(cur||{}))};
-  return {get,ui,save,paused,active,forSym,pause,remove,rename,name,names,nm,part,setEdit,editName,editKey,clean,dirty,create:(st,sym,n,p)=>{const k=create(st,sym,n,p);if(k){edit=k;done()}return k}}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
+  return {get,ui,save,paused,active,forSym,pause,remove,rename,renameGroup,name,names:fullNames,nm,part,gid,gname,setName,groups,addSet,setEdit,editName,editKey,clean,dirty,create:(st,sym,n,p)=>{const k=create(st,sym,n,p);if(k){edit=k;done()}return k}}})();setTimeout(()=>window.syncCvStrat&&syncCvStrat(),0);window.SigLock=SigLock;
 let timer;function schedule(){clearTimeout(timer);timer=setTimeout(runSim,250);SigLock.ui()}
 function period(){const v=$('#sPeriod').value;if(v==='custom')return[ts($('#sFrom').value),ts($('#sTo').value)];const[a,b]=v.split('|');return[ts(a),ts(b)]}
 function simulate(st,sym,t0,t1,p){const C=E.COST,o=[C.slip,C.stopSlip];if(p&&p.slip===false){C.slip=0;C.stopSlip=0}try{return st==='cus'?E.runCustom(sym,t0,t1,p):st==='brk'?E.runBreakout(sym,t0,t1,p):st==='poc'?E.runPoc(sym,t0,t1,p):st==='tur'||(st==='knife'||st==='knifeB')?E.runTurtle(sym,t0,t1,p):st==='rib'?E.runRibbon(sym,t0,t1,p):st==='dense'?E.runDense(sym,t0,t1,p):st==='my'?E.runMy(sym,t0,t1,p):E.runBox(sym,t0,t1,p)}finally{C.slip=o[0];C.stopSlip=o[1]}}
@@ -2825,7 +2850,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const sigOn=()=>{try{return !!(JSON.parse(localStorage.getItem('bnCats'))||{}).sig}catch(e){return false}};
   const ONLY={knife:'ETH',knifeB:'BTC'};
-  function count(){const n=Object.keys(SigLock.get()).length,c=$('#myCnt');if(c)c.textContent=n?n:''}
+  function count(){const n=SigLock.groups().length,c=$('#myCnt');if(c)c.textContent=n?n:''}
   function stats(st,sym,p){const H=E.load(sym),t1=H.T[H.n-1]+3600,k=st+sym+t1+JSON.stringify(p);if(memo[k])return memo[k];
     const P=Object.assign({capital:1000},BEST[st][sym],p),a=simulate(st,sym,ts('2020-03-13'),t1,P),b=simulate(st,sym,t1-365*D1,t1,P);
     return memo[k]={all:a,y1:b,now:SigTab.one(st,sym,t1,p)}}
@@ -2946,7 +2971,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     for(let c=0;c<nc;c++){const coin=coins[c];if(gen!==ccGen)return;show(`載入 ${coin} 1 小時 K（${c+1}／${nc}）`,c/nc*.6);
       let r=false;try{r=await hourData(coin,from-60*D1,f=>show(`載入 ${coin} 1 小時 K（${c+1}／${nc}）`,(c+f)/nc*.6))}catch(e){}ok[coin]=r}
     let j=0;
-    for(const coin of coins){for(const k of ks){if(gen!==ccGen)return;const nm=SigLock.name(k),col=CC[j%CC.length];
+    for(const[ci,coin]of coins.entries()){for(const[si,k]of ks.entries()){if(gen!==ccGen)return;const nm=SigLock.name(k),col=ks.length>1?tint(CC[si%CC.length],nc<2?0:ci/(nc-1)*1.1-.45):CC[ci%CC.length];   // 同策略同色系：不同幣種只換深淺
       show(`回測 ${nm}・${coin}（${j+1}／${N}）`,.6+.4*j/N);await new Promise(r=>setTimeout(r,0));j++;
       if(!ok[coin]){R.push({bad:1,name:nm,sym:coin+' 抓不到資料',r:{liq:true,mult:0,mdd:0,eq:[]},y:{mult:0,liq:true},c:col});continue}
       const[st,sym0]=SigLock.part(k);
@@ -2958,6 +2983,8 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const back=box.querySelector('#ccBack');
     draw(R,`策略差異：${esc(coins.length<=3?coins.join('、'):coins.slice(0,3).join('、')+' 等 '+coins.length+' 個幣')}（${ccPer===365?'近一年':ccPer===730?'近兩年':'2020 至今'}，本金 1,000）`);
     box.prepend(back)}
+  // 調深淺：t<0 往黑、t>0 往白
+  const tint=(h,t)=>'#'+[1,3,5].map(i=>{const v=parseInt(h.slice(i,i+2),16),w=t<0?v*(1+t):v+(255-v)*t;return Math.round(w).toString(16).padStart(2,'0')}).join('');
   const ccLoader=(t,f)=>HX(t,f/100);
   async function coinRun(){if(ccBusy)return;const L=SigLock.get(),p=L[ccK];if(!p)return;const[st,sym0]=SigLock.part(ccK),coins=[sym0,...ccSel.filter(x=>x!==sym0)];
     if(coins.length<2){alert('至少選一個別的幣來比較');return}ccBusy=true;const gen=++ccGen;
@@ -3000,19 +3027,35 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <button class="btn ghost" type="button" disabled style="width:100%;margin-top:10px;opacity:.6">🤖 AI 幫我配置＋回測多種組合（開發中）</button>
       <p class="small" style="margin:6px 2px 0">之後可以直接描述你的想法，AI 會幫你組好幾種指標組合各跑一次回測，挑一個按「確定框架」就變成你的策略。</p></div>`}
   function syncSym(){const st=$('#maSt'),sy=$('#maSym');if(!st||!sy)return;const o=ONLY[st.value];[...sy.options].forEach(x=>x.disabled=!!o&&x.value!==o||!BEST[st.value][x.value]);if(sy.selectedOptions[0].disabled)sy.value=[...sy.options].find(x=>!x.disabled).value}
-  function render(){count();window.syncCvStrat&&syncCvStrat();const L=SigLock.get(),P=SigLock.paused(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+  // 我的策略：先列策略（每個策略底下有幾組參數），點策略進去列「參數1、參數2…」，點一組才到策略參數／績效／最佳參數
+  let openG=null;
+  const ICE='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',ICD='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
+  const statRow=(r,c)=>{const m=c.querySelectorAll('.mst b'),cls=x=>x>=1?'pos':'neg';if(!m.length)return;
+    m[0].innerHTML=r.all.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.all.mult)}">×${fmt(r.all.mult,2)}</span>`;m[1].textContent=pct(r.all.mdd);
+    m[2].innerHTML=r.y1.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.y1.mult)}">${r.y1.mult>=1?'+':''}${((r.y1.mult-1)*100).toFixed(1)}%</span>`};
+  const MST='<div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div>';
+  function render(){count();window.syncCvStrat&&syncCvStrat();const L=SigLock.get();
+    const ok=k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]};
+    const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(ok)})).filter(x=>x.keys.length);
+    if(openG&&!G.find(x=>x.g===openG))openG=null;
+    if(openG)return renderGroup(G.find(x=>x.g===openG),L);
     const top=`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
-    if(!ks.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
-    box().innerHTML=top+ks.map(k=>{const[st,sym]=SigLock.part(k);
-      return `<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.name(k))}<button class="ic" type="button" data-a="ren" aria-label="改名"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="ic" type="button" data-a="del" aria-label="移除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></b><span class="sym">${sym}</span></div>
-        <div class="small" style="color:var(--muted);margin-top:2px">${esc(st==='cus'?Rules.sum(L[k]):SigLock.nm(st))}</div>
-        <div class="mst"><div>2020 至今<b>計算中</b></div><div>最大回撤<b>…</b></div><div>近一年<b>…</b></div></div><div class="mnow small"><span class="spin"></span> 計算中…</div><div class="mopt"></div></div>`}).join('');
+    if(!G.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
+    box().innerHTML=top+G.map(x=>{const k0=x.keys[0],[st,sym]=SigLock.part(k0);
+      return `<div class="card mys mysg" data-g="${esc(x.g)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.gname(x.g))}<button class="ic" type="button" data-a="gren" aria-label="改名">${ICE}</button><button class="ic" type="button" data-a="gdel" aria-label="移除">${ICD}</button></b><span class="sym">${sym}</span></div>
+        <div class="small" style="color:var(--muted);margin-top:2px">${esc(st==='cus'?Rules.sum(L[k0]):SigLock.nm(st))}</div>
+        <div class="mgsets">${x.keys.map(k=>`<span>${esc(SigLock.setName(k))}</span>`).join('')}<em>${x.keys.length} 組參數 ›</em></div></div>`}).join('');
+    syncSym();window.Opt&&Opt.paint()}
+  function renderGroup(x,L){const k0=x.keys[0],[st,sym]=SigLock.part(k0);
+    box().innerHTML=`<button class="nback" id="myGBack" type="button">‹ 我的策略</button>
+      <div class="mygh"><b>${esc(SigLock.gname(x.g))}</b><span class="sym">${sym}</span><div class="small" style="color:var(--muted)">${esc(st==='cus'?Rules.sum(L[k0]):SigLock.nm(st))}</div></div>
+      <button class="btn" id="myAddSet" type="button" style="width:100%;margin:0 0 6px">＋ 新增一組參數</button>
+      <p class="small" style="color:var(--muted);margin:0 2px 12px;line-height:1.6">新的一組會先複製「${esc(SigLock.setName(x.keys[0]))}」的參數，再點進去改。每組各自回測、各自推播。</p>`+
+      x.keys.map(k=>`<div class="card mys" data-k="${esc(k)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.setName(k))}<button class="ic" type="button" data-a="ren" aria-label="改名">${ICE}</button>${x.keys.length>1?`<button class="ic" type="button" data-a="del" aria-label="移除">${ICD}</button>`:''}</b><span class="ar" aria-hidden="true">›</span></div>
+        ${MST}<div class="mnow small"><span class="spin"></span> 計算中…</div><div class="mopt"></div></div>`).join('');
     syncSym();window.Opt&&Opt.paint();
-    let i=0;const step=()=>{if(i>=ks.length)return;const k=ks[i++],[st,sym]=SigLock.part(k),c=box().querySelector(`.mys[data-k="${CSS.escape(k)}"]`);
-      if(c)try{const r=stats(st,sym,L[k]),m=c.querySelectorAll('.mst b'),cls=x=>x>=1?'pos':'neg';
-        m[0].innerHTML=r.all.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.all.mult)}">×${fmt(r.all.mult,2)}</span>`;m[1].textContent=pct(r.all.mdd);
-        m[2].innerHTML=r.y1.liq?'<span class="neg">爆倉</span>':`<span class="${cls(r.y1.mult)}">${r.y1.mult>=1?'+':''}${((r.y1.mult-1)*100).toFixed(1)}%</span>`;
-        c.querySelector('.mnow').innerHTML=r.now?r.now.txt:''}catch(e){c.querySelector('.mnow').textContent='這次算不出來'}
+    let i=0;const step=()=>{if(i>=x.keys.length||!openG)return;const k=x.keys[i++],[st,sym]=SigLock.part(k),c=box().querySelector(`.mys[data-k="${CSS.escape(k)}"]`);
+      if(c)try{const r=stats(st,sym,L[k]);statRow(r,c);c.querySelector('.mnow').innerHTML=r.now?r.now.txt:''}catch(e){c.querySelector('.mnow').textContent='這次算不出來'}
       setTimeout(step,0)};setTimeout(step,30)}
   // 到參數頁：帶入參數（p＝null 用預設最佳參數），標記正在編輯哪一個
   function goEdit(st,sym,p,ed,tab){setMyP(st,sym,Object.assign({},BEST[st][sym],p||{}));const same=$('#sStrat').value===st&&$('#sSym').value===sym;
@@ -3030,16 +3073,22 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       const sym=$('#maSym').value;
       if(mode==='lib'){const B=dir==='both';if(!pin.length&&!(B&&psin.length)){alert(B?'先從功能庫選至少一個做多或做空進場指標':'先從功能庫選至少一個進場指標');return}
         const n=($('#maName').value.trim()||'自訂 '+sym).slice(0,20),rules=JSON.stringify(Object.assign({in:pin.map(Rules.blk),out:pout.map(Rules.blk),any:0},B?{sin:psin.map(Rules.blk),sout:psout.map(Rules.blk),sany:0}:{}));
-        adding=false;const k=SigLock.create('cus',sym,n,SigLock.clean(Object.assign({},BEST.cus[sym],{rules,dir})));if(!k)return;render();goEdit('cus',sym,SigLock.get()[k],k);return}   // 按下一步就存進我的策略，之後改參數再按儲存
-      const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;const k=SigLock.create(st,sym,n,SigLock.clean(Object.assign({},BEST[st][sym])));if(!k)return;render();goEdit(st,sym,SigLock.get()[k],k);return}
+        adding=false;const k=SigLock.create('cus',sym,n,SigLock.clean(Object.assign({},BEST.cus[sym],{rules,dir})));if(!k)return;openG=SigLock.gid(k);render();goEdit('cus',sym,SigLock.get()[k],k);return}   // 按下一步就存進我的策略，之後改參數再按儲存
+      const st=$('#maSt').value,n=($('#maName').value.trim()||SigLock.nm(st)+' '+sym).slice(0,20);adding=false;const k=SigLock.create(st,sym,n,SigLock.clean(Object.assign({},BEST[st][sym])));if(!k)return;openG=SigLock.gid(k);render();goEdit(st,sym,SigLock.get()[k],k);return}
+    if(e.target.id==='myGBack'){openG=null;render();box().scrollIntoView&&$('#stratView').scrollTo&&$('#stratView').scrollTo(0,0);return}
+    if(e.target.id==='myAddSet'){const k=SigLock.addSet(openG);if(k){SigTab.reset();render();const[st,sym]=SigLock.part(k);goEdit(st,sym,SigLock.get()[k],k,'p')}return}   // 新增後直接進「策略參數」改
+    const gc=e.target.closest('#myPane .mysg');if(gc){const g=gc.dataset.g,ga=e.target.closest('[data-a]');
+      if(ga&&ga.dataset.a==='gdel'){const ks=SigLock.groups().find(x=>x.g===g);if(ks&&confirm(`把「${SigLock.gname(g)}」（${ks.keys.length} 組參數）從我的策略移除？`)){ks.keys.forEach(k=>SigLock.remove(k));SigTab.reset();render()}return}
+      if(ga&&ga.dataset.a==='gren'){const n=prompt('新名字',SigLock.gname(g));if(n&&n.trim()){SigLock.renameGroup(g,n.trim());render()}return}
+      openG=g;render();$('#stratView').scrollTo&&$('#stratView').scrollTo(0,0);return}
     const c=e.target.closest('#myPane .mys');if(!c)return;const k=c.dataset.k,[st,sym]=SigLock.part(k);
     if(e.target.closest('.sw')){const P=SigLock.paused();SigLock.pause(k,!P[k]);render();return}
-    const a=e.target.closest('[data-a]');if(!a){goEdit(st,sym,SigLock.get()[k],k,'r');return}   // 點卡片：打開，先看績效
+    const a=e.target.closest('[data-a]');if(!a){goEdit(st,sym,SigLock.get()[k],k,'r');return}   // 點一組參數：打開，先看績效
     if(a.dataset.a==='opt'){Opt.seen(k);goEdit(st,sym,SigLock.get()[k],k,'o');return}
-    if(a.dataset.a==='del'){if(confirm(`把「${SigLock.name(k)}」從我的策略移除？`)){SigLock.remove(k);SigTab.reset();render()}return}
-    if(a.dataset.a==='ren'){const n=prompt('新名字',SigLock.name(k));if(n&&n.trim()){SigLock.rename(k,n.trim());render()}return}
+    if(a.dataset.a==='del'){if(confirm(`把「${SigLock.name(k)}」移除？`)){SigLock.remove(k);SigTab.reset();render()}return}
+    if(a.dataset.a==='ren'){const n=prompt('這組參數的名字',SigLock.setName(k));if(n&&n.trim()){SigLock.rename(k,n.trim());render()}return}
     goEdit(st,sym,SigLock.get()[k],k)});
-  return {render,count,cmpTab,open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);goEdit(st,sym,L[k],k,'r')}}})();window.MyStrat=MyStrat;
+  return {render,count,cmpTab,home:()=>{openG=null},open:k=>{const L=SigLock.get();if(!L[k])return;const[st,sym]=SigLock.part(k);openG=SigLock.gid(k);goEdit(st,sym,L[k],k,'r')}}})();window.MyStrat=MyStrat;
 // 第一次打開：「我的策略」先放兩個做多範例（海龜、均線金叉死叉），預設只開均線的通知；移除後不會再放回來
 (()=>{try{const sd=localStorage.getItem('mySeed');
   if(sd==='1'){localStorage.setItem('mySeed','2');const O=JSON.parse(localStorage.getItem('sigLockOff')||'{}');if(O['cus|BTC|ex2']){delete O['cus|BTC|ex2'];localStorage.setItem('sigLockOff',JSON.stringify(O))}return}   // 均線範例改成預設開通知
@@ -3133,7 +3182,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   async function open(){render(await load(false))}
   return {open,sync:pushLater}})();
 window.NotifyTab=NotifyTab;
-{const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'news')}   // 一打開預設在市場分析（滾輪：左今日訊號、右查看價格）
+{const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'chart')}   // 一打開預設在查看價格
 })();
 </script>
 <script>// ───────── 手機版：查看價格卡片、重大消息頁 ─────────
@@ -3423,7 +3472,7 @@ $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
   list.addEventListener('click',e=>{const b=e.target.closest('.scard');if(!b)return;if(sel.value!==b.dataset.v){sel.value=b.dataset.v;sel.dispatchEvent(new Event('change'))}pick(false)});
   $('#sBackBtn').onclick=()=>{if(SigLock.dirty()&&confirm(`參數改過了，要儲存到「${SigLock.editName()}」嗎？`))SigLock.save(false);pick(true)};
   // 從底部「策略分析」進來一律先看清單
-  $('#nav_strat').addEventListener('click',()=>pick(true));})();
+  $('#nav_strat').addEventListener('click',()=>{window.MyStrat&&MyStrat.home();pick(true)});})();
 
 
 // ── 市場快照（由內建資料算）──
