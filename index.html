@@ -1799,7 +1799,43 @@ N.createChart=function(el,opts){
   const cross = (a, b, i) => i > 0 && a[i - 1] <= b[i - 1] && a[i] > b[i];
   const crossN = (a, v, i, up) => i > 0 && (up ? a[i - 1] <= v && a[i] > v : a[i - 1] >= v && a[i] < v);
   // 功能庫：每個積木 [名稱, 類別, 參數說明[[標籤, 預設, 最小, 最大, 間距]], 計算(B, a, b, c) → 每根 0/1]
+  // ── 幣圈指標用的資料：資金費率（BTC／ETH 內建，每 8 小時）、恐懼貪婪（App 從 alternative.me 抓，存在 root.FNG）──
+  // 都只用「這根 K 收盤前已經公布」的值，不偷看未來
+  let CUSYM = 'BTC';
+  const closeT = (B, i) => (i + 1 < B.T.length ? B.T[i + 1] : B.T[i] + (B.T[i] - B.T[i - 1 < 0 ? 0 : i - 1] || H4));
+  const bpd = B => { const d = B.T.length > 1 ? B.T[1] - B.T[0] : H4; return Math.max(1 / 7, D1 / d); };
+  const dayN = (B, n) => Math.max(2, Math.round(n * bpd(B)));
+  function fundArr(B, n) { // 最近 n 期資金費率平均（%／8 小時）；沒有資料的幣全是 NaN
+    const d = root.DATA[CUSYM], m = B.C.length, r = new Float64Array(m).fill(NaN); if (!d || !d.f || !Object.keys(d.f).length) return r;
+    const b = load(CUSYM), ks = Object.keys(d.f).map(Number).sort((x, y) => x - y), ft = ks.map(k => b.T[k]), fv = ks.map(k => d.f[k] / 1e4);
+    for (let i = 0; i < m; i++) { const k = lower(ft, closeT(B, i)) - 1; if (k + 1 < n) continue; let s = 0; for (let j = k - n + 1; j <= k; j++) s += fv[j]; r[i] = s / n; } return r; }
+  function fngArr(B) { const F = root.FNG, m = B.C.length, r = new Float64Array(m).fill(NaN); if (!F || !F.t.length) return r;
+    for (let i = 0; i < m; i++) { const k = lower(F.t, closeT(B, i)) - 1; if (k >= 0 && closeT(B, i) - F.t[k] < 3 * D1) r[i] = F.v[k]; } return r; }
+  function ethBtcArr(B) { const m = B.C.length, r = new Float64Array(m).fill(NaN); if (!root.DATA.ETH || !root.DATA.BTC) return r; const e = load('ETH'), b = load('BTC');
+    for (let i = 0; i < m; i++) { const k = lower(e.T, closeT(B, i)) - 1; if (k >= 0 && k < e.n && k < b.n) r[i] = e.C[k] / b.C[k]; } return r; }
+  const HALV = [1354060800, 1468022400, 1589155200, 1713571200, 1776643200 + 365 * D1 * 2];   // 2012、2016、2020、2024 減半；最後一個是約 2028
+  // 會跳過 NaN 的均線（資料開頭沒有值時用）
+  function smaN(x, n) { const m = x.length, r = new Float64Array(m).fill(NaN); let s = 0, c = 0; for (let i = 0; i < m; i++) { if (isFinite(x[i])) { s += x[i]; c++; } if (i >= n && isFinite(x[i - n])) { s -= x[i - n]; c--; } if (i >= n - 1 && c === n) r[i] = s / n; } return r; }
+  const sinceHalv = t => { let h = -Infinity; for (const x of HALV) if (x <= t) h = x; return (t - h) / D1; };
   const CUSLIB = {
+    fngLo: ['恐懼貪婪指數低於（恐懼）', '幣圈・市場情緒', [['低於', 25, 1, 99, 1]], (B, a) => { const f = fngArr(B); return i => f[i] < a; }],
+    fngHi: ['恐懼貪婪指數高於（貪婪）', '幣圈・市場情緒', [['高於', 75, 1, 99, 1]], (B, a) => { const f = fngArr(B); return i => f[i] > a; }],
+    fngUp: ['恐懼貪婪指數向上穿越', '幣圈・市場情緒', [['穿越', 25, 1, 99, 1]], (B, a) => { const f = fngArr(B); return i => crossN(f, a, i, true); }],
+    fngDn: ['恐懼貪婪指數向下穿越', '幣圈・市場情緒', [['穿越', 75, 1, 99, 1]], (B, a) => { const f = fngArr(B); return i => crossN(f, a, i, false); }],
+    fngAvgLo: ['恐懼貪婪 N 日平均低於', '幣圈・市場情緒', [['平均天數', 7, 2, 60, 1], ['低於', 30, 1, 99, 1]], (B, a, b) => { const f = fngArr(B), n = dayN(B, a), s = smaN(f, n); return i => s[i] < b; }],
+    fundHi: ['資金費率高於（多方擁擠）', '幣圈・資金費率', [['平均幾期（每期 8 小時）', 3, 1, 90, 1], ['高於 %', 0.03, -0.5, 0.5, 0.005]], (B, a, b) => { const f = fundArr(B, a); return i => f[i] > b; }],
+    fundLo: ['資金費率低於（空方擁擠）', '幣圈・資金費率', [['平均幾期（每期 8 小時）', 3, 1, 90, 1], ['低於 %', 0, -0.5, 0.5, 0.005]], (B, a, b) => { const f = fundArr(B, a); return i => f[i] < b; }],
+    fundNeg: ['資金費率由正轉負', '幣圈・資金費率', [['平均幾期（每期 8 小時）', 1, 1, 90, 1]], (B, a) => { const f = fundArr(B, a); return i => crossN(f, 0, i, false); }],
+    fundPos: ['資金費率由負轉正', '幣圈・資金費率', [['平均幾期（每期 8 小時）', 1, 1, 90, 1]], (B, a) => { const f = fundArr(B, a); return i => crossN(f, 0, i, true); }],
+    fundCool: ['資金費率從高檔回落', '幣圈・資金費率', [['平均幾期（每期 8 小時）', 3, 1, 90, 1], ['高檔 %', 0.05, 0, 0.5, 0.005]], (B, a, b) => { const f = fundArr(B, a); return i => crossN(f, b, i, false); }],
+    ethBtcUp: ['ETH／BTC 匯率在均線之上（ETH 轉強）', '幣圈・輪動', [['均線天數', 50, 5, 400, 1]], (B, a) => { const r = ethBtcArr(B), m = smaN(r, dayN(B, a)); return i => r[i] > m[i]; }],
+    ethBtcDn: ['ETH／BTC 匯率在均線之下（ETH 轉弱）', '幣圈・輪動', [['均線天數', 50, 5, 400, 1]], (B, a) => { const r = ethBtcArr(B), m = smaN(r, dayN(B, a)); return i => r[i] < m[i]; }],
+    mayerLo: ['梅耶倍數低於（價格 ÷ 200 日均線，便宜）', '幣圈・週期與長線', [['低於', 0.8, 0.3, 3, 0.05]], (B, a) => { const m = smaArr(B.C, dayN(B, 200)); return i => B.C[i] / m[i] < a; }],
+    mayerHi: ['梅耶倍數高於（過熱）', '幣圈・週期與長線', [['高於', 2.4, 1, 5, 0.05]], (B, a) => { const m = smaArr(B.C, dayN(B, 200)); return i => B.C[i] / m[i] > a; }],
+    wma200: ['價格接近 200 週均線（歷史大底區）', '幣圈・週期與長線', [['距離 % 以內', 10, 0, 100, 1]], (B, a) => { const m = smaArr(B.C, dayN(B, 1400)); return i => B.C[i] <= m[i] * (1 + a / 100); }],
+    piTop: ['Pi 循環頂部（111 日均線上穿 2 倍 350 日均線）', '幣圈・週期與長線', [], B => { const x = smaArr(B.C, dayN(B, 111)), y = smaArr(B.C, dayN(B, 350)), y2 = y.map(v => v * 2); return i => cross(x, y2, i); }],
+    piNear: ['Pi 循環接近頂部（111 日 ≥ 2×350 日的 x%）', '幣圈・週期與長線', [['達到 %', 95, 50, 100, 1]], (B, a) => { const x = smaArr(B.C, dayN(B, 111)), y = smaArr(B.C, dayN(B, 350)); return i => x[i] >= 2 * y[i] * a / 100; }],
+    halvWin: ['減半後第 N～M 天（減半週期）', '幣圈・週期與長線', [['從第幾天', 0, 0, 1460, 10], ['到第幾天', 540, 0, 1460, 10]], (B, a, b) => i => { const d = sinceHalv(closeT(B, i)); return d >= a && d <= b; }],
     emaUp: ['均線金叉（EMA 短上穿長）', '均線', [['短 EMA', 20, 2, 200, 1], ['長 EMA', 60, 5, 400, 1]], (B, a, b) => { const x = emaArr(B.C, a), y = emaArr(B.C, b); return i => cross(x, y, i); }],
     emaDn: ['均線死叉（EMA 短下穿長）', '均線', [['短 EMA', 20, 2, 200, 1], ['長 EMA', 60, 5, 400, 1]], (B, a, b) => { const x = emaArr(B.C, a), y = emaArr(B.C, b); return i => cross(y, x, i); }],
     smaUp: ['均線金叉（SMA 短上穿長）', '均線', [['短 SMA', 50, 2, 200, 1], ['長 SMA', 200, 5, 400, 1]], (B, a, b) => { const x = smaArr(B.C, a), y = smaArr(B.C, b); return i => cross(x, y, i); }],
@@ -1882,7 +1918,7 @@ N.createChart=function(el,opts){
     for (let i = 2 * b - 1 + b; i < m; i++) { const k = i - b; A[i] = (mid(k, a) + mid(k, b)) / 2; Bs[i] = mid(k, 2 * b); } return [A, Bs]; }
   function parseRules(s) { let r; try { r = typeof s === 'string' ? JSON.parse(s) : s; } catch (e) { r = null; } r = r || {};
     const ok = x => Array.isArray(x) && CUSLIB[x[0]], g = k => (r[k] || []).filter(ok).slice(0, 8); return { in: g('in'), out: g('out'), add: g('add'), part: g('part'), any: r.any ? 1 : 0, sin: g('sin'), sout: g('sout'), sany: r.sany ? 1 : 0 }; }
-  function cusFn(B, sym, tf, blk) { const key = 'cus' + sym + tf + JSON.stringify(blk); if (cache[key]) return cache[key]; const L = CUSLIB[blk[0]], P = L[2].map((d, k) => (isFinite(+blk[k + 1]) ? +blk[k + 1] : d[1]));
+  function cusFn(B, sym, tf, blk) { const key = 'cus' + sym + tf + JSON.stringify(blk) + (root.FNG ? root.FNG.t.length : 0); if (cache[key]) return cache[key]; CUSYM = sym; const L = CUSLIB[blk[0]], P = L[2].map((d, k) => (isFinite(+blk[k + 1]) ? +blk[k + 1] : d[1]));
     const f = L[3](B, ...P), m = B.C.length, r = new Uint8Array(m); for (let i = 0; i < m; i++) r[i] = f(i) ? 1 : 0; return (cache[key] = r); }
   // 加倉、分批出場的條件只在「剛出現」那根觸發（前一根不成立），避免條件持續成立時每根都觸發
   // 加倉：加倉條件任一出現、或順勢走了 addPct%（從上次進場／加倉價算），每次加「第一筆的 addSize 倍」，最多 addMax 次
@@ -3709,6 +3745,12 @@ async function loadFng(force){let d=null;
   if(!d){try{const r=await fetch('https://api.alternative.me/fng/?limit=31',{cache:'no-store'});if(r.ok){const j=await r.json();d=j&&j.data;if(d&&d.length){fngAt=Date.now();try{localStorage.setItem('fng',JSON.stringify(d));localStorage.setItem('fngAt',fngAt)}catch(e){}}}}catch(e){}}
   if(!d){try{d=JSON.parse(localStorage.getItem('fng')||'null')}catch(e){}}
   renderFng(d)}
+// 恐懼貪婪「全部歷史」給功能庫回測用（每天一筆，2018-02 起）：存在這台裝置，12 小時更新一次；載到後重算自訂策略
+(()=>{const K='fngHist',EV=12*3600*1000;let H=null;try{H=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}
+  const use=h=>{if(!h||!h.t||!h.t.length)return;window.FNG={t:h.t,v:h.v};try{if($('#sStrat').value==='cus'&&String((typeof cur!=='undefined'&&cur||{}).rules||'').includes('fng'))runSim()}catch(e){}window.SigTab&&SigTab.reset&&SigTab.reset()};
+  if(H)use(H);
+  if(!H||Date.now()-H.at>EV)setTimeout(async()=>{try{const r=await fetch('https://api.alternative.me/fng/?limit=0',{cache:'no-store'});if(!r.ok)return;const j=await r.json(),d=(j&&j.data||[]).map(x=>[+x.timestamp,+x.value]).filter(x=>isFinite(x[0])&&isFinite(x[1])).sort((a,b)=>a[0]-b[0]);
+    if(d.length<100)return;const h={at:Date.now(),t:d.map(x=>x[0]),v:d.map(x=>x[1])};try{localStorage.setItem(K,JSON.stringify(h))}catch(e){}use(h)}catch(e){}},2500)})();
 let fngShown=0;{const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();let f=0;if(!fngShown||Date.now()-fngAt>=FNG_EVERY){fngShown=1;f=loadFng()}return Promise.all([r,f])}}
 setInterval(()=>{if(Date.now()-fngAt>=FNG_EVERY)loadFng(1)},10*60*1000);
 {const o=window.NewsTab.open;window.NewsTab.open=()=>{const r=o();renderSum();setTimeout(renderSum,2500);return r}}
