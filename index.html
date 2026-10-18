@@ -2956,23 +2956,32 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     if(cmpMode==='st')stForm();else ccForm()}
   // 1 小時 K：BTC、ETH 用內建資料；其他幣由手機向幣安現貨抓（缺的小時用前一根收盤補平），轉成引擎的格式
   const HD={};
+  // 其他幣的 1 小時 K 與資金費率：第一次抓完存在手機（IndexedDB），之後只補缺的那段
+  const HDB=(()=>{let db=null;const open=()=>db||(db=new Promise(r=>{try{const q=indexedDB.open('hexHour',1);q.onupgradeneeded=()=>q.result.createObjectStore('k');q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}}));
+    const run=async(m,f)=>{const d=await open();if(!d)return null;return new Promise(r=>{try{const t=d.transaction('k',m),q=f(t.objectStore('k'));t.oncomplete=()=>r(q&&q.result);t.onerror=()=>r(null)}catch(e){r(null)}})};
+    return {get:k=>run('readonly',s=>s.get(k)),put:(k,v)=>run('readwrite',s=>s.put(v,k))}})();
   async function hourData(sym,from,prog){if(sym==='BTC'||sym==='ETH')return true;const c=HD[sym];if(c&&c.from<=from&&Date.now()-c.at<600000)return true;
-    const now=Math.floor(Date.now()/3600000)*3600,rows=[];const t=Math.floor(from/3600)*3600;
+    const now=Math.floor(Date.now()/3600000)*3600,t=Math.floor(from/3600)*3600;
     const urls=s=>[`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`,`https://data-api.binance.vision/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`,`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1h&limit=1000&startTime=${s*1000}`];   // 先抓永續合約，沒有才用現貨
     const getJ=async us=>{for(const u of us){try{const r=await fetch(u);if(r.ok)return await r.json()}catch(e){}}return null};
-    const starts=[];for(let s=t;s<now;s+=1000*3600)starts.push(s);let done=0;
+    // 手機裡已有的：K＝{t:[o,h,l,c,v]}，F＝{t:費率}，from＝存到多早，src＝永續或現貨
+    const S=(await HDB.get(sym))||{K:{},F:{},from:Infinity};const K=S.K,F=S.F;let kt=Object.keys(K).map(Number).sort((a,b)=>a-b);
+    const gaps=[];if(!kt.length)gaps.push([t,now]);else{if(t<kt[0]-3600)gaps.push([t,kt[0]]);if(kt[kt.length-1]+3600<now)gaps.push([kt[kt.length-1]+3600,now])}
+    const starts=[];for(const[a,b]of gaps)for(let s=a;s<b;s+=1000*3600)starts.push(s);let done=0;
     for(let i=0;i<starts.length;i+=5){const part=await Promise.all(starts.slice(i,i+5).map(s=>getJ(urls(s))));
-      if(part.some(x=>x===null))return false;part.forEach(j=>rows.push(...j));done+=part.length;prog&&prog(done/starts.length)}
-    const by=new Map();rows.forEach(r=>by.set(r[0]/1000,r));const tk=[...by.keys()].sort((a,b)=>a-b);if(tk.length<500)return false;
-    let mx=0;tk.forEach(k=>{const v=+by.get(k)[2];if(v>mx)mx=v});
-    const t0=tk[0],n=Math.round((tk[tk.length-1]-t0)/3600)+1,sc=10**Math.max(0,6-Math.floor(Math.log10(mx)));
+      if(part.some(x=>x===null)){if(!kt.length)return false;break}part.forEach(j=>j.forEach(r=>K[r[0]/1000]=[+r[1],+r[2],+r[3],+r[4],+r[5]]));done+=part.length;prog&&prog(done/starts.length*.9)}
+    kt=Object.keys(K).map(Number).sort((a,b)=>a-b);if(kt.length<500)return false;
+    // 資金費率：只補手機裡最後一筆之後的；抓不到就當 0
+    try{const fk=Object.keys(F).map(Number);let s=(fk.length?Math.max(...fk)+1:kt[0])*1000;for(let k=0;k<40&&s<now*1000;k++){const r=await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${sym}USDT&startTime=${s}&limit=1000`);if(!r.ok)break;const j=await r.json();if(!j.length)break;
+      for(const x of j)F[Math.floor(x.fundingTime/3600000)*3600]=+x.fundingRate;s=j[j.length-1].fundingTime+1;if(j.length<1000)break}}catch(e){}
+    if(starts.length||!S.at)HDB.put(sym,{K,F,from:Math.min(S.from,t),at:Date.now()});
+    let mx=0;kt.forEach(k=>{if(K[k][1]>mx)mx=K[k][1]});
+    const t0=kt[0],n=Math.round((kt[kt.length-1]-t0)/3600)+1,sc=10**Math.max(0,6-Math.floor(Math.log10(mx)));
     const d={t0,n,sc,c0:0,dc:new Array(n),o:new Array(n),h:new Array(n),l:new Array(n),v:new Array(n),f:{}};let pc=0,last=null;
-    for(let i=0;i<n;i++){const r=by.get(t0+i*3600)||[0,last[4],last[4],last[4],last[4],'0'];last=r;const C=Math.round(+r[4]*sc);
-      d.dc[i]=C-pc;pc=C;d.o[i]=Math.round(+r[1]*sc)-C;d.h[i]=Math.round(+r[2]*sc)-C;d.l[i]=Math.round(+r[3]*sc)-C;d.v[i]=+r[5]}
-    // 永續的資金費率（每 8 小時）：只放記憶體，不存手機；抓不到就當 0
-    try{let s=t0*1000;const end=(t0+n*3600)*1000;for(let k=0;k<40&&s<end;k++){const r=await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${sym}USDT&startTime=${s}&limit=1000`);if(!r.ok)break;const j=await r.json();if(!j.length)break;
-      for(const x of j){const i=Math.round((Math.floor(x.fundingTime/3600000)*3600-t0)/3600);if(i>=0&&i<n)d.f[i]=Math.round(+x.fundingRate*1e6)}s=j[j.length-1].fundingTime+1;if(j.length<1000)break}}catch(e){}
-    window.DATA[sym]=d;E.__clear&&E.__clear();HD[sym]={from,at:Date.now()};return true}
+    for(let i=0;i<n;i++){const r=K[t0+i*3600]||[last[3],last[3],last[3],last[3],0];last=r;const C=Math.round(r[3]*sc);
+      d.dc[i]=C-pc;pc=C;d.o[i]=Math.round(r[0]*sc)-C;d.h[i]=Math.round(r[1]*sc)-C;d.l[i]=Math.round(r[2]*sc)-C;d.v[i]=r[4]}
+    for(const k in F){const i=Math.round((+k-t0)/3600);if(i>=0&&i<n)d.f[i]=Math.round(F[k]*1e6)}
+    prog&&prog(1);window.DATA[sym]=d;E.__clear&&E.__clear();HD[sym]={from,at:Date.now()};return true}
   // 幣種下拉（多選，預設清單前六個）；按開始比較就換到結果畫面，先用開機的載入方塊把選的幣全部載完再顯示
   const ccAll=()=>['BTC','ETH',...(window.XM?XM.group('熱門山寨幣').concat(XM.group('其他山寨幣')):[])].filter((x,i,a)=>a.indexOf(x)===i);
   const ccIc=s=>window.XM&&XM.icon?XM.icon(s):'';let ccGen=0,ccListed=false;
@@ -2991,7 +3000,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <div class="field ccrow"><label>幣種</label><div class="ccdd"><button type="button" id="ccDdBtn">${esc(ccBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="ccMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
         ${all.map(x=>`<button type="button" class="ccit${ccSel.includes(x)?' on':''}" data-s="${x}">${ccIc(x)}<span>${x}</span><i></i></button>`).join('')}</div></div></div>
-      <p class="small" style="margin:4px 0 8px">用這個策略存的參數，原封不動放到每個幣上回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；資料只放在記憶體，不佔手機空間。</p>
+      <p class="small" style="margin:4px 0 8px">用這個策略存的參數，原封不動放到每個幣上回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；第一次下載後存在手機，之後只補最新的部分。</p>
       <button class="btn" id="ccGo" type="button" style="width:100%">開始比較</button></div>`;
     $('#ccK').onchange=e=>ccK=e.target.value;
     $('#ccPer').onclick=e=>{const b=e.target.closest('button');if(!b)return;ccPer=+b.dataset.v;$('#ccPer').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
@@ -3022,7 +3031,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="stDdBtn">${esc(stBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="stMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
         ${ks.map(k=>`<button type="button" class="ccit${stSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))}</span><i></i></button>`).join('')}</div></div></div>
-      <p class="small" style="margin:4px 0 8px">每個策略用自己存的參數，放到同一個幣、同一段期間回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；資料只放在記憶體，不佔手機空間。</p>
+      <p class="small" style="margin:4px 0 8px">每個策略用自己存的參數，放到同一個幣、同一段期間回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；第一次下載後存在手機，之後只補最新的部分。</p>
       <button class="btn" id="stGo" type="button" style="width:100%">開始比較</button></div>`;
     const CM=$('#stCMenu'),csync=()=>{CM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stCoins.includes(b.dataset.s)));$('#stCBtn').firstChild.textContent=cTxt()};
     $('#stCBtn').onclick=e=>{e.stopPropagation();$('#stMenu').classList.remove('on');CM.classList.toggle('on')};
