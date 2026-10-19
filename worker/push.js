@@ -114,12 +114,27 @@ async function hostCron(env) {
   }
 }
 
+// 純手機版資金總覽：手機用自己的唯讀金鑰簽好請求，這裡只負責轉送（交易所不允許網頁直接連）。
+// 看不到 Secret；只放行讀餘額／持倉／行情的網址，只轉 GET，不會下單或提領。
+const XEX = {
+  bybit: { hosts: { main: 'https://api.bybit.com', test: 'https://api-testnet.bybit.com' }, hdr: ['x-bapi-api-key', 'x-bapi-timestamp', 'x-bapi-recv-window', 'x-bapi-sign'],
+    paths: ['/v5/market/time', '/v5/market/tickers', '/v5/user/query-api', '/v5/account/wallet-balance', '/v5/asset/transfer/query-account-coins-balance', '/v5/position/list'] },
+};
+async function xproxy(req, u) {
+  const ex = XEX[u.searchParams.get('ex')], base = ex && ex.hosts[u.searchParams.get('net') === 'test' ? 'test' : 'main'], path = u.searchParams.get('path') || '', q = u.searchParams.get('q') || '';
+  if (!base || !ex.paths.includes(path) || q.length > 500 || /[^\w=&.%-]/.test(q)) return json({ error: 'not allowed' }, 403);
+  const h = {}; for (const k of ex.hdr) { const v = req.headers.get(k); if (v) h[k] = v.slice(0, 200); }
+  const r = await fetch(base + path + (q ? '?' + q : ''), { headers: h });
+  return new Response(await r.text(), { status: r.status, headers: { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
+}
+
 export default {
   async scheduled(ev, env, ctx) { ctx.waitUntil(hostCron(env)); },
   async fetch(req, env) {
     const u = new URL(req.url), p = u.pathname.replace(/\/+$/, '');
-    if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization', 'access-control-max-age': '86400' } });
+    if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization,x-bapi-api-key,x-bapi-timestamp,x-bapi-recv-window,x-bapi-sign', 'access-control-max-age': '86400' } });
     try {
+      if (p === '/x' && req.method === 'GET') return xproxy(req, u);
       if (p === '/vapid') return json({ key: (await vapid(env)).pub });
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;
