@@ -42,6 +42,8 @@ for (; k < html.length; k++) { if (html[k] === '{') dep++; else if (html[k] === 
 const BEST = vm.runInThisContext('(' + html.slice(bi + 11, k + 1) + ')');
 const simSrc = html.match(/function simulate\(st,sym,t0,t1,p\)\{[^\n]*\}/)[0];
 const E = Engine; global.E = E;
+// 策略框架（倉位倍數、回撤降倉）：simulate 會先把參數交給 fwP
+vm.runInThisContext(html.match(/const DDCUT=[^\n]*\n/)[0].replace(/^const /, 'var ').replace(/,KSC=/, ';var KSC=') + html.match(/function fwP\(p\)\{[^\n]*\n[^\n]*\}/)[0]);
 const simulate = vm.runInThisContext('(' + simSrc + ')');
 const NAME = {}; for (const m of html.matchAll(/<option value="(\w+)">(\d+)\.\s*([^<]+)<\/option>/g)) if (BEST[m[1]]) NAME[m[1]] = m[3].trim();
 const LOCK = { knife: 'ETH', knifeB: 'BTC' };
