@@ -39,7 +39,9 @@ const eng = html.match(/<script>\/\/ 策略回測引擎[\s\S]*?<\/script>/)[0].r
 vm.runInThisContext(eng);
 const bi = html.indexOf('const BEST={'); let k = bi + 11, dep = 0;
 for (; k < html.length; k++) { if (html[k] === '{') dep++; else if (html[k] === '}' && --dep === 0) break; }
-const BEST = vm.runInThisContext('(' + html.slice(bi + 11, k + 1) + ')');
+// 策略 7（knifeB）、8（my）的預設參數寫在字面量後面的 BEST.xx=… 單行裡，一起帶進來
+const bestX = html.slice(k + 1, html.indexOf('for(const st in BEST)for(const k in BEST[st])', k)).split('\n').filter(l => /^(BEST\.|Object\.assign\(BEST)/.test(l)).join('\n');
+const BEST = vm.runInThisContext('(()=>{var BEST=' + html.slice(bi + 11, k + 1) + ';\n' + bestX + '\nreturn BEST})()');
 const simSrc = html.match(/function simulate\(st,sym,t0,t1,p\)\{[^\n]*\}/)[0];
 const E = Engine; global.E = E;
 // 策略框架（倉位倍數、回撤降倉）：simulate 會先把參數交給 fwP

@@ -581,6 +581,55 @@ body,body[class]{background:var(--page);background-attachment:fixed}
     document.querySelectorAll('.view').forEach(function(v){vo.observe(v,{attributes:true,attributeFilter:['class']})})})};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();
 </script>
+<style>
+/* 開始交易：1. 訊號交易／2. 自動交易（連接使用者自己的執行器主機） */
+.tmode{display:flex;gap:8px;margin:12px 12px 4px}
+#tmBot{padding:8px 12px 0}
+.tmode button{flex:1;padding:10px 4px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
+.tmode button.on{background:color-mix(in srgb,var(--acc) 14%,transparent);border-color:var(--acc);color:var(--acc)}
+#tmBot .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
+#tmBot .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
+#tmBot .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
+#tmBot .card{margin-bottom:10px}
+#tmBot .bh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px;gap:8px}
+#tmBot .bh a,#tmBot .bh button.lk{color:var(--acc);background:none;border:0;font:inherit;cursor:pointer;padding:0;text-decoration:none}
+#tmBot .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+#tmBot .sub{font-size:12px;color:var(--muted);line-height:1.5}
+#tmBot .br{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+#tmBot .br:first-of-type{border-top:0}
+#tmBot .br>div:first-child{min-width:0}
+#tmBot .pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px;vertical-align:1px}
+#tmBot .p-ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+#tmBot .p-wn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+#tmBot .p-bad{background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down)}
+#tmBot .p-mu{background:var(--chip);color:var(--muted)}
+#tmBot .stp{display:flex;gap:10px;font-size:14px;line-height:1.5;padding:6px 0}
+#tmBot .stp i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--on-acc,#17140a);font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}
+#tmBot .row2{display:flex;gap:8px;margin:6px 0}
+#tmBot .row2>*{flex:1}
+#tmBot .bbtn{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none}
+#tmBot .bbtn.pri{background:var(--accbg,var(--acc));border-color:transparent;color:var(--on-acc,#17140a)}
+#tmBot .bbtn.red{background:var(--down);border-color:transparent;color:#fff}
+#tmBot .bbtn:disabled{opacity:.45;cursor:default}
+#tmBot .warnbox{background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55;margin-bottom:10px}
+#tmBot input[type=text],#tmBot input[type=number]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
+#tmBot .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+#tmBot .lim input{width:84px;text-align:right}
+#tmBot .lim small{color:var(--muted)}
+#tmBot .cmp{display:grid;grid-template-columns:1fr auto auto;gap:5px 14px;font-size:13px;font-variant-numeric:tabular-nums;margin-top:6px}
+#tmBot .cmp .hd{color:var(--muted);font-size:12px}
+#tmBot .seg{display:flex;margin-bottom:10px}
+#tmBot .seg button{flex:1}
+#tmBot details{font-size:13.5px;line-height:1.7}
+#tmBot details summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4px 0}
+#tmBot details ol{margin:4px 0 0;padding-left:20px}
+#tmBot code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
+#tmBot .pick{max-height:260px;overflow:auto;margin:6px 0}
+#tmBot .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+#tmBot .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
+#tmBot .lg{font-size:13.5px}
+#tmBot .lg .br{font-size:13.5px}
+</style>
 </head>
 <body>
 <!-- 開場畫面：logo 三層六角依序疊上；網頁載完、即時價格、市場分析、恐懼貪婪、模擬盤都抓完（至少 1.5 秒、最多 15 秒）才淡出 -->
@@ -608,7 +657,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </script>
 
 <header class="topbar"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="hmb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a1d7a"/><stop offset="1" stop-color="#160b34"/></linearGradient><radialGradient id="hmg" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="100" rx="22" fill="url(#hmb)"/><rect width="100" height="100" rx="22" fill="url(#hmg)"/><g transform="translate(0.0,0.0) scale(1.0)"><polygon points="80.0,70.0 65.0,84.3 35.0,84.3 20.0,70.0 35.0,55.7 65.0,55.7" fill="#9468e8" fill-opacity="0.26" stroke="#9468e8" stroke-width="3.4" stroke-opacity="0.75" stroke-linejoin="round"/><polygon points="80.0,53.0 65.0,67.3 35.0,67.3 20.0,53.0 35.0,38.7 65.0,38.7" fill="#d8b6ff" fill-opacity="0.32" stroke="#d8b6ff" stroke-width="3.4" stroke-opacity="0.9" stroke-linejoin="round"/><polygon points="80.0,36.0 65.0,50.3 35.0,50.3 20.0,36.0 35.0,21.7 65.0,21.7" fill="#f6cf6a" fill-opacity="0.35" stroke="#f6cf6a" stroke-width="3.4" stroke-opacity="1" stroke-linejoin="round"/></g></svg></div><div><div class="ttl">HexStack</div><div class="sub">幣策略・BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
-<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>今日訊號</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_notify" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>通知</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
+<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>開始交易</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_notify" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>通知</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
 <main>
 <!-- ───────── 走勢圖 ───────── -->
 <section id="chartView" class="view">
@@ -784,8 +833,13 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
-  <div class="sect"><h2>今日訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
-  <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。<br>內容僅供參考，非投資建議</div>
+  <div class="tmode" id="tMode"><button type="button" data-m="sig" class="on">1. 訊號交易</button><button type="button" data-m="bot">2. 自動交易</button></div>
+  <div id="tmSig">
+  <div class="sect"><h2>我的策略訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
+  <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。收到通知後自己到交易所下單。<br>內容僅供參考，非投資建議</div>
+  </div>
+  <div id="tmBot" hidden><div id="botBox"></div>
+  <div class="foot">自動交易由你自己電腦上的執行器下單，App 只負責看和控制；交易所金鑰只存在執行器上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap"><button class="nback" id="ntBack" type="button">‹ 設定</button>
@@ -2054,7 +2108,7 @@ const VIEWS=['chart','sig','strat','news','notify','set'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k||k==='set'&&v==='notify')});
   if(v==='strat'&&!pChart){initStrat();}
   // 先讓分頁切過去畫出來，各頁的載入晚一點再做，點下去不卡
-  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig')SigTab.open();if(v==='notify')NotifyTab.open();if(v==='set')setTab();resizeAll()},20));}
+  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='set')setTab();resizeAll()},20));}
 VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
 $('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
 // 設定分頁：外觀模式、資料狀態、一鍵更新
@@ -2931,6 +2985,143 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     $('#nav_strat').click();const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+c.dataset.st+'"]');if(b)b.click()});
   return {open,one,nm,md,reset(){key=''}}})();
 window.SigTab=SigTab;
+// ── 開始交易：1. 訊號交易（原今日訊號）／2. 自動交易 ──
+// 自動交易：App 只當遙控器，下單由使用者自己電腦上的「執行器」做（金鑰只在執行器上）。配對資料 botHost＝{u 通道網址, k 配對密鑰, h 主機 id, n 主機名}
+const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/releases/latest',
+    PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',PDEF='https://hexstack-push.hexstack-df20e2.workers.dev';
+  const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  const box=()=>$('#botBox'),H_=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),host=()=>J('botHost',null);
+  let tab=J('botTab','ov'),S=null,err='',timer=0,days=30,LOG=null,REV=null,pick=false,arm=0,sug=null,vis=false,draft=null;
+  const sec=t=>t>1e12?t/1000:t,ago=t=>{const d=Math.max(0,Date.now()/1000-sec(t));return d<60?Math.round(d)+' 秒前':d<3600?Math.round(d/60)+' 分鐘前':d<86400?Math.round(d/3600)+' 小時前':Math.round(d/86400)+' 天前'};
+  const md=t=>{const d=new Date(sec(t)*1000+8*3600e3);return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`};
+  const fm=(v,d=2)=>v==null||!isFinite(v)?'—':(+v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const pc=(v,d=1)=>v==null||!isFinite(v)?'—':(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(d)+'%',sg=v=>(v>0?'+':v<0?'−':'')+fm(Math.abs(v)),cl=v=>v>0?'pos':v<0?'neg':'';
+  const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+  let pb=null;const pBase=async()=>pb||(pb=await fetch(PJ,{cache:'no-store'}).then(r=>r.ok?r.json():{}).then(d=>d.url||PDEF).catch(()=>PDEF));
+  async function api(path,body){const H=host();if(!H)throw new Error('未配對');
+    const go=u=>{if(!u)return Promise.reject(new Error('還沒有通道網址'));return fetch(u.replace(/\/$/,'')+path,{method:body?'POST':'GET',cache:'no-store',headers:Object.assign({Authorization:'Bearer '+H.k},body?{'content-type':'application/json'}:{}),body:body?JSON.stringify(body):undefined})
+      .then(async r=>{if(r.status===401)throw Object.assign(new Error('配對密鑰不對，請重新配對'),{auth:1});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||'主機回應 '+r.status),{auth:1});return j})};
+    try{return await go(H.u)}catch(e){if(e.auth)throw e;
+      // 通道網址每次主機重開都會換：到推播後端用主機 id 查最新網址再試一次
+      try{const q=await fetch((await pBase())+'/host?id='+encodeURIComponent(H.h)+'&k='+await sha(H.k),{cache:'no-store'}).then(r=>r.ok?r.json():null);
+        if(q&&q.lastSeen){H.seen=q.lastSeen;W('botHost',H)}
+        if(q&&q.url&&q.url!==H.u){H.u=q.url;W('botHost',H);return await go(H.u)}}catch(e2){if(e2.auth)throw e2}
+      throw new Error('連不到主機')}}
+  // 掃 QR／貼連結：#pair=base64url({u,k,h,n})
+  function fromHash(h){const m=(h||location.hash).match(/#pair=([\w-]+)/);if(!m)return false;
+    try{const j=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,'+').replace(/_/g,'/')))));if(!j.k||!j.h)return false;
+      W('botHost',{u:j.u||'',k:j.k,h:j.h,n:j.n||'主機'});W('tMode','bot');S=null;err='';LOG=REV=null;linkPush();return true}catch(e){return false}}
+  // 主機離線、每日報告的推播：把這台裝置現有的推播訂閱綁到主機（沒開通知就略過）
+  async function linkPush(){try{const H=host(),reg=H&&'serviceWorker' in navigator&&await navigator.serviceWorker.getRegistration(),s=reg&&reg.pushManager&&await reg.pushManager.getSubscription();
+    if(!s)return false;const r=await fetch((await pBase())+'/host/pair',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({hostId:H.h,k:await sha(H.k),endpoint:s.endpoint})});
+    if(r.ok){H.push=1;W('botHost',H)}return r.ok}catch(e){return false}}
+  async function refresh(){if(!host())return render();try{S=await api('/api/status');err=''}catch(e){S=null;err=e.message}render();
+    if(S&&tab==='lg')api('/api/log?n=60').then(j=>{LOG=j;tab==='lg'&&render()}).catch(()=>{});
+    if(S&&tab==='rv')api('/api/review?days='+days).then(j=>{REV=j;tab==='rv'&&render()}).catch(()=>{})}
+  function loop(){clearTimeout(timer);if(!vis||document.hidden)return;timer=setTimeout(()=>{refresh().finally(loop)},15000)}
+  document.addEventListener('visibilitychange',()=>{if(vis&&!document.hidden){refresh();loop()}});
+  async function act(path,body,ok){try{await api(path,body);ok&&toast(ok)}catch(e){toast(e.message)}refresh()}
+  function toast(t){let e=$('#botToast');if(!e){e=document.createElement('div');e.id='botToast';e.style.cssText='position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:60;max-width:86vw;text-align:center';document.body.appendChild(e)}
+    e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,3000)}
+  // ── 畫面 ──
+  function setup(){box().innerHTML=`<div class="card"><div class="bh">在一台不關機的電腦上安裝執行器</div>
+    <div class="stp"><i>1</i><div>下載執行器並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
+    <div class="row2"><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
+    <div class="stp"><i>2</i><div>打開執行器，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
+    <div class="stp"><i>3</i><div>用手機相機掃 QR code，會打開 App 自動配對</div></div>
+    <div class="sub" style="margin:8px 0 6px">掃不了的話，把執行器畫面上的「配對連結」貼在這裡：</div>
+    <div class="row2"><input type="text" id="botLink" placeholder="https://…#pair=…" autocomplete="off"><button class="bbtn pri" id="botPair" type="button" style="flex:none;width:auto;padding:0 18px">配對</button></div>
+    <details><summary>沒有常開的電腦？用舊 Android 手機當主機</summary><ol>
+      <li>在舊手機從 F-Droid 安裝 Termux</li><li>在 Termux 輸入 <code>pkg install nodejs</code></li>
+      <li>從上面的下載頁下載 <code>hexbot.js</code>，執行 <code>termux-wake-lock; node hexbot.js</code></li>
+      <li>關掉這支手機對 Termux 的省電限制，插著充電、連 Wi‑Fi</li>
+      <li>在舊手機的瀏覽器打開 <code>http://localhost:8787</code>，把配對連結傳到你平常用的手機，貼到上面</li></ol></details></div>
+    <div class="warnbox">交易所 API 金鑰只填在執行器上，不會存進手機。請只開「交易」權限，不要開「提幣」；建議用獨立子帳戶，只放願意承擔風險的金額。</div>`;
+    $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製執行器上完整的配對連結');$('#botLink').focus()}}}
+  function render(){if(!box())return;const H=host();if(!H)return setup();const on=!!S&&!err;
+    const hd=`<div class="bh" style="margin:0 2px 8px"><span>${on?`<span class="pill p-ok" style="margin:0">● ${H_(S.hostName||H.n)} 在線</span>`:`<span class="pill p-bad" style="margin:0">● ${H_(H.n)} ${err?'離線':'連線中'}</span>`}${on&&S.halted?'<span class="pill p-bad">已全部暫停</span>':''}</span><span>${on&&S.lastTick?'最後回報 '+ago(S.lastTick):''}</span></div>`;
+    if(!on){box().innerHTML=hd+`<div class="card"><div class="bh">${err?'連不到主機':'連線中…'}</div><p class="sub" style="font-size:13.5px;margin:0 0 8px">${H_(err)}${H.seen?'<br>主機最後回報：'+ago(H.seen):''}</p>
+      <p class="sub" style="margin:0 0 10px">主機關機或斷網時不會下新單；已經掛在交易所的止損、止盈單仍然有效。</p><div class="row2"><button class="bbtn" id="botRetry" type="button">重新連線</button><button class="bbtn" id="botUnpair" type="button">重新配對</button></div></div>`;return bind()}
+    box().innerHTML=hd+`<div class="subt">${[['ov','總覽'],['lg','紀錄與上限'],['rv','策略回顧']].map(([k,n])=>`<button type="button" data-t="${k}"${tab===k?' class="on"':''}>${n}</button>`).join('')}</div>`+(tab==='ov'?ov():tab==='lg'?lg():rv());bind()}
+  const isLive=x=>x.mode==='live';
+  const off=x=>x.enabled===false||x.state==='paused';
+  function badge(x){if(off(x))return `<span class="pill p-mu">已暫停</span>`;if(isLive(x))return `<span class="pill p-ok">實盤</span>`;
+    if(x.mode==='testnet')return `<span class="pill p-ok">測試網</span>`;const d=x.trialDays||7,el=x.trialStart?Math.floor((Date.now()/1000-sec(x.trialStart))/86400):0;return `<span class="pill p-wn">試跑 ${Math.min(el,d)}／${d} 天</span>`}
+  function ov(){const s=S,st=s.strategies||[],ps=s.positions||[],liveN=st.filter(isLive).length,eq=+s.equity||0,base=+s.startEquity||0;
+    return (s.halted?`<div class="warnbox">已觸發安全上限：${H_(s.halted.reason)}，全部策略暫停。<button class="lk" id="botResume" type="button" style="color:var(--acc);background:none;border:0;font:inherit;padding:0;cursor:pointer">確認後恢復 ›</button></div>`:'')
+    +`<div class="card"><div class="bh"><span>帳戶權益<span class="pill ${liveN?'p-ok':'p-wn'}">${liveN?`實盤 ${liveN} 個策略`:'模擬盤'}</span></span><span>今日 <b class="${cl(s.dayPct)}">${pc(s.dayPct,2)}</b></span></div>
+      <div class="big">$${fm(eq)} <span style="font-size:15px" class="${cl(eq-base)}">${sg(eq-base)}</span></div>
+      <div class="sub">起始 $${fm(base,0)}・最大回撤 ${pc(-Math.abs(s.mdd||0),1).replace('−','')}${s.startT?'・啟動 '+md(s.startT).split(' ')[0]:''}・${H_(s.exchange||'')}${s.testnet?' 測試網':''}</div></div>
+    <div class="card"><div class="bh"><span>執行中的策略</span><button class="lk" id="botAdd" type="button">${pick?'收起':'＋ 加入'}</button></div>${pick?picker():''}
+      ${st.length?st.map(x=>`<div class="br"><div><b>${H_(x.name)}</b>${badge(x)}<div class="sub">${H_(x.sym)}・資金 ${Math.round((+x.alloc||0)*100)}%${off(x)&&x.pauseReason?'・'+H_(x.pauseReason):''}${!off(x)&&x.position?`・持${x.position.side>0?'多':'空'}`:''}</div>${!x.canPromote&&!isLive(x)&&x.promoteWhy?`<div class="sub">${H_(x.promoteWhy)}</div>`:''}
+        ${x.canPromote?`<button class="bbtn pri" type="button" data-pro="${H_(x.id)}" style="margin-top:6px;padding:7px">試跑通過，轉為實盤</button>`:''}</div>
+        <button class="sw${!off(x)?' on':''}" type="button" data-en="${H_(x.id)}" role="switch" aria-checked="${!off(x)}" aria-label="啟用"></button></div>`).join(''):'<p class="sub" style="margin:4px 0">還沒有策略。按「＋ 加入」從「我的策略」挑，或一鍵帶入策略框架 v1。新加入的策略會先跑 7 天模擬盤，跟回測一致才能轉實盤。</p>'}</div>
+    <div class="card"><div class="bh">目前持倉</div>${ps.length?ps.map(p=>`<div class="br"><div><span class="pill ${p.side>0?'p-ok':'p-bad'}" style="margin:0 4px 0 0">${p.side>0?'多':'空'}</span><b>${H_(p.sym)}</b> <span class="sub">${fm(p.qty,4)}</span><div class="sub">進場 ${fm(p.entry,p.entry<10?4:1)}${p.stop?'・止損 '+fm(p.stop,p.stop<10?4:1):''}${p.tp?'・止盈 '+fm(p.tp,p.tp<10?4:1):''}</div></div>
+      <div style="text-align:right"><b class="${cl(p.upnl)}">${sg(p.upnl||0)}</b>${p.entry&&p.mark?`<div class="sub">${pc(p.side*(p.mark/p.entry-1)*100)}</div>`:''}</div></div>`).join(''):'<p class="sub" style="margin:4px 0">目前空手</p>'}</div>
+    <button class="bbtn red" id="botStop" type="button">${arm>Date.now()?'再按一次確認：全部平倉並暫停':'全部停止並平倉'}</button>`}
+  // 加入策略：從我的策略挑（資金比例平均分），或一鍵帶入策略框架 v1 的 7 個子帳戶（整體 ×1.5，跟組合回測一致）
+  function picker(){const L=SigLock.get(),ks=Object.keys(L),have=new Set((S.strategies||[]).map(x=>x.key));
+    return `<div class="pick">${ks.length?ks.map(k=>`<label><input type="checkbox" value="${H_(k)}"${have.has(k)?' disabled checked':''}> <span>${H_(SigLock.name(k))} <small class="sub">${SigLock.part(k)[1]}</small></span></label>`).join(''):'<p class="sub">「我的策略」還沒有策略，到「策略分析 › 我的策略」新增。</p>'}</div>
+      <div class="row2"><button class="bbtn pri" id="botAddGo" type="button">加入勾選的策略</button><button class="bbtn" id="botFw" type="button">一鍵帶入策略框架 v1</button></div>
+      <p class="sub" style="margin:2px 0 8px">資金平均分給所有策略；加入後先跑 7 天模擬盤。</p>`}
+  function payload(k,alloc){const[st,sym]=SigLock.part(k);return {key:k,name:SigLock.name(k),st,sym,p:Object.assign({},BEST[st]&&BEST[st][sym],SigLock.get()[k]),alloc}}
+  async function addKeys(ks,mul){const cur=(S.strategies||[]).length,n=cur+ks.length,al=Math.floor(1e4/n)/1e4;   // 往下取整，合計不超過 100%if(!ks.length)return toast('先勾選策略');
+    const add=ks.map(k=>{const x=payload(k,al);if(mul)x.p.kMul=+((+x.p.kMul>0?+x.p.kMul:1)*mul).toFixed(3);return x});
+    try{for(const x of S.strategies||[])await api('/api/strategies',{id:x.id,alloc:al});await api('/api/strategies',{add});pick=false;toast(`已加入 ${ks.length} 個策略，先跑 7 天模擬盤`)}catch(e){toast(e.message)}refresh()}
+  function fwKeys(){const L=SigLock.get(),out=[];if(!window.FW1)return out;
+    for(const[st,sym,k,dd,nm]of window.FW1){let key=Object.keys(L).find(x=>{const[a,b]=SigLock.part(x);return a===st&&b===sym&&+L[x].kMul===k&&(L[x].ddCut||'off')===dd});
+      if(!key){key=SigLock.create(st,sym,'框架・'+nm+' '+sym,SigLock.clean(Object.assign({},BEST[st][sym],{kMul:k,ddCut:dd})));if(key)SigLock.pause(key,true)}if(key)out.push(key)}
+    SigLock.setEdit(null);return out}
+  function lg(){const s=S,lm=s.limits||{},R=LOG;
+    const TY={open:'開倉',close:'平倉',stop:'止損',tp:'止盈',skip:'略過',pause:'暫停',resume:'恢復',halt:'安全上限',error:'錯誤',info:'訊息',report:'每日報告'};
+    const lims=[['maxPosPct','單一策略最大倉位','% 帳戶'],['maxLev','最大槓桿','倍'],['dayLossPct','每日最大虧損','% → 全部暫停'],['maxDDPct','總回撤上限','% → 全部平倉']];
+    return `<div class="card lg"><div class="bh">下單紀錄<span>${R?'最近 '+R.length+' 筆':''}</span></div>${!R?'<p class="sub">讀取中…</p>':R.length?R.slice(0,60).map(x=>`<div class="br"><div>${md(x.t)} ${TY[x.type]||H_(x.type)}${x.side?(x.side>0?'多':'空'):''} ${H_(x.sym||'')}<div class="sub">${H_(x.name||'')}${x.px?'・'+fm(x.px,x.px<10?4:1):''}${x.text?'・'+H_(x.text):''}</div></div>${x.pnl!=null&&x.pnl!==0?`<b class="${cl(x.pnl)}">${sg(x.pnl)}</b>`:''}</div>`).join(''):'<p class="sub">還沒有紀錄</p>'}</div>
+    <div class="card"><div class="bh"><span>安全上限</span><button class="lk" id="botSug" type="button">依回測建議</button></div>
+      ${lims.map(([k,n,u])=>`<div class="lim"><span>${n}${sug&&sug[k]!=null?`<br><small>建議 ${sug[k]}</small>`:''}</span><span style="display:flex;align-items:center;gap:6px"><input type="number" inputmode="decimal" id="lim_${k}" value="${(draft&&draft[k]!=null?draft[k]:lm[k])??''}" min="0" step="any"><small>${u}</small></span></div>`).join('')}
+      <button class="bbtn pri" id="botLimGo" type="button" style="margin-top:8px">儲存上限</button>
+      <p class="sub" style="margin:8px 0 0">這是帳戶層級的緊急煞車，跟策略自己的止損、槓桿分開。建議值＝你加入的策略近兩年回測最壞情況再放寬一點，正常波動不會誤停。</p></div>
+    <div class="card"><div class="bh">主機</div>
+      <div class="br"><div>${H_(s.hostName||host().n)}・執行器 v${H_(s.ver||'')}<div class="sub">${H_(s.exchange||'')}${s.testnet?' 測試網':''}・${s.allowLive?'允許實盤':'只跑模擬盤（實盤要在執行器上開啟）'}</div></div><button class="lk" id="botUnpair" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">重新配對</button></div>
+      <div class="br"><div>主機離線、每日報告推播<div class="sub">${host().push?'已綁定這台裝置':'要先在「設定 › 通知」打開任一類通知'}</div></div><button class="lk" id="botPush" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">${host().push?'重新綁定':'綁定'}</button></div></div>`}
+  // 依回測建議上限：每個策略用自己的參數跑近兩年，照資金比例合成整個帳戶的每日權益，取最大回撤、最差單日，再放寬一點；槓桿取策略自己設的最大值
+  function suggest(){const st=S.strategies||[];if(!st.length)return toast('先加入策略');const t1=E.lastClosed('BTC'),D=86400,t0=t1-730*D,N=730;
+    const acc=new Array(N+1).fill(0);let lev=1,pos=0,wsum=0;
+    for(const x of st){const w=+x.alloc||0;try{const r=simulate(x.st,x.sym,t0,t1,Object.assign({capital:1000},x.p)),q=r.eq||[];let k=0,v=1000;
+      for(let d=0;d<=N;d++){const t=t0+d*D;while(k<q.length&&q[k][0]<=t){v=q[k][1];k++}acc[d]+=w*v/1000}wsum+=w;
+      lev=Math.max(lev,(+x.p.lev||1)*(+x.p.kMul>0?+x.p.kMul:1));pos=Math.max(pos,w)}catch(e){}}
+    let pk=0,dd=0,day=0;for(let d=0;d<=N;d++){const v=acc[d]+(1-wsum);pk=Math.max(pk,v);dd=Math.max(dd,1-v/pk);if(d)day=Math.max(day,1-v/(acc[d-1]+(1-wsum)))}
+    const r5=v=>Math.ceil(v/5)*5;sug={maxDDPct:Math.min(50,Math.max(10,r5(dd*100*1.5))),dayLossPct:Math.min(20,Math.max(3,Math.ceil(day*100*1.5))),maxLev:Math.min(10,Math.ceil(lev)),maxPosPct:Math.min(100,Math.max(10,r5(pos*100*1.2)))};
+    draft=Object.assign({},sug);render();toast(`近兩年合成回撤 ${(dd*100).toFixed(1)}%、最差單日 ${(day*100).toFixed(1)}%，已填入建議值，確認後按「儲存上限」`)}
+  function rv(){const R=REV;
+    const curve=(a,b)=>{const all=[...(a||[]),...(b||[])];if(all.length<2)return '';const T=all.map(p=>p[0]),V=all.map(p=>p[1]),t0=Math.min(...T),t1=Math.max(...T),v0=Math.min(...V),v1=Math.max(...V),w=340,h=90;
+      const pl=c=>(c||[]).map(p=>`${((p[0]-t0)/(t1-t0||1)*w).toFixed(1)},${(h-6-(p[1]-v0)/(v1-v0||1)*(h-12)).toFixed(1)}`).join(' ');
+      return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;margin:4px 0"><polyline fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" points="${pl(b)}"/><polyline fill="none" stroke="var(--acc)" stroke-width="2.2" points="${pl(a)}"/></svg><div class="sub" style="display:flex;gap:14px;margin-bottom:4px"><span style="color:var(--acc)">━ 實際</span><span>┄ 同期回測</span></div>`};
+    const row=(n,a,b,f)=>`<span>${n}</span><b>${f(a)}</b><span>${f(b)}</span>`;
+    return `<div class="seg" id="botDays">${[[7,'近 7 天'],[30,'近 30 天'],[0,'全部']].map(([d,n])=>`<button type="button" data-d="${d}"${days===d?' class="on"':''}>${n}</button>`).join('')}</div>`
+    +(!R?'<div class="card"><p class="sub">讀取中…</p></div>':!R.length?'<div class="card"><p class="sub">還沒有策略在跑。加入策略後，這裡會拿實際成績跟同期回測比，看策略有沒有照回測走。</p></div>':R.map(x=>{const a=x.real||{},b=x.bt||{},few=!(a.trades||a.fills)&&!b.trades;
+      return `<div class="card"><div class="bh"><b style="color:var(--text)">${H_(x.name)}${String(x.name||'').includes(x.sym)?'':'・'+H_(x.sym)}</b><span class="pill ${few&&x.status!=='drift'?'p-mu':x.status==='ok'?'p-ok':x.status==='drift'?'p-wn':'p-mu'}">${few&&x.status!=='drift'?'資料還不夠':x.status==='ok'?'與回測一致':x.status==='drift'?'偏離回測':'資料還不夠'}</span></div>${curve(a.curve,b.curve)}
+        <div class="cmp"><span class="hd"></span><span class="hd">實際</span><span class="hd">回測</span>${row('報酬',a.ret,b.ret,v=>`<span class="${cl(v)}">${pc(v)}</span>`)}${row('交易次數',a.trades,b.trades,v=>v??'—')}${row('勝率',a.win,b.win,v=>v==null?'—':Math.round(v)+'%')}${row('最大回撤',a.mdd,b.mdd,v=>v==null?'—':(+v).toFixed(1)+'%')}${row('平均滑價',a.slip,b.slip,v=>v==null?'—':(+v).toFixed(3)+'%')}</div>
+        ${(x.reasons||[]).length?`<p class="sub" style="margin:8px 0 0">${x.status==='drift'?'差異原因：':''}${x.reasons.map(H_).join('；')}</p>`:''}</div>`}).join(''))}
+  function bind(){const b=box();b.oninput=e=>{const m=e.target.id&&e.target.id.match(/^lim_(\w+)/);if(m){draft=draft||{};draft[m[1]]=e.target.value}};b.onclick=async e=>{const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.t){tab=t.dataset.t;W('botTab',tab);render();refresh();return}
+    if(t.dataset.d!=null){days=+t.dataset.d;REV=null;render();refresh();return}
+    if(t.dataset.en){const x=(S.strategies||[]).find(y=>y.id===t.dataset.en),en=!!x&&off(x);return act('/api/strategies',{id:t.dataset.en,enabled:en},en?'已恢復':'已暫停')}
+    if(t.dataset.pro)return act('/api/promote',{id:t.dataset.pro},'已轉為實盤');
+    switch(t.id){case 'botRetry':err='';render();return refresh();
+      case 'botUnpair':W('botHost',null);S=null;err='';return render();
+      case 'botResume':return act('/api/resume',{},'已恢復');
+      case 'botAdd':pick=!pick;return render();
+      case 'botAddGo':return addKeys([...b.querySelectorAll('.pick input:checked:not(:disabled)')].map(i=>i.value));
+      case 'botFw':return addKeys(fwKeys().filter(k=>!(S.strategies||[]).some(x=>x.key===k)),1.5);
+      case 'botStop':if(arm<Date.now()){arm=Date.now()+5000;render();setTimeout(()=>{if(arm&&arm<Date.now()){arm=0;render()}},5200);return}arm=0;return act('/api/stopall',{},'已全部平倉並暫停');
+      case 'botSug':return suggest();
+      case 'botLimGo':{const o={};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
+      case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
+  function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';
+    vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
+  $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b)mode(b.dataset.m)};
+  return {open(){mode(J('tMode','sig'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode}})();
+window.BotTab=BotTab;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
 const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false;
@@ -3058,7 +3249,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     document.addEventListener('click',()=>M.classList.remove('on'));
     $('#stGo').onclick=stRun}
   // 組合回測（策略框架 v1）：勾幾個我的策略當子帳戶，資金平均分、不再平衡；整體放大＝每個子帳戶的倉位倍數再乘上去
-  const FW1=[['my','BTC',1.25,'off','我的系統'],['my','ETH',1,'off','我的系統'],['tur','BTC',0.5,'T1','海龜'],['dense','ETH',0.75,'lin','均線密集'],['dense','BTC',0.35,'off','均線密集'],['poc','ETH',0.35,'off','POC 堆倉'],['poc','BTC',0.35,'off','POC 堆倉']];
+  const FW1=[['my','BTC',1.25,'off','我的系統'],['my','ETH',1,'off','我的系統'],['tur','BTC',0.5,'T1','海龜'],['dense','ETH',0.75,'lin','均線密集'],['dense','BTC',0.35,'off','均線密集'],['poc','ETH',0.35,'off','POC 堆倉'],['poc','BTC',0.35,'off','POC 堆倉']];window.FW1=FW1;
   let pfSel=null,pfM=1.5;const OOS0=ts('2024-09-21');
   function pfForm(){const ks=stKeys(),L=SigLock.get();pfSel=(pfSel||ks).filter(k=>ks.includes(k));
     const fwHas=FW1.every(f=>ks.some(k=>{const[st,sym]=SigLock.part(k);return st===f[0]&&sym===f[1]&&+L[k].kMul===f[2]}));
@@ -3249,7 +3440,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   // 通知內文是 Telegram 的 HTML（只用 b、i、a）：先全部跳脫，再把這幾個標籤還原
   const tgHtml=t=>esc(t).replace(/&lt;(\/?)(b|i)&gt;/g,'<$1$2>').replace(/&lt;a href="(https:\/\/[^"]+)"&gt;(.*?)&lt;\/a&gt;/g,(m,u,x)=>`<a href="${u.replace(/"/g,'')}" target="_blank" rel="noopener">${x}</a>`).replace(/\n{2,}/g,'<br><span style="display:block;height:6px"></span>').replace(/\n/g,'<br>');
-  const CATS=[['sig','📈','策略信號','「今日訊號」裡開著通知的策略：進場、加倉、出場、停損'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
+  const CATS=[['sig','📈','策略信號','「開始交易 › 訊號交易」裡開著通知的策略：進場、加倉、出場、停損'],['us','🔔','美股開盤','MSTR、MSTU 開盤與收盤，附估算 mNAV'],['ev','⏰','重要事件','早上 8 點列今天的事件，有時間的事件前 1 小時提醒'],
     ['mkt','📊','市場分析','早上 8 點早報、市場分析更新時的偏多／偏空與概要'],['lv','🎯','關鍵價位','BTC 站上或跌破市場分析寫的支撐、壓力'],['fg','😱','恐懼貪婪極端','指數低於 20 或高於 80 時提醒']];
   const TGI='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1 1.4 11.6c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4z"/></svg>';
   let flt='all',last=null;
@@ -3326,7 +3517,7 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
   async function open(){render(await load(false))}
   return {open,sync:pushLater}})();
 window.NotifyTab=NotifyTab;
-{const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'chart')}   // 一打開預設在查看價格
+{const pr=()=>{if(/^#pair=/.test(location.hash)){window.BotTab&&BotTab.fromHash();history.replaceState(null,'','#sig');return true}};addEventListener('hashchange',()=>{if(pr())show('sig')});pr();const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'chart')}   // 一打開預設在查看價格
 })();
 </script>
 <script>// ───────── 手機版：查看價格卡片、重大消息頁 ─────────
@@ -3769,8 +3960,8 @@ function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x
   let cur='';try{cur=String(Engine.lastClosed('BTC'))}catch(e){}
   if(sg&&sg.res&&sg.k!==cur)sg=null;   // 舊資料算的不顯示，等背景重算（開 App 後自動算，見 sigdone）
   if(sg&&sg.res){let hold=0,hot=0;for(const st in sg.res)for(const sym in sg.res[st]){const x=sg.res[st][sym];if(!x)continue;if(/持倉中/.test(x.txt))hold++;if(x.hot)hot++}
-    T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個持倉中${hot?'・24 小時內有新進出場':''}</div></div>`)}
-  else T.push(`<div class="t" data-go="sig"><div class="k">今日訊號 <span>›</span></div><div class="v" style="font-size:14px"><span class="spin"></span> 計算中…</div><div class="s">正在算我的策略現在持倉或空手</div></div>`);
+    T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">策略訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個持倉中${hot?'・24 小時內有新進出場':''}</div></div>`)}
+  else T.push(`<div class="t" data-go="sig"><div class="k">策略訊號 <span>›</span></div><div class="v" style="font-size:14px"><span class="spin"></span> 計算中…</div><div class="s">正在算我的策略現在持倉或空手</div></div>`);
   if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
   box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
 document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;

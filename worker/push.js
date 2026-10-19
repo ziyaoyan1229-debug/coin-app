@@ -11,6 +11,12 @@
 //                策略信號：有 lk 的只推給鎖定那組參數的裝置；沒有 lk 的（預設參數），鎖定了同一個策略＋幣的裝置不推
 //   GET  /stats  Authorization: Bearer <PUSH_KEY> → { subs }
 // 其他程式要推通知：照 /send 的格式送一個 POST 就好（cat 不填＝所有裝置都收）。
+// 執行器（executor/hexbot.js）：k＝sha256(配對 token) 的 hex，後端只存 k；第一次登記的 hostId 記住它的 k（先到先得），之後要用 k 做 HMAC 簽名。
+//   POST /host        { hostId, url, name, th, ts, sig }   → 登記／心跳（每 5 分鐘）；sig＝HMAC-SHA256(k, "host\n"+hostId+"\n"+ts+"\n"+url+"\n"+name)
+//   GET  /host?id=hostId&k=k                             → { url, name, lastSeen, online }：App 用來找執行器現在的網址（快速通道每次重開都會換）
+//   POST /host/notify { hostId, ts, title, body, sig }   → 推給配對過這台主機的裝置；sig＝HMAC(k, "notify\n"+hostId+"\n"+ts+"\n"+title+"\n"+body)
+//   POST /host/pair   { hostId, k, endpoint, off }        → App 把已訂閱推播的這台裝置綁到主機（off: true＝解除）
+//   排程（每 5 分鐘）：超過 15 分鐘沒心跳 → 推「主機離線」；恢復心跳時推「主機恢復上線」
 const SITE = 'https://ziyaoyan1229-debug.github.io/coin-app/';
 const enc = new TextEncoder();
 const b64u = buf => { let s = ''; for (const b of new Uint8Array(buf)) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
@@ -80,7 +86,36 @@ async function allSubs(env) {
   return out;
 }
 
+// ───────── 執行器主機 ─────────
+const hexOf = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+async function hmacHex(k, s) { const key = await S.importKey('raw', enc.encode(k), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']); return hexOf(await S.sign('HMAC', key, enc.encode(s))); }
+const same = (a, b) => { a = String(a || ''); b = String(b || ''); if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
+const HID = /^[0-9a-f]{16}$/, KH = /^[0-9a-f]{64}$/, OFF_MS = 15 * 60000;
+const hostKey = id => 'host:' + id;
+async function hostPush(env, h, msg) {
+  const v = await vapid(env); let sent = 0;
+  for (const k of (h.devs || []).slice()) {
+    const r = await env.SUBS.get(k, 'json');
+    if (!r) { h.devs = h.devs.filter(x => x !== k); h.dirty = 1; continue; }
+    try { const res = await pushOne(v, r.sub, msg); if (res.status === 404 || res.status === 410) { await env.SUBS.delete(k); h.devs = h.devs.filter(x => x !== k); h.dirty = 1; } else if (res.ok) sent++; } catch (e) {}
+  }
+  return sent;
+}
+// 驗簽：時間差 5 分鐘內、ts 比上次大（防重放）
+async function hostAuth(h, d, parts) { const ts = +d.ts; return h && KH.test(h.th) && Math.abs(Date.now() - ts) < 300000 && ts > (h.ts || 0) && same(d.sig, await hmacHex(h.th, parts.join('\n'))); }
+async function hostCron(env) {
+  const ids = (await env.SUBS.get('hosts', 'json')) || [], t = Date.now();
+  for (const id of ids) {
+    const h = await env.SUBS.get(hostKey(id), 'json'); if (!h || !h.devs || !h.devs.length) continue;
+    if (!h.down && t - (h.seen || 0) > OFF_MS) {
+      h.down = t; await hostPush(env, h, { title: '⚠️ 執行器主機離線', body: `「${h.name || id}」已經 ${Math.round((t - h.seen) / 60000)} 分鐘沒有回報。請檢查電腦是否睡眠、斷網或程式被關掉；交易所上的停損單仍然有效。`, url: './#bot', tag: 'hx-' + id });
+      delete h.dirty; await env.SUBS.put(hostKey(id), JSON.stringify(h));
+    }
+  }
+}
+
 export default {
+  async scheduled(ev, env, ctx) { ctx.waitUntil(hostCron(env)); },
   async fetch(req, env) {
     const u = new URL(req.url), p = u.pathname.replace(/\/+$/, '');
     if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization', 'access-control-max-age': '86400' } });
@@ -131,6 +166,53 @@ export default {
         const u = new Map();
         for (const [, r] of await allSubs(env)) if (r.cats && r.cats.sig) for (const [k, h] of Object.entries(r.lockh || {})) if (!u.has(h)) { const [st, sym] = k.split('|'); u.set(h, { h, st, sym, p: r.locks[k] }); }
         return json([...u.values()]);
+      }
+      if (p === '/host' && req.method === 'POST') {   // 執行器登記／心跳
+        const d = await req.json(), id = d && d.hostId;
+        if (!HID.test(id || '') || !KH.test(d.th || '') || typeof d.url !== 'string' || d.url.length > 200 || d.url && !/^https:\/\/[\w.-]+(:\d+)?$/.test(d.url)) return json({ error: 'bad request' }, 400);
+        const name = String(d.name || '').slice(0, 40), key = hostKey(id);
+        let h = await env.SUBS.get(key, 'json'), isNew = false;
+        if (!h) {   // 第一次：記住 th（先到先得）
+          const ids = (await env.SUBS.get('hosts', 'json')) || [];
+          if (ids.length >= 500) return json({ error: 'too many hosts' }, 429);
+          h = { th: d.th, devs: [], ts: 0 }; isNew = true;
+          if (!ids.includes(id)) { ids.push(id); await env.SUBS.put('hosts', JSON.stringify(ids)); }
+        }
+        if (!await hostAuth(h, d, ['host', id, d.ts, d.url, name])) return json({ error: 'bad signature' }, 403);
+        const t = Date.now(), back = h.down;
+        // 省 KV 寫入（免費方案每天 1000 次）：網址或名字沒變、上次寫入不到 9 分鐘、也不是剛恢復，就不寫
+        const need = isNew || back || h.url !== d.url || h.name !== name || t - (h.seen || 0) > 9 * 60000;
+        h.url = d.url; h.name = name; h.ts = +d.ts;
+        if (back) { delete h.down; await hostPush(env, h, { title: '✅ 執行器主機恢復上線', body: `「${name || id}」又開始回報了。`, url: './#bot', tag: 'hx-' + id }); }
+        if (need) { h.seen = t; delete h.dirty; await env.SUBS.put(key, JSON.stringify(h)); }
+        return json({ ok: true, devs: (h.devs || []).length });
+      }
+      if (p === '/host' && req.method === 'GET') {   // App 找執行器網址
+        const id = u.searchParams.get('id') || '', k = u.searchParams.get('k') || '';
+        const h = HID.test(id) && await env.SUBS.get(hostKey(id), 'json');
+        if (!h || !same(h.th, k)) return json({ error: 'not found' }, 404);
+        return json({ url: h.url || '', name: h.name || '', lastSeen: h.seen || 0, online: !h.down && Date.now() - (h.seen || 0) < OFF_MS });
+      }
+      if (p === '/host/notify' && req.method === 'POST') {
+        const d = await req.json(), id = d && d.hostId, h = HID.test(id || '') && await env.SUBS.get(hostKey(id), 'json');
+        const title = String(d.title || '').slice(0, 120), body = String(d.body || '').slice(0, 1500);
+        if (!h || !await hostAuth(h, d, ['notify', id, d.ts, d.title, d.body])) return json({ error: 'bad signature' }, 403);
+        const hr = Math.floor(Date.now() / 3600000);
+        if (h.nh !== hr) { h.nh = hr; h.nn = 0; }
+        if (++h.nn > 40) return json({ error: 'too many' }, 429);   // 每小時最多 40 則
+        h.ts = +d.ts;
+        const sent = await hostPush(env, h, { title: title || 'HexStack 執行器', body, url: './#bot', tag: undefined });
+        await env.SUBS.put(hostKey(id), JSON.stringify(h));
+        return json({ ok: true, sent });
+      }
+      if (p === '/host/pair' && req.method === 'POST') {   // App 綁定這台裝置的推播到主機
+        const d = await req.json(), id = d && d.hostId, h = HID.test(id || '') && await env.SUBS.get(hostKey(id), 'json');
+        if (!h || !same(h.th, d.k)) return json({ error: 'not found' }, 404);
+        const sk = d.endpoint && await idOf(String(d.endpoint));
+        if (!sk || !await env.SUBS.get(sk)) return json({ error: 'not subscribed' }, 404);
+        h.devs = (h.devs || []).filter(x => x !== sk); if (!d.off) h.devs.push(sk); h.devs = h.devs.slice(-10);
+        await env.SUBS.put(hostKey(id), JSON.stringify(h));
+        return json({ ok: true, devs: h.devs.length });
       }
       if (p === '/stats') { if (!authed(req, env)) return json({ error: 'unauthorized' }, 401); return json({ subs: (await allSubs(env)).length }); }
       return json({ name: 'HexStack push', ok: true });

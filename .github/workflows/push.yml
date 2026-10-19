@@ -52,7 +52,8 @@ jobs:
             echo "已註冊 $SUB.workers.dev"
           fi
           cd worker
-          printf 'name = "hexstack-push"\nmain = "push.js"\ncompatibility_date = "2025-01-01"\nworkers_dev = true\n\n[[kv_namespaces]]\nbinding = "SUBS"\nid = "%s"\n' "$ID" > wrangler.toml
+          # 排程每 5 分鐘：檢查執行器主機心跳，離線就推通知（免費方案可用）
+          printf 'name = "hexstack-push"\nmain = "push.js"\ncompatibility_date = "2025-01-01"\nworkers_dev = true\n\n[triggers]\ncrons = ["*/5 * * * *"]\n\n[[kv_namespaces]]\nbinding = "SUBS"\nid = "%s"\n' "$ID" > wrangler.toml
           npx -y wrangler@4 deploy
           KEY="${PUSH_KEY_IN:-$(printf '%s' "${CLOUDFLARE_API_TOKEN}hexstack-push" | sha256sum | cut -d' ' -f1)}"
           printf '%s' "$KEY" | npx -y wrangler@4 secret put PUSH_KEY

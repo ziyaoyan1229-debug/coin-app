@@ -1,0 +1,118 @@
+# 執行器（executor/hexbot.js）打包發佈：用 Node 單一執行檔（SEA）做 Windows／Mac／Linux 版，連同 hexbot.js＋啟動 bat＋說明打成 zip，放到 GitHub Release。
+# 觸發：推 bot-v* 標籤（例如 git tag bot-v1.0 && git push origin bot-v1.0），或在 Actions 手動執行（建一個 bot-dev-<編號> 預先發佈版）。
+# 不簽章（沒有付費憑證）：Mac 版只做 ad-hoc 簽章，第一次打開要照 README 允許。
+name: release
+on:
+  push:
+    tags: ['bot-v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 版本標籤（留空＝bot-dev-<執行編號>，預先發佈）
+        type: string
+        default: ''
+permissions:
+  contents: write
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, out: hexbot.exe, pkg: hexbot.exe, kind: win }
+          - { os: macos-14, out: hexbot, pkg: hexbot-macos-arm64.zip, kind: mac }
+          - { os: macos-15-intel, out: hexbot, pkg: hexbot-macos-x64.zip, kind: mac }
+          - { os: ubuntu-latest, out: hexbot, pkg: hexbot-linux-x64.tar.gz, kind: linux }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: executor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 打包單一執行檔
+        env:
+          OUT: ${{ matrix.out }}
+          KIND: ${{ matrix.kind }}
+        run: |
+          set -e
+          node --check executor/hexbot.js
+          mkdir -p dist
+          echo '{"main":"executor/hexbot.js","output":"sea-prep.blob","disableExperimentalSEAWarning":true}' > sea-config.json
+          node --experimental-sea-config sea-config.json
+          # 複製 node 本體（用 node 自己複製，Windows 的路徑才不會出問題）
+          node -e "require('fs').copyFileSync(process.execPath, process.argv[1])" "dist/$OUT"
+          if [ "$KIND" = mac ]; then codesign --remove-signature "dist/$OUT"; fi
+          if [ "$KIND" = mac ]; then
+            npx --yes postject@1.0.0-alpha.6 "dist/$OUT" NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA
+            codesign --sign - "dist/$OUT"
+          else
+            npx --yes postject@1.0.0-alpha.6 "dist/$OUT" NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+          fi
+          chmod +x "dist/$OUT" || true
+          "./dist/$OUT" --version
+      - name: 壓縮
+        env:
+          OUT: ${{ matrix.out }}
+          PKG: ${{ matrix.pkg }}
+          KIND: ${{ matrix.kind }}
+        run: |
+          set -e
+          mkdir -p pkg
+          cp executor/README.md dist/README.md
+          cd dist
+          if [ "$KIND" = win ]; then cp "$OUT" "../pkg/$PKG";
+          elif [ "$KIND" = mac ]; then zip -q -X "../pkg/$PKG" "$OUT" README.md;
+          else tar -czf "../pkg/$PKG" "$OUT" README.md; fi
+          ls -la ../pkg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bin-${{ matrix.kind }}-${{ strategy.job-index }}
+          path: pkg/*
+          if-no-files-found: error
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: hexbot.js 版（要先裝 Node.js；Windows 雙擊 bat，Android Termux 也用這個）
+        run: |
+          set -e
+          mkdir -p pkg js
+          cp executor/hexbot.js executor/README.md "executor/啟動執行器.bat" js/
+          (cd js && zip -q -X ../pkg/hexbot-js.zip hexbot.js README.md "啟動執行器.bat")
+          cp executor/hexbot.js pkg/hexbot.js
+      - uses: actions/download-artifact@v4
+        with:
+          path: pkg
+          pattern: bin-*
+          merge-multiple: true
+      - name: 建立 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IN_TAG: ${{ inputs.tag }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref_name }}
+          RUN: ${{ github.run_number }}
+        run: |
+          set -e
+          ls -la pkg
+          if [ "$EVENT" = push ]; then TAG="$REF"; PRE=""; else TAG="${IN_TAG:-bot-dev-$RUN}"; PRE="--prerelease"; fi
+          NOTES="HexStack 執行器 $TAG
+
+          - Windows：下載 hexbot.exe，雙擊執行（出現「Windows 已保護您的電腦」→ 其他資訊 → 仍要執行）。
+          - Mac：下載 hexbot-macos-arm64.zip（M 系列晶片）或 hexbot-macos-x64.zip（Intel），解壓後照 README 允許執行。
+          - Linux：hexbot-linux-x64.tar.gz。
+          - 已裝 Node.js 18 以上（含 Android Termux）：用 hexbot.js 或 hexbot-js.zip。
+          - 檔案沒有付費簽章；Bybit 介面還沒在真帳戶測過，請先用模擬盤／測試網。"
+          if gh release view "$TAG" > /dev/null 2>&1; then gh release upload "$TAG" pkg/* --clobber;
+          else gh release create "$TAG" pkg/* --target "$GITHUB_SHA" --title "執行器 $TAG" --notes "$NOTES" $PRE; fi
