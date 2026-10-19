@@ -413,7 +413,7 @@ async function bybitFunds(a) {
   out.total_usd = out.assets.reduce((t, x) => t + (x.usd || 0), 0);
   return out;
 }
-// ── 其他交易所唯讀查詢（OKX、幣安、Bitget、Gate、MEXC、KuCoin、Coinbase、Kraken）。只在 HexStack 讀取（手機不存金鑰）──
+// ── 其他交易所唯讀查詢（OKX、幣安、Bitget、Gate、MEXC、KuCoin、Coinbase、Kraken）。手機版 index.html 與 HexStack executor/hexbot.js 共用同一份，改一邊要同步另一邊 ──
 // 每家：host（main／fut 合約）、time（對時）、ok／data（拆回應）、sign（簽名）。H＝{ hmac, sha, jwt } 由各環境提供。只讀餘額與持倉，不下單。
 const FX_ST = ['USDT', 'USDC', 'USD', 'FDUSD', 'DAI'];
 const fxB64u = s => btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
