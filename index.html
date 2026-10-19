@@ -528,7 +528,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .qrtip{color:#fff;font-size:14px}
 .qrov .bbtn{max-width:240px}
 #fundView>.wrap{max-width:640px;margin:0 auto;width:100%;padding:14px}
-.fscr{display:flex;flex-direction:column;gap:14px}.fscr[hidden],#fdWarn[hidden],#fdWhere[hidden],#fdPw[hidden],#fdTw[hidden],.fdask[hidden]{display:none}
+.fscr{display:flex;flex-direction:column;gap:14px}.fscr[hidden],#fdWarn[hidden],#fdPw[hidden],#fdTw[hidden],.fdask[hidden]{display:none}
 .fdask{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:24px}.fdask>.fdpanel{max-width:340px;width:100%;text-align:center}
 .fdrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .fdmu{color:var(--muted)}
@@ -939,9 +939,8 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
       <label class="fdlb" for="fdS">API Secret<input id="fdS" type="password" autocomplete="off" placeholder="貼上 API Secret"></label>
       <label class="fdlb" for="fdP" id="fdPw" hidden>Passphrase<input id="fdP" type="password" autocomplete="off" placeholder="建立金鑰時自己設的密碼"></label>
       <label class="fdck" for="fdT" id="fdTw"><input type="checkbox" id="fdT"> 這是測試網金鑰</label>
-      <div id="fdWhere" class="fdlb" hidden>金鑰存在<label class="fdck" for="fdWPc"><input type="radio" name="fdW" id="fdWPc"> 電腦 HexStack（手機不留）</label><label class="fdck" for="fdWPh"><input type="radio" name="fdW" id="fdWPh"> 這支手機</label></div>
       <button class="fdgo" type="submit" id="fdAddGo">驗證並加入</button>
-      <small class="fdmu">只接受唯讀金鑰，有交易或提現權限會被拒收。存在手機時，金鑰只留在這支手機的瀏覽器，查詢經 HexStack 的轉送伺服器送到交易所（伺服器看不到 Secret）。</small>
+      <small class="fdmu">只接受唯讀金鑰，有交易或提現權限會被拒收。金鑰送到你電腦上的 HexStack 驗證後只存在電腦，手機不留；之後由電腦讀取餘額再傳到手機。</small>
       <div class="fdmsg" id="fdAddMsg" aria-live="polite"></div>
     </form>
     <div class="fdask" id="fdAsk" hidden role="dialog" aria-modal="true" aria-labelledby="fdAskT"><div class="fdpanel"><b id="fdAskT"></b><div class="fdrow" style="gap:10px"><button class="fdgo" type="button" id="fdAskNo" style="flex:1;background:var(--panel2);color:var(--fg,inherit)">不用</button><button class="fdgo" type="button" id="fdAskYes" style="flex:1"></button></div></div></div>
@@ -2227,184 +2226,14 @@ const FundTab=(()=>{
   const LOGO={"bybit": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#bybit__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#F6A500\" d=\"M15.403 13.445V9.334h.827v4.111z\"/><path fill=\"#fff\" d=\"M5.772 14.666H4v-4.111h1.7c.827 0 1.308.45 1.308 1.155a.95.95 0 0 1-.523.85.96.96 0 0 1 .582.923c0 .768-.54 1.183-1.295 1.183m-.137-3.395h-.81v.947h.81c.35 0 .546-.19.546-.474 0-.282-.196-.473-.546-.473m.053 1.668h-.862v1.011h.862c.374 0 .553-.23.553-.507 0-.278-.179-.502-.553-.502zm3.901.041v1.686h-.821V12.98l-1.272-2.425h.898l.79 1.657.78-1.657h.897zm3.615 1.686h-1.772v-4.111h1.701c.827 0 1.308.45 1.308 1.155a.95.95 0 0 1-.524.85.96.96 0 0 1 .583.923c0 .768-.541 1.183-1.296 1.183m-.137-3.395h-.809v.947h.81c.35 0 .546-.19.546-.474 0-.282-.196-.473-.547-.473m.053 1.668h-.862v1.011h.862c.375 0 .553-.23.553-.507 0-.278-.178-.502-.553-.502zm5.773-1.669v3.396h-.825v-3.395H16.96v-.716H20v.716z\"/></g><defs><clipPath id=\"bybit__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "okx": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#okx__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M8.693 9.6H4.107A.107.107 0 0 0 4 9.707v4.586a.107.107 0 0 0 .107.107h4.586a.107.107 0 0 0 .106-.107V9.707a.107.107 0 0 0-.106-.107M7.2 12.693a.107.107 0 0 1-.107.107H5.706a.107.107 0 0 1-.106-.107v-1.386a.107.107 0 0 1 .106-.107h1.387a.107.107 0 0 1 .107.107zM18.294 11.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-1.6-1.6h-1.387a.107.107 0 0 0-.106.107v1.386c0 .06.047.107.106.107h1.387a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m3.199 0h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m-3.199 3.2h-1.387a.107.107 0 0 0-.106.107v1.386c0 .059.047.107.106.107h1.387a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m3.199 0h-1.386a.107.107 0 0 0-.107.107v1.386c0 .059.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-5.601-3.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m0 3.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .059.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-1.493-1.494a.107.107 0 0 0-.107-.107H11.2V9.707a.107.107 0 0 0-.107-.107H9.707a.107.107 0 0 0-.107.107v4.584a.107.107 0 0 0 .107.106h1.386a.107.107 0 0 0 .107-.106v-1.492h1.493a.107.107 0 0 0 .107-.107z\"/></g><defs><clipPath id=\"okx__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "binance": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#binance__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#F0B90B\" d=\"M7.616 12 5.81 13.805 4.002 12l1.805-1.805zm4.386-4.386 3.096 3.095 1.804-1.804L12.002 4 7.098 8.905l1.804 1.804zm6.191 2.581L16.39 12l1.804 1.805L19.998 12zm-6.19 6.191-3.096-3.095-1.805 1.804 4.9 4.905 4.9-4.905-1.804-1.804zm0-2.581L13.806 12l-1.805-1.805L10.193 12z\"/></g><defs><clipPath id=\"binance__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "bitget": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#bitget__a)\"><path fill=\"#00F0FF\" d=\"M24 0H0v24h24z\"/><path fill=\"#00040C\" d=\"M11.23 9.742h3.748l3.834 4.05c.25.263.25.69.003.956L13.898 20h-3.86l1.167-1.206 4.285-4.526-4.23-4.526\"/><path fill=\"#00040C\" d=\"M12.769 14.258H9.022L5.188 10.21a.706.706 0 0 1-.003-.956L10.102 4h3.86l-1.167 1.206L8.51 9.732l4.23 4.526\"/></g><defs><clipPath id=\"bitget__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "gate": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#gate-io__a)\"><path fill=\"#2354E6\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M12 16.4a4.4 4.4 0 0 1 0-8.8V4a8 8 0 1 0 8 8h-3.6a4.4 4.4 0 0 1-4.4 4.4\"/><path fill=\"#17E6A1\" d=\"M16.4 7.6H12V12h4.4z\"/></g><defs><clipPath id=\"gate-io__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "kucoin": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#kucoin__a)\"><path fill=\"#23AF91\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" fill-rule=\"evenodd\" d=\"m9.314 12.002 4.739 4.74 2.99-2.992a1.353 1.353 0 0 1 1.912 1.91l-3.948 3.949c-.53.521-1.38.521-1.91 0l-5.695-5.697v3.386a1.353 1.353 0 0 1-2.706 0V6.701a1.353 1.353 0 0 1 2.706 0v3.385l5.694-5.695a1.36 1.36 0 0 1 1.91 0l3.95 3.948a1.353 1.353 0 0 1-1.91 1.91l-2.991-2.99zm4.74-1.355a1.355 1.355 0 1 0 0 2.71 1.355 1.355 0 0 0 0-2.71\" clip-rule=\"evenodd\"/></g><defs><clipPath id=\"kucoin__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "coinbase": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><path fill=\"#0052FF\" d=\"M0 0h24v24H0z\"/><path fill=\"#fff\" d=\"M12.134 7.307c-2.6 0-4.393 1.997-4.394 4.708 0 2.681 1.822 4.678 4.424 4.678 1.883 0 3.378-1.192 3.916-2.92h3.767C19.159 17.497 16.05 20 12.165 20c-4.603 0-8.041-3.396-8.041-7.985C4.124 7.427 7.651 4 12.165 4c3.975 0 7.023 2.503 7.711 6.197H16.08c-.568-1.728-2.062-2.89-3.946-2.89\"/></svg> ", "kraken": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#kraken__a)\"><path fill=\"#5741D9\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M11.999 5.713A8 8 0 0 0 4 13.715v3.43a1.145 1.145 0 0 0 2.287 0v-3.43a1.14 1.14 0 1 1 2.284 0v3.43a1.142 1.142 0 1 0 2.285 0v-3.43a1.144 1.144 0 0 1 2.287 0v3.43a1.142 1.142 0 1 0 2.284 0v-3.43a1.143 1.143 0 1 1 2.288 0v3.43a1.142 1.142 0 0 0 2.285 0v-3.43a8 8 0 0 0-8.001-8.002\"/></g><defs><clipPath id=\"kraken__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> "};
   const lg=(k,cls)=>{if(LOGO[k])return '<span class="fdlg fdsvg'+(cls?' '+cls:'')+'">'+LOGO[k]+'</span>';const e=EX[k]||[k,String(k).slice(0,2),'#666','#fff'];return '<span class="fdlg'+(cls?' '+cls:'')+'" style="background:'+e[2]+';color:'+e[3]+'">'+e[1]+'</span>'};
   const exName=k=>(EX[k]||[k])[0];
-  // ── 純手機：唯讀金鑰存在這支手機（localStorage fdLocal），手機自己簽名，經推播後端 /x 轉送到交易所 ──
-  const LJ=()=>{try{return JSON.parse(localStorage.getItem('fdLocal'))||[]}catch(e){return []}},LW=v=>{try{localStorage.setItem('fdLocal',JSON.stringify(v))}catch(e){}};
-  const LOCAL_EX=['bybit'];
-// ── 其他交易所唯讀查詢（OKX、幣安、Bitget、Gate、MEXC、KuCoin、Coinbase、Kraken）。手機版 index.html 與 HexStack executor/hexbot.js 共用同一份，改一邊要同步另一邊 ──
-// 每家：host（main／fut 合約）、time（對時）、ok／data（拆回應）、sign（簽名）。H＝{ hmac, sha, jwt } 由各環境提供。只讀餘額與持倉，不下單。
-const FX_ST = ['USDT', 'USDC', 'USD', 'FDUSD', 'DAI'];
-const fxB64u = s => btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
-const fxHex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
-const FXS = {
-  okx: { name: 'OKX', pass: true, host: { main: 'https://www.okx.com' }, time: ['/api/v5/public/time', d => +d[0].ts],
-    ok: j => j.code === '0', data: j => j.data,
-    sign: async (a, p, qs, t, H) => { const ts = new Date(t).toISOString(); return { qs, h: { 'OK-ACCESS-KEY': a.key, 'OK-ACCESS-SIGN': await H.hmac('SHA-256', 'b64', a.secret, ts + 'GET' + p + (qs ? '?' + qs : '')), 'OK-ACCESS-TIMESTAMP': ts, 'OK-ACCESS-PASSPHRASE': a.pass || '' } }; } },
-  binance: { name: '幣安', host: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com' }, time: ['/api/v3/time', d => +d.serverTime],
-    ok: j => !(typeof j.code === 'number' && j.code < 0), data: j => j,
-    sign: async (a, p, qs, t, H) => { qs += (qs ? '&' : '') + 'timestamp=' + t + '&recvWindow=10000'; return { qs: qs + '&signature=' + await H.hmac('SHA-256', 'hex', a.secret, qs), h: { 'X-MBX-APIKEY': a.key } }; } },
-  bitget: { name: 'Bitget', pass: true, host: { main: 'https://api.bitget.com' }, time: ['/api/v2/public/time', d => +d.serverTime],
-    ok: j => j.code === '00000', data: j => j.data,
-    sign: async (a, p, qs, t, H) => ({ qs, h: { 'ACCESS-KEY': a.key, 'ACCESS-SIGN': await H.hmac('SHA-256', 'b64', a.secret, t + 'GET' + p + (qs ? '?' + qs : '')), 'ACCESS-TIMESTAMP': String(t), 'ACCESS-PASSPHRASE': a.pass || '', locale: 'en-US' } }) },
-  gate: { name: 'Gate', host: { main: 'https://api.gateio.ws' }, time: ['/api/v4/spot/time', d => +d.server_time],
-    ok: j => !(j.label && j.message), data: j => j,
-    // 簽名字串：方法\n路徑\n查詢\nSHA512(空 body)\n秒級時間
-    sign: async (a, p, qs, t, H) => { const ts = String(Math.floor(t / 1000)); return { qs, h: { KEY: a.key, Timestamp: ts, SIGN: await H.hmac('SHA-512', 'hex', a.secret, 'GET\n' + p + '\n' + qs + '\ncf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e\n' + ts) } }; } },
-  mexc: { name: 'MEXC', host: { main: 'https://api.mexc.com', fut: 'https://contract.mexc.com' }, time: ['/api/v3/time', d => +d.serverTime],
-    ok: j => !(j.success === false || (j.msg && j.code != null && +j.code !== 0)), data: j => j.success === true ? j.data : j,
-    sign: async (a, p, qs, t, H) => {
-      if (p.startsWith('/api/v1/')) return { qs, h: { ApiKey: a.key, 'Request-Time': String(t), Signature: await H.hmac('SHA-256', 'hex', a.secret, a.key + t + qs) } };
-      qs += (qs ? '&' : '') + 'timestamp=' + t + '&recvWindow=10000'; return { qs: qs + '&signature=' + await H.hmac('SHA-256', 'hex', a.secret, qs), h: { 'X-MEXC-APIKEY': a.key } }; } },
-  kucoin: { name: 'KuCoin', pass: true, host: { main: 'https://api.kucoin.com', fut: 'https://api-futures.kucoin.com' }, time: ['/api/v1/timestamp', d => +d],
-    ok: j => j.code === '200000', data: j => j.data,
-    sign: async (a, p, qs, t, H) => ({ qs, h: { 'KC-API-KEY': a.key, 'KC-API-SIGN': await H.hmac('SHA-256', 'b64', a.secret, t + 'GET' + p + (qs ? '?' + qs : '')), 'KC-API-TIMESTAMP': String(t), 'KC-API-PASSPHRASE': await H.hmac('SHA-256', 'b64', a.secret, a.pass || ''), 'KC-API-KEY-VERSION': '2' } }) },
-  // Coinbase Advanced（CDP 金鑰）：每次請求簽一個 2 分鐘的 JWT。金鑰可能是 ECDSA（PEM）或 Ed25519（base64）
-  coinbase: { name: 'Coinbase', host: { main: 'https://api.coinbase.com' }, time: ['/api/v3/brokerage/time', d => +d.epochMillis],
-    ok: j => !j.error, data: j => j,
-    sign: async (a, p, qs, t, H) => {
-      const ed = !/BEGIN/.test(a.secret), s = Math.floor(t / 1000), msg = fxB64u(JSON.stringify({ alg: ed ? 'EdDSA' : 'ES256', kid: a.key, nonce: fxHex(16), typ: 'JWT' })) + '.' + fxB64u(JSON.stringify({ sub: a.key, iss: 'cdp', nbf: s, exp: s + 120, uri: 'GET api.coinbase.com' + p }));
-      return { qs, h: { Authorization: 'Bearer ' + msg + '.' + await H.jwt(a.secret, msg) } }; } },
-  // Kraken：私有介面只收 POST（body 只有 nonce）。API-Sign＝HMAC-SHA512(base64 解碼的 Secret, 路徑 + SHA256(nonce + body))
-  kraken: { name: 'Kraken', host: { main: 'https://api.kraken.com' }, time: ['/0/public/Time', d => d.unixtime * 1000],
-    ok: j => !(j.error && j.error.length), data: j => j.result,
-    sign: async (a, p, qs, t, H) => {
-      const nonce = String(t * 1000 + Math.floor(Math.random() * 1000)), body = 'nonce=' + nonce, path = new TextEncoder().encode(p), d = await H.sha('SHA-256', nonce + body), m = new Uint8Array(path.length + d.length); m.set(path); m.set(d, path.length);
-      return { qs, body, h: { 'API-Key': a.key, 'API-Sign': await H.hmac('SHA-512', 'b64', Uint8Array.from(atob(a.secret), c => c.charCodeAt(0)), m) } }; } },
-};
-const fxOut = () => ({ total_usd: 0, assets: [], positions: [], notes: [] });
-const fxPrice = get => { const px = {}; return async c => { c = String(c).toUpperCase(); if (FX_ST.includes(c)) return 1; if (px[c] == null) { try { px[c] = +(await get(c)) || 0; } catch (e) { px[c] = 0; } } return px[c]; }; };
-// 讀取：rq(路徑, 參數, 要簽名?, 'main'|'fut')；rw() 丟出「不是唯讀」。Gate、MEXC 沒有查金鑰權限的介面，只能靠使用者建立時只勾讀取。
-const FX_READ = {
-  async okx(rq, rw) {
-    const cfg = (await rq('/api/v5/account/config', {}))[0] || {}; if (String(cfg.perm || '').split(',').some(x => x && x !== 'read_only')) rw();
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v5/market/ticker', { instId: c + '-USDT' }, false))[0].last);
-    for (const d of ((await rq('/api/v5/account/balance', {}))[0] || {}).details || []) { const n = +d.eq; if (n > 0) out.assets.push({ coin: d.ccy, amount: n, usd: d.eqUsd !== '' && d.eqUsd != null ? +d.eqUsd : n * await price(d.ccy), acct: '交易帳戶' }); }
-    try { for (const d of await rq('/api/v5/asset/balances', {})) { const n = +d.bal; if (n > 0) out.assets.push({ coin: d.ccy, amount: n, usd: n * await price(d.ccy), acct: '資金帳戶' }); } } catch (e) { out.notes.push('資金帳戶讀取失敗：' + e.message); }
-    try { out.positions = (await rq('/api/v5/account/positions', {})).filter(x => +x.pos).map(x => ({ symbol: x.instId, side: x.posSide === 'short' || (x.posSide === 'net' && +x.pos < 0) ? 'short' : 'long', contracts: Math.abs(+x.pos), entry: +x.avgPx, mark: +x.markPx, liq: +x.liqPx || null, leverage: +x.lever || null, margin_mode: x.mgnMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.upl || 0 })); } catch (e) { out.notes.push('持倉讀取失敗：' + e.message); }
-    return out;
-  },
-  async binance(rq, rw) {
-    const pm = await rq('/sapi/v1/account/apiRestrictions', {}); if (Object.keys(pm).some(k => /^(enable|permits)/.test(k) && !/^enable(Reading|FixReadOnly)$/.test(k) && pm[k] === true)) rw();
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v3/ticker/price', { symbol: c + 'USDT' }, false)).price), base = c => /^LD../.test(c) && c !== 'LDO' ? c.slice(2) : c;
-    for (const x of (await rq('/api/v3/account', { omitZeroBalances: 'true' })).balances || []) { const n = +x.free + +x.locked; if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(base(x.asset)), acct: '現貨帳戶' }); }
-    try {
-      for (const x of await rq('/fapi/v2/balance', {}, true, 'fut')) { const n = +x.balance; if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(x.asset), acct: 'U 本位合約' }); }
-      out.positions = (await rq('/fapi/v2/positionRisk', {}, true, 'fut')).filter(x => +x.positionAmt).map(x => ({ symbol: x.symbol, side: +x.positionAmt > 0 ? 'long' : 'short', contracts: Math.abs(+x.positionAmt), entry: +x.entryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.leverage || null, margin_mode: x.marginType === 'isolated' ? 'isolated' : 'cross', upnl: +x.unRealizedProfit || 0 }));
-    } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
-    // 資金錢包、理財等其他錢包只拿得到 BTC 計價總額
-    try { const btc = await price('BTC'); for (const x of await rq('/sapi/v1/asset/wallet/balance', {})) { const n = +x.balance; if (n > 0 && !/^Spot$|^USD.-M Futures$/.test(x.walletName)) out.assets.push({ coin: 'BTC（約當）', amount: n, usd: n * btc, acct: x.walletName }); } } catch (e) {}
-    return out;
-  },
-  async bitget(rq, rw) {
-    const i = await rq('/api/v2/spot/account/info', {}); if (!Array.isArray(i.authorities)) throw new Error('讀不到金鑰權限，無法確認是唯讀'); if (i.authorities.some(x => !/r$/.test(x))) rw();
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v2/spot/market/tickers', { symbol: c + 'USDT' }, false))[0].lastPr);
-    for (const x of await rq('/api/v2/spot/account/assets', {})) { const n = +x.available + +x.frozen + +x.locked, c = String(x.coin).toUpperCase(); if (n > 0) out.assets.push({ coin: c, amount: n, usd: n * await price(c), acct: '現貨帳戶' }); }
-    try {
-      for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'USDT-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: 'U 本位合約' }); }
-      out.positions = (await rq('/api/v2/mix/position/all-position', { productType: 'USDT-FUTURES', marginCoin: 'USDT' })).filter(x => +x.total).map(x => ({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.unrealizedPL || 0 }));
-    } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
-    return out;
-  },
-  async gate(rq) {
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v4/spot/tickers', { currency_pair: c + '_USDT' }, false))[0].last);
-    for (const x of await rq('/api/v4/spot/accounts', {})) { const n = +x.available + +x.locked; if (n > 0) out.assets.push({ coin: x.currency, amount: n, usd: n * await price(x.currency), acct: '現貨帳戶' }); }
-    try {
-      const f = await rq('/api/v4/futures/usdt/accounts', {}), n = +f.total + (+f.unrealised_pnl || 0); if (n > 0) out.assets.push({ coin: 'USDT', amount: n, usd: n, acct: 'U 本位合約' });
-      out.positions = (await rq('/api/v4/futures/usdt/positions', {})).filter(x => +x.size).map(x => ({ symbol: x.contract, side: +x.size > 0 ? 'long' : 'short', contracts: Math.abs(+x.size), entry: +x.entry_price, mark: +x.mark_price, liq: +x.liq_price || null, leverage: +x.leverage || +x.cross_leverage_limit || null, margin_mode: +x.leverage ? 'isolated' : 'cross', upnl: +x.unrealised_pnl || 0 }));
-    } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
-    return out;
-  },
-  async mexc(rq) {
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v3/ticker/price', { symbol: c + 'USDT' }, false)).price);
-    for (const x of (await rq('/api/v3/account', {})).balances || []) { const n = +x.free + +x.locked; if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(x.asset), acct: '現貨帳戶' }); }
-    try {
-      for (const x of await rq('/api/v1/private/account/assets', {}, true, 'fut')) { const n = +x.equity; if (n > 0) out.assets.push({ coin: x.currency, amount: n, usd: n * await price(x.currency), acct: '合約帳戶' }); }
-      out.positions = (await rq('/api/v1/private/position/open_positions', {}, true, 'fut')).filter(x => +x.holdVol).map(x => ({ symbol: x.symbol, side: x.positionType === 1 ? 'long' : 'short', contracts: +x.holdVol, entry: +x.holdAvgPrice, mark: null, liq: +x.liquidatePrice || null, leverage: +x.leverage || null, margin_mode: x.openType === 1 ? 'isolated' : 'cross', upnl: null }));
-    } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
-    return out;
-  },
-  async kucoin(rq, rw) {
-    const k = await rq('/api/v1/user/api-key', {}); if (String(k.permission || '').split(',').some(x => x.trim() && x.trim() !== 'General')) rw();
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v1/market/orderbook/level1', { symbol: c + '-USDT' }, false)).price), AC = { main: '資金帳戶', trade: '現貨帳戶', margin: '槓桿帳戶', isolated: '逐倉槓桿' };
-    for (const x of await rq('/api/v1/accounts', {})) { const n = +x.balance; if (n > 0) out.assets.push({ coin: x.currency, amount: n, usd: n * await price(x.currency), acct: AC[x.type] || x.type }); }
-    try {
-      const f = await rq('/api/v1/account-overview', { currency: 'USDT' }, true, 'fut'), n = +f.accountEquity; if (n > 0) out.assets.push({ coin: 'USDT', amount: n, usd: n, acct: 'U 本位合約' });
-      out.positions = (await rq('/api/v1/positions', {}, true, 'fut')).filter(x => +x.currentQty).map(x => ({ symbol: x.symbol, side: +x.currentQty > 0 ? 'long' : 'short', contracts: Math.abs(+x.currentQty), entry: +x.avgEntryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.realLeverage || +x.leverage || null, margin_mode: x.crossMode ? 'cross' : 'isolated', upnl: +x.unrealisedPnl || 0 }));
-    } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
-    return out;
-  },
-  async coinbase(rq, rw) {
-    const k = await rq('/api/v3/brokerage/key_permissions', {}); if (k.can_trade || k.can_transfer) rw();
-    const out = fxOut(), price = fxPrice(async c => ((await rq('/api/v3/brokerage/market/products', { product_ids: c + '-USD' }, false)).products || [])[0].price);
-    for (const x of (await rq('/api/v3/brokerage/accounts', { limit: '250' })).accounts || []) { const n = +((x.available_balance || {}).value || 0) + +((x.hold || {}).value || 0); if (n > 0) out.assets.push({ coin: x.currency, amount: n, usd: n * await price(x.currency), acct: x.type === 'ACCOUNT_TYPE_FIAT' ? '法幣' : '錢包' }); }
-    return out;
-  },
-  async kraken(rq) {
-    const out = fxOut(), price = fxPrice(async c => Object.values(await rq('/0/public/Ticker', { pair: c + 'USD' }, false))[0].c[0]);
-    // Kraken 幣名：XXBT＝BTC、ZUSD＝USD；.F／.S／.M／.B 結尾是理財
-    const M = { XBT: 'BTC', XXBT: 'BTC', XXDG: 'DOGE', XDG: 'DOGE' }, nm = c => { c = c.replace(/\.[A-Z]$/, ''); return M[c] || (/^[XZ][A-Z]{3}$/.test(c) ? c.slice(1) : c); };
-    for (const [k, v] of Object.entries(await rq('/0/private/Balance', {}))) { const n = +v, c = nm(k); if (n > 0) out.assets.push({ coin: c, amount: n, usd: n * await price(c), acct: /\.[A-Z]$/.test(k) ? '理財' : '現貨帳戶' }); }
-    return out;
-  },
-};
-const FX_OFF = {};
-// send(ex, net, path, qs, headers, body) → { status, j }；有 body 就用 POST（Kraken）：手機經推播後端 /x 轉送，HexStack 直接連交易所
-async function fxReq(ex, a, p, params, signed, net, send, H) {
-  const S = FXS[ex], P = params || {}; let qs = new URLSearchParams(Object.keys(P).sort().map(k => [k, P[k]])).toString(), h = {}, body;
-  if (signed !== false) {
-    if (FX_OFF[ex] == null) { try { FX_OFF[ex] = S.time[1](await fxReq(ex, a, S.time[0], {}, false, 'main', send, H)) - Date.now(); } catch (e) {} if (!isFinite(FX_OFF[ex])) FX_OFF[ex] = 0; }
-    ({ qs, h, body } = await S.sign(a, p, qs, Date.now() + FX_OFF[ex], H));
-  }
-  const { status, j } = await send(ex, net || 'main', p, qs, h, body);
-  if (status >= 400 || !j || !S.ok(j)) throw new Error(S.name + ' ' + ((j && (j.msg || j.message || j.error || j.code)) || 'HTTP ' + status));
-  return S.data(j);
-}
-async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q, s, n) => fxReq(ex, a, p, q, s, n, send, H), rw); out.total_usd = out.assets.reduce((t, x) => t + (x.usd || 0), 0); return out; }
-  const u8=x=>typeof x==='string'?new TextEncoder().encode(x):x,hexb=h=>Uint8Array.from(h.match(/../g),x=>parseInt(x,16)),unb=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-  const cat=(...a)=>{const o=new Uint8Array(a.reduce((t,x)=>t+x.length,0));let i=0;for(const x of a){o.set(x,i);i+=x.length}return o};
-  const derSeq=(tag,c)=>cat(new Uint8Array([tag,...(c.length<128?[c.length]:c.length<256?[0x81,c.length]:[0x82,c.length>>8,c.length&255])]),c);
-  const FX_H={hmac:async(alg,enc,k,m)=>{const u=new Uint8Array(await crypto.subtle.sign('HMAC',await crypto.subtle.importKey('raw',u8(k),{name:'HMAC',hash:alg},false,['sign']),u8(m)));return enc==='b64'?btoa(String.fromCharCode(...u)):[...u].map(b=>b.toString(16).padStart(2,'0')).join('')},
-    sha:async(alg,m)=>new Uint8Array(await crypto.subtle.digest(alg,u8(m))),
-    // Coinbase JWT：Ed25519（base64，前 32 位元組是種子）或 ECDSA P-256（PEM；SEC1 格式要先包成 PKCS8）
-    jwt:async(sec,msg)=>{sec=sec.replace(/\\n/g,'\n');const ed=!/BEGIN/.test(sec);let k;
-      if(ed)k=await crypto.subtle.importKey('pkcs8',cat(hexb('302e020100300506032b657004220420'),unb(sec.trim()).slice(0,32)),{name:'Ed25519'},false,['sign']);
-      else{let der=unb(sec.replace(/-----[^-]+-----/g,'').replace(/\s+/g,''));if(/BEGIN EC PRIVATE KEY/.test(sec))der=derSeq(0x30,cat(hexb('020100301306072a8648ce3d020106082a8648ce3d030107'),derSeq(0x04,der)));
-        k=await crypto.subtle.importKey('pkcs8',der,{name:'ECDSA',namedCurve:'P-256'},false,['sign'])}
-      const s=new Uint8Array(await crypto.subtle.sign(ed?{name:'Ed25519'}:{name:'ECDSA',hash:'SHA-256'},k,u8(msg)));return btoa(String.fromCharCode(...s)).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_')}};
-  const fxSend=async(ex,net,p,qs,h,body)=>{const base=(window.BotTab?await BotTab.pBase():'https://hexstack-push.hexstack-df20e2.workers.dev').replace(/\/$/,'');
-    const r=await fetch(base+'/x?ex='+ex+'&net='+net+'&path='+encodeURIComponent(p)+'&q='+encodeURIComponent(qs),body?{method:'POST',headers:Object.assign({'Content-Type':'application/x-www-form-urlencoded'},h),body,cache:'no-store'}:{headers:h,cache:'no-store'}),j=await r.json().catch(()=>null);
-    // 交易所擋轉送伺服器（幣安限制地區、Bitget 擋 Cloudflare）時回 403／451
-    if((r.status===403||r.status===451)&&!(j&&j.error==='not allowed')&&(!j||j.cloudflare||/restricted/i.test(j.msg||'')))throw new Error(FXS[ex].name+' 擋了 HexStack 的轉送伺服器，這家請改存在電腦 HexStack');
-    return {status:r.status,j}};
-  LOCAL_EX.push(...Object.keys(FXS));
-
-  const hmac=async(k,m)=>[...new Uint8Array(await crypto.subtle.sign('HMAC',await crypto.subtle.importKey('raw',new TextEncoder().encode(k),{name:'HMAC',hash:'SHA-256'},false,['sign']),new TextEncoder().encode(m)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-  let toff=null;
-  async function bybitReq(a,path,params,signed=true){
-    const base=(window.BotTab?await BotTab.pBase():'https://hexstack-push.hexstack-df20e2.workers.dev').replace(/\/$/,''),qs=new URLSearchParams(params||{}).toString(),net=a.testnet?'test':'main';
-    const url=base+'/x?ex=bybit&net='+net+'&path='+encodeURIComponent(path)+'&q='+encodeURIComponent(qs);
-    const h={};
-    if(signed){if(toff==null){try{const t=await bybitReq(a,'/v5/market/time',{},false);toff=+t.timeSecond*1000-Date.now()}catch(e){toff=0}}
-      const ts=String(Date.now()+toff),rw='10000';Object.assign(h,{'X-BAPI-API-KEY':a.key,'X-BAPI-TIMESTAMP':ts,'X-BAPI-RECV-WINDOW':rw,'X-BAPI-SIGN':await hmac(a.secret,ts+a.key+rw+qs)})}
-    const r=await fetch(url,{headers:h,cache:'no-store'}),j=await r.json().catch(()=>({retCode:-1,retMsg:'HTTP '+r.status}));
-    if(j.retCode!==0)throw new Error('Bybit '+j.retCode+' '+(j.retMsg||''));return j.result}
-  async function bybitLocal(a){
-    const info=await bybitReq(a,'/v5/user/query-api',{});
-    if(info.readOnly!==1)throw Object.assign(new Error('這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。'),{rw:1});
-    const out={total_usd:0,assets:[],positions:[],notes:[]},px={},ST=['USDT','USDC','USD','FDUSD','DAI'];
-    const price=async c=>{if(ST.includes(c))return 1;if(px[c]==null)try{px[c]=+(await bybitReq(a,'/v5/market/tickers',{category:'spot',symbol:c+'USDT'},false)).list[0].lastPrice}catch(e){px[c]=0}return px[c]};
-    let got=false;
-    for(const t of ['UNIFIED','CONTRACT']){try{const r=await bybitReq(a,'/v5/account/wallet-balance',{accountType:t}),w=r.list&&r.list[0];if(!w)continue;
-      for(const c of w.coin||[]){const n=+c.walletBalance;if(!(n>0))continue;out.assets.push({coin:c.coin,amount:n,usd:c.usdValue!==''&&c.usdValue!=null?+c.usdValue:n*await price(c.coin),acct:t==='UNIFIED'?'統一帳戶':'合約帳戶'})}got=true;break}
-      catch(e){if(t==='CONTRACT')out.notes.push('統一／合約帳戶讀取失敗：'+e.message)}}
-    try{const r=await bybitReq(a,'/v5/asset/transfer/query-account-coins-balance',{accountType:'FUND'});for(const c of r.balance||[]){const n=+c.walletBalance;if(n>0)out.assets.push({coin:c.coin,amount:n,usd:n*await price(c.coin),acct:'資金帳戶'})}got=true}
-    catch(e){out.notes.push('資金帳戶讀取失敗：'+e.message)}
-    if(!got)throw new Error('讀不到 Bybit 餘額：'+out.notes.join('；'));
-    try{const r=await bybitReq(a,'/v5/position/list',{category:'linear',settleCoin:'USDT'});out.positions=(r.list||[]).filter(x=>+x.size>0).map(x=>({symbol:x.symbol,side:x.side==='Buy'?'long':'short',contracts:+x.size,entry:+x.avgPrice,mark:+x.markPrice,liq:+x.liqPrice||null,leverage:+x.leverage||null,margin_mode:x.tradeMode===1?'isolated':'cross',upnl:+x.unrealisedPnl}))}
-    catch(e){out.notes.push('持倉讀取失敗：'+e.message)}
-    out.total_usd=out.assets.reduce((t,x)=>t+(x.usd||0),0);return out}
-  const LREAD={bybit:bybitLocal};
-  for(const k of Object.keys(FXS))LREAD[k]=a=>fxRead(k,a,fxSend,FX_H,()=>{throw Object.assign(new Error('這把 '+FXS[k].name+' 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。'),{rw:1})});
-  async function readLocal(a){try{return Object.assign({id:a.id,name:a.name,exchange:a.exchange,ok:true,where:'phone'},await LREAD[a.exchange](a))}catch(e){return {id:a.id,name:a.name,exchange:a.exchange,ok:false,where:'phone',total_usd:0,assets:[],positions:[],notes:[e.message]}}}
+  // ── 金鑰只存在電腦 HexStack：手機把金鑰交給電腦驗證後就清掉，餘額由電腦讀好傳來；手機只留最後一次的金額（fdCache，不含金鑰）──
+  // 舊版曾把金鑰存在手機（localStorage fdLocal），配對電腦後自動搬過去並刪掉
+  const LJ=()=>{try{return JSON.parse(localStorage.getItem('fdLocal'))||[]}catch(e){return []}},LW=v=>{try{v.length?localStorage.setItem('fdLocal',JSON.stringify(v)):localStorage.removeItem('fdLocal')}catch(e){}};
+  const ALL_EX=['bybit','okx','binance','bitget','gate','mexc','kucoin','coinbase','kraken'],PASS_EX=['okx','bitget','kucoin'];
+  const CJ=()=>{try{return JSON.parse(localStorage.getItem('fdCache'))}catch(e){return null}},CW=v=>{try{localStorage.setItem('fdCache',JSON.stringify(v))}catch(e){}};
+  async function migrate(){const L=LJ();if(!L.length)return;const keep=[];
+    for(const a of L){try{await BotTab.api('/api/funds/add',{exchange:a.exchange,name:a.name,apiKey:a.key,apiSecret:a.secret,passphrase:a.pass||'',testnet:!!a.testnet})}catch(e){if(!/已經加過/.test(e.message))keep.push(a)}}
+    LW(keep)}
   let hide=(()=>{try{return localStorage.getItem('fdHide')==='1'}catch(e){return false}})();
   const money=v=>hide?'••••••':v;
   let D=null,err='',busy=false,cur='',timer=0,pickEx='bybit';
@@ -2417,29 +2246,31 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     $('#fdStack').innerHTML=['bybit','okx','binance','bitget','gate'].map(k=>lg(k)).join('');
     const paired=window.BotTab&&BotTab.paired(),A=D?D.accounts:[],tot=D?D.total_usd:0,u=A.reduce((t,x)=>t+upnl(x),0);
     $('#fdTot').textContent=D?money('US$ '+fm(tot)):'—';
-    $('#fdSub').textContent=D?(hide?'••••••':'未實現損益 '+sgn(u)):paired||LJ().length?'讀取中…':'還沒有加入交易所';
+    $('#fdSub').textContent=D?(hide?'••••••':'未實現損益 '+sgn(u)):paired?'讀取中…':'還沒有連接電腦';
     const ok=A.filter(x=>x.ok&&x.total_usd>0);
     $('#fdSplit').innerHTML=tot>0?ok.map((x,i)=>'<i style="width:'+(x.total_usd/tot*100).toFixed(1)+'%;background:'+COL[i%COL.length]+'"></i>').join(''):'';
     $('#fdLeg').innerHTML=tot>0?ok.map((x,i)=>'<span><b style="background:'+COL[i%COL.length]+'"></b>'+es(x.name||exName(x.exchange))+' '+Math.round(x.total_usd/tot*100)+'%</span>').join(''):'';
     $('#fdCnt').textContent=D?A.length+' 個交易所':'';
     $('#fdAge').textContent=D?'更新：'+new Date(D.updated_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'';
     const w=$('#fdWarn');
-    if(!paired&&!A.length){w.hidden=false;w.innerHTML='<div class="fdcard">按下面「加入交易所」，貼上唯讀金鑰就能直接在這支手機看資金。<br><small class="fdmu">有一台常開的電腦？也可以連接 HexStack 電腦版，讓金鑰只存在電腦。</small><button class="fdghost" type="button" id="fdToBot" style="margin-top:8px;width:100%;color:inherit">連接 HexStack 電腦版</button></div>'}
+    const nl=LJ().length,toBot='<button class="fdghost" type="button" id="fdToBot" style="margin-top:8px;width:100%;color:inherit">連接 HexStack 電腦版</button>';
+    if(!paired){w.hidden=false;w.innerHTML='<div class="fdcard">資金總覽由電腦上的 HexStack 讀取，金鑰只存在電腦，讀好的金額再傳到手機。'+(nl?'<br><b>這支手機還存著 '+nl+' 把舊金鑰，連接電腦後會自動搬過去並從手機刪除。</b>':'')+'<br><small class="fdmu">先在電腦下載 HexStack，用手機掃電腦上的 QR 配對。</small>'+toBot+'</div>'}
     else if(err){w.hidden=false;w.innerHTML='<div class="fdcard fddn">'+es(err)+'</div>'}else w.hidden=true;
     $('#fdGrid').innerHTML=A.map(x=>'<button class="fdtile" type="button" data-fid="'+es(x.id)+'"><span class="tp">'+lg(x.exchange)+'<span class="nm">'+es(x.name||exName(x.exchange))+'</span></span><span><span class="v">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</span><br>'
       +(x.ok?'<span class="d '+(upnl(x)>=0?'fdup':'fddn')+'">'+(hide?'••••••':(x.positions&&x.positions.length?sgn(upnl(x)):exName(x.exchange)))+'</span>':'<span class="fdchip fddn">讀取失敗</span>')+'</span></button>').join('')
       +'<button class="fdtile add" type="button" data-fgo="pick"><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
   }
-  function pick(){const sup=SUP();
-    $('#fdPickBox').innerHTML=Object.keys(EX).map(k=>sup.includes(k)?'<button class="fdex" type="button" data-fex="'+k+'">'+lg(k)+exName(k)+'</button>':'<button class="fdex" type="button" aria-disabled="true">'+lg(k)+exName(k)+'<small>即將支援</small></button>').join('')}
+  function pick(){const sup=SUP(),pr=window.BotTab&&BotTab.paired();
+    $('#fdPickBox').innerHTML=(pr?'':'<div class="fdcard" style="grid-column:1/-1">要先連接電腦上的 HexStack，金鑰只存在電腦。<button class="fdghost" type="button" id="fdToBot" style="margin-top:8px;width:100%;color:inherit">連接 HexStack 電腦版</button></div>')
+      +Object.keys(EX).map(k=>sup.includes(k)?'<button class="fdex" type="button" data-fex="'+k+'">'+lg(k)+exName(k)+'</button>':'<button class="fdex" type="button" aria-disabled="true">'+lg(k)+exName(k)+'<small>'+(ALL_EX.includes(k)?'電腦版要更新':'即將支援')+'</small></button>').join('')}
   // 從 API Key 的格式猜交易所：MEXC mx0 開頭、Bitget bg_ 開頭、OKX 是 UUID、KuCoin 24 碼 hex、Gate 32 碼 hex、幣安 64 碼、Kraken 56 碼、Bybit 18 碼
   function detect(k){k=(k||'').trim();if(/^mx0\w{10,}$/.test(k))return 'mexc';if(/^organizations\//.test(k))return 'coinbase';if(/^[0-9a-f]{24}$/.test(k))return 'kucoin';if(/^[0-9a-f]{32}$/.test(k))return 'gate';if(/^[A-Za-z0-9+/]{55}=?$/.test(k)&&k.length===56)return 'kraken';if(/^bg_[0-9a-f]{20,}$/i.test(k))return 'bitget';if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(k))return 'okx';if(/^[A-Za-z0-9]{64}$/.test(k))return 'binance';if(/^[A-Za-z0-9]{18}$/.test(k))return 'bybit';return ''}
-  const SUP=()=>[...new Set(LOCAL_EX.concat(D&&D.supported||[]))];
+  const SUP=()=>window.BotTab&&BotTab.paired()&&D&&D.supported||ALL_EX;
   let askKey='';
-  function head(k){$('#fdSetupH').innerHTML=lg(k)+'<b>連接 '+es(exName(k))+'</b>';const pc=window.BotTab&&BotTab.paired()&&D&&D.supported;
-    $('#fdDet2').textContent=pc&&!pc.includes(k)?'電腦上的 HexStack 還不支援這家，請先存在這支手機，或更新電腦版':'';
-    $('#fdPw').hidden=!(FXS[k]&&FXS[k].pass);$('#fdTw').hidden=k!=='bybit';if(k!=='bybit')$('#fdT').checked=false;if(pc&&!pc.includes(k))$('#fdWPh').checked=true}
-  function setup(k){askKey='';pickEx=k;const pr=window.BotTab&&BotTab.paired();$('#fdWhere').hidden=!pr;$('#fdWPc').checked=!!pr;$('#fdWPh').checked=!pr;head(k);$('#fdAddMsg').textContent='';$('#fdK').value='';$('#fdS').value='';$('#fdP').value='';$('#fdAsk').hidden=true;$('#fdNm').value='';$('#fdAddGo').disabled=false;go('setup')}
+  function head(k){$('#fdSetupH').innerHTML=lg(k)+'<b>連接 '+es(exName(k))+'</b>';const pr=window.BotTab&&BotTab.paired();
+    $('#fdDet2').textContent=pr?'':'要先連接電腦上的 HexStack 才能加入';
+    $('#fdPw').hidden=!PASS_EX.includes(k);$('#fdTw').hidden=k!=='bybit';if(k!=='bybit')$('#fdT').checked=false}
+  function setup(k){askKey='';pickEx=k;head(k);$('#fdAddMsg').textContent='';$('#fdK').value='';$('#fdS').value='';$('#fdP').value='';$('#fdAsk').hidden=true;$('#fdNm').value='';$('#fdAddGo').disabled=false;go('setup')}
   function detail(id){cur=id;const x=D&&D.accounts.find(a=>a.id===id);if(!x)return go('home');
     let h='<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+es(x.name)+'</span> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
@@ -2453,13 +2284,13 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     h+='<div class="fdrow fdmu" style="font-size:12px;flex-wrap:wrap"><span>金鑰 …'+es(k?k.keyTail:'')+'（唯讀，存在'+(x.where==='phone'?'這支手機':'電腦 HexStack')+'）'+(k&&k.testnet?'・測試網':'')+'</span><button class="fdghost" type="button" data-frm="'+es(id)+'">移除這個交易所</button></div><div id="fdRmAsk"></div>';
     $('#fdDet').innerHTML=h;go('detail')}
   async function load(force){
-    const paired=window.BotTab&&BotTab.paired(),L=LJ();
-    if(!paired&&!L.length){D=null;err='';return home()}
-    if(busy)return;busy=true;
-    let H=null;err='';
-    const [hr,lr]=await Promise.all([paired?BotTab.api('/api/funds'+(force?'?force=1':'')).catch(e=>{err='連不到 HexStack 電腦版：'+e.message+'。請確認電腦上的程式有開著。';return null}):null,Promise.all(L.map(readLocal))]);
-    H=hr;const acc=(H?H.accounts.map(x=>Object.assign({where:'pc'},x)):[]).concat(lr);
-    D={updated_at:new Date().toISOString(),accounts:acc,total_usd:acc.reduce((t,x)=>t+(x.total_usd||0),0),list:(H&&H.list||[]).concat(L.map(a=>({id:a.id,keyTail:a.key.slice(-4),testnet:!!a.testnet}))),supported:[...new Set((H&&H.supported||[]).concat(LOCAL_EX))]};
+    const paired=window.BotTab&&BotTab.paired();
+    if(!paired){D=CJ();err=D?'還沒連接電腦，顯示的是上次的資料':'';return home()}
+    if(busy)return;busy=true;err='';
+    try{await migrate();const H=await BotTab.api('/api/funds'+(force?'?force=1':''));
+      D={updated_at:H.updated_at||new Date().toISOString(),accounts:H.accounts||[],total_usd:H.total_usd||0,list:H.list||[],supported:H.supported||['bybit']};
+      CW(Object.assign({},D,{list:[]}))}
+    catch(e){const c=CJ();err='連不到電腦上的 HexStack：'+e.message+'。請確認電腦開著、程式有在跑'+(c?'，下面是上次的資料':'')+'。';if(!D&&c)D=c}
     busy=false;home();if(!$('#fdDetail').hidden&&cur)detail(cur);
   }
   $('#fdEye').onclick=()=>{hide=!hide;try{localStorage.setItem('fdHide',hide?'1':'0')}catch(e){}home();if(!$('#fdDetail').hidden&&cur)detail(cur)};
@@ -2474,26 +2305,19 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if((b=t.closest('[data-fid]'))){detail(b.dataset.fid);return}
     if((b=t.closest('[data-frm]'))){const id=b.dataset.frm;$('#fdRmAsk').innerHTML='<div class="fdcard">確定從電腦移除這個交易所的金鑰？<div class="fdrow" style="margin-top:8px"><button class="fdghost" type="button" data-frmy="'+es(id)+'">移除</button><button class="fdghost" style="color:inherit" type="button" data-frmn>取消</button></div></div>';return}
     if(t.closest('[data-frmn]')){$('#fdRmAsk').innerHTML='';return}
-    if((b=t.closest('[data-frmy]'))){const id=b.dataset.frmy;if(LJ().some(a=>a.id===id)){LW(LJ().filter(a=>a.id!==id));cur='';go('home');await load(true);return}try{await BotTab.api('/api/funds/remove',{id});cur='';go('home');await load(true)}catch(err2){$('#fdRmAsk').innerHTML='<div class="fdcard fddn">'+es(err2.message)+'</div>'}}
+    if((b=t.closest('[data-frmy]'))){const id=b.dataset.frmy;try{await BotTab.api('/api/funds/remove',{id});cur='';go('home');await load(true)}catch(err2){$('#fdRmAsk').innerHTML='<div class="fdcard fddn">'+es(err2.message)+'</div>'}}
   });
   $('#fdK').addEventListener('input',()=>{const k=$('#fdK').value.trim(),d=detect(k);if(!d||d===pickEx||askKey===k||(pickEx==='coinbase'&&d==='okx'))return;askKey=k;
     $('#fdAskT').textContent='這像是 '+exName(d)+' 的金鑰，要改成 '+exName(d)+' 嗎？';$('#fdAskYes').textContent='改成 '+exName(d);$('#fdAskYes').dataset.ex=d;$('#fdAsk').hidden=false;$('#fdAskYes').focus()});
   $('#fdAskYes').onclick=()=>{const d=$('#fdAskYes').dataset.ex;$('#fdAsk').hidden=true;pickEx=d;head(d);$('#fdAddMsg').textContent=''};
   $('#fdAskNo').onclick=()=>{$('#fdAsk').hidden=true};
   $('#fdAdd').addEventListener('submit',async e=>{e.preventDefault();
-    const k=$('#fdK').value.trim(),sc=$('#fdS').value.trim(),m=$('#fdAddMsg');if(!k||!sc){m.textContent='要填 API Key 和 Secret';return}
-    const ps=$('#fdP').value;if(FXS[pickEx]&&FXS[pickEx].pass&&!ps){m.textContent=exName(pickEx)+' 還要填 Passphrase（建立金鑰時自己設的密碼）';return}
-    if(!SUP().includes(pickEx)){m.textContent=exName(pickEx)+' 還不支援，之後開放';return}
-    const toPc=window.BotTab&&BotTab.paired()&&$('#fdWPc').checked;
-    if(toPc&&D&&D.supported&&!D.supported.includes(pickEx)){m.textContent='電腦上的 HexStack 還不支援 '+exName(pickEx)+'，請改選「這支手機」，或更新電腦版';return}
-    const nm=$('#fdNm').value.trim()||exName(pickEx);
-    $('#fdAddGo').disabled=true;
-    if(!toPc){if(!LOCAL_EX.includes(pickEx)){m.textContent='這家交易所還不能只存在手機';$('#fdAddGo').disabled=false;return}
-      m.textContent='驗證中…';const a={id:'p'+Date.now().toString(36),exchange:pickEx,name:nm,key:k,secret:sc,pass:ps,testnet:$('#fdT').checked};
-      try{if(LJ().some(x=>x.exchange===a.exchange&&x.key===a.key))throw new Error('這把金鑰已經加過了');await LREAD[pickEx](a);LW(LJ().concat([a]));$('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
-      catch(err2){$('#fdS').value='';$('#fdP').value='';m.textContent=err2.rw?err2.message:'驗證失敗：'+err2.message;$('#fdAddGo').disabled=false}
-      return}
-    m.textContent='傳到電腦驗證中…';
+    const k=$('#fdK').value.trim(),sc=$('#fdS').value.trim(),ps=$('#fdP').value,m=$('#fdAddMsg');
+    if(!(window.BotTab&&BotTab.paired())){m.textContent='要先連接電腦上的 HexStack（開始交易 › HexBOT 掃 QR 配對）';return}
+    if(!k||!sc){m.textContent='要填 API Key 和 Secret';return}
+    if(PASS_EX.includes(pickEx)&&!ps){m.textContent=exName(pickEx)+' 還要填 Passphrase（建立金鑰時自己設的密碼）';return}
+    if(!SUP().includes(pickEx)){m.textContent='電腦上的 HexStack 還不支援 '+exName(pickEx)+'，請下載新版 HexStack';return}
+    $('#fdAddGo').disabled=true;m.textContent='傳到電腦驗證中…';
     try{await BotTab.api('/api/funds/add',{exchange:pickEx,name:$('#fdNm').value.trim()||exName(pickEx),apiKey:k,apiSecret:sc,passphrase:ps,testnet:$('#fdT').checked});
       $('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
     catch(err2){$('#fdS').value='';$('#fdP').value='';m.textContent=err2.message;$('#fdAddGo').disabled=false}
