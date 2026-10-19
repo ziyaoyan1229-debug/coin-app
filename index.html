@@ -520,6 +520,13 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #evBody .ctx{border-left:3px solid var(--acc);padding-left:10px;color:var(--text)}#evBody .src{font-size:11.5px;color:var(--muted);margin-top:8px}
 #evBody .up{color:var(--up)}#evBody .dn{color:var(--down)}
 @media (min-width:960px){#evModal{inset:60px 22% 40px;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding-bottom:0}}
+.scanbtn{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0 10px;padding:14px}
+.qrov{position:fixed;inset:0;z-index:80;background:rgba(8,4,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(16px + env(safe-area-inset-top,0px)) 24px calc(16px + env(safe-area-inset-bottom,0px))}
+.qrbox{position:relative;width:min(78vw,340px);aspect-ratio:1;border-radius:18px;overflow:hidden;background:#000}
+.qrbox video{width:100%;height:100%;object-fit:cover}
+.qrfr{position:absolute;inset:14%;border:3px solid #f3c557;border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.25)}
+.qrtip{color:#fff;font-size:14px}
+.qrov .bbtn{max-width:240px}
 #fundView>.wrap{max-width:640px;margin:0 auto;width:100%;padding:14px}
 .fscr{display:flex;flex-direction:column;gap:14px}.fscr[hidden],#fdWarn[hidden]{display:none}
 .fdrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -531,7 +538,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .fdtot{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
 .fdsplit{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px}.fdsplit i{display:block;height:100%}
 .fdleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#cfc3f2}.fdleg b{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
-.fdlg{border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none;width:38px;height:38px}
+.fdlg{border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none;width:38px;height:38px}.fdsvg{overflow:hidden}.fdsvg svg{width:100%;height:100%;display:block}
 .fdentry,.fdtile,.fdex,.fdback{all:unset;box-sizing:border-box;cursor:pointer}
 .fdentry{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
 .fdstack{display:flex}.fdstack .fdlg{width:30px;height:30px;font-size:10px;border-radius:8px;border:2px solid var(--panel);margin-left:-8px}.fdstack .fdlg:first-child{margin-left:0}
@@ -887,7 +894,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。收到通知後自己到交易所下單。<br>內容僅供參考，非投資建議</div>
   </div>
   <div id="tmBot" hidden><div id="botBox"></div>
-  <div class="foot">自動交易（hexbot）由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
+  <div class="foot">HexBOT 自動交易由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap"><button class="nback" id="ntBack" type="button">‹ 設定</button>
@@ -2207,7 +2214,9 @@ const FundTab=(()=>{
   const fm=(n,d=2)=>n==null||!isFinite(n)?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
   const am=n=>n==null?'—':Number(n).toLocaleString('en-US',{maximumSignificantDigits:6});
   const es=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const lg=(k,cls)=>{const e=EX[k]||[k,String(k).slice(0,2),'#666','#fff'];return '<span class="fdlg'+(cls?' '+cls:'')+'" style="background:'+e[2]+';color:'+e[3]+'">'+e[1]+'</span>'};
+  // 交易所標誌：@web3icons/core（MIT）exchanges/background；MEXC 沒有就用字母色塊
+  const LOGO={"bybit": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#bybit__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#F6A500\" d=\"M15.403 13.445V9.334h.827v4.111z\"/><path fill=\"#fff\" d=\"M5.772 14.666H4v-4.111h1.7c.827 0 1.308.45 1.308 1.155a.95.95 0 0 1-.523.85.96.96 0 0 1 .582.923c0 .768-.54 1.183-1.295 1.183m-.137-3.395h-.81v.947h.81c.35 0 .546-.19.546-.474 0-.282-.196-.473-.546-.473m.053 1.668h-.862v1.011h.862c.374 0 .553-.23.553-.507 0-.278-.179-.502-.553-.502zm3.901.041v1.686h-.821V12.98l-1.272-2.425h.898l.79 1.657.78-1.657h.897zm3.615 1.686h-1.772v-4.111h1.701c.827 0 1.308.45 1.308 1.155a.95.95 0 0 1-.524.85.96.96 0 0 1 .583.923c0 .768-.541 1.183-1.296 1.183m-.137-3.395h-.809v.947h.81c.35 0 .546-.19.546-.474 0-.282-.196-.473-.547-.473m.053 1.668h-.862v1.011h.862c.375 0 .553-.23.553-.507 0-.278-.178-.502-.553-.502zm5.773-1.669v3.396h-.825v-3.395H16.96v-.716H20v.716z\"/></g><defs><clipPath id=\"bybit__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "okx": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#okx__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M8.693 9.6H4.107A.107.107 0 0 0 4 9.707v4.586a.107.107 0 0 0 .107.107h4.586a.107.107 0 0 0 .106-.107V9.707a.107.107 0 0 0-.106-.107M7.2 12.693a.107.107 0 0 1-.107.107H5.706a.107.107 0 0 1-.106-.107v-1.386a.107.107 0 0 1 .106-.107h1.387a.107.107 0 0 1 .107.107zM18.294 11.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-1.6-1.6h-1.387a.107.107 0 0 0-.106.107v1.386c0 .06.047.107.106.107h1.387a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m3.199 0h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m-3.199 3.2h-1.387a.107.107 0 0 0-.106.107v1.386c0 .059.047.107.106.107h1.387a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m3.199 0h-1.386a.107.107 0 0 0-.107.107v1.386c0 .059.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-5.601-3.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m0 3.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .059.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-1.493-1.494a.107.107 0 0 0-.107-.107H11.2V9.707a.107.107 0 0 0-.107-.107H9.707a.107.107 0 0 0-.107.107v4.584a.107.107 0 0 0 .107.106h1.386a.107.107 0 0 0 .107-.106v-1.492h1.493a.107.107 0 0 0 .107-.107z\"/></g><defs><clipPath id=\"okx__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "binance": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#binance__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#F0B90B\" d=\"M7.616 12 5.81 13.805 4.002 12l1.805-1.805zm4.386-4.386 3.096 3.095 1.804-1.804L12.002 4 7.098 8.905l1.804 1.804zm6.191 2.581L16.39 12l1.804 1.805L19.998 12zm-6.19 6.191-3.096-3.095-1.805 1.804 4.9 4.905 4.9-4.905-1.804-1.804zm0-2.581L13.806 12l-1.805-1.805L10.193 12z\"/></g><defs><clipPath id=\"binance__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "bitget": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#bitget__a)\"><path fill=\"#00F0FF\" d=\"M24 0H0v24h24z\"/><path fill=\"#00040C\" d=\"M11.23 9.742h3.748l3.834 4.05c.25.263.25.69.003.956L13.898 20h-3.86l1.167-1.206 4.285-4.526-4.23-4.526\"/><path fill=\"#00040C\" d=\"M12.769 14.258H9.022L5.188 10.21a.706.706 0 0 1-.003-.956L10.102 4h3.86l-1.167 1.206L8.51 9.732l4.23 4.526\"/></g><defs><clipPath id=\"bitget__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "gate": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#gate-io__a)\"><path fill=\"#2354E6\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M12 16.4a4.4 4.4 0 0 1 0-8.8V4a8 8 0 1 0 8 8h-3.6a4.4 4.4 0 0 1-4.4 4.4\"/><path fill=\"#17E6A1\" d=\"M16.4 7.6H12V12h4.4z\"/></g><defs><clipPath id=\"gate-io__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "kucoin": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#kucoin__a)\"><path fill=\"#23AF91\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" fill-rule=\"evenodd\" d=\"m9.314 12.002 4.739 4.74 2.99-2.992a1.353 1.353 0 0 1 1.912 1.91l-3.948 3.949c-.53.521-1.38.521-1.91 0l-5.695-5.697v3.386a1.353 1.353 0 0 1-2.706 0V6.701a1.353 1.353 0 0 1 2.706 0v3.385l5.694-5.695a1.36 1.36 0 0 1 1.91 0l3.95 3.948a1.353 1.353 0 0 1-1.91 1.91l-2.991-2.99zm4.74-1.355a1.355 1.355 0 1 0 0 2.71 1.355 1.355 0 0 0 0-2.71\" clip-rule=\"evenodd\"/></g><defs><clipPath id=\"kucoin__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "coinbase": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><path fill=\"#0052FF\" d=\"M0 0h24v24H0z\"/><path fill=\"#fff\" d=\"M12.134 7.307c-2.6 0-4.393 1.997-4.394 4.708 0 2.681 1.822 4.678 4.424 4.678 1.883 0 3.378-1.192 3.916-2.92h3.767C19.159 17.497 16.05 20 12.165 20c-4.603 0-8.041-3.396-8.041-7.985C4.124 7.427 7.651 4 12.165 4c3.975 0 7.023 2.503 7.711 6.197H16.08c-.568-1.728-2.062-2.89-3.946-2.89\"/></svg> ", "kraken": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#kraken__a)\"><path fill=\"#5741D9\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M11.999 5.713A8 8 0 0 0 4 13.715v3.43a1.145 1.145 0 0 0 2.287 0v-3.43a1.14 1.14 0 1 1 2.284 0v3.43a1.142 1.142 0 1 0 2.285 0v-3.43a1.144 1.144 0 0 1 2.287 0v3.43a1.142 1.142 0 1 0 2.284 0v-3.43a1.143 1.143 0 1 1 2.288 0v3.43a1.142 1.142 0 0 0 2.285 0v-3.43a8 8 0 0 0-8.001-8.002\"/></g><defs><clipPath id=\"kraken__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> "};
+  const lg=(k,cls)=>{if(LOGO[k])return '<span class="fdlg fdsvg'+(cls?' '+cls:'')+'">'+LOGO[k]+'</span>';const e=EX[k]||[k,String(k).slice(0,2),'#666','#fff'];return '<span class="fdlg'+(cls?' '+cls:'')+'" style="background:'+e[2]+';color:'+e[3]+'">'+e[1]+'</span>'};
   const exName=k=>(EX[k]||[k])[0];
   let hide=(()=>{try{return localStorage.getItem('fdHide')==='1'}catch(e){return false}})();
   const money=v=>hide?'••••••':v;
@@ -3189,20 +3198,40 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function toast(t){let e=$('#botToast');if(!e){e=document.createElement('div');e.id='botToast';e.style.cssText='position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:60;max-width:86vw;text-align:center';document.body.appendChild(e)}
     e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,3000)}
   // ── 畫面 ──
-  function setup(){box().innerHTML=`<div class="card"><div class="bh">在一台不關機的電腦上安裝 HexStack 電腦版</div>
-    <div class="stp"><i>1</i><div>下載 HexStack 電腦版並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
-    <div class="row2"><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
-    <div class="stp"><i>2</i><div>打開 HexStack，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
-    <div class="stp"><i>3</i><div>用手機相機掃 QR code，會打開 App 自動配對</div></div>
-    <div class="sub" style="margin:8px 0 6px">掃不了的話，把 HexStack 畫面上的「配對連結」貼在這裡：</div>
-    <div class="row2"><input type="text" id="botLink" placeholder="https://…#pair=…" autocomplete="off"><button class="bbtn pri" id="botPair" type="button" style="flex:none;width:auto;padding:0 18px">配對</button></div>
+  function setup(){box().innerHTML=`<div class="card"><div class="bh">三步驟連接電腦上的 HexStack</div>
+    <div class="stp"><i>1</i><div>在一台不關機的電腦下載 HexStack<br><span class="sub">免費。Windows 跳「Windows 已保護您的電腦」時按「其他資訊 → 仍要執行」；Mac 按右鍵「打開」。</span></div></div>
+    <div class="row2"><a class="bbtn" href="${RL}/download/HexStack.exe" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
+    <div class="stp"><i>2</i><div>打開 HexStack，電腦畫面會顯示配對 QR code<br><span class="sub">電腦設成「不進入睡眠」，螢幕可以關，程式要一直開著。</span></div></div>
+    <div class="stp"><i>3</i><div>按下面的掃描，對準電腦上的 QR code 就完成配對</div></div>
+    <button class="bbtn pri scanbtn" id="botScan" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg>掃描 QR code</button>
+    <details><summary>掃不了？貼上配對連結</summary><div class="sub" style="margin:8px 0 6px">把 HexStack 畫面上的「配對連結」複製到手機，貼在這裡：</div>
+    <div class="row2"><input type="text" id="botLink" placeholder="https://…#pair=…" autocomplete="off"><button class="bbtn pri" id="botPair" type="button" style="flex:none;width:auto;padding:0 18px">配對</button></div></details>
     <details><summary>沒有常開的電腦？用舊 Android 手機當主機</summary><ol>
       <li>在舊手機從 F-Droid 安裝 Termux</li><li>在 Termux 輸入 <code>pkg install nodejs</code></li>
       <li>從上面的下載頁下載 <code>hexbot.js</code>，執行 <code>termux-wake-lock; node hexbot.js</code></li>
       <li>關掉這支手機對 Termux 的省電限制，插著充電、連 Wi‑Fi</li>
       <li>在舊手機的瀏覽器打開 <code>http://localhost:8787</code>，把配對連結傳到你平常用的手機，貼到上面</li></ol></details></div>
-    <div class="warnbox">交易所 API 金鑰只填在電腦的 HexStack 上，不會存進手機。請只開「交易」權限，不要開「提幣」；建議用獨立子帳戶，只放願意承擔風險的金額。</div>`;
+    <div class="warnbox">配對後預設只跑模擬盤，不會下真單。交易金鑰只填在電腦的 HexStack 上，不會存進手機；請只開「交易」權限，不要開「提幣」，建議用獨立子帳戶。</div>`;
+    $('#botScan').onclick=()=>scanQR(t=>{if(fromHash(t)){toast('配對完成');render();refresh();loop();return true}toast('這不是 HexStack 的配對 QR code');return false});
     $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製 HexStack 上完整的配對連結');$('#botLink').focus()}}}
+  // 掃 QR：用手機相機；有 BarcodeDetector（Android Chrome）就用，沒有（iPhone）就載入 jsQR
+  let jsqr=null;const loadJsQR=()=>jsqr||(jsqr=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';sc.onload=()=>ok(window.jsQR);sc.onerror=()=>{jsqr=null;no(new Error('載入掃描程式失敗'))};document.head.appendChild(sc)}));
+  async function scanQR(onText){
+    const ov=document.createElement('div');ov.className='qrov';ov.innerHTML='<div class="qrbox"><video playsinline muted></video><i class="qrfr"></i></div><div class="qrtip">對準電腦上的 QR code</div><button class="bbtn" type="button">取消</button>';
+    document.body.appendChild(ov);const v=ov.querySelector('video');let st=null,done=false,raf=0;
+    const close=()=>{done=true;cancelAnimationFrame(raf);if(st)st.getTracks().forEach(t=>t.stop());ov.remove()};
+    ov.querySelector('button').onclick=close;
+    try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});v.srcObject=st;await v.play()}
+    catch(e){close();toast(e&&e.name==='NotAllowedError'?'相機權限被拒，請到瀏覽器設定允許相機，或改用貼上配對連結':'打不開相機，請改用貼上配對連結');return}
+    let det=null,dec=null;try{if('BarcodeDetector' in window&&(await BarcodeDetector.getSupportedFormats()).includes('qr_code'))det=new BarcodeDetector({formats:['qr_code']})}catch(e){}
+    if(!det)try{dec=await loadJsQR()}catch(e){close();toast(e.message+'，請改用貼上配對連結');return}
+    const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+    const tick=async()=>{if(done)return;try{if(v.readyState>=2){let t='';
+      if(det){const r=await det.detect(v);t=r[0]&&r[0].rawValue||''}
+      else{const w=v.videoWidth,h=v.videoHeight,k=Math.min(1,640/Math.max(w,h));cv.width=w*k|0;cv.height=h*k|0;cx.drawImage(v,0,0,cv.width,cv.height);const r=dec(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);t=r&&r.data||''}
+      if(t&&!done){if(onText(t)){close();return}}}}catch(e){}
+      if(!done)raf=requestAnimationFrame(()=>setTimeout(tick,120))};
+    tick()}
   function render(){if(!box())return;const H=host();if(!H)return setup();const on=!!S&&!err;
     const hd=`<div class="bh" style="margin:0 2px 8px"><span>${on?`<span class="pill p-ok" style="margin:0">● ${H_(S.hostName||H.n)} 在線</span>`:`<span class="pill p-bad" style="margin:0">● ${H_(H.n)} ${err?'離線':'連線中'}</span>`}${on&&S.halted?'<span class="pill p-bad">已全部暫停</span>':''}</span><span>${on&&S.lastTick?'最後回報 '+ago(S.lastTick):''}</span></div>`;
     if(!on){box().innerHTML=hd+`<div class="card"><div class="bh">${err?'連不到主機':'連線中…'}</div><p class="sub" style="font-size:13.5px;margin:0 0 8px">${H_(err)}${H.seen?'<br>主機最後回報：'+ago(H.seen):''}</p>
