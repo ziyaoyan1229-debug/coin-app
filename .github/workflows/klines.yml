@@ -1,0 +1,95 @@
+# 每 15 分鐘抓 BTC、ETH 的 15 分／5 分 K 線、scripts/markets.json 列的多幣種日 K（data/d/）、MSTR／MSTU 美股盤中 1 小時 K（MSTR_1h.csv、MSTU_1h.csv）、算 S-03 模擬盤（paper.json）、存市場分析歷史（news_history.json）、策略信號（sig_notify.js）、Telegram 推播（tg_notify.py），推到 data 分支（單一 commit 覆蓋，不動 main 和 gh-pages）
+name: klines
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: klines
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            news.json
+            index.html
+            assets
+          sparse-checkout-cone-mode: false
+      - name: 抓 K 線
+        run: python3 scripts/fetch_klines.py out/data
+      - name: 多幣種日 K（主流幣、熱門幣、美股、原物料；給網站「查看價格 › 更多」；舊檔先拿回來只補最近幾天；失敗不影響 K 線）
+        continue-on-error: true
+        run: |
+          git fetch -q --depth 1 origin data || true
+          git archive origin/data data/d 2>/dev/null | tar -x -C out 2>/dev/null || true
+          git archive origin/data data/icons 2>/dev/null | tar -x -C out 2>/dev/null || true
+          python3 scripts/fetch_icons.py out/data || true
+          python3 scripts/fetch_daily.py out/data
+      - name: 算模擬盤（給網站「模擬盤」分頁；失敗不影響 K 線）
+        continue-on-error: true
+        run: |
+          pip install -q pandas numpy
+          git fetch -q --depth 1 origin data || true
+          git show origin/data:data/s03_state.json > st.tmp 2>/dev/null && mv st.tmp scripts/s03_state.json || true   # 沒有就從空的開始（不能留空檔）
+          python3 scripts/paper.py out/data
+          cp scripts/s03_state.json out/data/ || true
+      - name: 抓 MSTR／MSTU 美股盤中 1 小時（給網站 1H、4H；抓不到就沿用上一版，不影響 K 線）
+        continue-on-error: true
+        run: |
+          git fetch -q --depth 1 origin data || true
+          python3 scripts/fetch_stocks.py out/data || for s in MSTR MSTU; do git show origin/data:data/${s}_1h.csv > out/data/${s}_1h.csv 2>/dev/null || rm -f out/data/${s}_1h.csv; done
+      - name: MSTR 基本面（SEC 公告：持幣、ATM 增發、可轉債／優先股；6 小時最多抓一次；失敗就沿用上一版）
+        continue-on-error: true
+        env:
+          SEC_UA: ${{ secrets.SEC_UA }}
+          MSTR_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: |
+          git show origin/data:data/mstr.json > out/data/mstr.json 2>/dev/null || rm -f out/data/mstr.json
+          python3 scripts/fetch_mstr.py out/data
+      - name: 存市場分析歷史（給網站「過去分析」；失敗不影響 K 線）
+        continue-on-error: true
+        run: |
+          git show origin/data:data/news_history.json > old_hist.json 2>/dev/null || cp scripts/news_history_seed.json old_hist.json
+          python3 scripts/news_history.py news.json out/data old_hist.json
+      - name: 算策略信號（App 同一套引擎，給 Telegram「策略信號」；失敗不影響 K 線）
+        continue-on-error: true
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          PUSH_KEY: ${{ secrets.PUSH_KEY }}
+        run: node scripts/sig_notify.js out/data
+      - name: 通知（寫 tg_log.json 給網站瀏覽器通知；有設定 TG_TOKEN＋頻道才發 Telegram；有設定 CF_API_TOKEN 才發背景推播；失敗不影響 K 線）
+        continue-on-error: true
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          TG_CH_SIG: ${{ secrets.TG_CH_SIG }}
+          TG_CH_US: ${{ secrets.TG_CH_US }}
+          TG_CH_EV: ${{ secrets.TG_CH_EV }}
+          TG_CH_MKT: ${{ secrets.TG_CH_MKT }}
+          TG_CH_LV: ${{ secrets.TG_CH_LV }}
+          TG_CH_FG: ${{ secrets.TG_CH_FG }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          PUSH_KEY: ${{ secrets.PUSH_KEY }}
+        run: |
+          git show origin/data:data/tg_state.json > out/data/tg_state.json 2>/dev/null || rm -f out/data/tg_state.json
+          git show origin/data:data/tg_log.json > out/data/tg_log.json 2>/dev/null || rm -f out/data/tg_log.json
+          python3 scripts/tg_notify.py news.json out/data
+      - name: 推到 data 分支
+        run: |
+          cd out
+          git init -q -b data
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898732+github-actions[bot]@users.noreply.github.com'
+          printf '# K 線資料（自動產生）\n\n由 main 的 .github/workflows/klines.yml 每 15 分鐘覆蓋，只有一個 commit。\n欄位：open_time(ms, UTC), open, high, low, close, volume, taker_buy_base。來源 Binance 現貨 data-api.binance.vision，只含已收盤 K 棒。\n' > README.md
+          git add -A
+          git commit -q -m "K 線更新 $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" data:data

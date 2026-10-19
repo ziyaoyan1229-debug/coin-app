@@ -1,45 +1,248 @@
 {
  "market": {
-  "bias": "bear",
-  "body": "**一句話**：9 月 CPI 年增 3.7%、核心月增 0.3% 都高於預期，公布後 BTC 從 83,100 跌到約 81,900（-1.8%）、ETH 約 2,430（-3.2%）；10 月升息機率升到約五成，短線偏弱，81,000 是今晚到明天的關鍵。\n\n- **總經**：FedWatch 10 月升息 1 碼約 50%（週初不升息近 80%）；明天 10/15 PPI 若再偏熱，升息機率會再往上。\n- **資金面**：10/13 BTC ETF 終值淨流入 1.756 億美元、ETH 流入 2,480 萬，是 10 月最好的一天，但月累計仍流出約 2.78 億。\n- **價格**：BTC 尚未跌破 81,000 前低；ETH 已貼近 2,400 支撐。\n\n## 關鍵價位（媒體整理，非本程式計算）\n- BTC：支撐 81,000、80,000，跌破看 75,000～76,000；壓力 83,000、84,000～85,000。\n- ETH：支撐 2,400、2,300；壓力 2,500、2,560。\n\n## 對策略的意思\n- 突破類（策略 1、3、8）：不追多；要等 4 小時收盤重新站上 85,000 才算突破。\n- 箱體／飛刀（策略 2、6、7）：81,000／2,400 跌破先觀望，收回再分段小量接；停損設 80,000／2,300 下方。\n- BTC 主倉：仍在 74,900 減半線之上，不需動作。\n\n僅供參考，非投資建議。",
+  "bias": "neutral",
+  "body": "**概要**：BTC 約 82,176（05:00 台灣，K 線）。昨天最高 83,158 試箱頂失敗，20:00、00:00 兩根 4h 收 81,942、81,881，跌回 4h EMA200（約 82,005）下方；ETH 約 2,407，仍弱。\n\n- **ETF**：BTC ETF 連兩週淨流出，ETH ETF 更重；81,500 附近是 ETF 持有人成本區。\n- **總經**：10/27–28 FOMC 升息疑慮壓風險資產。\n\n## 關鍵價位\n- 壓力 82,005、83,000～83,158；支撐 81,500、80,684、80,000（箱底）。\n\n## 對策略的意思\n- S-03 環境暫失效，4h 重新站上 82,005 再看；4h 收上 83,000 才確認突破。\n- 4h 收破 80,000 減碼。\n\n僅供參考，非投資建議。",
   "calendar": [
    {
-    "d": "10/15",
-    "e": "美國 9 月 PPI（生產者物價）"
-   },
-   {
-    "d": "10/16",
-    "e": "Fed 主席 Warsh 演講"
-   },
-   {
-    "d": "10/17-18",
-    "e": "EDCON：留意以太坊 Glamsterdam 升級主網時程"
-   },
-   {
     "d": "10/27-28",
-    "e": "FOMC 利率決策（市場在賭會不會連續升息）"
+    "e": "FOMC 利率決策（PPI 偏熱後升息風險上升）"
+   },
+   {
+    "d": "10/29",
+    "e": "Strategy（MSTR）美股盤後公布財報"
+   },
+   {
+    "d": "11/11",
+    "e": "MSCI 公布非營運公司剔除名單（Strategy、Metaplanet 是否在內）"
    }
   ],
-  "title": "CPI 偏熱壓盤：BTC 跌回 81,900，10 月升息機率約五成",
-  "updated": "2026-10-15 00:50 台灣時間"
+  "title": "BTC 試 83,000 失敗、4h 連兩根收回 EMA200 下方；ETF 持續流出",
+  "updated": "2026-10-20 05:40 台灣時間"
  },
  "news": [
   {
-   "ts": "2026-10-14T16:47:00Z",
-   "title": "CPI 偏熱後 BTC 跌回 81,900、ETH 跌 3%，10 月升息機率升到約五成",
-   "summary": "BTC 10/14 開盤 83,093，CPI 公布後一路走低，台灣 23:15 約 81,862（-1.8%）；ETH 約 2,433（-3.2%）。CME FedWatch 顯示 10 月升息 1 碼機率約 50%，週初不升息機率還接近 80%。",
+   "ts": "2026-10-19T21:00:00Z",
+   "title": "BTC 反彈卡在 83,000 回落，再度跌回 82,000 以下",
+   "summary": "BTC 從週日低點約 80,600 反彈到 83,158 後動能轉弱，ETF 連兩週淨流出壓抑買盤；分析指 81,500–81,600（ETF 持有人平均成本）是關鍵攻防，日收 84,000 以上才看 87,000。",
+   "tag": "BTC",
    "impact": "利空",
+   "source": "Bitcoin.com News",
+   "url": "https://news.bitcoin.com/market-updates/bitcoin-rally-stalls-83k-etf-outflows-raise-concerns/"
+  },
+  {
+   "ts": "2026-10-19T15:00:00Z",
+   "title": "上週 ETH 現貨 ETF 流出金額超過 BTC ETF",
+   "summary": "10/12–16 加密 ETF 合計淨流出約 3.2 億美元，其中 BTC ETF 約 2.28 億，ETH ETF 流出比例更重，反映機構對 ETH 偏空。",
+   "tag": "ETF",
+   "impact": "利空",
+   "source": "crypto.news",
+   "url": "https://crypto.news/ethereum-etf-outflows-bitcoin-etfs-october-2026/"
+  },
+  {
+   "impact": "利空",
+   "source": "KCEX Blog",
+   "summary": "SoSoValue 數據彙整：10/12–16 BTC 現貨 ETF 合計淨流出約 2.284 億美元，其中 BlackRock IBIT 流出 1.654 億、佔 72%；10 月至今多數交易日為淨流出，機構買盤仍弱。",
+   "tag": "ETF",
+   "title": "BTC 現貨 ETF 上週（10/12–16）淨流出約 2.28 億美元，IBIT 佔 1.65 億",
+   "ts": "2026-10-19T11:30:00Z",
+   "url": "https://blog.kcex.com/crypto-insights/bitcoin-etf-outflows-october-2026-ibit-fbtc-flows/"
+  },
+  {
+   "impact": "利空",
+   "source": "Crypto Briefing",
+   "summary": "IBIT −7,178 萬、FBTC −1,061 萬，其餘 10 檔無流量；10/15 小幅流入後再轉流出，10 月至今累計為負。BTC 與 ETH ETF 合計約 −1.52 億。",
+   "tag": "ETF",
+   "title": "10/16 BTC 現貨 ETF 淨流出 8,240 萬美元，IBIT 佔 87%；ETH ETF 流出 6,968 萬",
+   "ts": "2026-10-17T00:30:00Z",
+   "url": "https://cryptobriefing.com/bitcoin-etfs-82-million-outflows-october-16/"
+  },
+  {
+   "impact": "利空",
+   "source": "CoinDesk / TheStreet",
+   "summary": "AI 硬體股賣壓加上油價上漲，那斯達克本週累計跌 4.5%，創 6 月底以來最差一週；BTC 跟著美股回落，沒能站上 83,000 箱頂，仍在 80,000–83,000 區間。",
+   "tag": "BTC",
+   "title": "那斯達克收跌 2.14%、VIX 升到約 20，BTC 從 82,941 回落到 81,000 附近",
+   "ts": "2026-10-16T21:00:00Z",
+   "url": "https://www.coindesk.com/markets/2026/10/16/live-updates-bitcoin-back-above-usd82-000-zec-jumps-11-as-etf-outflows-continue"
+  },
+  {
+   "impact": "利空",
+   "source": "Benzinga",
+   "summary": "MSCI 非營運公司新規可能讓 Strategy 等持幣公司在 11 月被剔除指數，被動資金潛在賣壓讓 MSTR 大跌，名單 11/11 公布。",
+   "tag": "其他",
+   "title": "Strategy（MSTR）因 MSCI 剔除指數疑慮單日重挫約 8～9%",
+   "ts": "2026-10-16T18:00:00Z",
+   "url": "https://www.benzinga.com/markets/equities/26/10/62417145/nasdaq-100-slides-micron-sandisk-coreweave-sink-warsh-keeps-fed-hike-open-stock-market-today-friday"
+  },
+  {
+   "impact": "中性",
+   "source": "CNBC",
+   "summary": "Warsh 說不會預先表態今年剩下的會議，強調物價穩定並提到全球同步緊縮；週六起進入靜默期，下次 FOMC 10/27–28。",
    "tag": "總經",
+   "title": "Fed 主席 Warsh 曼谷發言不給利率訊號，10 月底升息機率由約 27% 降到 15%",
+   "ts": "2026-10-16T03:30:00Z",
+   "url": "https://www.cnbc.com/2026/10/16/feds-warsh-says-ai-development-path-will-be-very-bumpy-.html"
+  },
+  {
+   "impact": "利空",
+   "source": "The Block",
+   "summary": "MSCI 先審是否有實質營運資產，不過關再看五項財務比率，四項觸發即剔除；11 月指數審查生效、11/30 收盤後調整。JPMorgan 先前估 Strategy 被剔除可能流出約 28 億美元。",
+   "tag": "其他",
+   "title": "MSCI 定案非營運公司新規，Strategy、Metaplanet 可能被剔除指數，11/11 公布名單",
+   "ts": "2026-10-15T22:00:00Z",
+   "url": "https://www.theblock.co/news/business/2026-10-15-msci-rules-could-exclude-strategy-mstr-from-indexes-418729"
+  },
+  {
+   "impact": "利空",
+   "source": "Crypto Briefing / Farside",
+   "summary": "Farside 最終數據比初步的 −1.505 億擴大，抵銷 10/13 的 +1.757 億流入；只有 Bitwise BITB 小幅流入 220 萬。10/15 數據尚未完整。",
+   "tag": "ETF",
+   "title": "10/14 BTC 現貨 ETF 最終淨流出 2.614 億美元，FBTC −1.527 億、IBIT −1.109 億",
+   "ts": "2026-10-15T23:50:00Z",
+   "url": "https://cryptobriefing.com/bitwise-bitb-inflow-bitcoin-etf-outflows/"
+  },
+  {
+   "impact": "中性",
+   "source": "CoinDesk",
+   "summary": "PPI 公布後 BTC 在 21:54 台灣時間跌到 79,950，為 9 月中以來首度跌破 8 萬，低點約 79,711；22:30 前後彈回 81,000 以上，4 小時並未收在 80,000 下方。分析師看 78,000 為下一道支撐、84,000 為壓力。",
+   "tag": "BTC",
+   "title": "BTC 盤中跌破 80,000 低點約 79,700，美股開盤後快速收回 81,000 以上",
+   "ts": "2026-10-15T14:30:00Z",
+   "url": "https://www.coindesk.com/business/2026/10/15/live-updates-bitcoin-back-under-usd81-000-as-ai-selloff-worsens"
+  },
+  {
+   "impact": "利多",
+   "source": "CoinDesk",
+   "summary": "PPI 大超預期，但美債反而走強，10 年期殖利率跌約 15 個基點到 5.04%，為近一個月低點；10/28 升息 1 碼機率約 27%，低於週三一度接近 45%。黃金漲逾 1% 到約 4,150 美元。",
+   "tag": "總經",
+   "title": "PPI 後美債殖利率反降、10 年期回到 5.04%，10 月升息機率降到 27%",
+   "ts": "2026-10-15T12:56:00Z",
+   "url": "https://www.coindesk.com/business/2026/10/15/live-updates-bitcoin-back-under-usd81-000-as-ai-selloff-worsens"
+  },
+  {
+   "impact": "利空",
+   "source": "FXStreet",
+   "summary": "美國 9 月 PPI 月增 1.3%（預期 0.5%），年增 6.3%（預期 5.3%，前值 5.6%），核心 PPI 月增 0.7%、年增 5.0%，都高於預期，是 2022 年以來最大漲幅之一。數據後 BTC 約 80,956（OKX，20:38 台灣），尚未跌破 80,000。",
+   "tag": "總經",
+   "title": "9 月 PPI 月增 1.3%、年增 6.3%，大幅高於預期；BTC 約 80,950",
+   "ts": "2026-10-15T12:47:00Z",
+   "url": "https://www.fxstreet.com/news/united-states-producer-inflation-jumps-63-in-september-vs-53-expected-202610151237"
+  },
+  {
+   "impact": "利空",
+   "source": "TechFlow",
+   "summary": "9 月零售銷售月增 0.8%（預期 0.3%），8 月由 1.2% 下修為 1.1%；初領失業金四週均值 19.85 萬。消費仍強、勞動市場不弱，加上 PPI 偏熱，Fed 沒有理由放鬆，10 月升息押注可能升溫。",
+   "tag": "總經",
+   "title": "美國 9 月零售銷售月增 0.8%，遠高於預期 0.3%",
+   "ts": "2026-10-15T12:46:00Z",
+   "url": "https://www.techflowpost.com/en-US/newsletter/140122"
+  },
+  {
+   "impact": "中性",
+   "source": "The Block",
+   "summary": "歐洲銀行管理局把 Circle 的 USDC 認定為 MiCA 下第一個「significant」電子貨幣代幣，之後要承擔更高的資本、流動性與監管要求。",
+   "tag": "監管",
+   "title": "歐盟 EBA 將 USDC 列為 MiCA 下首個「重要」電子貨幣代幣",
+   "ts": "2026-10-15T11:10:00Z",
+   "url": "https://www.theblock.co/"
+  },
+  {
+   "impact": "中性",
+   "source": "TraderFactor",
+   "summary": "市場預估 9 月 PPI 月增 0.5～0.6%（核心約 0.3%），零售銷售約 +0.3%（前值 1.2%），初領失業金約 20 萬。CPI 偏熱後美元創 18 個月高再回落；若 PPI 也偏熱，10 月升息押注可能再升溫，對 BTC 不利。",
+   "tag": "總經",
+   "title": "今晚 PPI 預期月增 0.5～0.6%、零售銷售 0.3%；Warsh 台灣時間週五 11:30 發言",
+   "ts": "2026-10-15T08:47:00Z",
+   "url": "https://traderfactor.com/ppi-in-focus-after-hot-cpi/"
+  },
+  {
+   "impact": "利空",
+   "source": "Crypto News Flash",
+   "summary": "CoinGlass 數據：24 小時全網爆倉 9.72 億美元，其中多單 8.92 億（91.7%）。BTC 約 80,723（06:30 UTC）。分析師認為槓桿已大量清洗，但趨勢仍弱。",
+   "tag": "BTC",
+   "title": "24 小時爆倉 9.72 億美元，九成以上是多單",
+   "ts": "2026-10-15T08:46:00Z",
+   "url": "https://www.crypto-news-flash.com/bitcoin-slides-under-81000-as-972m-liquidation-wave-hits-crypto/"
+  },
+  {
+   "impact": "利空",
+   "source": "The Block",
+   "summary": "美國 CPI 偏熱加上 AI 融資疑慮，三星、SK 海力士跌逾 9%；Kospi 約 12:38（首爾時間）觸發熔斷，終場收 5,554.22、跌 7.57%（Kosdaq 跌 7.65%，同樣熔斷）。日經 225 跌 5.2%。BTC 約 80,764、ETH 約 2,353（跌 6.5%）。",
+   "tag": "總經",
+   "title": "韓股 Kospi 盤中觸發熔斷、收跌 7.57%，日經跌 5.2%，BTC 守在 80,700 附近",
+   "ts": "2026-10-15T08:45:00Z",
+   "url": "https://www.theblock.co/news/markets/2026-10-15-bitcoin-drops-asian-equities-tumble-418623"
+  },
+  {
+   "impact": "利空",
+   "source": "CoinDesk",
+   "summary": "CPI 偏熱後升息疑慮未散，亞洲早盤續跌；台灣 12:00 的 4h 收盤約 80,834（CF 指數），BTC 加 ETH 期貨 24 小時爆倉近 4.83 億美元，ETH 占 2.86 億。",
+   "tag": "BTC",
+   "title": "BTC 4 小時收破 81,000、盤中約 80,800，ETH 跌 6% 到 2,350",
+   "ts": "2026-10-15T04:47:00Z",
+   "url": "https://coindesk.com/markets/2026/10/15/nearly-usd1-billion-in-crypto-bets-liquidated-as-bitcoin-ether-and-xrp-slide"
+  },
+  {
+   "impact": "利空",
+   "source": "Farside Investors",
+   "summary": "Farside 初步數據，IBIT 尚未公布；前一天 10/13 才淨流入 1.757 億，CPI 後資金轉為流出。",
+   "tag": "ETF",
+   "title": "10/14 BTC 現貨 ETF 初步淨流出 1.505 億美元，FBTC 流出 1.527 億",
+   "ts": "2026-10-15T04:46:00Z",
+   "url": "https://farside.co.uk/btc/"
+  },
+  {
+   "impact": "利空",
+   "source": "KuCoin News",
+   "summary": "CPI 偏熱推升升息押注，美元走強，半導體與 AI 股重挫（CoreWeave 跌逾 15%），中東情勢升溫，BTC 跟著風險資產回落。",
+   "tag": "總經",
+   "title": "美元創 2025 年 5 月來新高、那斯達克 100 跌約 2%，風險資產齊退",
+   "ts": "2026-10-15T04:45:00Z",
+   "url": "https://kucoin.com/news/flash/bitcoin-near-key-support-as-risk-assets-retreat-amid-cooling-speculative-trading"
+  },
+  {
+   "impact": "利空",
+   "source": "FXStreet",
+   "summary": "CPI 後 BTC 約 81,707（24h -1.6%）。Glassnode 指美國現貨 ETF 持有人成本約 81,500，日收跌破代表 ETF 平均持倉轉虧；80,000 下方有清算密集區，再破下看 True Market Mean 約 78,000。上方 88,000 是 6～12 個月持有者成本，站上前反彈易遇解套賣壓。10/7 以來 ETF 累計淨流出約 7.6 億美元。",
+   "tag": "BTC",
+   "title": "Glassnode：BTC 81,700 貼近 ETF 平均成本 81,500，跌破下看 80,000、78,000",
+   "ts": "2026-10-15T00:48:00Z",
+   "url": "https://www.fxstreet.com/cryptocurrencies/news/bitcoin-falls-on-hot-cpi-why-80-000-support-matters-202610142325"
+  },
+  {
+   "impact": "利空",
    "source": "Yahoo Finance",
+   "summary": "CPI 公布後 Polymarket 上 10 月升息機率一度接近 50%，當天稍晚回落到約 30%；CME FedWatch 顯示 10 月升息機率 35%（前一天 22%）。紐約 Fed 總裁 Williams 本週稍早表示年內再升一次可能合適。Fed 已於 9/16 升息 1 碼至 3.75%–4.00%，下次 FOMC 為 10/27–28。",
+   "tag": "總經",
+   "title": "10 月升息機率回落：FedWatch 35%、Polymarket 由近五成降到約三成",
+   "ts": "2026-10-15T00:47:00Z",
+   "url": "https://finance.yahoo.com/economy/policy/articles/fed-interest-rate-hike-seems-195052044.html"
+  },
+  {
+   "impact": "利多",
+   "source": "SEC 8-K／The Block",
+   "summary": "Strive 10/14 公告以認股權證行使所得約 3.69 億美元中的 2.35 億買進 2,822 顆 BTC，持續擴大比特幣庫藏；公司型買盤在 CPI 急殺後仍在進場。",
+   "tag": "其他",
+   "title": "Strive 再買 2,822 顆 BTC（約 2.35 億美元），資金來自認股權證行使",
+   "ts": "2026-10-14T20:47:00Z",
+   "url": "https://www.sec.gov/Archives/edgar/data/0001920406/000162828026065816/asst-20261014.htm"
+  },
+  {
+   "impact": "利空",
+   "source": "Yahoo Finance",
+   "summary": "BTC 10/14 開盤 83,093，CPI 公布後一路走低，台灣 23:15 約 81,862（-1.8%）；ETH 約 2,433（-3.2%）。CME FedWatch 顯示 10 月升息 1 碼機率約 50%，週初不升息機率還接近 80%。",
+   "tag": "總經",
+   "title": "CPI 偏熱後 BTC 跌回 81,900、ETH 跌 3%，10 月升息機率升到約五成",
+   "ts": "2026-10-14T16:47:00Z",
    "url": "https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-wednesday-october-14-2026-crypto-prices-sliding-after-higher-inflation-report-133306768.html"
   },
   {
-   "ts": "2026-10-14T16:46:00Z",
-   "title": "更正：10/13 BTC 現貨 ETF 終值淨流入 1.756 億美元，為 10 月最佳單日",
-   "summary": "SoSoValue 終值顯示 10/13 BTC 現貨 ETF 淨流入 1.756 億美元（先前初步數據為流出），ETH ETF 流入 2,480 萬美元、中斷連續流出。10 月至今 BTC ETF 累計仍淨流出約 2.78 億美元。",
    "impact": "利多",
-   "tag": "ETF",
    "source": "24/7 Wall St.／Crypto Briefing",
+   "summary": "SoSoValue 終值顯示 10/13 BTC 現貨 ETF 淨流入 1.756 億美元（先前初步數據為流出），ETH ETF 流入 2,480 萬美元、中斷連續流出。10 月至今 BTC ETF 累計仍淨流出約 2.78 億美元。",
+   "tag": "ETF",
+   "title": "更正：10/13 BTC 現貨 ETF 終值淨流入 1.756 億美元，為 10 月最佳單日",
+   "ts": "2026-10-14T16:46:00Z",
    "url": "https://247wallst.com/investing/cryptocurrency/2026/10/14/bitcoin-etfs-just-had-their-best-day-of-october-while-xrp-etfs-see-no-inflows-for-three-sessions-are-investors-rotating-to-btc"
   },
   {
