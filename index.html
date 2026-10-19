@@ -3613,8 +3613,12 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     box().innerHTML=top+G.map(x=>{const k0=x.keys[0],[st,sym]=SigLock.part(k0);
       return `<div class="card mys mysg" data-g="${esc(x.g)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.gname(x.g))}<button class="ic" type="button" data-a="gren" aria-label="改名">${ICE}</button><button class="ic" type="button" data-a="gdel" aria-label="移除">${ICD}</button></b><span class="sym">${sym}</span></div>
         <div class="small" style="color:var(--muted);margin-top:2px">${esc(st==='cus'?Rules.sum(L[k0]):SigLock.nm(st))}</div>
-        <div class="mgsets">${x.keys.map(k=>`<span>${esc(SigLock.setName(k))}</span>`).join('')}<em>${x.keys.length} 組參數 ›</em></div></div>`}).join('');
-    syncSym();window.Opt&&Opt.paint()}
+        ${MST}<div class="mgsets">${x.keys.map(k=>`<span>${esc(SigLock.setName(k))}</span>`).join('')}<em>${x.keys.length} 組參數 ›</em></div></div>`}).join('');
+    syncSym();window.Opt&&Opt.paint();
+    // 每張策略卡顯示第一組參數的回測（一張一張算，不卡畫面）
+    let i=0;const step=()=>{if(i>=G.length||openG)return;const x=G[i++],k=x.keys[0],[st,sym]=SigLock.part(k),c=box().querySelector(`.mysg[data-g="${CSS.escape(x.g)}"]`);
+      if(c)try{statRow(stats(st,sym,L[k]),c)}catch(e){const b=c.querySelector('.mst b');if(b)b.textContent='算不出來'}
+      setTimeout(step,0)};setTimeout(step,30)}
   function renderGroup(x,L){const k0=x.keys[0],[st,sym]=SigLock.part(k0);
     box().innerHTML=`<button class="nback" id="myGBack" type="button">‹ 我的策略</button>
       <div class="mygh"><b>${esc(SigLock.gname(x.g))}</b><span class="sym">${sym}</span><div class="small" style="color:var(--muted)">${esc(st==='cus'?Rules.sum(L[k0]):SigLock.nm(st))}</div></div>
