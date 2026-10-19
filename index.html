@@ -520,11 +520,54 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #evBody .ctx{border-left:3px solid var(--acc);padding-left:10px;color:var(--text)}#evBody .src{font-size:11.5px;color:var(--muted);margin-top:8px}
 #evBody .up{color:var(--up)}#evBody .dn{color:var(--down)}
 @media (min-width:960px){#evModal{inset:60px 22% 40px;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding-bottom:0}}
-#fundView>.wrap{max-width:640px;margin:0 auto;width:100%}
-.fdtot{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.fdrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.fdex{margin-top:10px}.fdex table{width:100%;border-collapse:collapse;margin-top:6px;font-variant-numeric:tabular-nums}.fdex th,.fdex td{padding:5px 2px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}.fdex th:first-child,.fdex td:first-child{text-align:left}.fdex th{color:var(--muted);font-weight:400;font-size:12px}
-.fdpos{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.fdgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin-top:4px;color:var(--muted);font-size:12px}
-.fdw{color:#f5a524}
+#fundView>.wrap{max-width:640px;margin:0 auto;width:100%;padding:14px}
+.fscr{display:flex;flex-direction:column;gap:14px}.fscr[hidden],#fdWarn[hidden]{display:none}
+.fdrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fdmu{color:var(--muted)}
+.fdnum{font-variant-numeric:tabular-nums}
+.fdhero{border-radius:16px;padding:18px;color:#fff;background:linear-gradient(150deg,#5b34b8,#2a1560);display:flex;flex-direction:column;gap:10px}
+.fdlab,.fdsub{font-size:12.5px;color:#cfc3f2}
+.fdeye{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;cursor:pointer;padding:0}
+.fdtot{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.fdsplit{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px}.fdsplit i{display:block;height:100%}
+.fdleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#cfc3f2}.fdleg b{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+.fdlg{border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none;width:38px;height:38px}
+.fdentry,.fdtile,.fdex,.fdback{all:unset;box-sizing:border-box;cursor:pointer}
+.fdentry{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
+.fdstack{display:flex}.fdstack .fdlg{width:30px;height:30px;font-size:10px;border-radius:8px;border:2px solid var(--panel);margin-left:-8px}.fdstack .fdlg:first-child{margin-left:0}
+.fdt{flex:1;min-width:0}.fdt small{color:var(--muted)}
+.fdplus{width:32px;height:32px;border-radius:50%;background:var(--accbg);color:var(--on-acc);display:grid;place-items:center;font-size:20px;font-weight:700;flex:none}
+.fdgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fdtile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;height:124px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.fdtile .tp{display:flex;align-items:center;gap:8px;min-width:0}.fdtile .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fdtile .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}.fdtile .d{font-size:12px}
+.fdtile.add{border-style:dashed;align-items:center;justify-content:center;color:var(--muted);gap:6px;font-size:13px}
+.fdentry:hover,.fdtile:hover,.fdex:hover{border-color:var(--accbg)}
+.fdentry:focus-visible,.fdtile:focus-visible,.fdex:focus-visible,.fdback:focus-visible,.fdeye:focus-visible{outline:2px solid var(--accbg);outline-offset:2px}
+.fdback{color:var(--muted);font-size:13px}
+.fdh1{font-size:18px}
+.fdpick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fdex{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;min-width:0}
+.fdex[aria-disabled="true"]{opacity:.5;cursor:default}.fdex small{color:var(--muted);font-size:10.5px}
+.fdpanel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.fdlb{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.fdlb input{padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:14px}
+.fdck{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.fdgo{border:0;border-radius:10px;padding:12px;background:var(--accbg);color:var(--on-acc);font:inherit;font-weight:700;cursor:pointer}
+.fdsteps{margin:0;padding-left:18px;font-size:12.5px;color:var(--muted)}
+.fdmsg{font-size:12.5px}
+.fdhead{display:flex;align-items:center;gap:12px}.fdhead .fdlg{width:44px;height:44px}.fdhead b{font-size:18px}
+.fdchip{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--panel2);color:var(--muted)}
+.fdpanel table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.fdpanel th,.fdpanel td{padding:7px 0;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
+.fdpanel th:first-child,.fdpanel td:first-child{text-align:left}.fdpanel th{font-weight:400;font-size:12px;color:var(--muted);border-top:0}
+.fdpos{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.fdbar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}.fdbar i{display:block;height:100%}
+.fdup{color:#26a69a}.fddn{color:#ef5350}.fdw{color:#f5a524}
+.fdscroll{overflow-x:auto}
+.fdghost{border:1px solid var(--line);background:transparent;color:#ef5350;border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
+.fdcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:13px;line-height:1.7}
+.tmode button[disabled]{opacity:.55;cursor:default}.tmode button small{font-size:10px;margin-left:3px}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
 .setl>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}.setl>div:first-child{border-top:0}
@@ -838,13 +881,13 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
-  <div class="tmode" id="tMode"><button type="button" data-m="sig" class="on">1. 訊號交易</button><button type="button" data-m="bot">2. 自動交易</button></div>
+  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="ai" disabled>HexAI<small>未上線</small></button></div>
   <div id="tmSig">
   <div class="sect"><h2>我的策略訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
   <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。收到通知後自己到交易所下單。<br>內容僅供參考，非投資建議</div>
   </div>
   <div id="tmBot" hidden><div id="botBox"></div>
-  <div class="foot">自動交易由你自己電腦上的執行器下單，App 只負責看和控制；交易所金鑰只存在執行器上。<br>內容僅供參考，非投資建議</div></div>
+  <div class="foot">自動交易（hexbot）由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap"><button class="nback" id="ntBack" type="button">‹ 設定</button>
@@ -854,12 +897,43 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 資金總覽 ───────── -->
 <section id="fundView" class="view"><div class="wrap">
-  <div class="sect"><h2>資金總覽<span class="more" id="fdAge"></span></h2>
-  <div id="fdHost" hidden></div>
-  <form class="card" id="fdLock" autocomplete="off"><div class="small" style="margin-bottom:8px">各交易所餘額由你電腦上的程式用唯讀金鑰抓取、加密後上傳；密碼只在這支手機上解開，不會送出去。</div>
-    <input type="password" id="fdPw" placeholder="資金密碼" autocomplete="current-password" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--fg,inherit);font:inherit">
-    <button class="btn" type="submit" id="fdGo">解鎖</button><div class="small" id="fdMsg" style="margin-top:6px"></div></form>
-  <div id="fdBox" hidden></div></div>
+  <div class="fscr" id="fdHome">
+    <section class="fdhero" aria-label="總覽">
+      <div class="fdrow"><span class="fdlab">總資產（約）</span><button class="fdeye" id="fdEye" type="button" aria-label="顯示或隱藏金額" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="fdEyeI"></svg></button></div>
+      <div class="fdtot" id="fdTot">—</div>
+      <div class="fdsub" id="fdSub"></div>
+      <div class="fdsplit" id="fdSplit" aria-hidden="true"></div>
+      <div class="fdleg" id="fdLeg"></div>
+      <div class="fdsub fdrow"><span id="fdCnt"></span><span id="fdAge"></span></div>
+    </section>
+    <div id="fdWarn" hidden></div>
+    <button class="fdentry" type="button" data-fgo="pick"><span class="fdstack" id="fdStack"></span><span class="fdt"><b>加入交易所</b><br><small>選交易所，貼唯讀金鑰</small></span><span class="fdplus" aria-hidden="true">+</span></button>
+    <div class="fdrow"><b>已加入的交易所</b><small class="fdmu">點方格看詳細</small></div>
+    <div class="fdgrid" id="fdGrid"></div>
+  </div>
+  <div class="fscr" id="fdPick" hidden>
+    <button class="fdback" type="button" data-fgo="home">‹ 資金總覽</button>
+    <b class="fdh1">選擇交易所</b>
+    <div class="fdpick" id="fdPickBox"></div>
+  </div>
+  <div class="fscr" id="fdSetup" hidden>
+    <button class="fdback" type="button" data-fgo="pick">‹ 選擇交易所</button>
+    <div class="fdhead" id="fdSetupH"></div>
+    <form class="fdpanel" id="fdAdd" autocomplete="off">
+      <ol class="fdsteps"><li>到交易所網頁版 › API 管理，建立新金鑰</li><li>權限只勾「讀取」，不要勾交易、提現</li><li>把 Key 和 Secret 貼到下面</li></ol>
+      <label class="fdlb" for="fdNm">名稱<input id="fdNm" maxlength="30" placeholder="例如 主帳戶"></label>
+      <label class="fdlb" for="fdK">API Key<input id="fdK" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="貼上 API Key"></label>
+      <label class="fdlb" for="fdS">API Secret<input id="fdS" type="password" autocomplete="off" placeholder="貼上 API Secret"></label>
+      <label class="fdck" for="fdT"><input type="checkbox" id="fdT"> 這是測試網金鑰</label>
+      <button class="fdgo" type="submit" id="fdAddGo">驗證並加入</button>
+      <small class="fdmu">金鑰會傳到你電腦上的 HexStack 驗證並保存，手機不留。不是唯讀的金鑰會被拒收。</small>
+      <div class="fdmsg" id="fdAddMsg" aria-live="polite"></div>
+    </form>
+  </div>
+  <div class="fscr" id="fdDetail" hidden>
+    <button class="fdback" type="button" data-fgo="home">‹ 資金總覽</button>
+    <div id="fdDet"></div>
+  </div>
 </div></section>
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
@@ -2126,100 +2200,81 @@ function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);
 VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
 $('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
 
-// ── 資金總覽：讀 portfolio.enc.json（電腦端 tools/portfolio 加密上傳），密碼只留在這個分頁的記憶體 ──
+// ── 資金總覽：向已配對的 HexStack 電腦版要各交易所即時餘額（金鑰只存在電腦；手機貼唯讀金鑰 → 電腦驗證 → 手機清掉）──
 const FundTab=(()=>{
-  const b64=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
-  const fm=(n,d=2)=>n==null||isNaN(n)?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
+  const EX={bybit:['Bybit','By','#f7a600','#1a1030'],okx:['OKX','OK','#111','#fff'],binance:['幣安','Bn','#f0b90b','#1a1030'],bitget:['Bitget','Bg','#00c1c7','#fff'],gate:['Gate','Gt','#2354e6','#fff'],mexc:['MEXC','MX','#1f6fd8','#fff'],kucoin:['KuCoin','Ku','#23af91','#fff'],coinbase:['Coinbase','Cb','#0052ff','#fff'],kraken:['Kraken','Kr','#5741d9','#fff']};
+  const COL=['#f3c557','#8f6cf0','#3ccfae','#ef7a5a','#5aa9ef','#c77dd8'];
+  const fm=(n,d=2)=>n==null||!isFinite(n)?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
   const am=n=>n==null?'—':Number(n).toLocaleString('en-US',{maximumSignificantDigits:6});
   const es=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  let pw='',timer=0;
-  async function dec(blob,p){
-    const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey']);
-    const key=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:b64(blob.salt),iterations:blob.iter},base,{name:'AES-GCM',length:256},false,['decrypt']);
-    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(blob.iv)},key,b64(blob.ct))));
+  const lg=(k,cls)=>{const e=EX[k]||[k,String(k).slice(0,2),'#666','#fff'];return '<span class="fdlg'+(cls?' '+cls:'')+'" style="background:'+e[2]+';color:'+e[3]+'">'+e[1]+'</span>'};
+  const exName=k=>(EX[k]||[k])[0];
+  let hide=(()=>{try{return localStorage.getItem('fdHide')==='1'}catch(e){return false}})();
+  const money=v=>hide?'••••••':v;
+  let D=null,err='',busy=false,cur='',timer=0,pickEx='bybit';
+  const EYE_O='<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',EYE_C='<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4"/><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1"/>';
+  const upnl=x=>(x.positions||[]).reduce((t,p)=>t+(+p.upnl||0),0);
+  const sgn=v=>(v>0?'+':v<0?'−':'')+'US$ '+fm(Math.abs(v));
+  function go(s){['home','pick','setup','detail'].forEach(k=>$('#fd'+k[0].toUpperCase()+k.slice(1)).hidden=k!==s);if(s==='pick')pick();$('#fundView').scrollTop=0}
+  function home(){
+    $('#fdEyeI').innerHTML=hide?EYE_C:EYE_O;$('#fdEye').setAttribute('aria-pressed',String(hide));
+    $('#fdStack').innerHTML=['bybit','okx','binance','bitget','gate'].map(k=>lg(k)).join('');
+    const paired=window.BotTab&&BotTab.paired(),A=D?D.accounts:[],tot=D?D.total_usd:0,u=A.reduce((t,x)=>t+upnl(x),0);
+    $('#fdTot').textContent=D?money('US$ '+fm(tot)):'—';
+    $('#fdSub').textContent=D?(hide?'••••••':'未實現損益 '+sgn(u)):paired?'讀取中…':'尚未連接 HexStack 電腦版';
+    const ok=A.filter(x=>x.ok&&x.total_usd>0);
+    $('#fdSplit').innerHTML=tot>0?ok.map((x,i)=>'<i style="width:'+(x.total_usd/tot*100).toFixed(1)+'%;background:'+COL[i%COL.length]+'"></i>').join(''):'';
+    $('#fdLeg').innerHTML=tot>0?ok.map((x,i)=>'<span><b style="background:'+COL[i%COL.length]+'"></b>'+es(x.name||exName(x.exchange))+' '+Math.round(x.total_usd/tot*100)+'%</span>').join(''):'';
+    $('#fdCnt').textContent=D?A.length+' 個交易所':'';
+    $('#fdAge').textContent=D?'更新：'+new Date(D.updated_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'';
+    const w=$('#fdWarn');
+    if(!paired){w.hidden=false;w.innerHTML='<div class="fdcard">資金總覽要先連接電腦上的 <b>HexStack</b>：到「開始交易 › HexBOT」下載安裝，用手機掃電腦上的 QR 配對。金鑰只存在你的電腦。<br><button class="fdgo" type="button" id="fdToBot" style="margin-top:8px;width:100%">前往連接</button></div>'}
+    else if(err){w.hidden=false;w.innerHTML='<div class="fdcard fddn">'+es(err)+'</div>'}else w.hidden=true;
+    $('#fdGrid').innerHTML=A.map(x=>'<button class="fdtile" type="button" data-fid="'+es(x.id)+'"><span class="tp">'+lg(x.exchange)+'<span class="nm">'+es(x.name||exName(x.exchange))+'</span></span><span><span class="v">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</span><br>'
+      +(x.ok?'<span class="d '+(upnl(x)>=0?'fdup':'fddn')+'">'+(hide?'••••••':(x.positions&&x.positions.length?sgn(upnl(x)):exName(x.exchange)))+'</span>':'<span class="fdchip fddn">讀取失敗</span>')+'</span></button>').join('')
+      +'<button class="fdtile add" type="button" data-fgo="pick"><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
   }
-  function age(iso){const h=(Date.now()-new Date(iso))/36e5;return h<1?'不到 1 小時前':h<48?Math.floor(h)+' 小時前':Math.floor(h/24)+' 天前'}
-  function render(d){
-    const stale=(Date.now()-new Date(d.updated_at))/36e5>30;
-    $('#fdAge').textContent=age(d.updated_at);
-    let h='<div class="card"><div class="small">合計（約）</div><div class="fdtot">US$'+fm(d.total_usd)+'</div><div class="fdrow"><span class="small">約 '+fm(d.total_usd*d.usdtwd,0)+' 台幣（匯率 '+es(d.usdtwd)+'）</span><span class="small'+(stale?' fdw':'')+'">更新：'+es(d.updated_at.replace('T',' ').slice(0,16))+'</span></div>'
-      +(stale?'<div class="fdw small" style="margin-top:6px">超過 30 小時沒更新，電腦上的程式可能沒在跑。</div>':'')+'</div>';
-    for(const x of d.exchanges){
-      h+='<div class="card fdex"><div class="fdrow"><b>'+es(x.name)+'</b><span>'+(x.ok?'US$'+fm(x.total_usd):'<span style="color:var(--dn,#ef5350)">讀取失敗</span>')+'</span></div>';
-      if(x.notes&&x.notes.length)h+='<div class="small" style="margin-top:4px">'+x.notes.map(es).join('；')+'</div>';
-      if(x.assets&&x.assets.length){h+='<table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>';
-        for(const a of x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)))h+='<tr><td>'+es(a.coin)+'</td><td>'+am(a.amount)+'</td><td>'+fm(a.usd)+'</td></tr>';h+='</table>'}
-      for(const p of (x.positions||[])){
-        const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null;
-        h+='<div class="fdpos"><div class="fdrow"><span>'+(p.side==='long'?'多':p.side==='short'?'空':es(p.side))+' '+es(String(p.symbol).split(':')[0])+' <span class="small">'+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':p.margin_mode==='cross'?'全倉':'')+'</span></span><span>'+fm(p.upnl)+'</span></div>'
-          +'<div class="fdgrid"><span>數量 '+am(p.contracts)+'</span><span>開倉 '+am(p.entry)+'</span><span>標記 '+am(p.mark)+'</span><span class="'+(dist!=null&&dist<10?'fdw':'')+'">強平 '+am(p.liq)+(dist!=null?'（距 '+fm(dist,1)+'%）':'')+'</span></div></div>'}
-      h+='</div>'}
-    h+='<button class="btn" id="fdLockBtn" type="button" style="margin-top:10px;background:transparent;border:1px solid var(--line);color:inherit">鎖上</button>';
-    $('#fdBox').innerHTML=h;$('#fdBox').hidden=false;$('#fdLock').hidden=true;
-    $('#fdLockBtn').onclick=()=>{pw='';$('#fdBox').hidden=true;$('#fdBox').innerHTML='';$('#fdLock').hidden=false;$('#fdPw').value='';$('#fdAge').textContent='';clearInterval(timer);timer=0};
-  }
-  async function load(p){
-    const r=await fetch('portfolio.enc.json',{cache:'no-store'});
-    if(!r.ok)throw new Error('nofile');
-    render(await dec(await r.json(),p));
-  }
-  $('#fdLock').addEventListener('submit',async e=>{
-    e.preventDefault();const p=$('#fdPw').value;if(!p)return;
-    $('#fdGo').disabled=true;$('#fdMsg').textContent='解鎖中…';
-    try{await load(p);pw=p;$('#fdMsg').textContent='';if(!timer)timer=setInterval(()=>{if(pw&&$('#fundView').classList.contains('on'))load(pw).catch(()=>{})},180000)}
-    catch(err){$('#fdMsg').textContent=err.message==='nofile'?'還沒有資料：電腦上的程式還沒上傳過。':'密碼錯誤，或資料損毀。'}
-    $('#fdGo').disabled=false;
-  });
-  // ── 已配對 HexStack 電腦版：向它要即時餘額；手機貼唯讀金鑰 → 傳給電腦驗證（不是唯讀會拒收）→ 手機端立刻清掉 ──
-  let hx=null,hxErr='',busy=false;
-  const hbox=()=>$('#fdHost');
-  function hxRender(){
-    const d=hx;let h='';
-    if(hxErr)h+='<div class="card small" style="color:var(--dn,#ef5350)">'+es(hxErr)+'</div>';
-    if(d){
-      h+='<div class="card"><div class="small">合計（約，各交易所即時）</div><div class="fdtot">US$'+fm(d.total_usd)+'</div><div class="small">更新：'+es(d.updated_at.replace('T',' ').slice(0,16))+' UTC</div></div>';
-      for(const x of d.accounts){
-        h+='<div class="card fdex"><div class="fdrow"><b>'+es(x.name)+' <span class="small">'+es(x.exchange)+'</span></b><span>'+(x.ok?'US$'+fm(x.total_usd):'<span style="color:var(--dn,#ef5350)">讀取失敗</span>')+'</span></div>';
-        if(x.notes&&x.notes.length)h+='<div class="small" style="margin-top:4px">'+x.notes.map(es).join('；')+'</div>';
-        if(x.assets&&x.assets.length){h+='<table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>';
-          for(const a of x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)))h+='<tr><td>'+es(a.coin)+(a.acct?' <span class="small">'+es(a.acct)+'</span>':'')+'</td><td>'+am(a.amount)+'</td><td>'+fm(a.usd)+'</td></tr>';h+='</table>'}
-        for(const p of (x.positions||[])){const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null;
-          h+='<div class="fdpos"><div class="fdrow"><span>'+(p.side==='long'?'多':'空')+' '+es(String(p.symbol).split(':')[0])+' <span class="small">'+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':'全倉')+'</span></span><span>'+fm(p.upnl)+'</span></div>'
-            +'<div class="fdgrid"><span>數量 '+am(p.contracts)+'</span><span>開倉 '+am(p.entry)+'</span><span>標記 '+am(p.mark)+'</span><span class="'+(dist!=null&&dist<10?'fdw':'')+'">強平 '+am(p.liq)+(dist!=null?'（距 '+fm(dist,1)+'%）':'')+'</span></div></div>'}
-        h+='<button class="btn fdrm" type="button" data-id="'+es(x.id)+'" style="margin-top:8px;background:transparent;border:1px solid var(--line);color:inherit">移除這個帳戶</button></div>'}
-    }
-    h+='<form class="card" id="fdAdd" autocomplete="off"><b>新增交易所帳戶</b><div class="small" style="margin:6px 0">只貼「唯讀」金鑰（只勾讀取，不要交易、提現）。金鑰會傳到你電腦上的 HexStack 驗證並存在電腦；不是唯讀會被拒收。送出後這支手機會立刻清掉。</div>'
-      +'<select id="fdEx" style="width:100%;padding:9px;margin-bottom:6px"><option value="bybit">Bybit</option></select>'
-      +'<input id="fdNm" placeholder="名稱（例如 主帳戶）" maxlength="30" style="width:100%;padding:9px;margin-bottom:6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:inherit;font:inherit">'
-      +'<input id="fdK" placeholder="API Key" autocomplete="off" autocapitalize="off" style="width:100%;padding:9px;margin-bottom:6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:inherit;font:inherit">'
-      +'<input id="fdS" type="password" placeholder="API Secret" autocomplete="off" style="width:100%;padding:9px;margin-bottom:6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:inherit;font:inherit">'
-      +'<label class="small"><input type="checkbox" id="fdT"> 測試網金鑰</label>'
-      +'<button class="btn" type="submit" id="fdAddGo">驗證並新增</button><div class="small" id="fdAddMsg" style="margin-top:6px"></div></form>';
-    hbox().innerHTML=h;
-  }
-  async function hxLoad(force){
+  function pick(){const sup=D&&D.supported||['bybit'];
+    $('#fdPickBox').innerHTML=Object.keys(EX).map(k=>sup.includes(k)?'<button class="fdex" type="button" data-fex="'+k+'">'+lg(k)+exName(k)+'</button>':'<button class="fdex" type="button" aria-disabled="true">'+lg(k)+exName(k)+'<small>即將支援</small></button>').join('')}
+  function setup(k){pickEx=k;$('#fdSetupH').innerHTML=lg(k)+'<b>連接 '+es(exName(k))+'</b>';$('#fdAddMsg').textContent='';$('#fdK').value='';$('#fdS').value='';$('#fdNm').value='';$('#fdAddGo').disabled=false;go('setup')}
+  function detail(id){cur=id;const x=D&&D.accounts.find(a=>a.id===id);if(!x)return go('home');
+    let h='<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+es(x.name)+'</span> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
+    h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
+    if(x.notes&&x.notes.length)h+='<div class="fdcard fdmu">'+x.notes.map(es).join('<br>')+'</div>';
+    if(x.assets&&x.assets.length)h+='<div class="fdpanel"><b>幣種</b><div class="fdscroll"><table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>'+x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)).map(a=>'<tr><td>'+es(a.coin)+(a.acct?' <span class="fdchip">'+es(a.acct)+'</span>':'')+'</td><td>'+(hide?'••••':am(a.amount))+'</td><td>'+(hide?'••••':fm(a.usd))+'</td></tr>').join('')+'</table></div></div>';
+    if(x.positions&&x.positions.length)h+='<div class="fdpanel"><b>持倉</b>'+x.positions.map(p=>{const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null,c=dist==null?'':dist<10?'fdw':'fdup';
+      return '<div class="fdpos"><div class="fdrow"><span><b class="'+(p.side==='long'?'fdup':'fddn')+'">'+(p.side==='long'?'多':'空')+'</b> '+es(String(p.symbol).split(':')[0])+' <span class="fdchip">'+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':'全倉')+'</span></span><span class="'+((+p.upnl||0)>=0?'fdup':'fddn')+'">'+(hide?'••••':fm(p.upnl))+'</span></div>'
+        +'<div class="fdrow fdmu"><span>數量 '+(hide?'••••':am(p.contracts))+'</span><span>開倉 '+am(p.entry)+'</span></div><div class="fdrow fdmu"><span>標記 '+am(p.mark)+'</span><span>強平 '+am(p.liq)+'</span></div>'
+        +(dist!=null?'<div class="fdrow"><small class="fdmu">距強平</small><small class="'+c+'">'+fm(dist,1)+'%</small></div><div class="fdbar"><i class="" style="width:'+Math.min(100,dist*4).toFixed(0)+'%;background:'+(dist<10?'#f5a524':'#26a69a')+'"></i></div>':'')+'</div>'}).join('')+'</div>';
+    const k=(D.list||[]).find(a=>a.id===id);
+    h+='<div class="fdrow fdmu" style="font-size:12px;flex-wrap:wrap"><span>金鑰 …'+es(k?k.keyTail:'')+'（唯讀）'+(k&&k.testnet?'・測試網':'')+'</span><button class="fdghost" type="button" data-frm="'+es(id)+'">移除這個交易所</button></div><div id="fdRmAsk"></div>';
+    $('#fdDet').innerHTML=h;go('detail')}
+  async function load(force){
+    if(!(window.BotTab&&BotTab.paired())){D=null;err='';return home()}
     if(busy)return;busy=true;
-    try{hx=await BotTab.api('/api/funds'+(force?'?force=1':''));hxErr='';$('#fdAge').textContent=''}catch(e){hxErr='連不到 HexStack 電腦版：'+e.message+'。請確認電腦上的程式有開著。'}
-    busy=false;hxRender();
+    try{D=await BotTab.api('/api/funds'+(force?'?force=1':''));err=''}catch(e){err='連不到 HexStack 電腦版：'+e.message+'。請確認電腦上的程式有開著。'}
+    busy=false;home();if(!$('#fdDetail').hidden&&cur)detail(cur);
   }
-  document.addEventListener('submit',async e=>{
-    if(e.target.id!=='fdAdd')return;e.preventDefault();
-    const k=$('#fdK').value.trim(),sc=$('#fdS').value.trim(),m=$('#fdAddMsg');if(!k||!sc){m.textContent='要填 Key 和 Secret';return}
-    $('#fdAddGo').disabled=true;m.textContent='傳到電腦驗證中…';
-    try{await BotTab.api('/api/funds/add',{exchange:$('#fdEx').value,name:$('#fdNm').value.trim(),apiKey:k,apiSecret:sc,testnet:$('#fdT').checked});
-      $('#fdK').value='';$('#fdS').value='';await hxLoad(true)}
-    catch(err){m.textContent=err.message;$('#fdS').value='';$('#fdAddGo').disabled=false}
+  $('#fdEye').onclick=()=>{hide=!hide;try{localStorage.setItem('fdHide',hide?'1':'0')}catch(e){}home();if(!$('#fdDetail').hidden&&cur)detail(cur)};
+  $('#fundView').addEventListener('click',async e=>{const t=e.target;let b;
+    if(t.closest('#fdToBot')){$('#nav_sig').click();window.BotTab&&BotTab.mode('bot');return}
+    if((b=t.closest('[data-fgo]'))){go(b.dataset.fgo);return}
+    if((b=t.closest('[data-fex]'))){setup(b.dataset.fex);return}
+    if((b=t.closest('[data-fid]'))){detail(b.dataset.fid);return}
+    if((b=t.closest('[data-frm]'))){const id=b.dataset.frm;$('#fdRmAsk').innerHTML='<div class="fdcard">確定從電腦移除這個交易所的金鑰？<div class="fdrow" style="margin-top:8px"><button class="fdghost" type="button" data-frmy="'+es(id)+'">移除</button><button class="fdghost" style="color:inherit" type="button" data-frmn>取消</button></div></div>';return}
+    if(t.closest('[data-frmn]')){$('#fdRmAsk').innerHTML='';return}
+    if((b=t.closest('[data-frmy]'))){try{await BotTab.api('/api/funds/remove',{id:b.dataset.frmy});cur='';go('home');await load(true)}catch(err2){$('#fdRmAsk').innerHTML='<div class="fdcard fddn">'+es(err2.message)+'</div>'}}
   });
-  document.addEventListener('click',async e=>{const b=e.target.closest('.fdrm');if(!b||!confirm('從電腦移除這個帳戶的金鑰？'))return;
-    try{await BotTab.api('/api/funds/remove',{id:b.dataset.id});await hxLoad(true)}catch(err){alert(err.message)}});
-  function open_(){
-    const on=window.BotTab&&BotTab.paired();
-    hbox().hidden=!on;
-    if(on){$('#fdLock').hidden=true;$('#fdBox').hidden=true;hxLoad(false);if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on'))hxLoad(false)},60000);return}
-    $('#fdLock').hidden=!!pw;
-    const hint=$('#fdMsg');if(hint&&!pw)hint.innerHTML='要即時看各交易所資金，請到「開始交易 › 自動交易」安裝 HexStack 電腦版並配對。已有加密資料檔的話，可在這裡輸入密碼查看。';
-    if(pw)load(pw).catch(()=>{})}
-  return {open:open_};
+  $('#fdAdd').addEventListener('submit',async e=>{e.preventDefault();
+    const k=$('#fdK').value.trim(),sc=$('#fdS').value.trim(),m=$('#fdAddMsg');if(!k||!sc){m.textContent='要填 API Key 和 Secret';return}
+    if(!(window.BotTab&&BotTab.paired())){m.textContent='還沒連接 HexStack 電腦版，先到「開始交易 › HexBOT」配對';return}
+    $('#fdAddGo').disabled=true;m.textContent='傳到電腦驗證中…';
+    try{await BotTab.api('/api/funds/add',{exchange:pickEx,name:$('#fdNm').value.trim()||exName(pickEx),apiKey:k,apiSecret:sc,testnet:$('#fdT').checked});
+      $('#fdK').value='';$('#fdS').value='';go('home');await load(true)}
+    catch(err2){$('#fdS').value='';m.textContent=err2.message;$('#fdAddGo').disabled=false}
+  });
+  return {open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden)go('home');home();load(false);
+    if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on')&&!document.hidden)load(false)},60000)}};
 })();
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
@@ -3135,19 +3190,19 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,3000)}
   // ── 畫面 ──
   function setup(){box().innerHTML=`<div class="card"><div class="bh">在一台不關機的電腦上安裝 HexStack 電腦版</div>
-    <div class="stp"><i>1</i><div>下載執行器並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
+    <div class="stp"><i>1</i><div>下載 HexStack 電腦版並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
     <div class="row2"><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
-    <div class="stp"><i>2</i><div>打開執行器，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
+    <div class="stp"><i>2</i><div>打開 HexStack，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
     <div class="stp"><i>3</i><div>用手機相機掃 QR code，會打開 App 自動配對</div></div>
-    <div class="sub" style="margin:8px 0 6px">掃不了的話，把執行器畫面上的「配對連結」貼在這裡：</div>
+    <div class="sub" style="margin:8px 0 6px">掃不了的話，把 HexStack 畫面上的「配對連結」貼在這裡：</div>
     <div class="row2"><input type="text" id="botLink" placeholder="https://…#pair=…" autocomplete="off"><button class="bbtn pri" id="botPair" type="button" style="flex:none;width:auto;padding:0 18px">配對</button></div>
     <details><summary>沒有常開的電腦？用舊 Android 手機當主機</summary><ol>
       <li>在舊手機從 F-Droid 安裝 Termux</li><li>在 Termux 輸入 <code>pkg install nodejs</code></li>
       <li>從上面的下載頁下載 <code>hexbot.js</code>，執行 <code>termux-wake-lock; node hexbot.js</code></li>
       <li>關掉這支手機對 Termux 的省電限制，插著充電、連 Wi‑Fi</li>
       <li>在舊手機的瀏覽器打開 <code>http://localhost:8787</code>，把配對連結傳到你平常用的手機，貼到上面</li></ol></details></div>
-    <div class="warnbox">交易所 API 金鑰只填在執行器上，不會存進手機。請只開「交易」權限，不要開「提幣」；建議用獨立子帳戶，只放願意承擔風險的金額。</div>`;
-    $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製執行器上完整的配對連結');$('#botLink').focus()}}}
+    <div class="warnbox">交易所 API 金鑰只填在電腦的 HexStack 上，不會存進手機。請只開「交易」權限，不要開「提幣」；建議用獨立子帳戶，只放願意承擔風險的金額。</div>`;
+    $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製 HexStack 上完整的配對連結');$('#botLink').focus()}}}
   function render(){if(!box())return;const H=host();if(!H)return setup();const on=!!S&&!err;
     const hd=`<div class="bh" style="margin:0 2px 8px"><span>${on?`<span class="pill p-ok" style="margin:0">● ${H_(S.hostName||H.n)} 在線</span>`:`<span class="pill p-bad" style="margin:0">● ${H_(H.n)} ${err?'離線':'連線中'}</span>`}${on&&S.halted?'<span class="pill p-bad">已全部暫停</span>':''}</span><span>${on&&S.lastTick?'最後回報 '+ago(S.lastTick):''}</span></div>`;
     if(!on){box().innerHTML=hd+`<div class="card"><div class="bh">${err?'連不到主機':'連線中…'}</div><p class="sub" style="font-size:13.5px;margin:0 0 8px">${H_(err)}${H.seen?'<br>主機最後回報：'+ago(H.seen):''}</p>
@@ -3191,7 +3246,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       <button class="bbtn pri" id="botLimGo" type="button" style="margin-top:8px">儲存上限</button>
       <p class="sub" style="margin:8px 0 0">這是帳戶層級的緊急煞車，跟策略自己的止損、槓桿分開。建議值＝你加入的策略近兩年回測最壞情況再放寬一點，正常波動不會誤停。</p></div>
     <div class="card"><div class="bh">主機</div>
-      <div class="br"><div>${H_(s.hostName||host().n)}・執行器 v${H_(s.ver||'')}<div class="sub">${H_(s.exchange||'')}${s.testnet?' 測試網':''}・${s.allowLive?'允許實盤':'只跑模擬盤（實盤要在執行器上開啟）'}</div></div><button class="lk" id="botUnpair" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">重新配對</button></div>
+      <div class="br"><div>${H_(s.hostName||host().n)}・HexStack v${H_(s.ver||'')}<div class="sub">${H_(s.exchange||'')}${s.testnet?' 測試網':''}・${s.allowLive?'允許實盤':'只跑模擬盤（實盤要在電腦的 HexStack 上開啟）'}</div></div><button class="lk" id="botUnpair" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">重新配對</button></div>
       <div class="br"><div>主機離線、每日報告推播<div class="sub">${host().push?'已綁定這台裝置':'要先在「設定 › 通知」打開任一類通知'}</div></div><button class="lk" id="botPush" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">${host().push?'重新綁定':'綁定'}</button></div></div>`}
   // 依回測建議上限：每個策略用自己的參數跑近兩年，照資金比例合成整個帳戶的每日權益，取最大回撤、最差單日，再放寬一點；槓桿取策略自己設的最大值
   function suggest(){const st=S.strategies||[];if(!st.length)return toast('先加入策略');const t1=E.lastClosed('BTC'),D=86400,t0=t1-730*D,N=730;
@@ -3229,8 +3284,8 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
   function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
-  $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b)mode(b.dataset.m)};
-  return {open(){mode(J('tMode','sig'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host()}})();
+  $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
+  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host()}})();
 window.BotTab=BotTab;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
