@@ -2371,7 +2371,10 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
         k=await crypto.subtle.importKey('pkcs8',der,{name:'ECDSA',namedCurve:'P-256'},false,['sign'])}
       const s=new Uint8Array(await crypto.subtle.sign(ed?{name:'Ed25519'}:{name:'ECDSA',hash:'SHA-256'},k,u8(msg)));return btoa(String.fromCharCode(...s)).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_')}};
   const fxSend=async(ex,net,p,qs,h,body)=>{const base=(window.BotTab?await BotTab.pBase():'https://hexstack-push.hexstack-df20e2.workers.dev').replace(/\/$/,'');
-    const r=await fetch(base+'/x?ex='+ex+'&net='+net+'&path='+encodeURIComponent(p)+'&q='+encodeURIComponent(qs),body?{method:'POST',headers:Object.assign({'Content-Type':'application/x-www-form-urlencoded'},h),body,cache:'no-store'}:{headers:h,cache:'no-store'});return {status:r.status,j:await r.json().catch(()=>null)}};
+    const r=await fetch(base+'/x?ex='+ex+'&net='+net+'&path='+encodeURIComponent(p)+'&q='+encodeURIComponent(qs),body?{method:'POST',headers:Object.assign({'Content-Type':'application/x-www-form-urlencoded'},h),body,cache:'no-store'}:{headers:h,cache:'no-store'}),j=await r.json().catch(()=>null);
+    // 交易所擋轉送伺服器（幣安限制地區、Bitget 擋 Cloudflare）時回 403／451
+    if((r.status===403||r.status===451)&&!(j&&j.error==='not allowed')&&(!j||j.cloudflare||/restricted/i.test(j.msg||'')))throw new Error(FXS[ex].name+' 擋了 HexStack 的轉送伺服器，這家請改存在電腦 HexStack');
+    return {status:r.status,j}};
   LOCAL_EX.push(...Object.keys(FXS));
 
   const hmac=async(k,m)=>[...new Uint8Array(await crypto.subtle.sign('HMAC',await crypto.subtle.importKey('raw',new TextEncoder().encode(k),{name:'HMAC',hash:'SHA-256'},false,['sign']),new TextEncoder().encode(m)))].map(b=>b.toString(16).padStart(2,'0')).join('');
