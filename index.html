@@ -895,7 +895,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   </div>
   <div id="tmAi" hidden><div class="sect"><h2>HexAI<span class="more">研究中，未上線</span></h2>
     <p class="sub" style="margin:0 2px 10px">用說的做研究和交易：描述想法，AI 幫你回測；講要怎麼下，AI 透過 HexBOT 幫你設單。</p>
-    <div class="aigrid"><div class="card aic"><div class="ain">btAI</div><div class="ait">回測</div><span class="pill p-wn">未上線</span><p class="sub">說出策略想法，AI 組成規則、跑回測、比較參數。</p></div>
+    <div class="aigrid"><div class="card aic"><div class="ain">BTAI</div><div class="ait">回測</div><span class="pill p-wn">未上線</span><p class="sub">說出策略想法，AI 組成規則、跑回測、比較參數。</p></div>
     <div class="card aic"><div class="ain">tradeAI</div><div class="ait">交易執行</div><span class="pill p-wn">未上線</span><p class="sub">說要怎麼下，AI 經 HexBOT 設單；真的下單前會先問你。</p></div></div></div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
   <div class="foot">HexBOT 自動交易由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
@@ -918,7 +918,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
       <div class="fdsub fdrow"><span id="fdCnt"></span><span id="fdAge"></span></div>
     </section>
     <div id="fdWarn" hidden></div>
-    <button class="fdentry" type="button" data-fgo="pick"><span class="fdstack" id="fdStack"></span><span class="fdt"><b>加入交易所</b><br><small>選交易所，貼唯讀金鑰</small></span><span class="fdplus" aria-hidden="true">+</span></button>
+    <button class="fdentry" type="button" data-fauto><span class="fdstack" id="fdStack"></span><span class="fdt"><b>加入交易所</b><br><small>貼上唯讀金鑰，自動認出交易所</small></span><span class="fdplus" aria-hidden="true">+</span></button>
     <div class="fdrow"><b>已加入的交易所</b><small class="fdmu">點方格看詳細</small></div>
     <div class="fdgrid" id="fdGrid"></div>
   </div>
@@ -928,8 +928,9 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
     <div class="fdpick" id="fdPickBox"></div>
   </div>
   <div class="fscr" id="fdSetup" hidden>
-    <button class="fdback" type="button" data-fgo="pick">‹ 選擇交易所</button>
+    <button class="fdback" type="button" id="fdSetupBack" data-fgo="pick">‹ 選擇交易所</button>
     <div class="fdhead" id="fdSetupH"></div>
+    <div id="fdDet2" class="fdmu" style="font-size:12.5px;margin-top:-6px"></div>
     <form class="fdpanel" id="fdAdd" autocomplete="off">
       <ol class="fdsteps"><li>到交易所網頁版 › API 管理，建立新金鑰</li><li>權限只勾「讀取」，不要勾交易、提現</li><li>把 Key 和 Secret 貼到下面</li></ol>
       <label class="fdlb" for="fdNm">名稱<input id="fdNm" maxlength="30" placeholder="例如 主帳戶"></label>
@@ -2276,11 +2277,17 @@ const FundTab=(()=>{
     else if(err){w.hidden=false;w.innerHTML='<div class="fdcard fddn">'+es(err)+'</div>'}else w.hidden=true;
     $('#fdGrid').innerHTML=A.map(x=>'<button class="fdtile" type="button" data-fid="'+es(x.id)+'"><span class="tp">'+lg(x.exchange)+'<span class="nm">'+es(x.name||exName(x.exchange))+'</span></span><span><span class="v">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</span><br>'
       +(x.ok?'<span class="d '+(upnl(x)>=0?'fdup':'fddn')+'">'+(hide?'••••••':(x.positions&&x.positions.length?sgn(upnl(x)):exName(x.exchange)))+'</span>':'<span class="fdchip fddn">讀取失敗</span>')+'</span></button>').join('')
-      +'<button class="fdtile add" type="button" data-fgo="pick"><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
+      +'<button class="fdtile add" type="button" data-fauto><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
   }
   function pick(){const sup=D&&D.supported||LOCAL_EX;
     $('#fdPickBox').innerHTML=Object.keys(EX).map(k=>sup.includes(k)?'<button class="fdex" type="button" data-fex="'+k+'">'+lg(k)+exName(k)+'</button>':'<button class="fdex" type="button" aria-disabled="true">'+lg(k)+exName(k)+'<small>即將支援</small></button>').join('')}
-  function setup(k){pickEx=k;const pr=window.BotTab&&BotTab.paired();$('#fdWhere').hidden=!pr;$('#fdWPc').checked=!!pr;$('#fdWPh').checked=!pr;$('#fdSetupH').innerHTML=lg(k)+'<b>連接 '+es(exName(k))+'</b>';$('#fdAddMsg').textContent='';$('#fdK').value='';$('#fdS').value='';$('#fdNm').value='';$('#fdAddGo').disabled=false;go('setup')}
+  // 從 API Key 的格式猜交易所：Bitget bg_ 開頭、OKX 是 UUID、幣安 64 碼、Bybit 18 碼
+  function detect(k){k=(k||'').trim();if(/^bg_[0-9a-f]{20,}$/i.test(k))return 'bitget';if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(k))return 'okx';if(/^[A-Za-z0-9]{64}$/.test(k))return 'binance';if(/^[A-Za-z0-9]{18}$/.test(k))return 'bybit';return ''}
+  let auto=false;
+  function head(k){$('#fdSetupH').innerHTML=k?lg(k)+'<b>連接 '+es(exName(k))+'</b>':'<span class="fdlg" style="background:var(--panel2);color:var(--muted)">?</span><b>加入交易所</b>';
+    const sup=(D&&D.supported)||LOCAL_EX;
+    $('#fdDet2').innerHTML=auto?(k?'已認出：'+es(exName(k))+(sup.includes(k)?'':'（這家還不支援，之後開放）')+'・<a href="#" data-fgo="pick" style="color:inherit">不是？手動選</a>':'貼上 API Key 會自動認出交易所・<a href="#" data-fgo="pick" style="color:inherit">手動選交易所</a>'):''}
+  function setup(k){auto=!k;pickEx=k||'';$('#fdSetupBack').dataset.fgo=auto?'home':'pick';$('#fdSetupBack').textContent=auto?'‹ 資金總覽':'‹ 選擇交易所';const pr=window.BotTab&&BotTab.paired();$('#fdWhere').hidden=!pr;$('#fdWPc').checked=!!pr;$('#fdWPh').checked=!pr;head(k);$('#fdAddMsg').textContent='';$('#fdK').value='';$('#fdS').value='';$('#fdNm').value='';$('#fdAddGo').disabled=false;go('setup')}
   function detail(id){cur=id;const x=D&&D.accounts.find(a=>a.id===id);if(!x)return go('home');
     let h='<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+es(x.name)+'</span> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
@@ -2306,15 +2313,22 @@ const FundTab=(()=>{
   $('#fdEye').onclick=()=>{hide=!hide;try{localStorage.setItem('fdHide',hide?'1':'0')}catch(e){}home();if(!$('#fdDetail').hidden&&cur)detail(cur)};
   $('#fundView').addEventListener('click',async e=>{const t=e.target;let b;
     if(t.closest('#fdToBot')){$('#nav_sig').click();window.BotTab&&BotTab.mode('bot');return}
-    if((b=t.closest('[data-fgo]'))){go(b.dataset.fgo);return}
+    if(t.closest('[data-fauto]')){setup('');return}
+    if((b=t.closest('[data-fgo]'))){e.preventDefault();go(b.dataset.fgo);return}
+    // 點空白處回上一頁（選交易所、設定、詳細頁）
+    if(t===$('#fundView')||t.classList.contains('fscr')||t.parentElement===$('#fundView')&&t.classList.contains('wrap')){
+      if(!$('#fdPick').hidden)go('home');else if(!$('#fdSetup').hidden)go(auto?'home':'pick');else if(!$('#fdDetail').hidden)go('home');return}
     if((b=t.closest('[data-fex]'))){setup(b.dataset.fex);return}
     if((b=t.closest('[data-fid]'))){detail(b.dataset.fid);return}
     if((b=t.closest('[data-frm]'))){const id=b.dataset.frm;$('#fdRmAsk').innerHTML='<div class="fdcard">確定從電腦移除這個交易所的金鑰？<div class="fdrow" style="margin-top:8px"><button class="fdghost" type="button" data-frmy="'+es(id)+'">移除</button><button class="fdghost" style="color:inherit" type="button" data-frmn>取消</button></div></div>';return}
     if(t.closest('[data-frmn]')){$('#fdRmAsk').innerHTML='';return}
     if((b=t.closest('[data-frmy]'))){const id=b.dataset.frmy;if(LJ().some(a=>a.id===id)){LW(LJ().filter(a=>a.id!==id));cur='';go('home');await load(true);return}try{await BotTab.api('/api/funds/remove',{id});cur='';go('home');await load(true)}catch(err2){$('#fdRmAsk').innerHTML='<div class="fdcard fddn">'+es(err2.message)+'</div>'}}
   });
+  $('#fdK').addEventListener('input',()=>{if(!auto)return;pickEx=detect($('#fdK').value);head(pickEx)});
   $('#fdAdd').addEventListener('submit',async e=>{e.preventDefault();
     const k=$('#fdK').value.trim(),sc=$('#fdS').value.trim(),m=$('#fdAddMsg');if(!k||!sc){m.textContent='要填 API Key 和 Secret';return}
+    if(!pickEx){m.textContent='認不出是哪家交易所，請按上面「手動選交易所」';return}
+    if(!(((D&&D.supported)||LOCAL_EX).includes(pickEx))){m.textContent=exName(pickEx)+' 還不支援，之後開放';return}
     const toPc=window.BotTab&&BotTab.paired()&&$('#fdWPc').checked,nm=$('#fdNm').value.trim()||exName(pickEx);
     $('#fdAddGo').disabled=true;
     if(!toPc){if(!LOCAL_EX.includes(pickEx)){m.textContent='這家交易所還不能只存在手機';$('#fdAddGo').disabled=false;return}
