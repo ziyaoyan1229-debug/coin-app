@@ -382,7 +382,7 @@ class BybitExchange {
   }
 }
 
-// ───────── 資金總覽（唯讀）─────────
+// ───────── 資產總覽（唯讀）─────────
 // 只讀餘額與持倉，不下單。手機把「唯讀金鑰」傳來，這裡先向交易所確認金鑰真的是唯讀（有交易或提現權限就拒收、不存），通過才存進 config.json。
 // 其他交易所用下面共用的 FX_READ。**各家讀取都還沒在真的帳戶上測過。**
 const STABLE = new Set(['USDT', 'USDC', 'USD', 'FDUSD', 'DAI']);
@@ -579,7 +579,7 @@ async function fundAdd(d) {
   if ((C.funds || []).some(x => x.exchange === a.exchange && x.apiKey === a.apiKey)) throw new HErr(400, '這把金鑰已經加過了');
   let r; try { r = await ex.read(a); } catch (e) { if (e instanceof HErr) throw e; throw new HErr(400, '金鑰驗證失敗：' + e.message); }
   (C.funds = C.funds || []).push(a); saveCfg(); FUND_CACHE[a.id] = { at: Date.now(), v: Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, r) };
-  log('info', { text: `資金總覽新增 ${a.name}（唯讀金鑰 …${a.apiKey.slice(-4)}）` });
+  log('info', { text: `資產總覽新增 ${a.name}（唯讀金鑰 …${a.apiKey.slice(-4)}）` });
   return { ok: true, id: a.id, total_usd: r.total_usd };
 }
 const LED = { paper: new PaperExchange(S.paper), live: null };
