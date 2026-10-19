@@ -119,9 +119,22 @@ async function hostCron(env) {
 const XEX = {
   bybit: { hosts: { main: 'https://api.bybit.com', test: 'https://api-testnet.bybit.com' }, hdr: ['x-bapi-api-key', 'x-bapi-timestamp', 'x-bapi-recv-window', 'x-bapi-sign'],
     paths: ['/v5/market/time', '/v5/market/tickers', '/v5/user/query-api', '/v5/account/wallet-balance', '/v5/asset/transfer/query-account-coins-balance', '/v5/position/list'] },
+  okx: { hosts: { main: 'https://www.okx.com' }, hdr: ['ok-access-key', 'ok-access-sign', 'ok-access-timestamp', 'ok-access-passphrase'],
+    paths: ['/api/v5/public/time', '/api/v5/market/ticker', '/api/v5/account/config', '/api/v5/account/balance', '/api/v5/asset/balances', '/api/v5/account/positions'] },
+  binance: { hosts: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com' }, hdr: ['x-mbx-apikey'],
+    paths: ['/api/v3/time', '/api/v3/ticker/price', '/sapi/v1/account/apiRestrictions', '/api/v3/account', '/sapi/v1/asset/wallet/balance', '/fapi/v2/balance', '/fapi/v2/positionRisk'] },
+  bitget: { hosts: { main: 'https://api.bitget.com' }, hdr: ['access-key', 'access-sign', 'access-timestamp', 'access-passphrase', 'locale'],
+    paths: ['/api/v2/public/time', '/api/v2/spot/market/tickers', '/api/v2/spot/account/info', '/api/v2/spot/account/assets', '/api/v2/mix/account/accounts', '/api/v2/mix/position/all-position'] },
+  gate: { hosts: { main: 'https://api.gateio.ws' }, hdr: ['key', 'timestamp', 'sign'],
+    paths: ['/api/v4/spot/time', '/api/v4/spot/tickers', '/api/v4/spot/accounts', '/api/v4/futures/usdt/accounts', '/api/v4/futures/usdt/positions'] },
+  mexc: { hosts: { main: 'https://api.mexc.com', fut: 'https://contract.mexc.com' }, hdr: ['x-mexc-apikey', 'apikey', 'request-time', 'signature'],
+    paths: ['/api/v3/time', '/api/v3/ticker/price', '/api/v3/account', '/api/v1/private/account/assets', '/api/v1/private/position/open_positions'] },
+  kucoin: { hosts: { main: 'https://api.kucoin.com', fut: 'https://api-futures.kucoin.com' }, hdr: ['kc-api-key', 'kc-api-sign', 'kc-api-timestamp', 'kc-api-passphrase', 'kc-api-key-version'],
+    paths: ['/api/v1/timestamp', '/api/v1/market/orderbook/level1', '/api/v1/user/api-key', '/api/v1/accounts', '/api/v1/account-overview', '/api/v1/positions'] },
 };
+const XHDR = [...new Set(Object.values(XEX).flatMap(x => x.hdr))].join(',');
 async function xproxy(req, u) {
-  const ex = XEX[u.searchParams.get('ex')], base = ex && ex.hosts[u.searchParams.get('net') === 'test' ? 'test' : 'main'], path = u.searchParams.get('path') || '', q = u.searchParams.get('q') || '';
+  const ek = u.searchParams.get('ex'), net = u.searchParams.get('net') || 'main', ex = Object.hasOwn(XEX, ek) && XEX[ek], base = ex && Object.hasOwn(ex.hosts, net) && ex.hosts[net], path = u.searchParams.get('path') || '', q = u.searchParams.get('q') || '';
   if (!base || !ex.paths.includes(path) || q.length > 500 || /[^\w=&.%-]/.test(q)) return json({ error: 'not allowed' }, 403);
   const h = {}; for (const k of ex.hdr) { const v = req.headers.get(k); if (v) h[k] = v.slice(0, 200); }
   const r = await fetch(base + path + (q ? '?' + q : ''), { headers: h });
@@ -132,7 +145,7 @@ export default {
   async scheduled(ev, env, ctx) { ctx.waitUntil(hostCron(env)); },
   async fetch(req, env) {
     const u = new URL(req.url), p = u.pathname.replace(/\/+$/, '');
-    if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization,x-bapi-api-key,x-bapi-timestamp,x-bapi-recv-window,x-bapi-sign', 'access-control-max-age': '86400' } });
+    if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization,' + XHDR, 'access-control-max-age': '86400' } });
     try {
       if (p === '/x' && req.method === 'GET') return xproxy(req, u);
       if (p === '/vapid') return json({ key: (await vapid(env)).pub });
