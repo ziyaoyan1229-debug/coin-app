@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#121722">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon.svg">
+<title>我的資產</title>
+<style>
+:root{--bg:#0f1218;--panel:#161b23;--panel2:#1c2330;--line:#2a3343;--text:#e6e9ef;--muted:#8b95a7;--up:#26a69a;--down:#ef5350;--acc:#4c8dff;--warn:#f5a524}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f4f6f9;--panel:#ffffff;--panel2:#f0f3f7;--line:#d9dee7;--text:#1b2230;--muted:#5c6779;--acc:#2f6fe4}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;font-size:14px}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0}
+header h1{font-size:16px;margin:0;font-weight:600;flex:1}
+header a{color:var(--acc);text-decoration:none;font-size:13px}
+main{max-width:720px;margin:0 auto;padding:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.lock{display:flex;flex-direction:column;gap:10px;margin-top:10vh}
+input[type=password]{width:100%;padding:12px;font-size:16px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+button{padding:12px;font-size:15px;border-radius:8px;border:0;background:var(--acc);color:#fff;cursor:pointer}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--text);padding:6px 10px;font-size:13px}
+.muted{color:var(--muted);font-size:12px}
+.err{color:var(--down)}
+.total{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+h2{font-size:15px;margin:0}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 4px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:400;font-size:12px}
+.scroll{overflow-x:auto}
+.up{color:var(--up)}.down{color:var(--down)}.warn{color:var(--warn)}
+.pos{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin-top:4px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.tag{font-size:11px;padding:1px 6px;border-radius:4px;background:var(--panel2);color:var(--muted)}
+</style>
+</head>
+<body>
+<header><h1>我的資產</h1><a href="./">回幣策略</a></header>
+<main id="app">
+  <form class="card lock" id="lockForm" autocomplete="off">
+    <h2>輸入密碼解鎖</h2>
+    <input type="password" id="pw" placeholder="PORTFOLIO_PASSWORD" autocomplete="current-password">
+    <button type="submit" id="go">解鎖</button>
+    <div class="muted" id="msg">資料在你電腦上加密後才上傳，密碼只在這支手機上解開，不會送出去。</div>
+  </form>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const fmt = (n, d = 2) => n == null || isNaN(n) ? '—' : Number(n).toLocaleString('en-US', {maximumFractionDigits: d, minimumFractionDigits: d});
+const amt = n => n == null ? '—' : Number(n).toLocaleString('en-US', {maximumSignificantDigits: 6});
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function decrypt(blob, password) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({name: 'PBKDF2', hash: 'SHA-256', salt: b64(blob.salt), iterations: blob.iter},
+    base, {name: 'AES-GCM', length: 256}, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({name: 'AES-GCM', iv: b64(blob.iv)}, key, b64(blob.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+function ageText(iso) {
+  const h = (Date.now() - new Date(iso)) / 36e5;
+  if (h < 1) return '不到 1 小時前';
+  if (h < 48) return `${Math.floor(h)} 小時前`;
+  return `${Math.floor(h / 24)} 天前`;
+}
+
+function render(d) {
+  const twd = d.total_usd * d.usdtwd;
+  const stale = (Date.now() - new Date(d.updated_at)) / 36e5 > 30;
+  let h = `<div class="card"><div class="muted">合計（約）</div>
+    <div class="total">US$${fmt(d.total_usd)}</div>
+    <div class="row"><span class="muted">約 ${fmt(twd, 0)} 台幣（匯率 ${d.usdtwd}）</span>
+    <span class="muted ${stale ? 'warn' : ''}">更新：${esc(d.updated_at.replace('T', ' ').slice(0, 16))}（${ageText(d.updated_at)}）</span></div>
+    ${stale ? '<div class="warn" style="margin-top:6px">超過 30 小時沒更新，電腦上的程式可能沒在跑。</div>' : ''}</div>`;
+  for (const x of d.exchanges) {
+    h += `<div class="card"><div class="row"><h2>${esc(x.name)}</h2><span>${x.ok ? 'US$' + fmt(x.total_usd) : '<span class="err">讀取失敗</span>'}</span></div>`;
+    if (x.notes.length) h += `<div class="muted" style="margin-top:4px">${x.notes.map(esc).join('；')}</div>`;
+    if (x.assets.length) {
+      h += `<div class="scroll"><table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>`;
+      for (const a of x.assets.sort((p, q) => (q.usd || 0) - (p.usd || 0)))
+        h += `<tr><td>${esc(a.coin)}</td><td>${amt(a.amount)}</td><td>${fmt(a.usd)}</td></tr>`;
+      h += `</table></div>`;
+    }
+    for (const p of x.positions) {
+      const dist = p.liq && p.mark ? Math.abs(p.mark - p.liq) / p.mark * 100 : null;
+      const side = p.side === 'long' ? '<span class="up">多</span>' : p.side === 'short' ? '<span class="down">空</span>' : esc(p.side);
+      h += `<div class="pos"><div class="row"><span>${side} ${esc(p.symbol.split(':')[0])} <span class="tag">${p.leverage ? fmt(p.leverage, 1) + 'x' : ''} ${p.margin_mode === 'isolated' ? '逐倉' : p.margin_mode === 'cross' ? '全倉' : ''}</span></span>
+        <span class="${(p.upnl || 0) >= 0 ? 'up' : 'down'}">${fmt(p.upnl)}</span></div>
+        <div class="grid"><span>數量 ${amt(p.contracts)}</span><span>開倉 ${amt(p.entry)}</span><span>標記 ${amt(p.mark)}</span>
+        <span class="${dist != null && dist < 10 ? 'warn' : ''}">強平 ${amt(p.liq)}${dist != null ? `（距 ${fmt(dist, 1)}%）` : ''}</span></div></div>`;
+    }
+    h += `</div>`;
+  }
+  h += `<button class="ghost" onclick="location.reload()">鎖上</button>`;
+  $('#app').innerHTML = h;
+}
+
+$('#lockForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pw = $('#pw').value;
+  if (!pw) return;
+  $('#go').disabled = true;
+  $('#msg').className = 'muted';
+  $('#msg').textContent = '解鎖中…';
+  try {
+    const r = await fetch('portfolio.enc.json', {cache: 'no-store'});
+    if (!r.ok) throw new Error('nofile');
+    const blob = await r.json();
+    render(await decrypt(blob, pw));
+  } catch (err) {
+    $('#go').disabled = false;
+    $('#msg').className = 'err';
+    $('#msg').textContent = err.message === 'nofile' ? '還沒有資料：電腦上的程式還沒上傳過。' : '密碼錯誤，或資料損毀。';
+  }
+});
+</script>
+</body>
+</html>

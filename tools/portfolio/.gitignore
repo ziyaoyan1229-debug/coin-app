@@ -1,0 +1,5 @@
+# 金鑰與明文結果只留在這台電腦，不上傳
+.env
+portfolio_latest.json
+*.log
+__pycache__/
