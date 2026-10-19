@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 版本標籤（留空＝bot-dev-<執行編號>，預先發佈）
+        description: 版本標籤（填 bot-v1.0 這類＝正式版，App 的下載按鈕會指到它；留空＝bot-dev-<執行編號> 預先發佈）
         type: string
         default: ''
 permissions:
@@ -106,7 +106,7 @@ jobs:
         run: |
           set -e
           ls -la pkg
-          if [ "$EVENT" = push ]; then TAG="$REF"; PRE=""; else TAG="${IN_TAG:-bot-dev-$RUN}"; PRE="--prerelease"; fi
+          if [ "$EVENT" = push ]; then TAG="$REF"; PRE=""; elif [ -n "$IN_TAG" ]; then TAG="$IN_TAG"; PRE=""; else TAG="bot-dev-$RUN"; PRE="--prerelease"; fi
           NOTES="HexStack 執行器 $TAG
 
           - Windows：下載 hexbot.exe，雙擊執行（出現「Windows 已保護您的電腦」→ 其他資訊 → 仍要執行）。
