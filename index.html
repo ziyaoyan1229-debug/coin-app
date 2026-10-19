@@ -855,6 +855,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 <!-- ───────── 資金總覽 ───────── -->
 <section id="fundView" class="view"><div class="wrap">
   <div class="sect"><h2>資金總覽<span class="more" id="fdAge"></span></h2>
+  <div id="fdHost" hidden></div>
   <form class="card" id="fdLock" autocomplete="off"><div class="small" style="margin-bottom:8px">各交易所餘額由你電腦上的程式用唯讀金鑰抓取、加密後上傳；密碼只在這支手機上解開，不會送出去。</div>
     <input type="password" id="fdPw" placeholder="資金密碼" autocomplete="current-password" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--fg,inherit);font:inherit">
     <button class="btn" type="submit" id="fdGo">解鎖</button><div class="small" id="fdMsg" style="margin-top:6px"></div></form>
@@ -2169,7 +2170,56 @@ const FundTab=(()=>{
     catch(err){$('#fdMsg').textContent=err.message==='nofile'?'還沒有資料：電腦上的程式還沒上傳過。':'密碼錯誤，或資料損毀。'}
     $('#fdGo').disabled=false;
   });
-  return {open(){if(pw)load(pw).catch(()=>{})}};
+  // ── 已配對 HexStack 電腦版：向它要即時餘額；手機貼唯讀金鑰 → 傳給電腦驗證（不是唯讀會拒收）→ 手機端立刻清掉 ──
+  let hx=null,hxErr='',busy=false;
+  const hbox=()=>$('#fdHost');
+  function hxRender(){
+    const d=hx;let h='';
+    if(hxErr)h+='<div class="card small" style="color:var(--dn,#ef5350)">'+es(hxErr)+'</div>';
+    if(d){
+      h+='<div class="card"><div class="small">合計（約，各交易所即時）</div><div class="fdtot">US$'+fm(d.total_usd)+'</div><div class="small">更新：'+es(d.updated_at.replace('T',' ').slice(0,16))+' UTC</div></div>';
+      for(const x of d.accounts){
+        h+='<div class="card fdex"><div class="fdrow"><b>'+es(x.name)+' <span class="small">'+es(x.exchange)+'</span></b><span>'+(x.ok?'US$'+fm(x.total_usd):'<span style="color:var(--dn,#ef5350)">讀取失敗</span>')+'</span></div>';
+        if(x.notes&&x.notes.length)h+='<div class="small" style="margin-top:4px">'+x.notes.map(es).join('；')+'</div>';
+        if(x.assets&&x.assets.length){h+='<table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>';
+          for(const a of x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)))h+='<tr><td>'+es(a.coin)+(a.acct?' <span class="small">'+es(a.acct)+'</span>':'')+'</td><td>'+am(a.amount)+'</td><td>'+fm(a.usd)+'</td></tr>';h+='</table>'}
+        for(const p of (x.positions||[])){const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null;
+          h+='<div class="fdpos"><div class="fdrow"><span>'+(p.side==='long'?'多':'空')+' '+es(String(p.symbol).split(':')[0])+' <span class="small">'+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':'全倉')+'</span></span><span>'+fm(p.upnl)+'</span></div>'
+            +'<div class="fdgrid"><span>數量 '+am(p.contracts)+'</span><span>開倉 '+am(p.entry)+'</span><span>標記 '+am(p.mark)+'</span><span class="'+(dist!=null&&dist<10?'fdw':'')+'">強平 '+am(p.liq)+(dist!=null?'（距 '+fm(dist,1)+'%）':'')+'</span></div></div>'}
+        h+='<button class="btn fdrm" type="button" data-id="'+es(x.id)+'" style="margin-top:8px;background:transparent;border:1px solid var(--line);color:inherit">移除這個帳戶</button></div>'}
+    }
+    h+='<form class="card" id="fdAdd" autocomplete="off"><b>新增交易所帳戶</b><div class="small" style="margin:6px 0">只貼「唯讀」金鑰（只勾讀取，不要交易、提現）。金鑰會傳到你電腦上的 HexStack 驗證並存在電腦；不是唯讀會被拒收。送出後這支手機會立刻清掉。</div>'
+      +'<select id="fdEx" style="width:100%;padding:9px;margin-bottom:6px"><option value="bybit">Bybit</option></select>'
+      +'<input id="fdNm" placeholder="名稱（例如 主帳戶）" maxlength="30" style="width:100%;padding:9px;margin-bottom:6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:inherit;font:inherit">'
+      +'<input id="fdK" placeholder="API Key" autocomplete="off" autocapitalize="off" style="width:100%;padding:9px;margin-bottom:6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:inherit;font:inherit">'
+      +'<input id="fdS" type="password" placeholder="API Secret" autocomplete="off" style="width:100%;padding:9px;margin-bottom:6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:inherit;font:inherit">'
+      +'<label class="small"><input type="checkbox" id="fdT"> 測試網金鑰</label>'
+      +'<button class="btn" type="submit" id="fdAddGo">驗證並新增</button><div class="small" id="fdAddMsg" style="margin-top:6px"></div></form>';
+    hbox().innerHTML=h;
+  }
+  async function hxLoad(force){
+    if(busy)return;busy=true;
+    try{hx=await BotTab.api('/api/funds'+(force?'?force=1':''));hxErr='';$('#fdAge').textContent=''}catch(e){hxErr='連不到 HexStack 電腦版：'+e.message+'。請確認電腦上的程式有開著。'}
+    busy=false;hxRender();
+  }
+  document.addEventListener('submit',async e=>{
+    if(e.target.id!=='fdAdd')return;e.preventDefault();
+    const k=$('#fdK').value.trim(),sc=$('#fdS').value.trim(),m=$('#fdAddMsg');if(!k||!sc){m.textContent='要填 Key 和 Secret';return}
+    $('#fdAddGo').disabled=true;m.textContent='傳到電腦驗證中…';
+    try{await BotTab.api('/api/funds/add',{exchange:$('#fdEx').value,name:$('#fdNm').value.trim(),apiKey:k,apiSecret:sc,testnet:$('#fdT').checked});
+      $('#fdK').value='';$('#fdS').value='';await hxLoad(true)}
+    catch(err){m.textContent=err.message;$('#fdS').value='';$('#fdAddGo').disabled=false}
+  });
+  document.addEventListener('click',async e=>{const b=e.target.closest('.fdrm');if(!b||!confirm('從電腦移除這個帳戶的金鑰？'))return;
+    try{await BotTab.api('/api/funds/remove',{id:b.dataset.id});await hxLoad(true)}catch(err){alert(err.message)}});
+  function open_(){
+    const on=window.BotTab&&BotTab.paired();
+    hbox().hidden=!on;
+    if(on){$('#fdLock').hidden=true;$('#fdBox').hidden=true;hxLoad(false);if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on'))hxLoad(false)},60000);return}
+    $('#fdLock').hidden=!!pw;
+    const hint=$('#fdMsg');if(hint&&!pw)hint.innerHTML='要即時看各交易所資金，請到「開始交易 › 自動交易」安裝 HexStack 電腦版並配對。已有加密資料檔的話，可在這裡輸入密碼查看。';
+    if(pw)load(pw).catch(()=>{})}
+  return {open:open_};
 })();
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
@@ -3084,7 +3134,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function toast(t){let e=$('#botToast');if(!e){e=document.createElement('div');e.id='botToast';e.style.cssText='position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:60;max-width:86vw;text-align:center';document.body.appendChild(e)}
     e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,3000)}
   // ── 畫面 ──
-  function setup(){box().innerHTML=`<div class="card"><div class="bh">在一台不關機的電腦上安裝執行器</div>
+  function setup(){box().innerHTML=`<div class="card"><div class="bh">在一台不關機的電腦上安裝 HexStack 電腦版</div>
     <div class="stp"><i>1</i><div>下載執行器並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
     <div class="row2"><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
     <div class="stp"><i>2</i><div>打開執行器，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
@@ -3180,7 +3230,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b)mode(b.dataset.m)};
-  return {open(){mode(J('tMode','sig'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode}})();
+  return {open(){mode(J('tMode','sig'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host()}})();
 window.BotTab=BotTab;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
