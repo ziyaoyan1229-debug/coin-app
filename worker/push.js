@@ -115,7 +115,7 @@ async function hostCron(env) {
 }
 
 // 純手機版資金總覽：手機用自己的唯讀金鑰簽好請求，這裡只負責轉送（交易所不允許網頁直接連）。
-// 看不到 Secret；只放行讀餘額／持倉／行情的網址，只轉 GET，不會下單或提領。
+// 看不到 Secret；只放行讀餘額／持倉／行情的網址，只轉 GET（Kraken 查餘額例外用 POST、body 只能是 nonce），不會下單或提領。
 const XEX = {
   bybit: { hosts: { main: 'https://api.bybit.com', test: 'https://api-testnet.bybit.com' }, hdr: ['x-bapi-api-key', 'x-bapi-timestamp', 'x-bapi-recv-window', 'x-bapi-sign'],
     paths: ['/v5/market/time', '/v5/market/tickers', '/v5/user/query-api', '/v5/account/wallet-balance', '/v5/asset/transfer/query-account-coins-balance', '/v5/position/list'] },
@@ -131,13 +131,21 @@ const XEX = {
     paths: ['/api/v3/time', '/api/v3/ticker/price', '/api/v3/account', '/api/v1/private/account/assets', '/api/v1/private/position/open_positions'] },
   kucoin: { hosts: { main: 'https://api.kucoin.com', fut: 'https://api-futures.kucoin.com' }, hdr: ['kc-api-key', 'kc-api-sign', 'kc-api-timestamp', 'kc-api-passphrase', 'kc-api-key-version'],
     paths: ['/api/v1/timestamp', '/api/v1/market/orderbook/level1', '/api/v1/user/api-key', '/api/v1/accounts', '/api/v1/account-overview', '/api/v1/positions'] },
+  coinbase: { hosts: { main: 'https://api.coinbase.com' }, hdr: ['authorization'],
+    paths: ['/api/v3/brokerage/time', '/api/v3/brokerage/market/products', '/api/v3/brokerage/key_permissions', '/api/v3/brokerage/accounts'] },
+  // Kraken 私有介面只收 POST，body 只允許 nonce
+  kraken: { hosts: { main: 'https://api.kraken.com' }, hdr: ['api-key', 'api-sign'], post: ['/0/private/Balance'],
+    paths: ['/0/public/Time', '/0/public/Ticker', '/0/private/Balance'] },
 };
-const XHDR = [...new Set(Object.values(XEX).flatMap(x => x.hdr))].join(',');
+const XHDR = [...new Set(Object.values(XEX).flatMap(x => x.hdr).filter(h => h !== 'authorization'))].join(',');
 async function xproxy(req, u) {
   const ek = u.searchParams.get('ex'), net = u.searchParams.get('net') || 'main', ex = Object.hasOwn(XEX, ek) && XEX[ek], base = ex && Object.hasOwn(ex.hosts, net) && ex.hosts[net], path = u.searchParams.get('path') || '', q = u.searchParams.get('q') || '';
-  if (!base || !ex.paths.includes(path) || q.length > 500 || /[^\w=&.%-]/.test(q)) return json({ error: 'not allowed' }, 403);
-  const h = {}; for (const k of ex.hdr) { const v = req.headers.get(k); if (v) h[k] = v.slice(0, 200); }
-  const r = await fetch(base + path + (q ? '?' + q : ''), { headers: h });
+  const post = req.method === 'POST';
+  if (!base || !ex.paths.includes(path) || q.length > 500 || /[^\w=&.%-]/.test(q) || (post && !(ex.post || []).includes(path))) return json({ error: 'not allowed' }, 403);
+  const body = post ? await req.text() : undefined; if (post && !/^nonce=\d{1,20}$/.test(body)) return json({ error: 'not allowed' }, 403);
+  const h = {}; for (const k of ex.hdr) { const v = req.headers.get(k); if (v) h[k] = v.slice(0, 2000); }
+  if (post) h['content-type'] = 'application/x-www-form-urlencoded';
+  const r = await fetch(base + path + (q ? '?' + q : ''), { method: post ? 'POST' : 'GET', headers: h, body });
   return new Response(await r.text(), { status: r.status, headers: { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
 }
 
@@ -147,7 +155,7 @@ export default {
     const u = new URL(req.url), p = u.pathname.replace(/\/+$/, '');
     if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization,' + XHDR, 'access-control-max-age': '86400' } });
     try {
-      if (p === '/x' && req.method === 'GET') return xproxy(req, u);
+      if (p === '/x' && (req.method === 'GET' || req.method === 'POST')) return xproxy(req, u);
       if (p === '/vapid') return json({ key: (await vapid(env)).pub });
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;
