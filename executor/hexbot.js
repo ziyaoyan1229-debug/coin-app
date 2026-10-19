@@ -53,7 +53,7 @@ if (REPLAY && !ARG.keep) { for (const f of ['state.json', 'log.jsonl', 'config.j
 const LIM0 = { maxPosPct: 30, maxLev: 3, dayLossPct: 5, maxDDPct: 20 };
 function loadCfg() {
   const old = readJ(F.cfg, null);
-  const c = Object.assign({ hostName: os.hostname(), token: rnd(32), hostId: rnd(8), port: 8787, exchange: 'bybit', testnet: true, apiKey: '', apiSecret: '', allowLive: false, limits: {}, startEquity: 1000, catchupPct: 0.5, tunnel: true, relay: '' }, old || {});
+  const c = Object.assign({ hostName: os.hostname(), token: rnd(32), hostId: rnd(8), port: 8787, exchange: 'bybit', testnet: true, apiKey: '', apiSecret: '', allowLive: false, limits: {}, startEquity: 1000, catchupPct: 0.5, tunnel: true, relay: '', funds: [] }, old || {});
   c.limits = Object.assign({}, LIM0, c.limits);
   if (REPLAY) Object.assign(c, { exchange: 'paper', tunnel: false, relay: '', port: +ARG.port || c.port });
   if (!old || JSON.stringify(old) !== JSON.stringify(c)) writeJ(F.cfg, c);
@@ -380,6 +380,63 @@ class BybitExchange {
     const r = await this.req('GET', '/v5/execution/list', { category: 'linear', symbol: sym + 'USDT', startTime: String(since * 1000), limit: '50' });
     return (r.list || []).filter(x => /StopLoss|TakeProfit|TrailingStop/.test(x.stopOrderType || '')).map(x => ({ t: Math.floor(+x.execTime / 1000), kind: /TakeProfit/.test(x.stopOrderType) ? 'tp' : 'stop', px: +x.execPrice, qty: +x.execQty, fee: +x.execFee || 0 }));
   }
+}
+
+// ───────── 資金總覽（唯讀）─────────
+// 只讀餘額與持倉，不下單。手機把「唯讀金鑰」傳來，這裡先向交易所確認金鑰真的是唯讀（有交易或提現權限就拒收、不存），通過才存進 config.json。
+// 其他交易所（OKX、幣安、Bitget）之後在 FUND_EX 加一個 reader 即可。**Bybit 讀取尚未在真的帳戶上測過。**
+const STABLE = new Set(['USDT', 'USDC', 'USD', 'FDUSD', 'DAI']);
+async function bybitFunds(a) {
+  const ex = new BybitExchange({ apiKey: a.apiKey, apiSecret: a.apiSecret, testnet: !!a.testnet, limits: C.limits });
+  const info = await ex.req('GET', '/v5/user/query-api', {});
+  if (info.readOnly !== 1) throw new HErr(400, '這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。');
+  const out = { total_usd: 0, assets: [], positions: [], notes: [] };
+  const px = {}, price = async c => { if (STABLE.has(c)) return 1; if (px[c] == null) { try { px[c] = +(await ex.req('GET', '/v5/market/tickers', { category: 'spot', symbol: c + 'USDT' }, false)).list[0].lastPrice; } catch (e) { px[c] = 0; } } return px[c]; };
+  let got = false;
+  for (const accountType of ['UNIFIED', 'CONTRACT']) {
+    try {
+      const r = await ex.req('GET', '/v5/account/wallet-balance', { accountType }), w = r.list && r.list[0]; if (!w) continue;
+      for (const c of w.coin || []) { const n = +c.walletBalance; if (!(n > 0)) continue; out.assets.push({ coin: c.coin, amount: n, usd: c.usdValue !== '' && c.usdValue != null ? +c.usdValue : n * await price(c.coin), acct: accountType === 'UNIFIED' ? '統一帳戶' : '合約帳戶' }); }
+      got = true; break;
+    } catch (e) { if (accountType === 'CONTRACT') out.notes.push('統一／合約帳戶讀取失敗：' + e.message); }
+  }
+  try {
+    const r = await ex.req('GET', '/v5/asset/transfer/query-account-coins-balance', { accountType: 'FUND' });
+    for (const c of r.balance || []) { const n = +c.walletBalance; if (n > 0) out.assets.push({ coin: c.coin, amount: n, usd: n * await price(c.coin), acct: '資金帳戶' }); }
+    got = true;
+  } catch (e) { out.notes.push('資金帳戶讀取失敗：' + e.message); }
+  if (!got) throw new HErr(502, '讀不到 Bybit 餘額：' + out.notes.join('；'));
+  try {
+    const r = await ex.req('GET', '/v5/position/list', { category: 'linear', settleCoin: 'USDT' });
+    out.positions = (r.list || []).filter(x => +x.size > 0).map(x => ({ symbol: x.symbol, side: x.side === 'Buy' ? 'long' : 'short', contracts: +x.size, entry: +x.avgPrice, mark: +x.markPrice, liq: +x.liqPrice || null, leverage: +x.leverage || null, margin_mode: x.tradeMode === 1 ? 'isolated' : 'cross', upnl: +x.unrealisedPnl }));
+  } catch (e) { out.notes.push('持倉讀取失敗：' + e.message); }
+  out.total_usd = out.assets.reduce((t, x) => t + (x.usd || 0), 0);
+  return out;
+}
+const FUND_EX = { bybit: { name: 'Bybit', read: bybitFunds } };
+const FUND_CACHE = {};
+const fundList = () => (C.funds || []).map(a => ({ id: a.id, name: a.name, exchange: a.exchange, testnet: !!a.testnet, keyTail: a.apiKey.slice(-4) }));
+async function fundsAll(force) {
+  const now = Date.now(), res = [];
+  for (const a of C.funds || []) {
+    const c = FUND_CACHE[a.id];
+    if (!force && c && now - c.at < 60000) { res.push(c.v); continue; }
+    let v;
+    try { v = Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, await FUND_EX[a.exchange].read(a)); }
+    catch (e) { v = { id: a.id, name: a.name, exchange: a.exchange, ok: false, total_usd: 0, assets: [], positions: [], notes: [e.message] }; }
+    FUND_CACHE[a.id] = { at: now, v }; res.push(v);
+  }
+  return { updated_at: new Date().toISOString(), total_usd: res.reduce((t, x) => t + (x.total_usd || 0), 0), accounts: res };
+}
+async function fundAdd(d) {
+  const ex = FUND_EX[d.exchange]; if (!ex) throw new HErr(400, '目前只支援：' + Object.keys(FUND_EX).join('、'));
+  const a = { id: 'f' + rnd(6), name: String(d.name || ex.name).trim().slice(0, 30) || ex.name, exchange: d.exchange, testnet: d.testnet === true, apiKey: String(d.apiKey || '').trim().slice(0, 100), apiSecret: String(d.apiSecret || '').trim().slice(0, 200) };
+  if (!a.apiKey || !a.apiSecret) throw new HErr(400, '要填 API Key 和 Secret');
+  if ((C.funds || []).some(x => x.exchange === a.exchange && x.apiKey === a.apiKey)) throw new HErr(400, '這把金鑰已經加過了');
+  let r; try { r = await ex.read(a); } catch (e) { if (e instanceof HErr) throw e; throw new HErr(400, '金鑰驗證失敗：' + e.message); }
+  (C.funds = C.funds || []).push(a); saveCfg(); FUND_CACHE[a.id] = { at: Date.now(), v: Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, r) };
+  log('info', { text: `資金總覽新增 ${a.name}（唯讀金鑰 …${a.apiKey.slice(-4)}）` });
+  return { ok: true, id: a.id, total_usd: r.total_usd };
 }
 const LED = { paper: new PaperExchange(S.paper), live: null };
 const liveReady = () => C.exchange === 'bybit' && !!C.apiKey && !!C.apiSecret;
@@ -818,6 +875,7 @@ async function api(req, res, p) {
   if (p === '/api/status' && M === 'GET') return status();
   if (p === '/api/log' && M === 'GET') { const n = Math.max(1, Math.min(1000, +q.get('n') || 100)); return LOGS.slice(-n).reverse(); }
   if (p === '/api/review' && M === 'GET') { const d = [7, 30, 0].includes(+q.get('days')) ? +q.get('days') : 0; return S.strategies.map(g => { const r = review(g, d); return Object.assign({}, r); }); }
+  if (p === '/api/funds' && M === 'GET') return Object.assign(await fundsAll(q.get('force') === '1'), { list: fundList(), supported: Object.keys(FUND_EX) });
   if (M !== 'POST') throw new HErr(404, '沒有這個功能');
   const d = await body(req).catch(e => { throw new HErr(400, e.message); });
   const find = id => { const g = S.strategies.find(x => x.id === id); if (!g) throw new HErr(404, '找不到策略 ' + id); return g; };
@@ -854,6 +912,8 @@ async function api(req, res, p) {
     for (const g of S.strategies.filter(g => g.state === 'paused' && g.pauseKind === 'halt')) await resumeStrat(g, '解除煞車');
     log('resume', { text: '解除帳戶煞車（回撤高點、今日起點重設為現在權益）' }); dirty(); save(); return { ok: true };
   }
+  if (p === '/api/funds/add') return fundAdd(d);
+  if (p === '/api/funds/remove') { const n = (C.funds || []).length; C.funds = (C.funds || []).filter(x => x.id !== d.id); if (C.funds.length === n) throw new HErr(404, '找不到這個帳戶'); delete FUND_CACHE[d.id]; saveCfg(); return { ok: true }; }
   throw new HErr(404, '沒有這個功能');
 }
 async function localApi(req, p) {
@@ -903,7 +963,7 @@ function server() {
 }
 function consoleHtml() {
   const lan = Object.values(os.networkInterfaces()).flat().filter(x => x && x.family === 'IPv4' && !x.internal).map(x => x.address);
-  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HexStack 執行器</title>
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HexStack 電腦版</title>
 <style>:root{--bg:#f6f7f9;--card:#fff;--fg:#1b1f27;--mu:#667085;--line:#e3e6eb;--acc:#3b6cf6;--pos:#12a150;--neg:#d92d20}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#171b23;--fg:#e8ebf0;--mu:#8b93a3;--line:#2a3140;--acc:#6d93ff;--pos:#3ccf7a;--neg:#ff6b5e}}
 :root[data-theme="dark"]{--bg:#0f1218;--card:#171b23;--fg:#e8ebf0;--mu:#8b93a3;--line:#2a3140;--acc:#6d93ff;--pos:#3ccf7a;--neg:#ff6b5e}
@@ -915,7 +975,7 @@ main{max-width:860px;margin:0 auto;padding:16px}h1{font-size:20px;margin:4px 0 1
 .tw{overflow-x:auto}#qr{background:#fff;padding:10px;display:inline-block;border-radius:8px}code{word-break:break-all;font-size:12px}
 input,select,button{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)}button{background:var(--acc);color:#fff;border:0;cursor:pointer}
 label{display:block;margin:6px 0}.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}.warn{color:var(--neg)}</style></head><body><main>
-<h1>HexStack 執行器</h1>
+<h1>HexStack 電腦版</h1>
 <div class="card"><div class="grid" id="sum"></div><div class="mu" id="sub" style="margin-top:8px"></div></div>
 <div class="card"><h2>配對手機</h2><div class="row"><div id="qr"></div><div style="flex:1;min-width:220px"><p class="mu">用手機相機掃 QR，或在 App「執行器」頁貼上配對碼。配對碼等於這台的密碼，不要給別人。</p>
 <div class="k">配對碼</div><code id="code"></code><p><button id="cp">複製配對連結</button></p><div class="mu" id="pub"></div></div></div></div>
@@ -1028,7 +1088,7 @@ async function replay() {
 
 // ───────── 啟動 ─────────
 async function main() {
-  console.log(`HexStack 執行器 v${VER}${SEA ? '（單檔版）' : ''}　資料夾：${DIR}`);
+  console.log(`HexStack 電腦版 v${VER}${SEA ? '（單檔版）' : ''}　資料夾：${DIR}`);
   for (let k = 0; ; k++) { try { loadEngine(await engineFiles()); break; } catch (e) { console.log('載入引擎失敗：', e.message); if (REPLAY || k >= 30) throw e; await sleep(60000); } }
   console.log(`引擎 ${ENG.src} ${ENG.hash}，策略 ${Object.keys(ENG.NAME).length} 個`);
   if (REPLAY) return replay();
