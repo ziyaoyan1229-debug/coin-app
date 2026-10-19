@@ -520,6 +520,11 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #evBody .ctx{border-left:3px solid var(--acc);padding-left:10px;color:var(--text)}#evBody .src{font-size:11.5px;color:var(--muted);margin-top:8px}
 #evBody .up{color:var(--up)}#evBody .dn{color:var(--down)}
 @media (min-width:960px){#evModal{inset:60px 22% 40px;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding-bottom:0}}
+#fundView>.wrap{max-width:640px;margin:0 auto;width:100%}
+.fdtot{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}.fdrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fdex{margin-top:10px}.fdex table{width:100%;border-collapse:collapse;margin-top:6px;font-variant-numeric:tabular-nums}.fdex th,.fdex td{padding:5px 2px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}.fdex th:first-child,.fdex td:first-child{text-align:left}.fdex th{color:var(--muted);font-weight:400;font-size:12px}
+.fdpos{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.fdgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin-top:4px;color:var(--muted);font-size:12px}
+.fdw{color:#f5a524}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
 .setl>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}.setl>div:first-child{border-top:0}
@@ -657,7 +662,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </script>
 
 <header class="topbar"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="hmb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a1d7a"/><stop offset="1" stop-color="#160b34"/></linearGradient><radialGradient id="hmg" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="100" rx="22" fill="url(#hmb)"/><rect width="100" height="100" rx="22" fill="url(#hmg)"/><g transform="translate(0.0,0.0) scale(1.0)"><polygon points="80.0,70.0 65.0,84.3 35.0,84.3 20.0,70.0 35.0,55.7 65.0,55.7" fill="#9468e8" fill-opacity="0.26" stroke="#9468e8" stroke-width="3.4" stroke-opacity="0.75" stroke-linejoin="round"/><polygon points="80.0,53.0 65.0,67.3 35.0,67.3 20.0,53.0 35.0,38.7 65.0,38.7" fill="#d8b6ff" fill-opacity="0.32" stroke="#d8b6ff" stroke-width="3.4" stroke-opacity="0.9" stroke-linejoin="round"/><polygon points="80.0,36.0 65.0,50.3 35.0,50.3 20.0,36.0 35.0,21.7 65.0,21.7" fill="#f6cf6a" fill-opacity="0.35" stroke="#f6cf6a" stroke-width="3.4" stroke-opacity="1" stroke-linejoin="round"/></g></svg></div><div><div class="ttl">HexStack</div><div class="sub">幣策略・BTC／ETH 回測與市場</div></div><div class="sp"></div><button class="iconbtn" id="themeBtn" aria-label="切換亮暗"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
-<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>開始交易</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_notify" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>通知</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
+<nav class="bnav"><button id="nav_sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>開始交易</button><button id="nav_strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>策略分析</button><button id="nav_chart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/></svg>查看價格</button><button id="nav_news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/></svg>市場分析</button><button id="nav_notify" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>通知</button><button id="nav_fund"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg>資金總覽</button><button id="nav_set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button></nav>
 <main>
 <!-- ───────── 走勢圖 ───────── -->
 <section id="chartView" class="view">
@@ -846,6 +851,14 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="sect"><h2>通知<span class="more">打開想收的類別</span></h2><div class="bnhint" style="padding:0 2px 8px">打開開關，有新的策略信號、事件提醒、價位突破等就會跳出通知。</div><div class="card tgcats" id="tgCats"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div><div class="bnhint" id="bnHint"></div><button class="btn" id="bnTest" hidden style="margin:2px 2px 8px">發測試通知</button></div>
   <div class="sect"><h2>最近的通知<span class="more" id="tgAt"></span></h2><div class="chips" id="tgChips"></div><div class="card plist" id="tgLog" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
   <div class="foot">通知內容每 15 分鐘更新一次，可能晚幾分鐘到。<br>內容僅供參考，非投資建議</div>
+</div></section>
+<!-- ───────── 資金總覽 ───────── -->
+<section id="fundView" class="view"><div class="wrap">
+  <div class="sect"><h2>資金總覽<span class="more" id="fdAge"></span></h2>
+  <form class="card" id="fdLock" autocomplete="off"><div class="small" style="margin-bottom:8px">各交易所餘額由你電腦上的程式用唯讀金鑰抓取、加密後上傳；密碼只在這支手機上解開，不會送出去。</div>
+    <input type="password" id="fdPw" placeholder="資金密碼" autocomplete="current-password" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--fg,inherit);font:inherit">
+    <button class="btn" type="submit" id="fdGo">解鎖</button><div class="small" id="fdMsg" style="margin-top:6px"></div></form>
+  <div id="fdBox" hidden></div></div>
 </div></section>
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
@@ -2104,13 +2117,60 @@ $('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length
 function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css('--muted'),fontFamily:'inherit'},grid:{vertLines:{color:css('--line')},horzLines:{color:css('--line')}},rightPriceScale:{borderColor:css('--line')},timeScale:{borderColor:css('--line'),timeVisible:true,secondsVisible:false,minBarSpacing:0.001},crosshair:{mode:0}}}
 
 // ── 分頁 ──
-const VIEWS=['chart','sig','strat','news','notify','set'];
+const VIEWS=['chart','sig','strat','news','notify','fund','set'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k||k==='set'&&v==='notify')});
   if(v==='strat'&&!pChart){initStrat();}
   // 先讓分頁切過去畫出來，各頁的載入晚一點再做，點下去不卡
-  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='set')setTab();resizeAll()},20));}
+  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='set')setTab();if(v==='fund')FundTab.open();resizeAll()},20));}
 VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
 $('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
+
+// ── 資金總覽：讀 portfolio.enc.json（電腦端 tools/portfolio 加密上傳），密碼只留在這個分頁的記憶體 ──
+const FundTab=(()=>{
+  const b64=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+  const fm=(n,d=2)=>n==null||isNaN(n)?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
+  const am=n=>n==null?'—':Number(n).toLocaleString('en-US',{maximumSignificantDigits:6});
+  const es=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let pw='',timer=0;
+  async function dec(blob,p){
+    const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveKey']);
+    const key=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:b64(blob.salt),iterations:blob.iter},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(blob.iv)},key,b64(blob.ct))));
+  }
+  function age(iso){const h=(Date.now()-new Date(iso))/36e5;return h<1?'不到 1 小時前':h<48?Math.floor(h)+' 小時前':Math.floor(h/24)+' 天前'}
+  function render(d){
+    const stale=(Date.now()-new Date(d.updated_at))/36e5>30;
+    $('#fdAge').textContent=age(d.updated_at);
+    let h='<div class="card"><div class="small">合計（約）</div><div class="fdtot">US$'+fm(d.total_usd)+'</div><div class="fdrow"><span class="small">約 '+fm(d.total_usd*d.usdtwd,0)+' 台幣（匯率 '+es(d.usdtwd)+'）</span><span class="small'+(stale?' fdw':'')+'">更新：'+es(d.updated_at.replace('T',' ').slice(0,16))+'</span></div>'
+      +(stale?'<div class="fdw small" style="margin-top:6px">超過 30 小時沒更新，電腦上的程式可能沒在跑。</div>':'')+'</div>';
+    for(const x of d.exchanges){
+      h+='<div class="card fdex"><div class="fdrow"><b>'+es(x.name)+'</b><span>'+(x.ok?'US$'+fm(x.total_usd):'<span style="color:var(--dn,#ef5350)">讀取失敗</span>')+'</span></div>';
+      if(x.notes&&x.notes.length)h+='<div class="small" style="margin-top:4px">'+x.notes.map(es).join('；')+'</div>';
+      if(x.assets&&x.assets.length){h+='<table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>';
+        for(const a of x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)))h+='<tr><td>'+es(a.coin)+'</td><td>'+am(a.amount)+'</td><td>'+fm(a.usd)+'</td></tr>';h+='</table>'}
+      for(const p of (x.positions||[])){
+        const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null;
+        h+='<div class="fdpos"><div class="fdrow"><span>'+(p.side==='long'?'多':p.side==='short'?'空':es(p.side))+' '+es(String(p.symbol).split(':')[0])+' <span class="small">'+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':p.margin_mode==='cross'?'全倉':'')+'</span></span><span>'+fm(p.upnl)+'</span></div>'
+          +'<div class="fdgrid"><span>數量 '+am(p.contracts)+'</span><span>開倉 '+am(p.entry)+'</span><span>標記 '+am(p.mark)+'</span><span class="'+(dist!=null&&dist<10?'fdw':'')+'">強平 '+am(p.liq)+(dist!=null?'（距 '+fm(dist,1)+'%）':'')+'</span></div></div>'}
+      h+='</div>'}
+    h+='<button class="btn" id="fdLockBtn" type="button" style="margin-top:10px;background:transparent;border:1px solid var(--line);color:inherit">鎖上</button>';
+    $('#fdBox').innerHTML=h;$('#fdBox').hidden=false;$('#fdLock').hidden=true;
+    $('#fdLockBtn').onclick=()=>{pw='';$('#fdBox').hidden=true;$('#fdBox').innerHTML='';$('#fdLock').hidden=false;$('#fdPw').value='';$('#fdAge').textContent='';clearInterval(timer);timer=0};
+  }
+  async function load(p){
+    const r=await fetch('portfolio.enc.json',{cache:'no-store'});
+    if(!r.ok)throw new Error('nofile');
+    render(await dec(await r.json(),p));
+  }
+  $('#fdLock').addEventListener('submit',async e=>{
+    e.preventDefault();const p=$('#fdPw').value;if(!p)return;
+    $('#fdGo').disabled=true;$('#fdMsg').textContent='解鎖中…';
+    try{await load(p);pw=p;$('#fdMsg').textContent='';if(!timer)timer=setInterval(()=>{if(pw&&$('#fundView').classList.contains('on'))load(pw).catch(()=>{})},180000)}
+    catch(err){$('#fdMsg').textContent=err.message==='nofile'?'還沒有資料：電腦上的程式還沒上傳過。':'密碼錯誤，或資料損毀。'}
+    $('#fdGo').disabled=false;
+  });
+  return {open(){if(pw)load(pw).catch(()=>{})}};
+})();
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
   $('#setSrc').textContent=tx('#liveTag').replace(/^價格：|^即時：/,'');
