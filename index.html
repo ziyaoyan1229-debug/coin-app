@@ -844,7 +844,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。收到通知後自己到交易所下單。<br>內容僅供參考，非投資建議</div>
   </div>
   <div id="tmBot" hidden><div id="botBox"></div>
-  <div class="foot">自動交易由你自己電腦上的執行器下單，App 只負責看和控制；交易所金鑰只存在執行器上。<br>內容僅供參考，非投資建議</div></div>
+  <div class="foot">自動交易（hexbot）由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
 <!-- ───────── 通知 ───────── -->
 <section id="notifyView" class="view"><div class="wrap"><button class="nback" id="ntBack" type="button">‹ 設定</button>
@@ -3135,19 +3135,19 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,3000)}
   // ── 畫面 ──
   function setup(){box().innerHTML=`<div class="card"><div class="bh">在一台不關機的電腦上安裝 HexStack 電腦版</div>
-    <div class="stp"><i>1</i><div>下載執行器並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
+    <div class="stp"><i>1</i><div>下載 HexStack 電腦版並安裝<br><span class="sub">Windows／Mac，免費。沒有付費程式簽章，安裝時會跳警告：Windows 按「其他資訊 → 仍要執行」，Mac 按右鍵「打開」。</span></div></div>
     <div class="row2"><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
-    <div class="stp"><i>2</i><div>打開執行器，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
+    <div class="stp"><i>2</i><div>打開 HexStack，電腦畫面會出現配對 QR code。把電腦設成「不進入睡眠」，螢幕可以關。</div></div>
     <div class="stp"><i>3</i><div>用手機相機掃 QR code，會打開 App 自動配對</div></div>
-    <div class="sub" style="margin:8px 0 6px">掃不了的話，把執行器畫面上的「配對連結」貼在這裡：</div>
+    <div class="sub" style="margin:8px 0 6px">掃不了的話，把 HexStack 畫面上的「配對連結」貼在這裡：</div>
     <div class="row2"><input type="text" id="botLink" placeholder="https://…#pair=…" autocomplete="off"><button class="bbtn pri" id="botPair" type="button" style="flex:none;width:auto;padding:0 18px">配對</button></div>
     <details><summary>沒有常開的電腦？用舊 Android 手機當主機</summary><ol>
       <li>在舊手機從 F-Droid 安裝 Termux</li><li>在 Termux 輸入 <code>pkg install nodejs</code></li>
       <li>從上面的下載頁下載 <code>hexbot.js</code>，執行 <code>termux-wake-lock; node hexbot.js</code></li>
       <li>關掉這支手機對 Termux 的省電限制，插著充電、連 Wi‑Fi</li>
       <li>在舊手機的瀏覽器打開 <code>http://localhost:8787</code>，把配對連結傳到你平常用的手機，貼到上面</li></ol></details></div>
-    <div class="warnbox">交易所 API 金鑰只填在執行器上，不會存進手機。請只開「交易」權限，不要開「提幣」；建議用獨立子帳戶，只放願意承擔風險的金額。</div>`;
-    $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製執行器上完整的配對連結');$('#botLink').focus()}}}
+    <div class="warnbox">交易所 API 金鑰只填在電腦的 HexStack 上，不會存進手機。請只開「交易」權限，不要開「提幣」；建議用獨立子帳戶，只放願意承擔風險的金額。</div>`;
+    $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製 HexStack 上完整的配對連結');$('#botLink').focus()}}}
   function render(){if(!box())return;const H=host();if(!H)return setup();const on=!!S&&!err;
     const hd=`<div class="bh" style="margin:0 2px 8px"><span>${on?`<span class="pill p-ok" style="margin:0">● ${H_(S.hostName||H.n)} 在線</span>`:`<span class="pill p-bad" style="margin:0">● ${H_(H.n)} ${err?'離線':'連線中'}</span>`}${on&&S.halted?'<span class="pill p-bad">已全部暫停</span>':''}</span><span>${on&&S.lastTick?'最後回報 '+ago(S.lastTick):''}</span></div>`;
     if(!on){box().innerHTML=hd+`<div class="card"><div class="bh">${err?'連不到主機':'連線中…'}</div><p class="sub" style="font-size:13.5px;margin:0 0 8px">${H_(err)}${H.seen?'<br>主機最後回報：'+ago(H.seen):''}</p>
@@ -3191,7 +3191,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       <button class="bbtn pri" id="botLimGo" type="button" style="margin-top:8px">儲存上限</button>
       <p class="sub" style="margin:8px 0 0">這是帳戶層級的緊急煞車，跟策略自己的止損、槓桿分開。建議值＝你加入的策略近兩年回測最壞情況再放寬一點，正常波動不會誤停。</p></div>
     <div class="card"><div class="bh">主機</div>
-      <div class="br"><div>${H_(s.hostName||host().n)}・執行器 v${H_(s.ver||'')}<div class="sub">${H_(s.exchange||'')}${s.testnet?' 測試網':''}・${s.allowLive?'允許實盤':'只跑模擬盤（實盤要在執行器上開啟）'}</div></div><button class="lk" id="botUnpair" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">重新配對</button></div>
+      <div class="br"><div>${H_(s.hostName||host().n)}・HexStack v${H_(s.ver||'')}<div class="sub">${H_(s.exchange||'')}${s.testnet?' 測試網':''}・${s.allowLive?'允許實盤':'只跑模擬盤（實盤要在電腦的 HexStack 上開啟）'}</div></div><button class="lk" id="botUnpair" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">重新配對</button></div>
       <div class="br"><div>主機離線、每日報告推播<div class="sub">${host().push?'已綁定這台裝置':'要先在「設定 › 通知」打開任一類通知'}</div></div><button class="lk" id="botPush" type="button" style="color:var(--acc);background:none;border:0;font:inherit;cursor:pointer">${host().push?'重新綁定':'綁定'}</button></div></div>`}
   // 依回測建議上限：每個策略用自己的參數跑近兩年，照資金比例合成整個帳戶的每日權益，取最大回撤、最差單日，再放寬一點；槓桿取策略自己設的最大值
   function suggest(){const st=S.strategies||[];if(!st.length)return toast('先加入策略');const t1=E.lastClosed('BTC'),D=86400,t0=t1-730*D,N=730;
