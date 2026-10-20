@@ -131,19 +131,45 @@ function appMenu() {
   ]));
 }
 
-// ── 檢查新版：看 GitHub 上最新的 desktop-v* 版本，有新版就提示下載（沒有付費簽章，不做自動安裝）──
+// ── 檢查新版：看 GitHub 上最新的正式版 desktop-v*，有新版就跳通知；Windows 按「立即更新」會自己下載、安靜安裝、裝完自動重開 ──
 const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+let updating = false;
 async function checkUpdate(manual) {
+  if (updating) return;
   try {
     const r = await fetch('https://api.github.com/repos/ziyaoyan1229-debug/coin-app/releases?per_page=30', { headers: { accept: 'application/vnd.github+json' } });
     const list = r.ok ? await r.json() : [];
     const rel = list.find(x => !x.prerelease && !x.draft && /^desktop-v\d/.test(x.tag_name));
     const v = rel && rel.tag_name.replace(/^desktop-v/, '');
-    if (v && newer(v, app.getVersion())) {
-      const { response } = await dialog.showMessageBox({ type: 'info', buttons: ['下載新版', '之後再說'], defaultId: 0, cancelId: 1, title: 'HexStack 有新版', message: '有新版 ' + v + '（目前 ' + app.getVersion() + '）', detail: '下載後安裝就會蓋過舊版，設定和執行器資料都會保留。' });
-      if (response === 0) shell.openExternal(rel.html_url);
-    } else if (manual) dialog.showMessageBox({ type: 'info', buttons: ['好'], title: 'HexStack', message: '已經是最新版 ' + app.getVersion() });
-  } catch (e) { if (manual) dialog.showMessageBox({ type: 'warning', buttons: ['好'], title: 'HexStack', message: '檢查更新失敗', detail: e.message }); }
+    if (!v || !newer(v, app.getVersion())) { if (manual) dialog.showMessageBox({ type: 'info', buttons: ['好'], title: 'HexStack', message: '已經是最新版 ' + app.getVersion() }); return; }
+    const exe = process.platform === 'win32' && (rel.assets || []).find(x => x.name === 'HexStack-Setup.exe');
+    const notes = String(rel.body || '').split('\n').filter(l => /^\s*[-•]/.test(l) && !/Windows 已保護|簽章/.test(l)).slice(0, 6).join('\n');
+    const { response } = await dialog.showMessageBox(win && win.isVisible() ? win : null, {
+      type: 'info', buttons: exe ? ['立即更新', '稍後'] : ['下載新版', '稍後'], defaultId: 0, cancelId: 1, title: 'HexStack 有新版',
+      message: 'HexStack 有新版 ' + v, detail: '目前 ' + app.getVersion() + '。' + (exe ? '按「立即更新」會自動下載並安裝，裝完自己重開，設定和執行器資料都會保留。' : '') + (notes ? '\n\n' + notes : '')
+    });
+    if (response !== 0) return;
+    if (!exe) return shell.openExternal(rel.html_url);
+    await installUpdate(exe);
+  } catch (e) { updating = false; if (win) win.setProgressBar(-1); if (manual) dialog.showMessageBox({ type: 'warning', buttons: ['好'], title: 'HexStack', message: '更新失敗', detail: e.message }); }
+}
+async function installUpdate(asset) {
+  updating = true;
+  const f = path.join(app.getPath('temp'), 'HexStack-Setup-' + Date.now() + '.exe');
+  const r = await fetch(asset.browser_download_url);
+  if (!r.ok || !r.body) throw new Error('下載失敗（HTTP ' + r.status + '）');
+  const total = +r.headers.get('content-length') || asset.size || 0, out = fs.createWriteStream(f);
+  let got = 0;
+  for await (const chunk of r.body) {
+    got += chunk.length; out.write(Buffer.from(chunk));
+    if (total) { const p = got / total; if (win) win.setProgressBar(p); if (tray) tray.setToolTip('HexStack 下載更新中 ' + Math.round(p * 100) + '%'); }
+  }
+  await new Promise((ok, no) => { out.on('error', no); out.end(ok); });
+  if (total && got < total) throw new Error('下載不完整，請再試一次');
+  if (win) win.setProgressBar(2);   // 不確定進度：安裝中
+  // /S 安靜安裝，--force-run 裝完自動打開；先結束自己（含執行器），讓安裝程式能覆蓋檔案
+  require('child_process').spawn(f, ['/S', '--updated', '--force-run'], { detached: true, stdio: 'ignore' }).unref();
+  quitting = true; stopBot(); setTimeout(() => app.quit(), 300);
 }
 
 app.whenReady().then(() => {
@@ -153,7 +179,8 @@ app.whenReady().then(() => {
   startBot(); applyAwake(); menu();
   // 第一次打開時執行器要先建好設定檔，網頁才能自動配對：最多等 8 秒
   if (!process.argv.includes('--hidden')) { const t0 = Date.now(); const go = () => (pairInfo() || !bot || Date.now() - t0 > 8000) ? createWin() : setTimeout(go, 300); go(); }
-  setTimeout(() => checkUpdate(false), 15000);
+  setTimeout(() => checkUpdate(false), 8000);
+  setInterval(() => checkUpdate(false), 6 * 3600e3);
 });
 app.on('activate', showWin);
 app.on('window-all-closed', e => { /* 留在系統匣，執行器繼續跑 */ });
