@@ -4692,7 +4692,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 // ───────── 帳號同步（Google 登入）─────────
 // 登入後，我的策略、通知選項、外觀、資產報酬紀錄等設定存在雲端，手機和電腦開起來都一樣。交易所金鑰、電腦配對不上傳。
 // 後端：worker/push.js 的 /auth/google、/sync（Cloudflare D1）。同一個設定兩邊都改時，後存的蓋掉先存的。
-const HsSync=(()=>{const GCID='',BASE='https://hexstack-push.hexstack-df20e2.workers.dev',H=window.__hs,LS=localStorage,K='hsSync';
+const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.apps.googleusercontent.com',BASE='https://hexstack-push.hexstack-df20e2.workers.dev',H=window.__hs,LS=localStorage,K='hsSync';
   const st=()=>{try{return JSON.parse(LS.getItem(K))||{}}catch(e){return {}}},put=o=>{try{H.set.call(LS,K,JSON.stringify(o))}catch(e){}};
   let busy=false,timer=0,msg='';
   const api=async(p,body)=>{const o=st(),r=await fetch(BASE+p,{method:body?'POST':'GET',headers:Object.assign({'content-type':'application/json'},o.tok?{authorization:'Bearer '+o.tok}:{}),body:body?JSON.stringify(body):undefined,keepalive:!!body&&JSON.stringify(body).length<60000});
