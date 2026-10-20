@@ -1,0 +1,30 @@
+{
+  "name": "hexstack-desktop",
+  "productName": "HexStack",
+  "version": "1.0.0",
+  "description": "HexStack 幣策略 電腦版",
+  "author": "HexStack",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "43.7.7",
+    "electron-builder": "26.16.1"
+  },
+  "build": {
+    "appId": "io.github.ziyaoyan1229.hexstack",
+    "productName": "HexStack",
+    "artifactName": "HexStack-${os}-${arch}.${ext}",
+    "files": ["main.js", "preload.js", "icon.png", "package.json"],
+    "extraResources": [{ "from": "hexbot.js", "to": "hexbot.js" }],
+    "icon": "icon.png",
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "artifactName": "HexStack-Setup.${ext}" },
+    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "createStartMenuShortcut": true, "shortcutName": "HexStack", "runAfterFinish": true },
+    "mac": { "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }], "category": "public.app-category.finance", "identity": "-", "artifactName": "HexStack-mac-${arch}.${ext}" },
+    "dmg": { "title": "HexStack" },
+    "linux": { "target": [{ "target": "AppImage", "arch": ["x64"] }], "artifactName": "HexStack-linux-x64.${ext}" }
+  }
+}

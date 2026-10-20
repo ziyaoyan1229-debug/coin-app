@@ -1,0 +1,88 @@
+# 電腦版 App（desktop/，Electron）打包發佈：目前只做 Windows 安裝檔（Mac dmg、Linux AppImage 設定已在 package.json，之後打開下面的 matrix 就好），內建執行器 executor/hexbot.js。
+# 觸發：推 desktop-v* 標籤（例如 desktop-v1.0.0，要和 desktop/package.json 的 version 一樣）＝正式版，App 的下載按鈕會指到它；
+#       在 Actions 手動執行或改到 desktop/ 推上分支＝建一個 desktop-dev-<編號> 預先發佈版，給自己先試。
+# 不簽章（沒有付費憑證）：Windows 第一次會跳「Windows 已保護您的電腦」，Mac 只做 ad-hoc 簽章，第一次要到「隱私權與安全性」按「強制打開」。
+name: desktop
+on:
+  push:
+    tags: ['desktop-v*']
+    branches-ignore: [main, gh-pages, data]
+    paths: ['desktop/**', '.github/workflows/desktop.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, args: --win }
+          # Mac、Linux 之後再開：加回 { os: macos-14, args: --mac }、{ os: ubuntu-latest, args: --linux }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 放進執行器
+        run: |
+          set -e
+          node --check ../executor/hexbot.js
+          cp ../executor/hexbot.js hexbot.js
+          node --check main.js && node --check preload.js
+      - name: 打包
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          npm install --no-audit --no-fund
+          npx electron-builder ${{ matrix.args }} --publish never
+          ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desk-${{ runner.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.AppImage
+          if-no-files-found: error
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: pkg
+          pattern: desk-*
+          merge-multiple: true
+      - name: 建立 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF: ${{ github.ref_name }}
+          RUN: ${{ github.run_number }}
+        run: |
+          set -e
+          # 執行器單獨的 js 版（Android Termux、自己裝 Node 的人用），維持 releases/latest/download/hexbot.js 這個網址能下載
+          cp executor/hexbot.js pkg/hexbot.js
+          ls -la pkg
+          if [ "$REF_TYPE" = tag ]; then TAG="$REF"; FLAGS="--latest"; else TAG="desktop-dev-$RUN"; FLAGS="--prerelease"; fi
+          NOTES="HexStack 電腦版 $TAG
+
+          - Windows：下載 HexStack-Setup.exe 安裝。出現「Windows 已保護您的電腦」→ 其他資訊 → 仍要執行。
+          - 內建執行器（自動交易），打開就自動和這台電腦配對。關掉視窗會留在系統匣繼續跑，要完全關掉請在圖示上按右鍵 → 結束。
+          - 檔案沒有付費簽章。"
+          if gh release view "$TAG" > /dev/null 2>&1; then gh release upload "$TAG" pkg/* --clobber;
+          else gh release create "$TAG" pkg/* --target "$GITHUB_SHA" --title "HexStack 電腦版 $TAG" --notes "$NOTES" $FLAGS; fi
