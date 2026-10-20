@@ -43,8 +43,8 @@ jobs:
           [ -n "$ID" ] && [ "$ID" != null ] || { echo '建 KV 失敗（API Token 權限要有 Workers KV Storage: Edit）'; exit 1; }
           # D1：帳號同步用的資料庫，沒有就建一個；API Token 沒有 D1 權限就先不綁（同步回 503，推播照常）
           DB=$(curl -sS -H "$H" "$API/d1/database?name=hexstack-sync" | jq -r '.result[]? | select(.name=="hexstack-sync") | .uuid' | head -1)
-          if [ -z "$DB" ]; then DB=$(curl -sS -X POST -H "$H" -H 'Content-Type: application/json' -d '{"name":"hexstack-sync"}' "$API/d1/database" | jq -r '.result.uuid // empty'); fi
-          [ -n "$DB" ] || echo '::warning::建 D1 失敗（API Token 權限要加 D1: Edit），帳號同步先不開'
+          if [ -z "$DB" ]; then R=$(curl -sS -X POST -H "$H" -H 'Content-Type: application/json' -d '{"name":"hexstack-sync"}' "$API/d1/database"); DB=$(echo "$R" | jq -r '.result.uuid // empty'); fi
+          [ -n "$DB" ] || echo "::warning::建 D1 失敗（API Token 權限要加 D1: Edit），帳號同步先不開：$(echo "$R" | jq -c '.errors // .' | head -c 400)"
           # workers.dev 子網域：還沒註冊就用 hexstack-<帳號前 6 碼> 註冊一個（之後可在 Cloudflare 改）
           SUB=$(curl -fsS -H "$H" "$API/workers/subdomain" | jq -r '.result.subdomain // empty' || true)
           if [ -z "$SUB" ]; then
