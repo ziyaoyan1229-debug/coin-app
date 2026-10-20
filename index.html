@@ -2599,12 +2599,12 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if(!toPc){if(!LOCAL_EX.includes(pickEx)){m.textContent='這家交易所還不能只存在手機';$('#fdAddGo').disabled=false;return}
       m.textContent='驗證中…';const a={id:'p'+Date.now().toString(36),exchange:pickEx,name:nm,key:k,secret:sc,pass:ps,testnet:$('#fdT').checked};
       try{if(LJ().some(x=>x.exchange===a.exchange&&x.key===a.key))throw new Error('這把金鑰已經加過了');await LREAD[pickEx](a);LW(LJ().concat([a]));$('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
-      catch(err2){$('#fdS').value='';$('#fdP').value='';m.textContent=err2.rw?err2.message:'驗證失敗：'+err2.message;$('#fdAddGo').disabled=false}
+      catch(err2){$('#fdS').value='';$('#fdP').value='';{const M=err2.rw?err2.message:'驗證失敗：'+err2.message;m.textContent=M+(pickEx==='bybit'&&/10003|API key is invalid/i.test(M)?($('#fdT').checked?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：測試網金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):'')}$('#fdAddGo').disabled=false}
       return}
     m.textContent='傳到電腦驗證中…';
     try{await BotTab.api('/api/funds/add',{exchange:pickEx,name:$('#fdNm').value.trim()||exName(pickEx),apiKey:k,apiSecret:sc,passphrase:ps,testnet:$('#fdT').checked});
       $('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
-    catch(err2){$('#fdS').value='';$('#fdP').value='';m.textContent=err2.message;$('#fdAddGo').disabled=false}
+    catch(err2){$('#fdS').value='';$('#fdP').value='';{const M=err2.message;m.textContent=M+(pickEx==='bybit'&&/10003|API key is invalid/i.test(M)?($('#fdT').checked?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：測試網金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):'')}$('#fdAddGo').disabled=false}
   });
   return {EX,lg,exName,pass:k=>!!(FXS[k]&&FXS[k].pass),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
     if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on')&&!document.hidden)load(false)},60000)}};
@@ -3625,17 +3625,19 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       <button class="bbtn pri" id="botXgo" type="button" style="margin-top:8px">${tr?'儲存並測試連線':'驗證並加入'}</button>
       <p class="sub" id="botXm" style="margin:8px 0 0">${H_(xmsg)}</p>
       <p class="sub" style="margin:8px 0 0">${tr?'金鑰只存在這台電腦的 HexStack，不會上傳到雲端或手機。Bybit 建金鑰時只勾「合約交易」，不要勾「提幣」，建議用子帳戶。':'只看資產要用只勾「讀取」的唯讀金鑰，有交易或提現權限會被拒收。金鑰存在電腦上的 HexStack'+(L?'':'，手機不留')+'。'}</p></div>`}
+  // Bybit 10003＝這個網路（正式網／測試網）找不到這把金鑰，多半是測試網勾錯
+  const netHint=(m,tn)=>/10003|API key is invalid/i.test(m)?m+(tn?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：在 testnet.bybit.com 建的金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):m;
   async function exSave(){const tr=xf.use==='trade',k=xf.k.trim(),sc=xf.s.trim(),m=$('#botXm'),g=$('#botXgo');
     if(!tr){const F=FT();if(!k||!sc)return m.textContent='要填 API Key 和 Secret';if(F.pass(xf.ex)&&!xf.ps)return m.textContent=F.exName(xf.ex)+' 還要填 Passphrase';
       g.disabled=true;m.textContent=loc()?'驗證中…':'傳到電腦驗證中…';
       try{await api('/api/funds/add',{exchange:xf.ex,name:xf.nm.trim()||F.exName(xf.ex),apiKey:k,apiSecret:sc,passphrase:xf.ps,testnet:xf.ex==='bybit'&&xf.tn,inTotal:xf.tot});xf=null;xmsg='';toast('已加入')}
-      catch(e){xf.s='';xf.ps='';m.textContent=e.message;g.disabled=false;const i=$('#botXs');if(i)i.value='';return}return refresh()}
+      catch(e){xf.s='';xf.ps='';m.textContent=xf.ex==='bybit'?netHint(e.message,xf.tn):e.message;g.disabled=false;const i=$('#botXs');if(i)i.value='';return}return refresh()}
     const o={exchange:'bybit',testnet:xf.tn,allowLive:!xf.tn&&xf.al,tradeInTotal:xf.tot};
     if(!S.liveReady&&(!k||!sc))return m.textContent='要填 API Key 和 Secret';if(!!k!==!!sc&&!S.liveReady)return m.textContent='API Key 和 Secret 要一起填';
     if(k)o.apiKey=k;if(sc)o.apiSecret=sc;
     if(o.allowLive&&!S.allowLive&&!confirm('允許正式網下真單？\n\n策略還是要試跑通過、你按「轉為實盤」才會用真錢下單。'))return;
     g.disabled=true;m.textContent='儲存中，測試連線…';
-    try{const r=await api('/local/config',o),bad=/^連線失敗/.test(r.test||'');xmsg=r.test||'已儲存';if(bad){m.textContent=xmsg;g.disabled=false;xf.s='';$('#botXs').value='';return}xf=null;toast(xmsg)}
+    try{const r=await api('/local/config',o),bad=/^連線失敗/.test(r.test||'');xmsg=r.test||'已儲存';if(bad){xmsg=netHint(xmsg,xf.tn);m.textContent=xmsg;g.disabled=false;xf.s='';$('#botXs').value='';return}xf=null;toast(xmsg)}
     catch(e){m.textContent=e.message;g.disabled=false;return}refresh()}
   // 加入策略：從我的策略挑（資金比例平均分），或一鍵帶入策略框架 v1 的 7 個子帳戶（整體 ×1.5，跟組合回測一致）
   function picker(){const L=SigLock.get(),ks=Object.keys(L),have=new Set((S.strategies||[]).map(x=>x.key));
