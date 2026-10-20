@@ -697,7 +697,7 @@ try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage
 <!-- 開場畫面：logo 三層六角依序疊上；網頁載完、即時價格、市場分析、恐懼貪婪、模擬盤都抓完（至少 1.5 秒、最多 15 秒）才淡出 -->
 <div id="splash"><style>
 #splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle at 50% 40%,#3a1d7a,#160b34 70%);transition:opacity .35s}
-#splash.out{opacity:0;pointer-events:none}#splash svg{width:132px;height:132px;overflow:visible}
+#splash.out{opacity:0;pointer-events:none}#splash>svg{width:132px;height:132px;overflow:visible}
 #splash .sl{opacity:0;transform:translateY(-34px);animation:slDrop .42s cubic-bezier(.2,.9,.3,1.25) forwards}
 #splash .nm{color:#f3ecff;font:700 26px -apple-system,"PingFang TC",system-ui,sans-serif;letter-spacing:1px;opacity:0;animation:slFade .4s .95s forwards}
 #splash .bar{width:120px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;opacity:0;animation:slFade .3s 1.1s forwards}
@@ -709,7 +709,7 @@ try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage
 // 進度條：tv＝實際載入進度，畫面上的 dv 從進度條出現（1.1 秒）起最快 0.9 秒跑完 0→100，不會一出現就是 100%；跑到 100 才關掉開場畫面
 var tv=0,dv=-1,T1=t0+1100,DUR=900;function tick(){var cap=Math.max(0,Math.min(100,(Date.now()-T1)/DUR*100)),v=Math.floor(Math.min(tv,cap));
 if(v!==dv){dv=v;var b=document.getElementById('spBar'),t=document.getElementById('spPct');if(b)b.style.width=v+'%';if(t)t.textContent=v+'%'}
-if(want&&dv>=100){var el=document.getElementById('splash');if(el){el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+if(want&&dv>=100){var el=document.getElementById('splash');if(el){if(window.__hsNeedLogin&&__hsNeedLogin()){__hsSplashLogin(el);return}el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
 function hide(){if(done)return;done=1;tv=100;want=1}
 window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 <script>
@@ -4712,7 +4712,7 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
     if(got&&!msg){try{sessionStorage.setItem('hsSyncMsg','已從雲端同步 '+got+' 項設定')}catch(e){}location.reload()}}
   H.kick=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(st().tok&&!busy)push().then(render).catch(e=>{msg=e.message;render()})},2000)};
   document.addEventListener('visibilitychange',()=>{if(!st().tok)return;if(document.hidden){if(Object.keys(H.dirty).length)push().catch(()=>{})}else run(false)});
-  async function login(cred){msg='登入中…';render();try{const j=await api('/auth/google',{credential:cred});put({tok:j.token,email:j.email,last:0});await run(true)}catch(e){put({});msg='登入失敗：'+e.message;render()}}
+  async function login(cred){msg='登入中…';render();try{const j=await api('/auth/google',{credential:cred});put({tok:j.token,email:j.email,last:0});gate();await run(true)}catch(e){put({});msg='登入失敗：'+e.message;render();gate()}}
   let gis=null;const loadGis=()=>gis||(gis=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=ok;sc.onerror=()=>{gis=null;no(new Error('載入 Google 登入失敗'))};document.head.appendChild(sc)}));
   function render(){const b=document.getElementById('syncBox');if(!b)return;const o=st(),es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     if(o.tok){b.innerHTML='<div class="setl"><div><span>帳號</span><b>'+es(o.email||'已登入')+'</b></div><div><span>上次同步</span><b>'+(busy?'同步中…':o.at?new Date(o.at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—')+'</b></div></div>'
@@ -4723,7 +4723,21 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
       b.querySelector('#syncOut').onclick=e=>{e.preventDefault();put({});H.on=false;H.dirty={};msg='';render()};
       b.querySelector('#syncWipe').onclick=async e=>{e.preventDefault();if(!confirm('刪除這個帳號存在雲端的同步資料？這台裝置上的設定不受影響。'))return;try{await api('/sync/wipe',{});put({});H.on=false;H.dirty={};msg='雲端資料已刪除'}catch(x){msg=x.message}render()};return}
     b.innerHTML='<div class="small" style="margin-bottom:10px;font-size:13px;line-height:1.6">用 Google 帳號登入，手機和電腦的我的策略、通知選項、外觀、資產報酬紀錄就會自動同步。交易所金鑰不會上傳。</div>'+(GCID?'<div id="syncG" style="min-height:44px"></div>':'<div class="small">即將開放</div>')+(msg?'<div class="small" style="margin-top:6px">'+es(msg)+'</div>':'');
-    if(GCID)loadGis().then(()=>{const el=document.getElementById('syncG');if(!el||st().tok)return;google.accounts.id.initialize({client_id:GCID,callback:r=>login(r.credential),ux_mode:'popup'});google.accounts.id.renderButton(el,{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'zh-TW'})}).catch(e=>{msg=e.message;render()})}
+    if(GCID)gBtn('syncG')}
+  // Google 按鈕：設定頁和開 App 時的登入畫面共用
+  let gInit=false;
+  function gBtn(id){loadGis().then(()=>{const el=document.getElementById(id);if(!el||st().tok)return;
+    if(!gInit){google.accounts.id.initialize({client_id:GCID,callback:r=>login(r.credential),ux_mode:'popup'});gInit=true}
+    google.accounts.id.renderButton(el,{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'zh-TW'})}).catch(e=>{msg=e.message;render();gate()})}
+  // 沒登入時，開場畫面載入完不關掉，進度條換成 Google 登入按鈕；按「稍後再說」這次不再問，下次打開再問
+  const skipped=()=>{try{return !!sessionStorage.getItem('hsGateSkip')}catch(e){return false}};
+  window.__hsNeedLogin=()=>!!GCID&&!st().tok&&!skipped();
+  const closeSplash=()=>{const el=document.getElementById('splash');if(el){el.className='out';setTimeout(()=>el.remove(),400)}};
+  window.__hsSplashLogin=el=>{if(el.querySelector('#spLogin'))return;for(const q of el.querySelectorAll('.bar,.pct'))q.style.display='none';
+    const d=document.createElement('div');d.id='spLogin';d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:10px;min-height:96px;animation:slFade .3s forwards;opacity:0';
+    d.innerHTML='<div id="spG" style="min-height:44px;display:flex;justify-content:center"></div><div id="spM" style="color:#ffb4c0;font:13px -apple-system,system-ui,sans-serif;max-width:280px;text-align:center"></div><button type="button" id="spSkip" style="all:unset;cursor:pointer;color:#d8b6ff;font:14px -apple-system,\'PingFang TC\',system-ui,sans-serif;padding:6px 12px">稍後再說</button>';
+    el.appendChild(d);d.querySelector('#spSkip').onclick=()=>{try{sessionStorage.setItem('hsGateSkip','1')}catch(e){}closeSplash()};gBtn('spG')};
+  function gate(){if(st().tok)return closeSplash();const m=document.getElementById('spM');if(m)m.textContent=msg&&msg!=='登入中…'?msg:''}
   render();if(st().tok)run(false);
   try{const m=sessionStorage.getItem('hsSyncMsg');if(m){sessionStorage.removeItem('hsSyncMsg');setTimeout(()=>{const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;font-size:13px;z-index:70';document.body.appendChild(t);setTimeout(()=>t.remove(),3000)},300)}}catch(e){}
   return {run,render,_login:login}})();
