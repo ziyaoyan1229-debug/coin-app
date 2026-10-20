@@ -4,7 +4,7 @@
 const { app, BrowserWindow, Menu, Tray, shell, ipcMain, powerSaveBlocker, utilityProcess, dialog, nativeImage } = require('electron');
 const path = require('path'), fs = require('fs');
 
-const SITE = 'https://ziyaoyan1229-debug.github.io/coin-app/';
+const SITE = process.env.HEXSTACK_SITE || 'https://ziyaoyan1229-debug.github.io/coin-app/';   // HEXSTACK_SITE：開發時指到本機網站測試
 const REL = 'https://github.com/ziyaoyan1229-debug/coin-app/releases';
 const DATA = path.join(app.getPath('userData'), 'hexbot-data');
 const PREF = path.join(app.getPath('userData'), 'prefs.json');
@@ -51,6 +51,26 @@ function pairInfo() {
 ipcMain.on('hs:pair', e => { e.returnValue = prefs.botOn ? pairInfo() : null; });
 ipcMain.on('hs:info', e => { e.returnValue = { ver: app.getVersion(), platform: process.platform, bot: !!bot }; });
 ipcMain.on('hs:console', () => openConsole());
+
+// ── Google 登入：Google 不讓 App 內嵌視窗登入，改開系統瀏覽器到網站的 desktop-login.html，
+//    登入完那頁把結果導回 http://127.0.0.1:<臨時埠>/done，這裡收到再交給網頁 ──
+let loginSrv = null;
+ipcMain.on('hs:login', e => {
+  const wc = e.sender, state = require('crypto').randomBytes(16).toString('hex');
+  if (loginSrv) try { loginSrv.close(); } catch (x) {}
+  const srv = loginSrv = require('http').createServer((req, res) => {
+    const u = new URL(req.url, 'http://127.0.0.1');
+    if (u.pathname !== '/done' || u.searchParams.get('s') !== state) { res.writeHead(404); return res.end(); }
+    const t = u.searchParams.get('t'), em = u.searchParams.get('e') || '';
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    res.end('<!doctype html><meta charset="utf-8"><title>HexStack</title><body style="margin:0;height:100vh;display:grid;place-items:center;background:#160b34;color:#efeaff;font:16px -apple-system,\'Microsoft JhengHei\',sans-serif;text-align:center"><div><h2>登入成功</h2><p style="opacity:.75">可以關掉這個分頁，回到 HexStack。</p></div></body>');
+    if (!wc.isDestroyed()) wc.send('hs:login-done', t ? { token: t, email: em } : { error: '沒有拿到登入結果' });
+    showWin(); setTimeout(() => { try { srv.close(); } catch (x) {} if (loginSrv === srv) loginSrv = null; }, 1000);
+  });
+  srv.listen(0, '127.0.0.1', () => shell.openExternal(SITE + 'desktop-login.html?p=' + srv.address().port + '&s=' + state));
+  // 10 分鐘沒登入就收掉
+  setTimeout(() => { try { srv.close(); } catch (x) {} if (loginSrv === srv) loginSrv = null; }, 600000);
+});
 
 // ── 防止睡眠 ──
 function applyAwake() {
