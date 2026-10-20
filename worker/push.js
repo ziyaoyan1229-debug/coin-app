@@ -17,6 +17,11 @@
 //   POST /host/notify { hostId, ts, title, body, sig }   → 推給配對過這台主機的裝置；sig＝HMAC(k, "notify\n"+hostId+"\n"+ts+"\n"+title+"\n"+body)
 //   POST /host/pair   { hostId, k, endpoint, off }        → App 把已訂閱推播的這台裝置綁到主機（off: true＝解除）
 //   排程（每 5 分鐘）：超過 15 分鐘沒心跳 → 推「主機離線」；恢復心跳時推「主機恢復上線」
+// 帳號同步（Google 登入；D1 資料庫 DB，沒綁就回 503）。只同步 App 的設定與策略，交易所金鑰不上傳。
+//   POST /auth/google { credential }       → { token, email }：驗 Google ID token，發 60 天的同步 token
+//   GET  /sync?since=t  Authorization: Bearer <token> → { items: [{ k, v, t }], now }：t 之後改過的項目（v＝null 是刪除）
+//   POST /sync { items: [{ k, v }] }        → 寫入（後送到的蓋掉先送到的）；回 { ok, now }
+//   POST /sync/wipe                         → 刪掉這個帳號在雲端的所有資料
 const SITE = 'https://ziyaoyan1229-debug.github.io/coin-app/';
 const enc = new TextEncoder();
 const b64u = buf => { let s = ''; for (const b of new Uint8Array(buf)) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
@@ -149,6 +154,56 @@ async function xproxy(req, u) {
   return new Response(await r.text(), { status: r.status, headers: { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
 }
 
+// ───────── 帳號同步 ─────────
+const GCID = '';   // Google OAuth 用戶端 ID（xxx.apps.googleusercontent.com），和 index.html 的 GCID 一樣
+let JWKS = null, JWKS_AT = 0, DBOK = false;
+async function gVerify(cred) {
+  const [h, b, sg] = String(cred || '').split('.'); if (!sg) throw new Error('bad token');
+  const hd = JSON.parse(new TextDecoder().decode(ub64(h))), pl = JSON.parse(new TextDecoder().decode(ub64(b)));
+  if (!JWKS || Date.now() - JWKS_AT > 36e5) { JWKS = (await (await fetch('https://www.googleapis.com/oauth2/v3/certs')).json()).keys; JWKS_AT = Date.now(); }
+  const jwk = JWKS.find(k => k.kid === hd.kid); if (!jwk || hd.alg !== 'RS256') throw new Error('unknown key');
+  const key = await S.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+  if (!await S.verify('RSASSA-PKCS1-v1_5', key, ub64(sg), enc.encode(h + '.' + b))) throw new Error('bad signature');
+  if (!['accounts.google.com', 'https://accounts.google.com'].includes(pl.iss) || pl.aud !== GCID || pl.exp * 1000 < Date.now() || !pl.sub) throw new Error('token rejected');
+  return pl;
+}
+const sKey = env => S.importKey('raw', enc.encode((env.PUSH_KEY || '') + '|sync'), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+async function sIssue(env, pl) { const b = b64u(enc.encode(JSON.stringify({ u: 'g:' + pl.sub, e: pl.email || '', x: Date.now() + 60 * 864e5 }))); return b + '.' + b64u(await S.sign('HMAC', await sKey(env), enc.encode(b))); }
+async function sUser(req, env) {
+  try {
+    const t = (req.headers.get('authorization') || '').replace(/^Bearer /, ''), [b, sg] = t.split('.'); if (!sg) return null;
+    if (!await S.verify('HMAC', await sKey(env), ub64(sg), enc.encode(b))) return null;
+    const d = JSON.parse(new TextDecoder().decode(ub64(b))); return d.x > Date.now() ? d : null;
+  } catch (e) { return null; }
+}
+async function syncRoute(p, req, env, u) {
+  if (!env.DB) return json({ error: '同步服務還沒開通' }, 503);
+  if (!DBOK) { await env.DB.exec('CREATE TABLE IF NOT EXISTS sync (u TEXT NOT NULL, k TEXT NOT NULL, v TEXT, t INTEGER NOT NULL, PRIMARY KEY (u, k))'); DBOK = true; }
+  if (p === '/auth/google' && req.method === 'POST') {
+    if (!GCID) return json({ error: 'Google 登入還沒設定' }, 503);
+    let pl; try { pl = await gVerify((await req.json()).credential); } catch (e) { return json({ error: 'Google 登入驗證失敗' }, 401); }
+    return json({ token: await sIssue(env, pl), email: pl.email || '' });
+  }
+  const me = await sUser(req, env); if (!me) return json({ error: '請重新登入' }, 401);
+  const now = Date.now();
+  if (p === '/sync' && req.method === 'GET') {
+    const since = Math.max(0, +u.searchParams.get('since') || 0);
+    const r = await env.DB.prepare('SELECT k, v, t FROM sync WHERE u = ? AND t > ? ORDER BY t LIMIT 500').bind(me.u, since).all();
+    return json({ items: r.results || [], now, email: me.e });
+  }
+  if (p === '/sync' && req.method === 'POST') {
+    const it = ((await req.json()).items || []).slice(0, 100).filter(x => x && typeof x.k === 'string' && x.k.length <= 80 && (x.v === null || (typeof x.v === 'string' && x.v.length <= 200000)));
+    const used = (await env.DB.prepare('SELECT COALESCE(SUM(LENGTH(v)), 0) AS n FROM sync WHERE u = ?').bind(me.u).first()).n;
+    if (used + it.reduce((a, x) => a + (x.v ? x.v.length : 0), 0) > 3e6) return json({ error: '雲端空間已滿（每個帳號 3MB）' }, 413);
+    // 用伺服器時間記 t（手機時鐘可能不準），後送到的蓋掉先送到的
+    const st = env.DB.prepare('INSERT INTO sync (u, k, v, t) VALUES (?1, ?2, ?3, ?4) ON CONFLICT (u, k) DO UPDATE SET v = excluded.v, t = excluded.t');
+    if (it.length) await env.DB.batch(it.map((x, i) => st.bind(me.u, x.k, x.v, now + i)));
+    return json({ ok: true, now: now + it.length });
+  }
+  if (p === '/sync/wipe' && req.method === 'POST') { await env.DB.prepare('DELETE FROM sync WHERE u = ?').bind(me.u).run(); return json({ ok: true }); }
+  return json({ error: 'not found' }, 404);
+}
+
 export default {
   async scheduled(ev, env, ctx) { ctx.waitUntil(hostCron(env)); },
   async fetch(req, env) {
@@ -156,6 +211,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization,' + XHDR, 'access-control-max-age': '86400' } });
     try {
       if (p === '/x' && (req.method === 'GET' || req.method === 'POST')) return xproxy(req, u);
+      if (p === '/auth/google' || p.startsWith('/sync')) return await syncRoute(p, req, env, u);
       if (p === '/vapid') return json({ key: (await vapid(env)).pub });
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;

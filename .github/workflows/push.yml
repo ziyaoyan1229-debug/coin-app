@@ -41,6 +41,10 @@ jobs:
           ID=$(curl -fsS -H "$H" "$API/storage/kv/namespaces?per_page=100" | jq -r '.result[] | select(.title=="hexstack-push-subs") | .id' | head -1)
           if [ -z "$ID" ]; then ID=$(curl -fsS -X POST -H "$H" -H 'Content-Type: application/json' -d '{"title":"hexstack-push-subs"}' "$API/storage/kv/namespaces" | jq -r .result.id); fi
           [ -n "$ID" ] && [ "$ID" != null ] || { echo '建 KV 失敗（API Token 權限要有 Workers KV Storage: Edit）'; exit 1; }
+          # D1：帳號同步用的資料庫，沒有就建一個；API Token 沒有 D1 權限就先不綁（同步回 503，推播照常）
+          DB=$(curl -sS -H "$H" "$API/d1/database?name=hexstack-sync" | jq -r '.result[]? | select(.name=="hexstack-sync") | .uuid' | head -1)
+          if [ -z "$DB" ]; then DB=$(curl -sS -X POST -H "$H" -H 'Content-Type: application/json' -d '{"name":"hexstack-sync"}' "$API/d1/database" | jq -r '.result.uuid // empty'); fi
+          [ -n "$DB" ] || echo '::warning::建 D1 失敗（API Token 權限要加 D1: Edit），帳號同步先不開'
           # workers.dev 子網域：還沒註冊就用 hexstack-<帳號前 6 碼> 註冊一個（之後可在 Cloudflare 改）
           SUB=$(curl -fsS -H "$H" "$API/workers/subdomain" | jq -r '.result.subdomain // empty' || true)
           if [ -z "$SUB" ]; then
@@ -54,6 +58,7 @@ jobs:
           cd worker
           # 排程每 5 分鐘：檢查執行器主機心跳，離線就推通知（免費方案可用）
           printf 'name = "hexstack-push"\nmain = "push.js"\ncompatibility_date = "2025-01-01"\nworkers_dev = true\n\n[triggers]\ncrons = ["*/5 * * * *"]\n\n[[kv_namespaces]]\nbinding = "SUBS"\nid = "%s"\n' "$ID" > wrangler.toml
+          [ -n "$DB" ] && printf '\n[[d1_databases]]\nbinding = "DB"\ndatabase_name = "hexstack-sync"\ndatabase_id = "%s"\n' "$DB" >> wrangler.toml
           npx -y wrangler@4 deploy
           KEY="${PUSH_KEY_IN:-$(printf '%s' "${CLOUDFLARE_API_TOKEN}hexstack-push" | sha256sum | cut -d' ' -f1)}"
           printf '%s' "$KEY" | npx -y wrangler@4 secret put PUSH_KEY
