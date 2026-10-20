@@ -18,7 +18,7 @@
 //   POST /host/pair   { hostId, k, endpoint, off }        → App 把已訂閱推播的這台裝置綁到主機（off: true＝解除）
 //   排程（每 5 分鐘）：超過 15 分鐘沒心跳 → 推「主機離線」；恢復心跳時推「主機恢復上線」
 // 帳號同步（Google 登入；D1 資料庫 DB，沒綁就回 503）。只同步 App 的設定與策略，交易所金鑰不上傳。
-//   POST /auth/google { credential }       → { token, email }：驗 Google ID token，發 60 天的同步 token
+//   POST /auth/google { credential | access_token } → { token, email }：驗 Google ID token 或 access token，發 60 天的同步 token
 //   GET  /sync?since=t  Authorization: Bearer <token> → { items: [{ k, v, t }], now }：t 之後改過的項目（v＝null 是刪除）
 //   POST /sync { items: [{ k, v }] }        → 寫入（後送到的蓋掉先送到的）；回 { ok, now }
 //   POST /sync/wipe                         → 刪掉這個帳號在雲端的所有資料
@@ -167,6 +167,12 @@ async function gVerify(cred) {
   if (!['accounts.google.com', 'https://accounts.google.com'].includes(pl.iss) || pl.aud !== GCID || pl.exp * 1000 < Date.now() || !pl.sub) throw new Error('token rejected');
   return pl;
 }
+// App 用自己的按鈕登入時拿到的是 access token：問 Google 這個 token 是不是發給我們的用戶端
+async function gToken(at) {
+  const r = await fetch('https://oauth2.googleapis.com/tokeninfo?access_token=' + encodeURIComponent(String(at).slice(0, 4096))), d = await r.json();
+  if (!r.ok || d.aud !== GCID || !d.sub || +d.exp * 1000 < Date.now()) throw new Error('token rejected');
+  return { sub: d.sub, email: d.email || '' };
+}
 const sKey = env => S.importKey('raw', enc.encode((env.PUSH_KEY || '') + '|sync'), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
 async function sIssue(env, pl) { const b = b64u(enc.encode(JSON.stringify({ u: 'g:' + pl.sub, e: pl.email || '', x: Date.now() + 60 * 864e5 }))); return b + '.' + b64u(await S.sign('HMAC', await sKey(env), enc.encode(b))); }
 async function sUser(req, env) {
@@ -181,7 +187,7 @@ async function syncRoute(p, req, env, u) {
   if (!DBOK) { await env.DB.exec('CREATE TABLE IF NOT EXISTS sync (u TEXT NOT NULL, k TEXT NOT NULL, v TEXT, t INTEGER NOT NULL, PRIMARY KEY (u, k))'); DBOK = true; }
   if (p === '/auth/google' && req.method === 'POST') {
     if (!GCID) return json({ error: 'Google 登入還沒設定' }, 503);
-    let pl; try { pl = await gVerify((await req.json()).credential); } catch (e) { return json({ error: 'Google 登入驗證失敗' }, 401); }
+    let pl; try { const d = await req.json(); pl = d.access_token ? await gToken(d.access_token) : await gVerify(d.credential); } catch (e) { return json({ error: 'Google 登入驗證失敗' }, 401); }
     return json({ token: await sIssue(env, pl), email: pl.email || '' });
   }
   const me = await sUser(req, env); if (!me) return json({ error: '請重新登入' }, 401);
