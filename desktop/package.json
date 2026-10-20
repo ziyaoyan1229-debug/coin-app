@@ -18,13 +18,71 @@
     "appId": "io.github.ziyaoyan1229.hexstack",
     "productName": "HexStack",
     "artifactName": "HexStack-${os}-${arch}.${ext}",
-    "files": ["main.js", "preload.js", "icon.png", "package.json"],
-    "extraResources": [{ "from": "hexbot.js", "to": "hexbot.js" }],
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.png",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "hexbot.js",
+        "to": "hexbot.js"
+      }
+    ],
     "icon": "icon.png",
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "artifactName": "HexStack-Setup.${ext}" },
-    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "createStartMenuShortcut": true, "shortcutName": "HexStack", "runAfterFinish": true },
-    "mac": { "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }], "category": "public.app-category.finance", "identity": "-", "artifactName": "HexStack-mac-${arch}.${ext}" },
-    "dmg": { "title": "HexStack" },
-    "linux": { "target": [{ "target": "AppImage", "arch": ["x64"] }], "artifactName": "HexStack-linux-x64.${ext}" }
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "HexStack-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "HexStack",
+      "runAfterFinish": true
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.finance",
+      "identity": "-",
+      "artifactName": "HexStack-mac-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "HexStack"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "HexStack-linux-x64.${ext}"
+    },
+    "publish": null
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ziyaoyan1229-debug/coin-app.git"
   }
 }
