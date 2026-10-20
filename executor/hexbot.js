@@ -566,7 +566,7 @@ for (const k of Object.keys(FXS)) FUND_EX[k] = { name: FXS[k].name, pass: !!FXS[
 const FUND_CACHE = {};
 const fundList = () => (C.funds || []).map(a => ({ id: a.id, name: a.name, exchange: a.exchange, testnet: !!a.testnet, keyTail: a.apiKey.slice(-4), inTotal: a.inTotal !== false }));
 // 下單用的 Bybit 金鑰也能算進資產總覽（tradeInTotal）：用同一個讀取函式，但不檢查唯讀（它本來就有交易權限）
-const tradeAcct = () => liveReady() && C.tradeInTotal !== false ? { id: 'trade', name: 'Bybit・下單用', exchange: 'bybit', testnet: !!C.testnet, apiKey: C.apiKey, apiSecret: C.apiSecret, trade: true } : null;
+const tradeAcct = () => liveReady() && C.tradeInTotal !== false ? { id: 'trade', name: C.tradeName || 'Bybit・下單用', exchange: 'bybit', testnet: !!C.testnet, apiKey: C.apiKey, apiSecret: C.apiSecret, trade: true } : null;
 async function fundsAll(force) {
   const now = Date.now(), res = [], T = tradeAcct();
   for (const a of (T ? [T] : []).concat((C.funds || []).filter(x => x.inTotal !== false))) {
@@ -1073,7 +1073,7 @@ async function api(req, res, p) {
   if (p === '/api/funds/add') return fundAdd(d);
   // 帳戶設定：要不要算進資產總覽、改名（id 'trade'＝下單用的 Bybit 金鑰）
   if (p === '/api/funds/set') {
-    if (d.id === 'trade') { if ('inTotal' in d) C.tradeInTotal = d.inTotal !== false; saveCfg(); delete FUND_CACHE.trade; return { ok: true }; }
+    if (d.id === 'trade') { if ('inTotal' in d) C.tradeInTotal = d.inTotal !== false; if (typeof d.name === 'string' && d.name.trim()) C.tradeName = d.name.trim().slice(0, 30); saveCfg(); delete FUND_CACHE.trade; return { ok: true }; }
     const a = (C.funds || []).find(x => x.id === d.id); if (!a) throw new HErr(404, '找不到這個帳戶');
     if ('inTotal' in d) a.inTotal = d.inTotal !== false; if (typeof d.name === 'string' && d.name.trim()) a.name = d.name.trim().slice(0, 30);
     saveCfg(); delete FUND_CACHE[a.id]; return { ok: true };
