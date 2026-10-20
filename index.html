@@ -2362,6 +2362,12 @@ const FX_READ = {
       for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'USDT-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: 'U 本位合約' }); }
       out.positions = (await rq('/api/v2/mix/position/all-position', { productType: 'USDT-FUTURES', marginCoin: 'USDT' })).filter(x => +x.total).map(x => ({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.unrealizedPL || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    // 槓桿帳戶（全倉、逐倉）：用淨資產＝總額−借款−利息
+    const mg = (x, nm) => { const t = +x.totalAmount || 0, n = x.net != null && x.net !== '' ? +x.net : t - (+x.borrow || 0) - (+x.interest || 0); return { t, n, nm }; };
+    for (const [p, nm] of [['/api/v2/margin/crossed/account/assets', '全倉槓桿'], ['/api/v2/margin/isolated/account/assets', '逐倉槓桿']]) {
+      try { for (const x of await rq(p, {}) || []) { const m = mg(x, nm), c = String(x.coin).toUpperCase(); if (m.t > 0 || m.n !== 0) out.assets.push({ coin: c, amount: m.n, usd: m.n * await price(c), acct: nm + (x.symbol ? '・' + x.symbol : '') }); } }
+      catch (e) { if (!/40054|not.*open|未开通|No margin/i.test(e.message)) out.notes.push(nm + '帳戶讀取失敗：' + e.message); }
+    }
     return out;
   },
   async gate(rq) {
