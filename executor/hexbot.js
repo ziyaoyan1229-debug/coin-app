@@ -390,7 +390,7 @@ async function bybitFunds(a) {
   const ex = new BybitExchange({ apiKey: a.apiKey, apiSecret: a.apiSecret, testnet: !!a.testnet, limits: C.limits });
   const info = await ex.req('GET', '/v5/user/query-api', {});
   if (info.readOnly !== 1) throw new HErr(400, '這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。');
-  const out = { total_usd: 0, assets: [], positions: [], notes: [] };
+  const out = { total_usd: 0, assets: [], positions: [], notes: [], master: typeof info.isMaster === 'boolean' ? info.isMaster : undefined };
   const px = {}, price = async c => { if (STABLE.has(c)) return 1; if (px[c] == null) { try { px[c] = +(await ex.req('GET', '/v5/market/tickers', { category: 'spot', symbol: c + 'USDT' }, false)).list[0].lastPrice; } catch (e) { px[c] = 0; } } return px[c]; };
   let got = false;
   for (const accountType of ['UNIFIED', 'CONTRACT']) {
@@ -459,7 +459,8 @@ const fxPrice = get => { const px = {}; return async c => { c = String(c).toUppe
 const FX_READ = {
   async okx(rq, rw) {
     const cfg = (await rq('/api/v5/account/config', {}))[0] || {}; if (String(cfg.perm || '').split(',').some(x => x && x !== 'read_only')) rw();
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v5/market/ticker', { instId: c + '-USDT' }, false))[0].last);
+    const out = fxOut(); if (cfg.uid && cfg.mainUid) out.master = cfg.uid === cfg.mainUid;
+    const price = fxPrice(async c => (await rq('/api/v5/market/ticker', { instId: c + '-USDT' }, false))[0].last);
     for (const d of ((await rq('/api/v5/account/balance', {}))[0] || {}).details || []) { const n = +d.eq; if (n > 0) out.assets.push({ coin: d.ccy, amount: n, usd: d.eqUsd !== '' && d.eqUsd != null ? +d.eqUsd : n * await price(d.ccy), acct: '交易帳戶' }); }
     try { for (const d of await rq('/api/v5/asset/balances', {})) { const n = +d.bal; if (n > 0) out.assets.push({ coin: d.ccy, amount: n, usd: n * await price(d.ccy), acct: '資金帳戶' }); } } catch (e) { out.notes.push('資金帳戶讀取失敗：' + e.message); }
     try { out.positions = (await rq('/api/v5/account/positions', {})).filter(x => +x.pos).map(x => ({ symbol: x.instId, side: x.posSide === 'short' || (x.posSide === 'net' && +x.pos < 0) ? 'short' : 'long', contracts: Math.abs(+x.pos), entry: +x.avgPx, mark: +x.markPx, liq: +x.liqPx || null, leverage: +x.lever || null, margin_mode: x.mgnMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.upl || 0 })); } catch (e) { out.notes.push('持倉讀取失敗：' + e.message); }

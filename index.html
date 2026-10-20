@@ -546,7 +546,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .fdt{flex:1;min-width:0}.fdt small{color:var(--muted)}
 .fdplus{width:32px;height:32px;border-radius:50%;background:var(--accbg);color:var(--on-acc);display:grid;place-items:center;font-size:20px;font-weight:700;flex:none}
 .fdgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fdtile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;height:124px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.fdtile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:124px;gap:8px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
 .fdtile .tp{display:flex;align-items:center;gap:8px;min-width:0}.fdtile .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fdtile .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}.fdtile .d{font-size:12px}
 .fdtile.add{border-style:dashed;align-items:center;justify-content:center;color:var(--muted);gap:6px;font-size:13px}
@@ -569,6 +569,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .fdpanel table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .fdpanel th,.fdpanel td{padding:7px 0;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
 .fdpanel th:first-child,.fdpanel td:first-child{text-align:left}.fdpanel th{font-weight:400;font-size:12px;color:var(--muted);border-top:0}
+.fdacc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}.fdacc:hover{border-color:var(--accbg)}.fdacc:focus-visible{outline:2px solid var(--accbg);outline-offset:2px}.fdacc .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fdacc .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.fdaccs{display:flex;flex-direction:column;gap:8px}
 .fdpos{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:13px}
 .fdbar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}.fdbar i{display:block;height:100%}
 .fdup{color:#26a69a}.fddn{color:#ef5350}.fdw{color:#f5a524}
@@ -643,48 +644,48 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 #tmBot{padding:8px 12px 0}
 .tmode button{flex:1;padding:10px 4px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
 .tmode button.on{background:color-mix(in srgb,var(--acc) 14%,transparent);border-color:var(--acc);color:var(--acc)}
-#tmBot .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
-#tmBot .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
-#tmBot .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
-#tmBot .card{margin-bottom:10px}
-#tmBot .bh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px;gap:8px}
-#tmBot .bh a,#tmBot .bh button.lk{color:var(--acc);background:none;border:0;font:inherit;cursor:pointer;padding:0;text-decoration:none}
-#tmBot .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
-#tmBot .sub{font-size:12px;color:var(--muted);line-height:1.5}
-#tmBot .br{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
-#tmBot .br:first-of-type{border-top:0}
-#tmBot .br>div:first-child{min-width:0}
-#tmBot .pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px;vertical-align:1px}
-#tmBot .p-ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
-#tmBot .p-wn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
-#tmBot .p-bad{background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down)}
-#tmBot .p-mu{background:var(--chip);color:var(--muted)}
-#tmBot .stp{display:flex;gap:10px;font-size:14px;line-height:1.5;padding:6px 0}
-#tmBot .stp i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--on-acc,#17140a);font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}
-#tmBot .row2{display:flex;gap:8px;margin:6px 0}
-#tmBot .row2>*{flex:1}
-#tmBot .bbtn{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none}
-#tmBot .bbtn.pri{background:var(--accbg,var(--acc));border-color:transparent;color:var(--on-acc,#17140a)}
-#tmBot .bbtn.red{background:var(--down);border-color:transparent;color:#fff}
-#tmBot .bbtn:disabled{opacity:.45;cursor:default}
-#tmBot .warnbox{background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55;margin-bottom:10px}
-#tmBot input[type=text],#tmBot input[type=number]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
-#tmBot .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
-#tmBot .lim input{width:84px;text-align:right}
-#tmBot .lim small{color:var(--muted)}
-#tmBot .cmp{display:grid;grid-template-columns:1fr auto auto;gap:5px 14px;font-size:13px;font-variant-numeric:tabular-nums;margin-top:6px}
-#tmBot .cmp .hd{color:var(--muted);font-size:12px}
-#tmBot .seg{display:flex;margin-bottom:10px}
-#tmBot .seg button{flex:1}
-#tmBot details{font-size:13.5px;line-height:1.7}
-#tmBot details summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4px 0}
-#tmBot details ol{margin:4px 0 0;padding-left:20px}
-#tmBot code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
-#tmBot .pick{max-height:260px;overflow:auto;margin:6px 0}
-#tmBot .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
-#tmBot .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
-#tmBot .lg{font-size:13.5px}
-#tmBot .lg .br{font-size:13.5px}
+:is(#tmBot,.fdbot) .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
+:is(#tmBot,.fdbot) .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
+:is(#tmBot,.fdbot) .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
+:is(#tmBot,.fdbot) .card{margin-bottom:10px}
+:is(#tmBot,.fdbot) .bh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px;gap:8px}
+:is(#tmBot,.fdbot) .bh a,:is(#tmBot,.fdbot) .bh button.lk{color:var(--acc);background:none;border:0;font:inherit;cursor:pointer;padding:0;text-decoration:none}
+:is(#tmBot,.fdbot) .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+:is(#tmBot,.fdbot) .sub{font-size:12px;color:var(--muted);line-height:1.5}
+:is(#tmBot,.fdbot) .br{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot) .br:first-of-type{border-top:0}
+:is(#tmBot,.fdbot) .br>div:first-child{min-width:0}
+:is(#tmBot,.fdbot) .pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px;vertical-align:1px}
+:is(#tmBot,.fdbot) .p-ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+:is(#tmBot,.fdbot) .p-wn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+:is(#tmBot,.fdbot) .p-bad{background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down)}
+:is(#tmBot,.fdbot) .p-mu{background:var(--chip);color:var(--muted)}
+:is(#tmBot,.fdbot) .stp{display:flex;gap:10px;font-size:14px;line-height:1.5;padding:6px 0}
+:is(#tmBot,.fdbot) .stp i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--on-acc,#17140a);font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}
+:is(#tmBot,.fdbot) .row2{display:flex;gap:8px;margin:6px 0}
+:is(#tmBot,.fdbot) .row2>*{flex:1}
+:is(#tmBot,.fdbot) .bbtn{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none}
+:is(#tmBot,.fdbot) .bbtn.pri{background:var(--accbg,var(--acc));border-color:transparent;color:var(--on-acc,#17140a)}
+:is(#tmBot,.fdbot) .bbtn.red{background:var(--down);border-color:transparent;color:#fff}
+:is(#tmBot,.fdbot) .bbtn:disabled{opacity:.45;cursor:default}
+:is(#tmBot,.fdbot) .warnbox{background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55;margin-bottom:10px}
+:is(#tmBot,.fdbot) input[type=text],:is(#tmBot,.fdbot) input[type=number]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
+:is(#tmBot,.fdbot) .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot) .lim input{width:84px;text-align:right}
+:is(#tmBot,.fdbot) .lim small{color:var(--muted)}
+:is(#tmBot,.fdbot) .cmp{display:grid;grid-template-columns:1fr auto auto;gap:5px 14px;font-size:13px;font-variant-numeric:tabular-nums;margin-top:6px}
+:is(#tmBot,.fdbot) .cmp .hd{color:var(--muted);font-size:12px}
+:is(#tmBot,.fdbot) .seg{display:flex;margin-bottom:10px}
+:is(#tmBot,.fdbot) .seg button{flex:1}
+:is(#tmBot,.fdbot) details{font-size:13.5px;line-height:1.7}
+:is(#tmBot,.fdbot) details summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4px 0}
+:is(#tmBot,.fdbot) details ol{margin:4px 0 0;padding-left:20px}
+:is(#tmBot,.fdbot) code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
+:is(#tmBot,.fdbot) .pick{max-height:260px;overflow:auto;margin:6px 0}
+:is(#tmBot,.fdbot) .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot) .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
+:is(#tmBot,.fdbot) .lg{font-size:13.5px}
+:is(#tmBot,.fdbot) .lg .br{font-size:13.5px}
 </style>
 </head>
 <body>
@@ -946,8 +947,12 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
     </form>
     <div class="fdask" id="fdAsk" hidden role="dialog" aria-modal="true" aria-labelledby="fdAskT"><div class="fdpanel"><b id="fdAskT"></b><div class="fdrow" style="gap:10px"><button class="fdgo" type="button" id="fdAskNo" style="flex:1;background:var(--panel2);color:var(--fg,inherit)">不用</button><button class="fdgo" type="button" id="fdAskYes" style="flex:1"></button></div></div></div>
   </div>
-  <div class="fscr" id="fdDetail" hidden>
+  <div class="fscr" id="fdEx" hidden>
     <button class="fdback" type="button" data-fgo="home">‹ 資產總覽</button>
+    <div id="fdExB"></div>
+  </div>
+  <div class="fscr" id="fdDetail" hidden>
+    <button class="fdback" type="button" id="fdDetBack" data-fgo="ex">‹ 交易所</button>
     <div id="fdDet"></div>
   </div>
 </div></section>
@@ -2276,7 +2281,8 @@ const fxPrice = get => { const px = {}; return async c => { c = String(c).toUppe
 const FX_READ = {
   async okx(rq, rw) {
     const cfg = (await rq('/api/v5/account/config', {}))[0] || {}; if (String(cfg.perm || '').split(',').some(x => x && x !== 'read_only')) rw();
-    const out = fxOut(), price = fxPrice(async c => (await rq('/api/v5/market/ticker', { instId: c + '-USDT' }, false))[0].last);
+    const out = fxOut(); if (cfg.uid && cfg.mainUid) out.master = cfg.uid === cfg.mainUid;
+    const price = fxPrice(async c => (await rq('/api/v5/market/ticker', { instId: c + '-USDT' }, false))[0].last);
     for (const d of ((await rq('/api/v5/account/balance', {}))[0] || {}).details || []) { const n = +d.eq; if (n > 0) out.assets.push({ coin: d.ccy, amount: n, usd: d.eqUsd !== '' && d.eqUsd != null ? +d.eqUsd : n * await price(d.ccy), acct: '交易帳戶' }); }
     try { for (const d of await rq('/api/v5/asset/balances', {})) { const n = +d.bal; if (n > 0) out.assets.push({ coin: d.ccy, amount: n, usd: n * await price(d.ccy), acct: '資金帳戶' }); } } catch (e) { out.notes.push('資金帳戶讀取失敗：' + e.message); }
     try { out.positions = (await rq('/api/v5/account/positions', {})).filter(x => +x.pos).map(x => ({ symbol: x.instId, side: x.posSide === 'short' || (x.posSide === 'net' && +x.pos < 0) ? 'short' : 'long', contracts: Math.abs(+x.pos), entry: +x.avgPx, mark: +x.markPx, liq: +x.liqPx || null, leverage: +x.lever || null, margin_mode: x.mgnMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.upl || 0 })); } catch (e) { out.notes.push('持倉讀取失敗：' + e.message); }
@@ -2390,7 +2396,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   async function bybitLocal(a){
     const info=await bybitReq(a,'/v5/user/query-api',{});
     if(info.readOnly!==1)throw Object.assign(new Error('這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。'),{rw:1});
-    const out={total_usd:0,assets:[],positions:[],notes:[]},px={},ST=['USDT','USDC','USD','FDUSD','DAI'];
+    const out={total_usd:0,assets:[],positions:[],notes:[],master:typeof info.isMaster==='boolean'?info.isMaster:undefined},px={},ST=['USDT','USDC','USD','FDUSD','DAI'];
     const price=async c=>{if(ST.includes(c))return 1;if(px[c]==null)try{px[c]=+(await bybitReq(a,'/v5/market/tickers',{category:'spot',symbol:c+'USDT'},false)).list[0].lastPrice}catch(e){px[c]=0}return px[c]};
     let got=false;
     for(const t of ['UNIFIED','CONTRACT']){try{const r=await bybitReq(a,'/v5/account/wallet-balance',{accountType:t}),w=r.list&&r.list[0];if(!w)continue;
@@ -2411,7 +2417,27 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   const EYE_O='<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',EYE_C='<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4"/><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1"/>';
   const upnl=x=>(x.positions||[]).reduce((t,p)=>t+(+p.upnl||0),0);
   const sgn=v=>(v>0?'+':v<0?'−':'')+'US$ '+fm(Math.abs(v));
-  function go(s){['home','pick','setup','detail'].forEach(k=>$('#fd'+k[0].toUpperCase()+k.slice(1)).hidden=k!==s);if(s==='pick')pick();$('#fundView').scrollTop=0}
+  // 報酬：每次讀到餘額就記一筆（每家帳號 30 分鐘最多一筆、留 35 天），拿約 24 小時前那筆當基準；還不到一天就用第一筆（加入以來）。入金、出金、子帳號互轉也會算進去
+  const SNK='fdSnap',SJ=()=>{try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {}}};
+  function snap(acc){const S=SJ(),now=Date.now();for(const x of acc){if(!x.ok||!(x.total_usd>0))continue;const a=(S[x.id]||[]).filter(r=>now-r[0]<35*864e5);if(!a.length||now-a[a.length-1][0]>18e5)a.push([now,+x.total_usd.toFixed(2)]);S[x.id]=a.slice(-1700)}
+    for(const id of Object.keys(S))if(!acc.some(x=>x.id===id))delete S[id];try{localStorage.setItem(SNK,JSON.stringify(S))}catch(e){}}
+  function ret(list){const S=SJ(),now=Date.now();let b=0,v=0,day=true,n=0;for(const x of list){if(!x.ok)continue;const a=S[x.id]||[];if(!a.length)continue;let r=null;for(const q of a)if(now-q[0]>=864e5)r=q;if(!r){r=a[0];day=false}b+=r[1];v+=x.total_usd||0;n++}
+    return n&&b>0?{d:v-b,p:(v-b)/b*100,lab:day?'24h':'加入以來'}:null}
+  const retTx=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+r.lab+' '+(hide?'••••':(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%')+'</span>':'<span class="fdmu">報酬計算中</span>';
+  const retAmt=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+money(sgn(r.d))+'（'+(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%）</span>':'—';
+  // 主帳號／子帳號：Bybit、OKX 從金鑰查得到；其他家看名稱有沒有「主」「子」
+  const role=x=>x.master===true?'主帳號':x.master===false?'子帳號':/主|main|master/i.test(x.name||'')?'主帳號':/子|sub/i.test(x.name||'')?'子帳號':'帳號';
+  const exAcc=k=>(D?D.accounts:[]).filter(x=>x.exchange===k).sort((p,q)=>(role(p)==='主帳號'?0:1)-(role(q)==='主帳號'?0:1)||(q.total_usd||0)-(p.total_usd||0));
+  const exKeys=()=>[...new Set((D?D.accounts:[]).map(x=>x.exchange))];
+  let curEx='';
+  function exView(k){curEx=k;const A=exAcc(k);if(!A.length)return go('home');const tot=A.reduce((t,x)=>t+(x.total_usd||0),0),u=A.reduce((t,x)=>t+upnl(x),0),r=ret(A);
+    let h='<div class="fdhead">'+lg(k)+'<div><b>'+es(exName(k))+'</b><br><span class="fdchip">'+A.length+' 個帳號</span></div></div>';
+    h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+money('US$ '+fm(tot))+'</div><small class="fdmu">'+(r?r.lab+' 報酬 ':'報酬 ')+retAmt(r)+'</small>'+(A.some(x=>x.positions&&x.positions.length)?'<small class="fdmu">未實現損益 <span class="'+(u>=0?'fdup':'fddn')+'">'+money(sgn(u))+'</span></small>':'')+'</div>';
+    h+='<div class="fdrow"><b>主帳號與子帳號</b><small class="fdmu">點帳號看詳細</small></div><div class="fdaccs">'+A.map(x=>{const rr=ret([x]),np=(x.positions||[]).length;
+      return '<button class="fdacc" type="button" data-fid="'+es(x.id)+'"><span style="min-width:0"><span class="fdchip">'+role(x)+'</span> <span class="nm">'+es(x.name||exName(k))+'</span><br><small class="fdmu">'+(x.ok?(np?'持倉 '+np+' 筆':'沒有持倉'):'讀取失敗')+'</small></span><span class="r"><b>'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</b><br><small>'+(x.ok?retTx(rr):'<span class="fdchip fddn">讀取失敗</span>')+'</small></span></button>'}).join('')+'</div>';
+    h+='<button class="fdghost" type="button" data-fex="'+k+'" style="width:100%;color:inherit;margin-top:4px">＋ 加入 '+es(exName(k))+' 子帳號</button>';
+    $('#fdExB').innerHTML=h;go('ex')}
+  function go(s){['home','pick','setup','ex','detail'].forEach(k=>$('#fd'+k[0].toUpperCase()+k.slice(1)).hidden=k!==s);if(s==='pick')pick();$('#fundView').scrollTop=0}
   function home(){
     $('#fdEyeI').innerHTML=hide?EYE_C:EYE_O;$('#fdEye').setAttribute('aria-pressed',String(hide));
     $('#fdStack').innerHTML=['bybit','okx','binance','bitget','gate'].map(k=>lg(k)).join('');
@@ -2426,8 +2452,8 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     const w=$('#fdWarn');
     if(!paired&&!A.length){w.hidden=false;w.innerHTML='<div class="fdcard">按下面「加入交易所」，貼上唯讀金鑰就能直接在這支手機看資金。<br><small class="fdmu">有一台常開的電腦？也可以連接 HexStack 電腦版，讓金鑰只存在電腦。</small><button class="fdghost" type="button" id="fdToBot" style="margin-top:8px;width:100%;color:inherit">連接 HexStack 電腦版</button></div>'}
     else if(err){w.hidden=false;w.innerHTML='<div class="fdcard fddn">'+es(err)+'</div>'}else w.hidden=true;
-    $('#fdGrid').innerHTML=A.map(x=>'<button class="fdtile" type="button" data-fid="'+es(x.id)+'"><span class="tp">'+lg(x.exchange)+'<span class="nm">'+es(x.name||exName(x.exchange))+'</span></span><span><span class="v">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</span><br>'
-      +(x.ok?'<span class="d '+(upnl(x)>=0?'fdup':'fddn')+'">'+(hide?'••••••':(x.positions&&x.positions.length?sgn(upnl(x)):exName(x.exchange)))+'</span>':'<span class="fdchip fddn">讀取失敗</span>')+'</span></button>').join('')
+    $('#fdGrid').innerHTML=exKeys().map(k=>{const G=exAcc(k),t=G.reduce((a,x)=>a+(x.total_usd||0),0),bad=G.filter(x=>!x.ok).length;
+      return '<button class="fdtile" type="button" data-fexv="'+k+'"><span class="tp">'+lg(k)+'<span class="nm">'+es(exName(k))+'</span></span><span><span class="v">'+(G.some(x=>x.ok)?money('US$ '+fm(t)):'—')+'</span><br><span class="d">'+(bad===G.length?'<span class="fdchip fddn">讀取失敗</span>':retTx(ret(G)))+'</span><br><small class="fdmu">'+G.length+' 個帳號'+(bad&&bad<G.length?'・'+bad+' 個讀取失敗':'')+'</small></span></button>'}).join('')
       +'<button class="fdtile add" type="button" data-fgo="pick"><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
   }
   function pick(){const sup=SUP();
@@ -2443,8 +2469,23 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     $('#fdWPh').disabled=po;if(po&&pr)$('#fdWPc').checked=true;
     $('#fdPw').hidden=!(FXS[k]&&FXS[k].pass);$('#fdTw').hidden=k!=='bybit';if(k!=='bybit')$('#fdT').checked=false;if(pc&&!pc.includes(k)&&!po)$('#fdWPh').checked=true}
   function setup(k){askKey='';pickEx=k;const pr=window.BotTab&&BotTab.paired();$('#fdWhere').hidden=!pr;$('#fdWPc').checked=!!pr;$('#fdWPh').checked=!pr;head(k);$('#fdAddMsg').textContent='';$('#fdK').value='';$('#fdS').value='';$('#fdP').value='';$('#fdAsk').hidden=true;$('#fdNm').value='';$('#fdAddGo').disabled=false;go('setup')}
-  function detail(id){cur=id;const x=D&&D.accounts.find(a=>a.id===id);if(!x)return go('home');
-    let h='<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+es(x.name)+'</span> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
+  // 帳號明細分三頁：總覽、策略回顧、交易紀錄。後兩頁來自 HexStack 電腦版的自動交易，要先指定哪個帳號是 HexBOT 下單用的
+  let dtab='ov',BR=null,BL=null;
+  const BIND='fdBot',bound=()=>{try{return localStorage.getItem(BIND)||''}catch(e){return ''}};
+  function botPage(x){const pr=window.BotTab&&BotTab.paired(),b=bound(),bx=D&&D.accounts.find(a=>a.id===b);
+    if(!pr)return '<div class="card"><p class="sub">策略回顧和交易紀錄來自 HexStack 電腦版的自動交易。到「開始交易 › 自動交易」連接電腦版後就會出現。</p></div>';
+    if(b!==x.id)return '<div class="card"><p class="sub" style="font-size:13.5px">'+(bx?'HexBOT 目前設定在「'+es(exName(bx.exchange))+' '+es(bx.name)+'」下單。':'還沒指定 HexBOT 在哪個帳號下單。')+'如果自動交易是用這個帳號下單，按下面設定，這裡就會顯示它的策略回顧和交易紀錄。</p><button class="bbtn pri" type="button" data-fbind="'+es(x.id)+'">HexBOT 用這個帳號下單</button></div>';
+    const R=dtab==='rv'?BR:BL&&BL.filter(e=>e.type!=='info'&&e.type!=='report');
+    return (detail.err?'<div class="fdcard fddn">'+es(detail.err)+'</div>':'')+(dtab==='rv'?BotTab.revList(R):BotTab.logCard(R))+'<div class="fdrow fdmu" style="font-size:12px"><span>HexBOT 在這個帳號下單</span><button class="fdghost" type="button" data-fbind="">取消設定</button></div>'}
+  function detail(id,t){if(id!==cur)dtab='ov';if(t)dtab=t;cur=id;const x=D&&D.accounts.find(a=>a.id===id);if(!x)return go('home');curEx=x.exchange;$('#fdDetBack').textContent='‹ '+exName(x.exchange);
+    const tabs='<div class="subt">'+[['ov','總覽'],['rv','策略回顧'],['lg','交易紀錄']].map(([k,n])=>'<button type="button" data-fdt="'+k+'"'+(dtab===k?' class="on"':'')+'>'+n+'</button>').join('')+'</div>';
+    if(dtab!=='ov'){$('#fdDet').innerHTML='<div class="fdbot">'+detHead(x)+tabs+botPage(x)+'</div>';go('detail');
+      if(window.BotTab&&BotTab.paired()&&bound()===id&&!detail.busy){detail.busy=1;BotTab.api(dtab==='rv'?'/api/review?days=0':'/api/log?n=100').then(j=>{if(dtab==='rv')BR=j;else BL=j}).then(()=>{detail.err=''},e=>{if(dtab==='rv')BR=BR||[];else BL=BL||[];detail.err='讀不到電腦版：'+e.message}).finally(()=>{detail.busy=0;if(cur===id&&!$('#fdDetail').hidden&&dtab!=='ov')$('#fdDet').querySelector('.fdbot').innerHTML=detHead(x)+tabs+botPage(x)})}
+      return}
+    let h='<div class="fdbot">'+detHead(x)+tabs+'</div>';
+    $('#fdDet').innerHTML=h+detOv(x);go('detail')}
+  const detHead=x=>'<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+role(x)+'</span> <span class="fdchip">'+es(x.name)+'</span> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
+  function detOv(x){const id=x.id;let h='';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
     if(x.notes&&x.notes.length)h+='<div class="fdcard fdmu">'+x.notes.map(es).join('<br>')+'</div>';
     if(x.assets&&x.assets.length)h+='<div class="fdpanel"><b>幣種</b><div class="fdscroll"><table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>'+x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)).map(a=>'<tr><td>'+es(a.coin)+(a.acct?' <span class="fdchip">'+es(a.acct)+'</span>':'')+'</td><td>'+(hide?'••••':am(a.amount))+'</td><td>'+(hide?'••••':fm(a.usd))+'</td></tr>').join('')+'</table></div></div>';
@@ -2454,7 +2495,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
         +(dist!=null?'<div class="fdrow"><small class="fdmu">距強平</small><small class="'+c+'">'+fm(dist,1)+'%</small></div><div class="fdbar"><i class="" style="width:'+Math.min(100,dist*4).toFixed(0)+'%;background:'+(dist<10?'#f5a524':'#26a69a')+'"></i></div>':'')+'</div>'}).join('')+'</div>';
     const k=(D.list||[]).find(a=>a.id===id);
     h+='<div class="fdrow fdmu" style="font-size:12px;flex-wrap:wrap"><span>金鑰 …'+es(k?k.keyTail:'')+'（唯讀，存在'+(x.where==='phone'?'這支手機':'電腦 HexStack')+'）'+(k&&k.testnet?'・測試網':'')+'</span><button class="fdghost" type="button" data-frm="'+es(id)+'">移除這個交易所</button></div><div id="fdRmAsk"></div>';
-    $('#fdDet').innerHTML=h;go('detail')}
+    return h}
   async function load(force){
     const paired=window.BotTab&&BotTab.paired(),L=LJ();
     if(!paired&&!L.length){D=null;err='';return home()}
@@ -2463,16 +2504,19 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     const [hr,lr]=await Promise.all([paired?BotTab.api('/api/funds'+(force?'?force=1':'')).catch(e=>{err='連不到 HexStack 電腦版：'+e.message+'。請確認電腦上的程式有開著。';return null}):null,Promise.all(L.map(readLocal))]);
     H=hr;const acc=(H?H.accounts.map(x=>Object.assign({where:'pc'},x)):[]).concat(lr);
     D={updated_at:new Date().toISOString(),accounts:acc,total_usd:acc.reduce((t,x)=>t+(x.total_usd||0),0),list:(H&&H.list||[]).concat(L.map(a=>({id:a.id,keyTail:a.key.slice(-4),testnet:!!a.testnet}))),supported:[...new Set((H&&H.supported||[]).concat(LOCAL_EX))]};
-    busy=false;home();if(!$('#fdDetail').hidden&&cur)detail(cur);
+    snap(acc);busy=false;home();if(!$('#fdDetail').hidden&&cur)detail(cur);else if(!$('#fdEx').hidden&&curEx)exView(curEx);
   }
-  $('#fdEye').onclick=()=>{hide=!hide;try{localStorage.setItem('fdHide',hide?'1':'0')}catch(e){}home();if(!$('#fdDetail').hidden&&cur)detail(cur)};
+  $('#fdEye').onclick=()=>{hide=!hide;try{localStorage.setItem('fdHide',hide?'1':'0')}catch(e){}home();if(!$('#fdDetail').hidden&&cur)detail(cur);else if(!$('#fdEx').hidden&&curEx)exView(curEx)};
   $('#fundView').addEventListener('click',async e=>{const t=e.target;let b;
     if(t===$('#fdAsk')){$('#fdAsk').hidden=true;return}
     if(t.closest('#fdToBot')){$('#nav_sig').click();window.BotTab&&BotTab.mode('bot');return}
-    if((b=t.closest('[data-fgo]'))){e.preventDefault();go(b.dataset.fgo);return}
+    if((b=t.closest('[data-fgo]'))){e.preventDefault();if(b.dataset.fgo==='ex'&&curEx)exView(curEx);else go(b.dataset.fgo);return}
+    if((b=t.closest('[data-fexv]'))){exView(b.dataset.fexv);return}
+    if((b=t.closest('[data-fdt]'))){detail(cur,b.dataset.fdt);return}
+    if((b=t.closest('[data-fbind]'))){try{b.dataset.fbind?localStorage.setItem(BIND,b.dataset.fbind):localStorage.removeItem(BIND)}catch(e2){}BR=BL=null;detail(cur);return}
     // 點空白處回上一頁（選交易所、設定、詳細頁）
     if(t===$('#fundView')||t.classList.contains('fscr')||t.parentElement===$('#fundView')&&t.classList.contains('wrap')){
-      if(!$('#fdPick').hidden)go('home');else if(!$('#fdSetup').hidden)go('pick');else if(!$('#fdDetail').hidden)go('home');return}
+      if(!$('#fdPick').hidden)go('home');else if(!$('#fdSetup').hidden)go('pick');else if(!$('#fdDetail').hidden)curEx?exView(curEx):go('home');else if(!$('#fdEx').hidden)go('home');return}
     if((b=t.closest('[data-fex]'))){setup(b.dataset.fex);return}
     if((b=t.closest('[data-fid]'))){detail(b.dataset.fid);return}
     if((b=t.closest('[data-frm]'))){const id=b.dataset.frm;$('#fdRmAsk').innerHTML='<div class="fdcard">確定從電腦移除這個交易所的金鑰？<div class="fdrow" style="margin-top:8px"><button class="fdghost" type="button" data-frmy="'+es(id)+'">移除</button><button class="fdghost" style="color:inherit" type="button" data-frmn>取消</button></div></div>';return}
@@ -2502,7 +2546,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
       $('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
     catch(err2){$('#fdS').value='';$('#fdP').value='';m.textContent=err2.message;$('#fdAddGo').disabled=false}
   });
-  return {open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden)go('home');home();load(false);
+  return {open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
     if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on')&&!document.hidden)load(false)},60000)}};
 })();
 // 設定分頁：外觀模式、資料狀態、一鍵更新
@@ -3486,10 +3530,12 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     for(const[st,sym,k,dd,nm]of window.FW1){let key=Object.keys(L).find(x=>{const[a,b]=SigLock.part(x);return a===st&&b===sym&&+L[x].kMul===k&&(L[x].ddCut||'off')===dd});
       if(!key){key=SigLock.create(st,sym,'框架・'+nm+' '+sym,SigLock.clean(Object.assign({},BEST[st][sym],{kMul:k,ddCut:dd})));if(key)SigLock.pause(key,true)}if(key)out.push(key)}
     SigLock.setEdit(null);return out}
+  // 下單紀錄、策略回顧的卡片：資產總覽的帳號明細也用
+  const TY={open:'開倉',close:'平倉',stop:'止損',tp:'止盈',skip:'略過',pause:'暫停',resume:'恢復',halt:'安全上限',error:'錯誤',info:'訊息',report:'每日報告'};
+  const logCard=R=>`<div class="card lg"><div class="bh">下單紀錄<span>${R?'最近 '+R.length+' 筆':''}</span></div>${!R?'<p class="sub">讀取中…</p>':R.length?R.slice(0,60).map(x=>`<div class="br"><div>${md(x.t)} ${TY[x.type]||H_(x.type)}${x.side?(x.side>0?'多':'空'):''} ${H_(x.sym||'')}<div class="sub">${H_(x.name||'')}${x.px?'・'+fm(x.px,x.px<10?4:1):''}${x.text?'・'+H_(x.text):''}</div></div>${x.pnl!=null&&x.pnl!==0?`<b class="${cl(x.pnl)}">${sg(x.pnl)}</b>`:''}</div>`).join(''):'<p class="sub">還沒有紀錄</p>'}</div>`;
   function lg(){const s=S,lm=s.limits||{},R=LOG;
-    const TY={open:'開倉',close:'平倉',stop:'止損',tp:'止盈',skip:'略過',pause:'暫停',resume:'恢復',halt:'安全上限',error:'錯誤',info:'訊息',report:'每日報告'};
     const lims=[['maxPosPct','單一策略最大倉位','% 帳戶'],['maxLev','最大槓桿','倍'],['dayLossPct','每日最大虧損','% → 全部暫停'],['maxDDPct','總回撤上限','% → 全部平倉']];
-    return `<div class="card lg"><div class="bh">下單紀錄<span>${R?'最近 '+R.length+' 筆':''}</span></div>${!R?'<p class="sub">讀取中…</p>':R.length?R.slice(0,60).map(x=>`<div class="br"><div>${md(x.t)} ${TY[x.type]||H_(x.type)}${x.side?(x.side>0?'多':'空'):''} ${H_(x.sym||'')}<div class="sub">${H_(x.name||'')}${x.px?'・'+fm(x.px,x.px<10?4:1):''}${x.text?'・'+H_(x.text):''}</div></div>${x.pnl!=null&&x.pnl!==0?`<b class="${cl(x.pnl)}">${sg(x.pnl)}</b>`:''}</div>`).join(''):'<p class="sub">還沒有紀錄</p>'}</div>
+    return logCard(R)+`
     <div class="card"><div class="bh"><span>安全上限</span><button class="lk" id="botSug" type="button">依回測建議</button></div>
       ${lims.map(([k,n,u])=>`<div class="lim"><span>${n}${sug&&sug[k]!=null?`<br><small>建議 ${sug[k]}</small>`:''}</span><span style="display:flex;align-items:center;gap:6px"><input type="number" inputmode="decimal" id="lim_${k}" value="${(draft&&draft[k]!=null?draft[k]:lm[k])??''}" min="0" step="any"><small>${u}</small></span></div>`).join('')}
       <button class="bbtn pri" id="botLimGo" type="button" style="margin-top:8px">儲存上限</button>
@@ -3506,16 +3552,18 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     let pk=0,dd=0,day=0;for(let d=0;d<=N;d++){const v=acc[d]+(1-wsum);pk=Math.max(pk,v);dd=Math.max(dd,1-v/pk);if(d)day=Math.max(day,1-v/(acc[d-1]+(1-wsum)))}
     const r5=v=>Math.ceil(v/5)*5;sug={maxDDPct:Math.min(50,Math.max(10,r5(dd*100*1.5))),dayLossPct:Math.min(20,Math.max(3,Math.ceil(day*100*1.5))),maxLev:Math.min(10,Math.ceil(lev)),maxPosPct:Math.min(100,Math.max(10,r5(pos*100*1.2)))};
     draft=Object.assign({},sug);render();toast(`近兩年合成回撤 ${(dd*100).toFixed(1)}%、最差單日 ${(day*100).toFixed(1)}%，已填入建議值，確認後按「儲存上限」`)}
-  function rv(){const R=REV;
+  const revList=R=>{
     const curve=(a,b)=>{const all=[...(a||[]),...(b||[])];if(all.length<2)return '';const T=all.map(p=>p[0]),V=all.map(p=>p[1]),t0=Math.min(...T),t1=Math.max(...T),v0=Math.min(...V),v1=Math.max(...V),w=340,h=90;
       const pl=c=>(c||[]).map(p=>`${((p[0]-t0)/(t1-t0||1)*w).toFixed(1)},${(h-6-(p[1]-v0)/(v1-v0||1)*(h-12)).toFixed(1)}`).join(' ');
       return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;margin:4px 0"><polyline fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" points="${pl(b)}"/><polyline fill="none" stroke="var(--acc)" stroke-width="2.2" points="${pl(a)}"/></svg><div class="sub" style="display:flex;gap:14px;margin-bottom:4px"><span style="color:var(--acc)">━ 實際</span><span>┄ 同期回測</span></div>`};
     const row=(n,a,b,f)=>`<span>${n}</span><b>${f(a)}</b><span>${f(b)}</span>`;
-    return `<div class="seg" id="botDays">${[[7,'近 7 天'],[30,'近 30 天'],[0,'全部']].map(([d,n])=>`<button type="button" data-d="${d}"${days===d?' class="on"':''}>${n}</button>`).join('')}</div>`
-    +(!R?'<div class="card"><p class="sub">讀取中…</p></div>':!R.length?'<div class="card"><p class="sub">還沒有策略在跑。加入策略後，這裡會拿實際成績跟同期回測比，看策略有沒有照回測走。</p></div>':R.map(x=>{const a=x.real||{},b=x.bt||{},few=!(a.trades||a.fills)&&!b.trades;
+    return (!R?'<div class="card"><p class="sub">讀取中…</p></div>':!R.length?'<div class="card"><p class="sub">還沒有策略在跑。加入策略後，這裡會拿實際成績跟同期回測比，看策略有沒有照回測走。</p></div>':R.map(x=>{const a=x.real||{},b=x.bt||{},few=!(a.trades||a.fills)&&!b.trades;
       return `<div class="card"><div class="bh"><b style="color:var(--text)">${H_(x.name)}${String(x.name||'').includes(x.sym)?'':'・'+H_(x.sym)}</b><span class="pill ${few&&x.status!=='drift'?'p-mu':x.status==='ok'?'p-ok':x.status==='drift'?'p-wn':'p-mu'}">${few&&x.status!=='drift'?'資料還不夠':x.status==='ok'?'與回測一致':x.status==='drift'?'偏離回測':'資料還不夠'}</span></div>${curve(a.curve,b.curve)}
         <div class="cmp"><span class="hd"></span><span class="hd">實際</span><span class="hd">回測</span>${row('報酬',a.ret,b.ret,v=>`<span class="${cl(v)}">${pc(v)}</span>`)}${row('交易次數',a.trades,b.trades,v=>v??'—')}${row('勝率',a.win,b.win,v=>v==null?'—':Math.round(v)+'%')}${row('最大回撤',a.mdd,b.mdd,v=>v==null?'—':(+v).toFixed(1)+'%')}${row('平均滑價',a.slip,b.slip,v=>v==null?'—':(+v).toFixed(3)+'%')}</div>
-        ${(x.reasons||[]).length?`<p class="sub" style="margin:8px 0 0">${x.status==='drift'?'差異原因：':''}${x.reasons.map(H_).join('；')}</p>`:''}</div>`}).join(''))}
+        ${(x.reasons||[]).length?`<p class="sub" style="margin:8px 0 0">${x.status==='drift'?'差異原因：':''}${x.reasons.map(H_).join('；')}</p>`:''}</div>`}).join(''))};
+  function rv(){const R=REV;
+    return `<div class="seg" id="botDays">${[[7,'近 7 天'],[30,'近 30 天'],[0,'全部']].map(([d,n])=>`<button type="button" data-d="${d}"${days===d?' class="on"':''}>${n}</button>`).join('')}</div>`
+    +revList(R)}
   function bind(){const b=box();b.oninput=e=>{const m=e.target.id&&e.target.id.match(/^lim_(\w+)/);if(m){draft=draft||{};draft[m[1]]=e.target.value}};b.onclick=async e=>{const t=e.target.closest('button');if(!t)return;
     if(t.dataset.t){tab=t.dataset.t;W('botTab',tab);render();refresh();return}
     if(t.dataset.d!=null){days=+t.dataset.d;REV=null;render();refresh();return}
@@ -3534,7 +3582,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
-  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host(),pBase}})();
+  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
