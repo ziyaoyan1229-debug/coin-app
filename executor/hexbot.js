@@ -390,7 +390,7 @@ async function bybitFunds(a) {
   const ex = new BybitExchange({ apiKey: a.apiKey, apiSecret: a.apiSecret, testnet: !!a.testnet, limits: C.limits });
   const info = await ex.req('GET', '/v5/user/query-api', {});
   if (info.readOnly !== 1 && !a.trade) throw new HErr(400, '這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。');
-  const out = { total_usd: 0, assets: [], positions: [], notes: [], master: typeof info.isMaster === 'boolean' ? info.isMaster : undefined };
+  const out = { total_usd: 0, assets: [], positions: [], notes: [], master: typeof info.isMaster === 'boolean' ? info.isMaster : undefined, uid: info.userID != null ? String(info.userID) : undefined };
   const px = {}, price = async c => { if (STABLE.has(c)) return 1; if (px[c] == null) { try { px[c] = +(await ex.req('GET', '/v5/market/tickers', { category: 'spot', symbol: c + 'USDT' }, false)).list[0].lastPrice; } catch (e) { px[c] = 0; } } return px[c]; };
   let got = false;
   for (const accountType of ['UNIFIED', 'CONTRACT']) {
@@ -581,6 +581,11 @@ async function fundAdd(d) {
   if (d.exchange !== 'bybit') a.testnet = false;
   if ((C.funds || []).some(x => x.exchange === a.exchange && x.apiKey === a.apiKey)) throw new HErr(400, '這把金鑰已經加過了');
   let r; try { r = await ex.read(a); } catch (e) { if (e instanceof HErr) throw e; throw new HErr(400, '金鑰驗證失敗：' + e.message); }
+  // 同一個 Bybit 帳戶已經用下單金鑰算進總資產，再加唯讀金鑰會重複算
+  if (a.exchange === 'bybit' && r.uid && liveReady() && C.tradeInTotal !== false && !!C.testnet === a.testnet) {
+    let tu = null; try { tu = String((await new BybitExchange({ apiKey: C.apiKey, apiSecret: C.apiSecret, testnet: !!C.testnet, limits: C.limits }).req('GET', '/v5/user/query-api', {})).userID); } catch (e) {}
+    if (tu && tu === r.uid) throw new HErr(400, '這個 Bybit 帳戶已經用下單金鑰算進總資產了，不用再加唯讀金鑰（加了會重複計算）。');
+  }
   (C.funds = C.funds || []).push(a); saveCfg(); FUND_CACHE[a.id] = { at: Date.now(), v: Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, r) };
   log('info', { text: `資產總覽新增 ${a.name}（唯讀金鑰 …${a.apiKey.slice(-4)}）` });
   return { ok: true, id: a.id, total_usd: r.total_usd };
