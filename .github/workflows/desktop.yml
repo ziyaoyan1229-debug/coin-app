@@ -7,7 +7,7 @@ on:
   push:
     tags: ['desktop-v*']
     branches-ignore: [main, gh-pages, data]
-    paths: ['desktop/**', '.github/workflows/desktop.yml']
+    paths: ['desktop/**', 'executor/hexbot.js', '.github/workflows/desktop.yml']
   workflow_dispatch:
 permissions:
   contents: write
