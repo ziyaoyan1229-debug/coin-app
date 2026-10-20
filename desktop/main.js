@@ -49,7 +49,9 @@ function pairInfo() {
   return { u: 'http://localhost:' + (c.port || 8787), k: c.token, h: c.hostId, n: c.hostName || '這台電腦' };
 }
 ipcMain.on('hs:pair', e => { e.returnValue = prefs.botOn ? pairInfo() : null; });
-ipcMain.on('hs:info', e => { e.returnValue = { ver: app.getVersion(), platform: process.platform, bot: !!bot }; });
+ipcMain.on('hs:info', e => { e.returnValue = { ver: app.getVersion(), platform: process.platform, bot: !!bot, site: new URL(SITE).origin }; });
+// 網頁連不上執行器時拿來顯示原因：有沒有開、有沒有在跑、最後幾行輸出
+ipcMain.on('hs:status', e => { e.returnValue = { botOn: !!prefs.botOn, running: !!bot, cfg: !!pairInfo(), log: botLog.slice(-8) }; });
 ipcMain.on('hs:console', () => openConsole());
 
 // ── Google 登入：Google 不讓 App 內嵌視窗登入，改開系統瀏覽器到網站的 desktop-login.html，

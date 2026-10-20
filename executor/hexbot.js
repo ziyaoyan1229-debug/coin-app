@@ -389,8 +389,8 @@ const STABLE = new Set(['USDT', 'USDC', 'USD', 'FDUSD', 'DAI']);
 async function bybitFunds(a) {
   const ex = new BybitExchange({ apiKey: a.apiKey, apiSecret: a.apiSecret, testnet: !!a.testnet, limits: C.limits });
   const info = await ex.req('GET', '/v5/user/query-api', {});
-  if (info.readOnly !== 1) throw new HErr(400, '這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。');
-  const out = { total_usd: 0, assets: [], positions: [], notes: [], master: typeof info.isMaster === 'boolean' ? info.isMaster : undefined };
+  if (info.readOnly !== 1 && !a.trade) throw new HErr(400, '這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。');
+  const out = { total_usd: 0, assets: [], positions: [], notes: [], master: typeof info.isMaster === 'boolean' ? info.isMaster : undefined, uid: info.userID != null ? String(info.userID) : undefined };
   const px = {}, price = async c => { if (STABLE.has(c)) return 1; if (px[c] == null) { try { px[c] = +(await ex.req('GET', '/v5/market/tickers', { category: 'spot', symbol: c + 'USDT' }, false)).list[0].lastPrice; } catch (e) { px[c] = 0; } } return px[c]; };
   let got = false;
   for (const accountType of ['UNIFIED', 'CONTRACT']) {
@@ -558,10 +558,12 @@ const fxFunds = ex => a => fxRead(ex, { key: a.apiKey, secret: a.apiSecret, pass
 const FUND_EX = { bybit: { name: 'Bybit', read: bybitFunds } };
 for (const k of Object.keys(FXS)) FUND_EX[k] = { name: FXS[k].name, pass: !!FXS[k].pass, read: fxFunds(k) };
 const FUND_CACHE = {};
-const fundList = () => (C.funds || []).map(a => ({ id: a.id, name: a.name, exchange: a.exchange, testnet: !!a.testnet, keyTail: a.apiKey.slice(-4) }));
+const fundList = () => (C.funds || []).map(a => ({ id: a.id, name: a.name, exchange: a.exchange, testnet: !!a.testnet, keyTail: a.apiKey.slice(-4), inTotal: a.inTotal !== false }));
+// 下單用的 Bybit 金鑰也能算進資產總覽（tradeInTotal）：用同一個讀取函式，但不檢查唯讀（它本來就有交易權限）
+const tradeAcct = () => liveReady() && C.tradeInTotal !== false ? { id: 'trade', name: 'Bybit・下單用', exchange: 'bybit', testnet: !!C.testnet, apiKey: C.apiKey, apiSecret: C.apiSecret, trade: true } : null;
 async function fundsAll(force) {
-  const now = Date.now(), res = [];
-  for (const a of C.funds || []) {
+  const now = Date.now(), res = [], T = tradeAcct();
+  for (const a of (T ? [T] : []).concat((C.funds || []).filter(x => x.inTotal !== false))) {
     const c = FUND_CACHE[a.id];
     if (!force && c && now - c.at < 60000) { res.push(c.v); continue; }
     let v;
@@ -573,12 +575,17 @@ async function fundsAll(force) {
 }
 async function fundAdd(d) {
   const ex = FUND_EX[d.exchange]; if (!ex) throw new HErr(400, '目前只支援：' + Object.keys(FUND_EX).join('、'));
-  const a = { id: 'f' + rnd(6), name: String(d.name || ex.name).trim().slice(0, 30) || ex.name, exchange: d.exchange, testnet: d.testnet === true, apiKey: String(d.apiKey || '').trim().slice(0, 100), apiSecret: String(d.apiSecret || '').trim().slice(0, 600) };
+  const a = { id: 'f' + rnd(6), name: String(d.name || ex.name).trim().slice(0, 30) || ex.name, exchange: d.exchange, testnet: d.testnet === true, inTotal: d.inTotal !== false, apiKey: String(d.apiKey || '').trim().slice(0, 100), apiSecret: String(d.apiSecret || '').trim().slice(0, 600) };
   if (!a.apiKey || !a.apiSecret) throw new HErr(400, '要填 API Key 和 Secret');
   if (ex.pass) { a.passphrase = String(d.passphrase || '').slice(0, 100); if (!a.passphrase) throw new HErr(400, `${ex.name} 還要填 Passphrase（建立金鑰時自己設的密碼）`); }
   if (d.exchange !== 'bybit') a.testnet = false;
   if ((C.funds || []).some(x => x.exchange === a.exchange && x.apiKey === a.apiKey)) throw new HErr(400, '這把金鑰已經加過了');
   let r; try { r = await ex.read(a); } catch (e) { if (e instanceof HErr) throw e; throw new HErr(400, '金鑰驗證失敗：' + e.message); }
+  // 同一個 Bybit 帳戶已經用下單金鑰算進總資產，再加唯讀金鑰會重複算
+  if (a.exchange === 'bybit' && r.uid && liveReady() && C.tradeInTotal !== false && !!C.testnet === a.testnet) {
+    let tu = null; try { tu = String((await new BybitExchange({ apiKey: C.apiKey, apiSecret: C.apiSecret, testnet: !!C.testnet, limits: C.limits }).req('GET', '/v5/user/query-api', {})).userID); } catch (e) {}
+    if (tu && tu === r.uid) throw new HErr(400, '這個 Bybit 帳戶已經用下單金鑰算進總資產了，不用再加唯讀金鑰（加了會重複計算）。');
+  }
   (C.funds = C.funds || []).push(a); saveCfg(); FUND_CACHE[a.id] = { at: Date.now(), v: Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, r) };
   log('info', { text: `資產總覽新增 ${a.name}（唯讀金鑰 …${a.apiKey.slice(-4)}）` });
   return { ok: true, id: a.id, total_usd: r.total_usd };
@@ -983,7 +990,7 @@ async function status() {
       equity: r2(stratEq(g)), base: r2(g.base || 0), position: g.pos ? { side: g.pos.side, qty: g.pos.qty, entry: g.pos.entry, stop: g.pos.stop || 0, tp: g.pos.tp || 0, upnl: r2(g.pos.side * g.pos.qty * (P - g.pos.entry)) } : null, target: g.tg || null, lastBar: g.lastBar || 0, review: rv };
   });
   const cnt = k => S.strategies.filter(g => g.state === k).length;
-  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), allowLive: C.allowLive === true,
+  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, funds: fundList(), fundEx: Object.keys(FUND_EX),
     mode: L === 'paper' ? 'paper' : C.testnet ? 'testnet' : 'live', counts: { trial: cnt('trial'), running: cnt('running'), paused: cnt('paused') },
     now: nowS(), lastTick: S.lastTickAt || 0, lastBar: S.lastBar || 0, equity: r2(eq), startEquity: r2(A.start || eq), startT: A.startT || S.startT,
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
@@ -1058,6 +1065,14 @@ async function api(req, res, p) {
     log('resume', { text: '解除帳戶煞車（回撤高點、今日起點重設為現在權益）' }); dirty(); save(); return { ok: true };
   }
   if (p === '/api/funds/add') return fundAdd(d);
+  // 帳戶設定：要不要算進資產總覽、改名（id 'trade'＝下單用的 Bybit 金鑰）
+  if (p === '/api/funds/set') {
+    if (d.id === 'trade') { if ('inTotal' in d) C.tradeInTotal = d.inTotal !== false; saveCfg(); delete FUND_CACHE.trade; return { ok: true }; }
+    const a = (C.funds || []).find(x => x.id === d.id); if (!a) throw new HErr(404, '找不到這個帳戶');
+    if ('inTotal' in d) a.inTotal = d.inTotal !== false; if (typeof d.name === 'string' && d.name.trim()) a.name = d.name.trim().slice(0, 30);
+    saveCfg(); delete FUND_CACHE[a.id]; return { ok: true };
+  }
+  if (p === '/api/funds/remove' && d.id === 'trade') { C.tradeInTotal = false; saveCfg(); delete FUND_CACHE.trade; return { ok: true }; }
   if (p === '/api/funds/remove') { const n = (C.funds || []).length; C.funds = (C.funds || []).filter(x => x.id !== d.id); if (C.funds.length === n) throw new HErr(404, '找不到這個帳戶'); delete FUND_CACHE[d.id]; saveCfg(); return { ok: true }; }
   throw new HErr(404, '沒有這個功能');
 }
@@ -1067,10 +1082,11 @@ async function localApi(req, p) {
     if ('exchange' in d) { if (!['paper', 'bybit'].includes(d.exchange)) throw new HErr(400, '交易所只支援 paper、bybit'); C.exchange = d.exchange; }
     if ('testnet' in d) C.testnet = !!d.testnet;
     if ('allowLive' in d) C.allowLive = d.allowLive === true;
+    if ('tradeInTotal' in d) { C.tradeInTotal = d.tradeInTotal !== false; delete FUND_CACHE.trade; }
     if (typeof d.apiKey === 'string' && d.apiKey !== '••••') C.apiKey = d.apiKey.trim().slice(0, 100);
     if (typeof d.apiSecret === 'string' && d.apiSecret !== '••••') C.apiSecret = d.apiSecret.trim().slice(0, 200);
     if (typeof d.hostName === 'string' && d.hostName.trim()) C.hostName = d.hostName.trim().slice(0, 40);
-    saveCfg(); setupLive();
+    saveCfg(); setupLive(); delete FUND_CACHE.trade;
     let test = '';
     if (LED.live) try { test = '連線成功，權益 ' + fmt(await LED.live.getEquity()) + ' USDT'; } catch (e) { test = '連線失敗：' + e.message; }
     log('info', { text: `交易所設定更新：${C.exchange}${C.exchange === 'bybit' ? (C.testnet ? '（測試網）' : '（正式網）') : ''}${test ? '，' + test : ''}` });
