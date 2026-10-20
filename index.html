@@ -2621,9 +2621,10 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
       $('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
     catch(err2){$('#fdS').value='';$('#fdP').value='';{const M=err2.message;m.textContent=M+(pickEx==='bybit'&&/10003|API key is invalid/i.test(M)?($('#fdT').checked?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：測試網金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):'')}$('#fdAddGo').disabled=false}
   });
-  return {EX,lg,exName,pass:k=>!!(FXS[k]&&FXS[k].pass),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
+  return {EX,lg,exName,pass:k=>!!(FXS[k]&&FXS[k].pass),pre:()=>load(false),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
     if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on')&&!document.hidden)load(false)},60000)}};
 })();
+window.FundTab=FundTab;
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
   $('#setSrc').textContent=tx('#liveTag').replace(/^價格：|^即時：/,'');
@@ -3730,7 +3731,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
-  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
+  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
@@ -4729,6 +4730,8 @@ if($('#newsView').classList.contains('on'))open();
 renderCoins();
 // 開場畫面等這些都抓完才進去：即時價格、市場分析（含恐懼貪婪、過去分析）、通知紀錄
 {const B=window.__boot||[];B.push(syncAll(),window.NewsTab.open());if(window.NotifyTab)B.push(NotifyTab.open());
+  // 也先跟電腦版要好 HexBOT 狀態和資產總覽，進去就有資料（連不到的話開場畫面最多等 6 秒）
+  if(window.BotTab)B.push(BotTab.pre());if(window.FundTab)B.push(FundTab.pre());
   // 價格同步完後在背景算今日訊號，市場分析的「今日摘要」才有最新的持倉／新訊號
   Promise.allSettled(B.slice()).then(()=>setTimeout(()=>window.SigTab&&SigTab.open(),1500))}
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
@@ -4889,7 +4892,7 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
     d.innerHTML='<div id="spG" style="min-height:44px;display:flex;justify-content:center"></div><div id="spM" style="color:#ffb4c0;font:13px -apple-system,system-ui,sans-serif;max-width:280px;text-align:center"></div><button type="button" id="spSkip" style="all:unset;cursor:pointer;color:#d8b6ff;font:14px -apple-system,\'PingFang TC\',system-ui,sans-serif;padding:6px 12px">稍後再說</button>';
     el.appendChild(d);d.querySelector('#spSkip').onclick=()=>{try{sessionStorage.setItem('hsGateSkip','1')}catch(e){}closeSplash()};gBtn('spG')};
   function gate(){if(st().tok)return closeSplash();const m=document.getElementById('spM');if(m)m.textContent=msg&&msg!=='登入中…'?msg:''}
-  render();if(st().tok)run(false);
+  render();if(st().tok)(window.__boot||[]).push(run(false));   // 開場畫面等雲端同步完才進去
   try{const m=sessionStorage.getItem('hsSyncMsg');if(m){sessionStorage.removeItem('hsSyncMsg');setTimeout(()=>{const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;font-size:13px;z-index:70';document.body.appendChild(t);setTimeout(()=>t.remove(),3000)},300)}}catch(e){}
   return {run,render,_login:login,st,api,syncable,logout,busy:()=>busy,push:()=>push()}})();
 // ───────── 資料庫（設定 › 資料庫）─────────
