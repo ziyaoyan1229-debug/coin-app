@@ -583,7 +583,12 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .setl span{color:var(--muted)}.setl b{font-weight:600;text-align:right}
 @media (prefers-reduced-motion:reduce){#themeToast.on{animation:none}:root[data-theme="light"] *{transition:none!important}}
 </style>
-<script>try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage.getItem('autoNight')==='1'&&(h>=22||h<6))t='night';if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>// 帳號同步：記下哪些設定被改過（登入且第一次同步完才開始記）。快取、交易所金鑰、電腦配對不同步
+(function(){try{var P=Storage.prototype,S=P.setItem,R=P.removeItem,X=/^(fdLocal|botHost|sig|hist|fng.*|mstrMeta|tglog|runlog|langBoot|hsSync|bnLast|bnPush|sigLockH)$/;window.__hs={set:S,rem:R,X:X,dirty:{},on:false,kick:null};
+function mark(k){var h=window.__hs;if(h.on&&!X.test(k)){h.dirty[k]=1;h.kick&&h.kick()}}
+P.setItem=function(k,v){k=String(k);v=String(v);if(this===localStorage){if(this.getItem(k)===v)return;S.call(this,k,v);mark(k)}else S.call(this,k,v)};
+P.removeItem=function(k){k=String(k);if(this===localStorage){if(this.getItem(k)===null)return;R.call(this,k);mark(k)}else R.call(this,k)}}catch(e){}})();
+try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage.getItem('autoNight')==='1'&&(h>=22||h<6))t='night';if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script>
 // 語言：設定裡選 English 時，整頁的介面文字用字典（i18n/en.json）換成英文；新聞、市場分析等 AI 產生的內容維持中文
 (function(){var L;try{L=localStorage.getItem('lang');
@@ -964,6 +969,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
     <div class="small" style="margin-top:8px">也可以點右上角的按鈕依序切換。</div></div></div>
   <div class="sect"><h2>語言 Language</h2><div class="card"><div class="seg tset" id="langSeg"><button data-l="zh">中文</button><button data-l="en">English</button></div>
     <div class="small" style="margin-top:8px">新聞和市場分析的內容是每天自動整理的中文，切到英文時這些內容維持中文。</div></div></div>
+  <div class="sect"><h2>帳號同步</h2><div class="card" id="syncBox"></div></div>
   <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
   <div class="sect"><h2>App</h2><div class="card"><button class="gbtn" id="setUpd" style="margin-top:0">更新到最新版</button>
     <div class="small" style="margin-top:8px">主畫面上的 App 沒看到新版時按這裡：清掉舊的暫存並重新載入。</div>
@@ -4682,5 +4688,45 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
 <div class="sub" style="font-size:11.5px;color:var(--muted);margin-top:6px">極度恐懼 ≤25、恐懼 25～45、中性 45～55、貪婪 55～75、極度貪婪 ≥75。資料來源 alternative.me。</div></div>
 <div id="evModal" role="dialog" aria-label="事件說明"><div class="hd"><h3 id="evTitle"></h3><button class="x" id="evX" aria-label="關閉">✕</button></div><div id="evBody"></div></div>
 <div id="libPick" hidden><div class="lp"><div class="lph"><b id="lpTitle">功能庫</b><button class="btn ghost" id="lpCancel" type="button" style="margin:0;padding:6px 12px">取消</button><button class="btn" id="lpOk" type="button" style="margin:0;padding:6px 14px">加入</button></div><input type="search" id="lpQ" placeholder="搜尋指標，例如 RSI、均線、布林、爆量"><div class="lpl" id="lpList"></div></div></div>
+<script>
+// ───────── 帳號同步（Google 登入）─────────
+// 登入後，我的策略、通知選項、外觀、資產報酬紀錄等設定存在雲端，手機和電腦開起來都一樣。交易所金鑰、電腦配對不上傳。
+// 後端：worker/push.js 的 /auth/google、/sync（Cloudflare D1）。同一個設定兩邊都改時，後存的蓋掉先存的。
+const HsSync=(()=>{const GCID='',BASE='https://hexstack-push.hexstack-df20e2.workers.dev',H=window.__hs,LS=localStorage,K='hsSync';
+  const st=()=>{try{return JSON.parse(LS.getItem(K))||{}}catch(e){return {}}},put=o=>{try{H.set.call(LS,K,JSON.stringify(o))}catch(e){}};
+  let busy=false,timer=0,msg='';
+  const api=async(p,body)=>{const o=st(),r=await fetch(BASE+p,{method:body?'POST':'GET',headers:Object.assign({'content-type':'application/json'},o.tok?{authorization:'Bearer '+o.tok}:{}),body:body?JSON.stringify(body):undefined,keepalive:!!body&&JSON.stringify(body).length<60000});
+    const j=await r.json().catch(()=>({error:'HTTP '+r.status}));if(r.status===401&&o.tok){put({});H.on=false;render()}if(!r.ok)throw new Error(j.error||'HTTP '+r.status);return j};
+  const syncable=k=>k&&!H.X.test(k);
+  // 第一次登入：雲端有的以雲端為準，只在這台有的上傳
+  async function pull(first){const o=st();let since=first?0:(o.last||0),got=0,remote=new Set(),j;
+    do{j=await api('/sync?since='+since);for(const x of j.items){remote.add(x.k);since=Math.max(since,x.t);if(!first&&H.dirty[x.k])continue;const cur=LS.getItem(x.k);if(x.v===null?cur!==null:cur!==x.v){x.v===null?H.rem.call(LS,x.k):H.set.call(LS,x.k,x.v);got++}}}while(j.items.length>=500);
+    if(first)for(let i=0;i<LS.length;i++){const k=LS.key(i);if(syncable(k)&&!remote.has(k))H.dirty[k]=1}
+    const n=st();n.last=Math.max(since,j.now-1);if(j.email)n.email=j.email;put(n);return got}
+  async function push(){const ks=Object.keys(H.dirty);if(!ks.length)return;for(const k of ks)delete H.dirty[k];
+    const items=ks.filter(syncable).map(k=>({k,v:LS.getItem(k)})).filter(x=>x.v===null||x.v.length<=200000);
+    try{for(let i=0;i<items.length;i+=100)await api('/sync',{items:items.slice(i,i+100)});const n=st();n.at=Date.now();put(n)}catch(e){for(const k of ks)H.dirty[k]=1;throw e}}
+  async function run(first){if(busy||!st().tok)return;busy=true;msg='';let got=0;
+    try{got=await pull(first);H.on=true;await push();if(!first){const n=st();n.at=Date.now();put(n)}}catch(e){msg=e.message}busy=false;render();
+    // 別台裝置改過的設定已經寫進來：重新載入讓畫面用新設定
+    if(got&&!msg){try{sessionStorage.setItem('hsSyncMsg','已從雲端同步 '+got+' 項設定')}catch(e){}location.reload()}}
+  H.kick=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(st().tok&&!busy)push().then(render).catch(e=>{msg=e.message;render()})},2000)};
+  document.addEventListener('visibilitychange',()=>{if(!st().tok)return;if(document.hidden){if(Object.keys(H.dirty).length)push().catch(()=>{})}else run(false)});
+  async function login(cred){msg='登入中…';render();try{const j=await api('/auth/google',{credential:cred});put({tok:j.token,email:j.email,last:0});await run(true)}catch(e){put({});msg='登入失敗：'+e.message;render()}}
+  let gis=null;const loadGis=()=>gis||(gis=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=ok;sc.onerror=()=>{gis=null;no(new Error('載入 Google 登入失敗'))};document.head.appendChild(sc)}));
+  function render(){const b=document.getElementById('syncBox');if(!b)return;const o=st(),es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    if(o.tok){b.innerHTML='<div class="setl"><div><span>帳號</span><b>'+es(o.email||'已登入')+'</b></div><div><span>上次同步</span><b>'+(busy?'同步中…':o.at?new Date(o.at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—')+'</b></div></div>'
+      +(msg?'<div class="small" style="color:var(--down);margin-top:6px">'+es(msg)+'</div>':'')
+      +'<button class="gbtn" type="button" id="syncNow">立即同步</button><div class="small" style="margin-top:8px">我的策略、通知選項、外觀、資產報酬紀錄會在手機和電腦之間同步。交易所金鑰和電腦配對不會上傳，每台裝置要自己加。<a href="privacy.html" target="_blank" style="color:var(--muted)">隱私權說明</a></div>'
+      +'<div style="display:flex;gap:14px;margin-top:10px;font-size:13px"><a href="#" id="syncOut" style="color:var(--muted)">登出</a><a href="#" id="syncWipe" style="color:var(--down)">刪除雲端資料</a></div>';
+      b.querySelector('#syncNow').onclick=()=>{msg='';run(false);render()};
+      b.querySelector('#syncOut').onclick=e=>{e.preventDefault();put({});H.on=false;H.dirty={};msg='';render()};
+      b.querySelector('#syncWipe').onclick=async e=>{e.preventDefault();if(!confirm('刪除這個帳號存在雲端的同步資料？這台裝置上的設定不受影響。'))return;try{await api('/sync/wipe',{});put({});H.on=false;H.dirty={};msg='雲端資料已刪除'}catch(x){msg=x.message}render()};return}
+    b.innerHTML='<div class="small" style="margin-bottom:10px;font-size:13px;line-height:1.6">用 Google 帳號登入，手機和電腦的我的策略、通知選項、外觀、資產報酬紀錄就會自動同步。交易所金鑰不會上傳。</div>'+(GCID?'<div id="syncG" style="min-height:44px"></div>':'<div class="small">即將開放</div>')+(msg?'<div class="small" style="margin-top:6px">'+es(msg)+'</div>':'');
+    if(GCID)loadGis().then(()=>{const el=document.getElementById('syncG');if(!el||st().tok)return;google.accounts.id.initialize({client_id:GCID,callback:r=>login(r.credential),ux_mode:'popup'});google.accounts.id.renderButton(el,{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'zh-TW'})}).catch(e=>{msg=e.message;render()})}
+  render();if(st().tok)run(false);
+  try{const m=sessionStorage.getItem('hsSyncMsg');if(m){sessionStorage.removeItem('hsSyncMsg');setTimeout(()=>{const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;font-size:13px;z-index:70';document.body.appendChild(t);setTimeout(()=>t.remove(),3000)},300)}}catch(e){}
+  return {run,render,_login:login}})();
+</script>
 </body>
 </html>
