@@ -563,8 +563,11 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .fdlab,.fdsub{font-size:12.5px;color:#cfc3f2}
 .fdeye{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;cursor:pointer;padding:0}
 .fdtot{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
-.fdsplit{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px}.fdsplit i{display:block;height:100%}
+.fdsplit{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px}.fdsplit i{display:block;height:100%}
 .fdleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#cfc3f2}.fdleg b{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+.fdlgg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;flex-basis:100%}.fdlgh{font-weight:700}.fdlga{opacity:.85}.fdleg .fdlga b{width:6px;height:6px;border-radius:50%}
+.fdrenf{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}.fdrenf input{flex:1 1 160px;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px}.fdrenf .fdgo{width:auto;padding:8px 16px;margin:0}.fdrenf small{flex-basis:100%}
+.fdren{padding:2px 8px;font-size:12px;color:var(--acc)!important}.fdrenf .fdghost{color:inherit}
 .fdlg{border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none;width:38px;height:38px}.fdsvg{overflow:hidden}.fdsvg svg{width:100%;height:100%;display:block}
 .fdentry,.fdtile,.fdex,.fdback{all:unset;box-sizing:border-box;cursor:pointer}
 .fdentry{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
@@ -2286,6 +2289,9 @@ const FundTab=(()=>{
   const LOGO={"bybit": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#bybit__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#F6A500\" d=\"M15.403 13.445V9.334h.827v4.111z\"/><path fill=\"#fff\" d=\"M5.772 14.666H4v-4.111h1.7c.827 0 1.308.45 1.308 1.155a.95.95 0 0 1-.523.85.96.96 0 0 1 .582.923c0 .768-.54 1.183-1.295 1.183m-.137-3.395h-.81v.947h.81c.35 0 .546-.19.546-.474 0-.282-.196-.473-.546-.473m.053 1.668h-.862v1.011h.862c.374 0 .553-.23.553-.507 0-.278-.179-.502-.553-.502zm3.901.041v1.686h-.821V12.98l-1.272-2.425h.898l.79 1.657.78-1.657h.897zm3.615 1.686h-1.772v-4.111h1.701c.827 0 1.308.45 1.308 1.155a.95.95 0 0 1-.524.85.96.96 0 0 1 .583.923c0 .768-.541 1.183-1.296 1.183m-.137-3.395h-.809v.947h.81c.35 0 .546-.19.546-.474 0-.282-.196-.473-.547-.473m.053 1.668h-.862v1.011h.862c.375 0 .553-.23.553-.507 0-.278-.178-.502-.553-.502zm5.773-1.669v3.396h-.825v-3.395H16.96v-.716H20v.716z\"/></g><defs><clipPath id=\"bybit__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "okx": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#okx__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M8.693 9.6H4.107A.107.107 0 0 0 4 9.707v4.586a.107.107 0 0 0 .107.107h4.586a.107.107 0 0 0 .106-.107V9.707a.107.107 0 0 0-.106-.107M7.2 12.693a.107.107 0 0 1-.107.107H5.706a.107.107 0 0 1-.106-.107v-1.386a.107.107 0 0 1 .106-.107h1.387a.107.107 0 0 1 .107.107zM18.294 11.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-1.6-1.6h-1.387a.107.107 0 0 0-.106.107v1.386c0 .06.047.107.106.107h1.387a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m3.199 0h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m-3.199 3.2h-1.387a.107.107 0 0 0-.106.107v1.386c0 .059.047.107.106.107h1.387a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m3.199 0h-1.386a.107.107 0 0 0-.107.107v1.386c0 .059.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-5.601-3.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .06.048.107.107.107h1.386a.107.107 0 0 0 .107-.106V9.707a.107.107 0 0 0-.107-.107m0 3.2h-1.386a.107.107 0 0 0-.107.107v1.386c0 .059.048.107.107.107h1.386a.107.107 0 0 0 .107-.107v-1.386a.107.107 0 0 0-.107-.107m-1.493-1.494a.107.107 0 0 0-.107-.107H11.2V9.707a.107.107 0 0 0-.107-.107H9.707a.107.107 0 0 0-.107.107v4.584a.107.107 0 0 0 .107.106h1.386a.107.107 0 0 0 .107-.106v-1.492h1.493a.107.107 0 0 0 .107-.107z\"/></g><defs><clipPath id=\"okx__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "binance": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#binance__a)\"><path fill=\"#000\" d=\"M24 0H0v24h24z\"/><path fill=\"#F0B90B\" d=\"M7.616 12 5.81 13.805 4.002 12l1.805-1.805zm4.386-4.386 3.096 3.095 1.804-1.804L12.002 4 7.098 8.905l1.804 1.804zm6.191 2.581L16.39 12l1.804 1.805L19.998 12zm-6.19 6.191-3.096-3.095-1.805 1.804 4.9 4.905 4.9-4.905-1.804-1.804zm0-2.581L13.806 12l-1.805-1.805L10.193 12z\"/></g><defs><clipPath id=\"binance__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "bitget": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#bitget__a)\"><path fill=\"#00F0FF\" d=\"M24 0H0v24h24z\"/><path fill=\"#00040C\" d=\"M11.23 9.742h3.748l3.834 4.05c.25.263.25.69.003.956L13.898 20h-3.86l1.167-1.206 4.285-4.526-4.23-4.526\"/><path fill=\"#00040C\" d=\"M12.769 14.258H9.022L5.188 10.21a.706.706 0 0 1-.003-.956L10.102 4h3.86l-1.167 1.206L8.51 9.732l4.23 4.526\"/></g><defs><clipPath id=\"bitget__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "gate": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#gate-io__a)\"><path fill=\"#2354E6\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M12 16.4a4.4 4.4 0 0 1 0-8.8V4a8 8 0 1 0 8 8h-3.6a4.4 4.4 0 0 1-4.4 4.4\"/><path fill=\"#17E6A1\" d=\"M16.4 7.6H12V12h4.4z\"/></g><defs><clipPath id=\"gate-io__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "kucoin": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#kucoin__a)\"><path fill=\"#23AF91\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" fill-rule=\"evenodd\" d=\"m9.314 12.002 4.739 4.74 2.99-2.992a1.353 1.353 0 0 1 1.912 1.91l-3.948 3.949c-.53.521-1.38.521-1.91 0l-5.695-5.697v3.386a1.353 1.353 0 0 1-2.706 0V6.701a1.353 1.353 0 0 1 2.706 0v3.385l5.694-5.695a1.36 1.36 0 0 1 1.91 0l3.95 3.948a1.353 1.353 0 0 1-1.91 1.91l-2.991-2.99zm4.74-1.355a1.355 1.355 0 1 0 0 2.71 1.355 1.355 0 0 0 0-2.71\" clip-rule=\"evenodd\"/></g><defs><clipPath id=\"kucoin__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> ", "coinbase": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><path fill=\"#0052FF\" d=\"M0 0h24v24H0z\"/><path fill=\"#fff\" d=\"M12.134 7.307c-2.6 0-4.393 1.997-4.394 4.708 0 2.681 1.822 4.678 4.424 4.678 1.883 0 3.378-1.192 3.916-2.92h3.767C19.159 17.497 16.05 20 12.165 20c-4.603 0-8.041-3.396-8.041-7.985C4.124 7.427 7.651 4 12.165 4c3.975 0 7.023 2.503 7.711 6.197H16.08c-.568-1.728-2.062-2.89-3.946-2.89\"/></svg> ", "kraken": "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><g clip-path=\"url(#kraken__a)\"><path fill=\"#5741D9\" d=\"M24 0H0v24h24z\"/><path fill=\"#fff\" d=\"M11.999 5.713A8 8 0 0 0 4 13.715v3.43a1.145 1.145 0 0 0 2.287 0v-3.43a1.14 1.14 0 1 1 2.284 0v3.43a1.142 1.142 0 1 0 2.285 0v-3.43a1.144 1.144 0 0 1 2.287 0v3.43a1.142 1.142 0 1 0 2.284 0v-3.43a1.143 1.143 0 1 1 2.288 0v3.43a1.142 1.142 0 0 0 2.285 0v-3.43a8 8 0 0 0-8.001-8.002\"/></g><defs><clipPath id=\"kraken__a\"><path fill=\"#fff\" d=\"M0 0h24v24H0z\"/></clipPath></defs></svg> "};
   const lg=(k,cls)=>{if(LOGO[k])return '<span class="fdlg fdsvg'+(cls?' '+cls:'')+'">'+LOGO[k]+'</span>';const e=EX[k]||[k,String(k).slice(0,2),'#666','#fff'];return '<span class="fdlg'+(cls?' '+cls:'')+'" style="background:'+e[2]+';color:'+e[3]+'">'+e[1]+'</span>'};
   const exName=k=>(EX[k]||[k])[0];
+  // 總資產分色：每家交易所一個色相，同一家的帳號用深淺不同的同色系（OKX 用灰階）
+  const HUE={bybit:30,binance:48,okx:-1,bitget:172,gate:218,mexc:198,kucoin:140,coinbase:245,kraken:275};
+  const exCol=(k,i=0,n=1)=>{const h=HUE[k]??((String(k).charCodeAt(0)*47)%360),L=n>1?66-i*Math.min(14,34/(n-1)):58;return h<0?'hsl(240,6%,'+(L+8)+'%)':'hsl('+h+',78%,'+L+'%)'};
   // ── 純手機：唯讀金鑰存在這支手機（localStorage fdLocal），手機自己簽名，經推播後端 /x 轉送到交易所 ──
   const LJ=()=>{try{return JSON.parse(localStorage.getItem('fdLocal'))||[]}catch(e){return []}},LW=v=>{try{localStorage.setItem('fdLocal',JSON.stringify(v))}catch(e){}};
   const LOCAL_EX=['bybit'];
@@ -2493,8 +2499,8 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   function exView(k){curEx=k;const A=exAcc(k);if(!A.length)return go('home');const tot=A.reduce((t,x)=>t+(x.total_usd||0),0),u=A.reduce((t,x)=>t+upnl(x),0),r=ret(A);
     let h='<div class="fdhead">'+lg(k)+'<div><b>'+es(exName(k))+'</b><br><span class="fdchip">'+A.length+' 個帳號</span></div></div>';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+money('US$ '+fm(tot))+'</div><small class="fdmu">'+(r?r.lab+' 報酬 ':'報酬 ')+retAmt(r)+'</small>'+(A.some(x=>x.positions&&x.positions.length)?'<small class="fdmu">未實現損益 <span class="'+(u>=0?'fdup':'fddn')+'">'+money(sgn(u))+'</span></small>':'')+'</div>';
-    h+='<div class="fdrow"><b>主帳號與子帳號</b><small class="fdmu">點帳號看詳細</small></div><div class="fdaccs">'+A.map(x=>{const rr=ret([x]),np=(x.positions||[]).length;
-      return '<button class="fdacc" type="button" data-fid="'+es(x.id)+'"><span style="min-width:0"><span class="fdchip">'+role(x)+'</span> <span class="nm">'+es(x.name||exName(k))+'</span><br><small class="fdmu">'+(x.ok?(np?'持倉 '+np+' 筆':'沒有持倉'):'讀取失敗')+'</small></span><span class="r"><b>'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</b><br><small>'+(x.ok?retTx(rr):'<span class="fdchip fddn">讀取失敗</span>')+'</small></span></button>'}).join('')+'</div>';
+    h+='<div class="fdrow"><b>主帳號與子帳號</b><small class="fdmu">點帳號看詳細</small></div><div class="fdaccs">'+A.map((x,i)=>{const rr=ret([x]),np=(x.positions||[]).length;
+      return '<button class="fdacc" type="button" data-fid="'+es(x.id)+'" style="box-shadow:inset 3px 0 0 '+exCol(k,i,A.length)+'"><span style="min-width:0"><span class="fdchip">'+role(x)+'</span> <span class="nm">'+es(x.name||exName(k))+'</span><br><small class="fdmu">'+(x.ok?(np?'持倉 '+np+' 筆':'沒有持倉'):'讀取失敗')+'</small></span><span class="r"><b>'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</b><br><small>'+(x.ok?retTx(rr):'<span class="fdchip fddn">讀取失敗</span>')+'</small></span></button>'}).join('')+'</div>';
     h+='<button class="fdghost" type="button" data-fex="'+k+'" style="width:100%;color:inherit;margin-top:4px">＋ 加入 '+es(exName(k))+' 子帳號</button>';
     $('#fdExB').innerHTML=h;go('ex')}
   function go(s){['home','pick','setup','ex','detail'].forEach(k=>$('#fd'+k[0].toUpperCase()+k.slice(1)).hidden=k!==s);if(s==='pick')pick();$('#fundView').scrollTop=0}
@@ -2505,15 +2511,17 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     $('#fdTot').textContent=D?money('US$ '+fm(tot)):'—';
     $('#fdSub').textContent=D?(hide?'••••••':'未實現損益 '+sgn(u)):paired||LJ().length?'讀取中…':'還沒有加入交易所';
     const ok=A.filter(x=>x.ok&&x.total_usd>0);
-    $('#fdSplit').innerHTML=tot>0?ok.map((x,i)=>'<i style="width:'+(x.total_usd/tot*100).toFixed(1)+'%;background:'+COL[i%COL.length]+'"></i>').join(''):'';
-    $('#fdLeg').innerHTML=tot>0?ok.map((x,i)=>'<span><b style="background:'+COL[i%COL.length]+'"></b>'+es(x.name||exName(x.exchange))+' '+Math.round(x.total_usd/tot*100)+'%</span>').join(''):'';
-    $('#fdCnt').textContent=D?A.length+' 個交易所':'';
+    // 依交易所分組（金額大的在前），組內帳號用同色系深淺
+    const grp=[...new Set(ok.map(x=>x.exchange))].map(k=>{const L=exAcc(k).filter(x=>x.ok&&x.total_usd>0);return {k,L,t:L.reduce((a,x)=>a+x.total_usd,0)}}).sort((a,b)=>b.t-a.t),pc=v=>v/tot*100<1?'<1%':Math.round(v/tot*100)+'%';
+    $('#fdSplit').innerHTML=tot>0?grp.map((g,j)=>g.L.map((x,i)=>'<i style="width:'+(x.total_usd/tot*100).toFixed(2)+'%;background:'+exCol(g.k,i,g.L.length)+(j&&!i?';margin-left:3px':'')+'"></i>').join('')).join(''):'';
+    $('#fdLeg').innerHTML=tot>0?grp.map(g=>'<div class="fdlgg"><span class="fdlgh"><b style="background:'+exCol(g.k)+'"></b>'+es(exName(g.k))+' '+pc(g.t)+'</span>'+(g.L.length>1?g.L.map((x,i)=>'<span class="fdlga"><b style="background:'+exCol(g.k,i,g.L.length)+'"></b>'+es(x.name||exName(g.k))+' '+pc(x.total_usd)+'</span>').join(''):'')+'</div>').join(''):'';
+    $('#fdCnt').textContent=D?exKeys().length+' 個交易所・'+A.length+' 個帳號':'';
     $('#fdAge').textContent=D?'更新：'+new Date(D.updated_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'';
     const w=$('#fdWarn');
     if(!paired&&!A.length){w.hidden=false;w.innerHTML='<div class="fdcard">按下面「加入交易所」，貼上唯讀金鑰就能直接在這支手機看資金。<br><small class="fdmu">有一台常開的電腦？也可以連接 HexStack 電腦版，讓金鑰只存在電腦。</small><button class="fdghost" type="button" id="fdToBot" style="margin-top:8px;width:100%;color:inherit">連接 HexStack 電腦版</button></div>'}
     else if(err){w.hidden=false;w.innerHTML='<div class="fdcard fddn">'+es(err)+'</div>'}else w.hidden=true;
-    $('#fdGrid').innerHTML=exKeys().map(k=>{const G=exAcc(k),t=G.reduce((a,x)=>a+(x.total_usd||0),0),bad=G.filter(x=>!x.ok).length;
-      return '<button class="fdtile" type="button" data-fexv="'+k+'"><span class="tp">'+lg(k)+'<span class="nm">'+es(exName(k))+'</span></span><span><span class="v">'+(G.some(x=>x.ok)?money('US$ '+fm(t)):'—')+'</span><br><span class="d">'+(bad===G.length?'<span class="fdchip fddn">讀取失敗</span>':retTx(ret(G)))+'</span><br><small class="fdmu">'+G.length+' 個帳號'+(bad&&bad<G.length?'・'+bad+' 個讀取失敗':'')+'</small></span></button>'}).join('')
+    const tk=k=>exAcc(k).reduce((a,x)=>a+(x.total_usd||0),0);$('#fdGrid').innerHTML=exKeys().sort((p,q)=>tk(q)-tk(p)).map(k=>{const G=exAcc(k),t=G.reduce((a,x)=>a+(x.total_usd||0),0),bad=G.filter(x=>!x.ok).length;
+      return '<button class="fdtile" type="button" data-fexv="'+k+'" style="box-shadow:inset 3px 0 0 '+exCol(k)+'"><span class="tp">'+lg(k)+'<span class="nm">'+es(exName(k))+'</span></span><span><span class="v">'+(G.some(x=>x.ok)?money('US$ '+fm(t)):'—')+'</span><br><span class="d">'+(bad===G.length?'<span class="fdchip fddn">讀取失敗</span>':retTx(ret(G)))+'</span><br><small class="fdmu">'+G.length+' 個帳號'+(bad&&bad<G.length?'・'+bad+' 個讀取失敗':'')+'</small></span></button>'}).join('')
       +'<button class="fdtile add" type="button" data-fgo="pick"><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
   }
   function pick(){const sup=SUP();
@@ -2544,7 +2552,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
       return}
     let h='<div class="fdbot">'+detHead(x)+tabs+'</div>';
     $('#fdDet').innerHTML=h+detOv(x);go('detail')}
-  const detHead=x=>'<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+role(x)+'</span> <span class="fdchip">'+es(x.name)+'</span> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
+  const detHead=x=>'<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+role(x)+'</span> <span class="fdchip">'+es(x.name)+'</span> <button class="fdghost fdren" type="button" data-fren="'+es(x.id)+'">改名</button> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
   function detOv(x){const id=x.id;let h='';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
     if(x.notes&&x.notes.length)h+='<div class="fdcard fdmu">'+x.notes.map(es).join('<br>')+'</div>';
@@ -2572,6 +2580,13 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if(t.closest('#fdToBot')){$('#nav_sig').click();window.BotTab&&BotTab.mode('bot');return}
     if((b=t.closest('[data-fgo]'))){e.preventDefault();if(b.dataset.fgo==='ex'&&curEx)exView(curEx);else go(b.dataset.fgo);return}
     if((b=t.closest('[data-fexv]'))){exView(b.dataset.fexv);return}
+    // 改名：存在手機的直接改 fdLocal；存在電腦的請執行器改（id trade＝HexBOT 下單用的 Bybit）
+    if((b=t.closest('[data-fren]'))){const id=b.dataset.fren,x=D&&D.accounts.find(a=>a.id===id),w=b.closest('.fdhead');if(!x||!w)return;let f=w.parentNode.querySelector('.fdrenf');if(f)return f.querySelector('input').focus();
+      f=document.createElement('div');f.className='fdrenf';f.innerHTML='<input type="text" maxlength="30" aria-label="帳號名稱" value="'+es(x.name||'')+'"><button class="fdgo" type="button" data-frs="'+es(id)+'">儲存</button><button class="fdghost" type="button" data-frc>取消</button><small class="fdmu" aria-live="polite"></small>';w.after(f);f.querySelector('input').select();return}
+    if((b=t.closest('[data-frc]'))){b.closest('.fdrenf').remove();return}
+    if((b=t.closest('[data-frs]'))){const id=b.dataset.frs,f=b.closest('.fdrenf'),nm=f.querySelector('input').value.trim().slice(0,30),m=f.querySelector('small');if(!nm){m.textContent='名稱不能空白';return}
+      b.disabled=true;m.textContent='儲存中…';try{if(LJ().some(a=>a.id===id))LW(LJ().map(a=>a.id===id?Object.assign(a,{name:nm}):a));else await BotTab.api('/api/funds/set',{id,name:nm});
+        const x=D&&D.accounts.find(a=>a.id===id);if(x)x.name=nm;detail(id);load(true)}catch(e2){b.disabled=false;m.textContent=e2.message}return}
     if((b=t.closest('[data-fdt]'))){detail(cur,b.dataset.fdt);return}
     if((b=t.closest('[data-fbind]'))){try{b.dataset.fbind?localStorage.setItem(BIND,b.dataset.fbind):localStorage.removeItem(BIND)}catch(e2){}BR=BL=null;detail(cur);return}
     // 點空白處回上一頁（選交易所、設定、詳細頁）
@@ -2606,9 +2621,10 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
       $('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
     catch(err2){$('#fdS').value='';$('#fdP').value='';{const M=err2.message;m.textContent=M+(pickEx==='bybit'&&/10003|API key is invalid/i.test(M)?($('#fdT').checked?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：測試網金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):'')}$('#fdAddGo').disabled=false}
   });
-  return {EX,lg,exName,pass:k=>!!(FXS[k]&&FXS[k].pass),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
+  return {EX,lg,exName,pass:k=>!!(FXS[k]&&FXS[k].pass),pre:()=>load(false),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
     if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on')&&!document.hidden)load(false)},60000)}};
 })();
+window.FundTab=FundTab;
 // 設定分頁：外觀模式、資料狀態、一鍵更新
 function setTab(){const tx=q=>{const e=document.querySelector(q);return e&&e.textContent.trim()||'—'};
   $('#setSrc').textContent=tx('#liveTag').replace(/^價格：|^即時：/,'');
@@ -3715,7 +3731,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
-  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
+  return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
@@ -4714,6 +4730,8 @@ if($('#newsView').classList.contains('on'))open();
 renderCoins();
 // 開場畫面等這些都抓完才進去：即時價格、市場分析（含恐懼貪婪、過去分析）、通知紀錄
 {const B=window.__boot||[];B.push(syncAll(),window.NewsTab.open());if(window.NotifyTab)B.push(NotifyTab.open());
+  // 也先跟電腦版要好 HexBOT 狀態和資產總覽，進去就有資料（連不到的話開場畫面最多等 6 秒）
+  if(window.BotTab)B.push(BotTab.pre());if(window.FundTab)B.push(FundTab.pre());
   // 價格同步完後在背景算今日訊號，市場分析的「今日摘要」才有最新的持倉／新訊號
   Promise.allSettled(B.slice()).then(()=>setTimeout(()=>window.SigTab&&SigTab.open(),1500))}
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
@@ -4874,7 +4892,7 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
     d.innerHTML='<div id="spG" style="min-height:44px;display:flex;justify-content:center"></div><div id="spM" style="color:#ffb4c0;font:13px -apple-system,system-ui,sans-serif;max-width:280px;text-align:center"></div><button type="button" id="spSkip" style="all:unset;cursor:pointer;color:#d8b6ff;font:14px -apple-system,\'PingFang TC\',system-ui,sans-serif;padding:6px 12px">稍後再說</button>';
     el.appendChild(d);d.querySelector('#spSkip').onclick=()=>{try{sessionStorage.setItem('hsGateSkip','1')}catch(e){}closeSplash()};gBtn('spG')};
   function gate(){if(st().tok)return closeSplash();const m=document.getElementById('spM');if(m)m.textContent=msg&&msg!=='登入中…'?msg:''}
-  render();if(st().tok)run(false);
+  render();if(st().tok)(window.__boot||[]).push(run(false));   // 開場畫面等雲端同步完才進去
   try{const m=sessionStorage.getItem('hsSyncMsg');if(m){sessionStorage.removeItem('hsSyncMsg');setTimeout(()=>{const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;font-size:13px;z-index:70';document.body.appendChild(t);setTimeout(()=>t.remove(),3000)},300)}}catch(e){}
   return {run,render,_login:login,st,api,syncable,logout,busy:()=>busy,push:()=>push()}})();
 // ───────── 資料庫（設定 › 資料庫）─────────
