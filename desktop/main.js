@@ -55,8 +55,9 @@ ipcMain.on('hs:console', () => openConsole());
 // ── Google 登入：Google 不讓 App 內嵌視窗登入，改開系統瀏覽器到網站的 desktop-login.html，
 //    登入完那頁把結果導回 http://127.0.0.1:<臨時埠>/done，這裡收到再交給網頁 ──
 let loginSrv = null;
-ipcMain.on('hs:login', e => {
-  const wc = e.sender, state = require('crypto').randomBytes(16).toString('hex');
+ipcMain.on('hs:login', e => startLogin(e.sender));
+function startLogin(wc) {
+  const state = require('crypto').randomBytes(16).toString('hex');
   if (loginSrv) try { loginSrv.close(); } catch (x) {}
   const srv = loginSrv = require('http').createServer((req, res) => {
     const u = new URL(req.url, 'http://127.0.0.1');
@@ -70,7 +71,7 @@ ipcMain.on('hs:login', e => {
   srv.listen(0, '127.0.0.1', () => shell.openExternal(SITE + 'desktop-login.html?p=' + srv.address().port + '&s=' + state));
   // 10 分鐘沒登入就收掉
   setTimeout(() => { try { srv.close(); } catch (x) {} if (loginSrv === srv) loginSrv = null; }, 600000);
-});
+}
 
 // ── 防止睡眠 ──
 function applyAwake() {
@@ -90,11 +91,12 @@ function createWin() {
   win.loadURL(SITE);
   // 網站內的連結：Google 登入視窗留在 App 裡（登入要回傳結果），其他外部連結用預設瀏覽器開
   win.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https:\/\/accounts\.google\.com\//.test(url)) return { action: 'allow', overrideBrowserWindowOptions: { width: 500, height: 680, autoHideMenuBar: true, parent: win } };
+    // Google 不讓 App 內嵌視窗登入：任何 Google 登入視窗都改成在系統瀏覽器登入
+    if (/^https:\/\/accounts\.google\.com\//.test(url)) { startLogin(win.webContents); return { action: 'deny' }; }
     if (url.startsWith(SITE)) { win.loadURL(url); return { action: 'deny' }; }
     shell.openExternal(url); return { action: 'deny' };
   });
-  win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith(SITE) && !/^https:\/\/accounts\.google\.com\//.test(url)) { e.preventDefault(); shell.openExternal(url); } });
+  win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith(SITE)) { e.preventDefault(); if (/^https:\/\/accounts\.google\.com\//.test(url)) startLogin(win.webContents); else shell.openExternal(url); } });
   win.webContents.on('did-fail-load', (e, code, desc, url, main) => {
     if (!main || code === -3) return;
     win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`<body style="margin:0;height:100vh;display:grid;place-items:center;background:#160b34;color:#efeaff;font:15px -apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;text-align:center"><div><h2>連不上網路</h2><p style="opacity:.75">HexStack 需要網路才能打開。執行器在背景照常運作。</p><button onclick="location.href='${SITE}'" style="margin-top:12px;padding:10px 22px;border-radius:999px;border:1px solid #c8a2ff66;background:#7a4cf033;color:#fff;font:inherit;cursor:pointer">重新連線</button></div></body>`));
@@ -192,7 +194,9 @@ async function installUpdate(asset) {
   quitting = true; stopBot(); setTimeout(() => app.quit(), 300);
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // 網站有離線暫存（service worker）：電腦版每次打開先清掉，保證是最新版的網頁（登入資料、設定不受影響）
+  try { await require('electron').session.defaultSession.clearStorageData({ storages: ['serviceworkers', 'cachestorage'] }); } catch (e) {}
   appMenu();
   const img = nativeImage.createFromPath(ICON).resize({ width: process.platform === 'darwin' ? 18 : 16, height: process.platform === 'darwin' ? 18 : 16 });
   tray = new Tray(img); tray.on('click', showWin); tray.on('double-click', showWin);
