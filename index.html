@@ -3557,8 +3557,11 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     tick()}
   function render(){if(!box())return;const H=host();if(!H)return setup();const on=!!S&&!err;
     const L=loc(),hd=`<div class="bh" style="margin:0 2px 8px"><span>${on?`<span class="pill p-ok" style="margin:0">● ${L?'這台電腦・執行中':H_(S.hostName||H.n)+' 在線'}</span>`:`<span class="pill p-bad" style="margin:0">● ${L?'這台電腦・執行器'+(err?'沒有回應':'連線中'):H_(H.n)+' '+(err?'離線':'連線中')}</span>`}${on&&S.halted?'<span class="pill p-bad">已全部暫停</span>':''}</span><span>${on&&S.lastTick?'最後回報 '+ago(S.lastTick):''}</span></div>`;
-    if(!on){box().innerHTML=hd+`<div class="card"><div class="bh">${err?'連不到主機':'連線中…'}</div><p class="sub" style="font-size:13.5px;margin:0 0 8px">${H_(err)}${H.seen?'<br>主機最後回報：'+ago(H.seen):''}</p>
-      <p class="sub" style="margin:0 0 10px">${L?'執行器可能還在啟動，或被關掉了：在系統匣的 HexStack 圖示按右鍵，確認「執行器」有打開。':'主機關機或斷網時不會下新單；'}已經掛在交易所的止損、止盈單仍然有效。</p><div class="row2"><button class="bbtn" id="botRetry" type="button">重新連線</button>${L&&window.hexDesktop?'<button class="bbtn" id="botCon" type="button">打開執行器主控台</button>':'<button class="bbtn" id="botUnpair" type="button">重新配對</button>'}</div></div>`;return bind()}
+    if(!on){const ds=L&&window.hexDesktop&&hexDesktop.status?(()=>{try{return hexDesktop.status()}catch(e){return null}})():null,
+      // 本機 8787 有人回應但密鑰不對＝被另一個執行器（舊版 HexStack.exe、自己開的 node hexbot.js）佔住，內建的起不來
+      busy=L&&/配對密鑰不對/.test(err),em=busy?'這台電腦上還有另一個 HexStack 執行器在跑（例如之前下載的舊版 HexStack.exe），佔住了內建執行器要用的位置。請關掉那個執行器，再從系統匣圖示按右鍵 › 結束 HexStack，重新打開。':err;
+    box().innerHTML=hd+`<div class="card"><div class="bh">${busy?'有另一個執行器佔用':err?(L?'連不到這台電腦的執行器':'連不到主機'):'連線中…'}</div><p class="sub" style="font-size:13.5px;margin:0 0 8px">${H_(em)}${!L&&H.seen?'<br>主機最後回報：'+ago(H.seen):''}</p>${ds&&!ds.running&&ds.log.length?`<pre class="sub" style="white-space:pre-wrap;margin:0 0 8px;background:var(--panel2);padding:8px;border-radius:8px">${H_(ds.log.join('\n'))}</pre>`:''}
+      <p class="sub" style="margin:0 0 10px">${busy?'':L?'執行器可能還在啟動，或被關掉了：在系統匣的 HexStack 圖示按右鍵，確認「執行器」有打開。':'主機關機或斷網時不會下新單；'}已經掛在交易所的止損、止盈單仍然有效。</p><div class="row2"><button class="bbtn" id="botRetry" type="button">重新連線</button>${L&&window.hexDesktop?'<button class="bbtn" id="botCon" type="button">打開執行器主控台</button>':'<button class="bbtn" id="botUnpair" type="button">重新配對</button>'}</div></div>`;return bind()}
     box().innerHTML=hd+`<div class="subt">${[['ov','總覽'],['lg','紀錄與上限'],['rv','策略回顧']].map(([k,n])=>`<button type="button" data-t="${k}"${tab===k?' class="on"':''}>${n}</button>`).join('')}</div>`+(tab==='ov'?ov():tab==='lg'?lg():rv());bind()}
   const isLive=x=>x.mode==='live';
   const off=x=>x.enabled===false||x.state==='paused';
