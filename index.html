@@ -139,9 +139,9 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 .coin{flex:none;min-width:142px;scroll-snap-align:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;cursor:pointer;text-align:left;color:var(--text);display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;align-items:center;transition:transform .12s}
 .coin:active{transform:scale(.97)}
 .coin .ic img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
-.grpdd{position:relative;display:none;flex:none}body:has(#chartView.on) .grpdd{display:block}
+.grpdd{position:relative;display:none;flex:none;margin-left:10px}body:has(#chartView.on) .grpdd{display:block}
 #grpBtn{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
-#grpMenu{position:absolute;right:0;top:calc(100% + 6px);z-index:60;min-width:168px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}#grpMenu.on{display:block}
+#grpMenu{position:absolute;left:0;top:calc(100% + 6px);z-index:60;min-width:168px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}#grpMenu.on{display:block}
 #grpMenu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:10px 12px;border-radius:8px;cursor:pointer}#grpMenu button.cur{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc);font-weight:700}
 .coin.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
 .coin .ic{grid-row:1/3;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
@@ -4276,7 +4276,7 @@ const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=
 // 標題列：選群組（只在「查看價格」顯示；選單蓋在畫面上，不推動版面）
 (function(){const sp=document.querySelector('.topbar .sp');if(!sp)return;const w=document.createElement('div');w.className='grpdd';
   w.innerHTML=`<button type="button" id="grpBtn" aria-haspopup="listbox">${grpName(cvGrp)}<span aria-hidden="true"> ▾</span></button><div id="grpMenu" role="listbox">${XM.GROUPS.map((g,i)=>`<button type="button" data-g="${g}">${i+1}. ${grpName(g)}</button>`).join('')}</div>`;
-  sp.after(w);const menu=$('#grpMenu');
+  sp.before(w);const menu=$('#grpMenu');   // 放在 logo／標題旁邊，寬螢幕才不會蓋到右邊的導覽列
   $('#grpBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('on');menu.querySelectorAll('button').forEach(b=>b.classList.toggle('cur',b.dataset.g===cvGrp))};
   document.addEventListener('click',()=>menu.classList.remove('on'));
   // 切換群組：先蓋上載入畫面，等新的價格和 K 線都到了才拿掉，避免看到上一組的舊價格
