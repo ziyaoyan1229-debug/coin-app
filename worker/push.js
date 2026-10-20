@@ -155,7 +155,7 @@ async function xproxy(req, u) {
 }
 
 // ───────── 帳號同步 ─────────
-const GCID = '';   // Google OAuth 用戶端 ID（xxx.apps.googleusercontent.com），和 index.html 的 GCID 一樣
+const GCID = '191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.apps.googleusercontent.com';   // Google OAuth 用戶端 ID（xxx.apps.googleusercontent.com），和 index.html 的 GCID 一樣
 let JWKS = null, JWKS_AT = 0, DBOK = false;
 async function gVerify(cred) {
   const [h, b, sg] = String(cred || '').split('.'); if (!sg) throw new Error('bad token');
