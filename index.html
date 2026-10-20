@@ -478,7 +478,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .rli .m{color:var(--muted)}.rli .r b{font-family:ui-monospace,"SF Mono",Menlo,monospace}.rli .pp{color:var(--muted);font-size:11.5px}
 .rli .a{display:flex;gap:6px;margin-top:5px}.rli .a button{padding:4px 12px;font-size:12.5px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}
 .rli.now{background:color-mix(in srgb,var(--acc) 8%,transparent);border-radius:10px;padding:9px 8px;margin:0 -8px}
-#setView{flex-direction:column}
+#setView,#dbView{flex-direction:column}
 .pst{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}.pst div,.pmo div{background:var(--panel2);border-radius:10px;padding:6px 8px;text-align:center}
 .pst span,.pmo span{display:block;font-size:11px;color:var(--muted)}.pst b{font-size:15px;font-family:ui-monospace,"SF Mono",Menlo,monospace}
 .pmo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}.pmo b{font-size:13px;font-family:ui-monospace,"SF Mono",Menlo,monospace}
@@ -498,6 +498,19 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .bnav button[hidden]{display:none!important}
 .setgo{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;color:var(--text);padding:14px;cursor:pointer;border:1px solid var(--line)}.setgo span{flex:1;min-width:0}.setgo b{display:block;font-size:15px}.setgo small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.5}.setgo i{font-style:normal;color:var(--muted);font-size:20px}
 .nback{background:none;border:0;color:var(--acc);font:inherit;font-size:15px;padding:4px 2px 8px;cursor:pointer}
+.setout{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;font:inherit;font-size:15px;font-weight:600;color:var(--down);padding:14px;cursor:pointer;border:1px solid var(--line)}
+.setout small{font-size:12px;font-weight:400;color:var(--muted)}
+.dbt{font-size:20px;margin:0 2px 10px}.dbseg{margin:12px 0 4px}
+.dbg{display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:700;color:var(--muted);margin:14px 4px 6px}.dbg small{font-weight:400;font-size:11.5px}
+.dbl{padding:0 14px}.dbi{border-top:1px solid var(--line)}.dbi:first-child{border-top:0}
+.dbh{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;font:inherit;color:var(--text);text-align:left;padding:11px 0;cursor:pointer}
+.dbh span{flex:1;min-width:0}.dbh b{display:block;font-size:14px;font-weight:600}.dbh small{display:block;font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbh em{font-style:normal;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.dbh i{font-style:normal;color:var(--muted);transition:transform .2s}.dbi.on .dbh i{transform:rotate(90deg)}
+.dbv{padding:0 0 12px}.dbv pre{margin:0 0 10px;max-height:260px;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font:11.5px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;color:var(--text)}
+.dbdel{font:inherit;font-size:13px;font-weight:600;color:var(--down);background:none;border:1px solid color-mix(in srgb,var(--down) 45%,transparent);border-radius:10px;padding:7px 14px;cursor:pointer}
+.dbbtn{display:block;width:100%;margin-top:14px;padding:12px;border-radius:12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--text)}.dbwipe{color:var(--down)}
+.dbh:focus-visible,.dbdel:focus-visible,.dbbtn:focus-visible,.setout:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
 #notifyView .tgcats{padding:4px 14px}#notifyView .tgc{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}#notifyView .tgc:first-child{border-top:0}
 #notifyView .tgc .ic{font-size:20px;flex:none;width:28px;text-align:center}#notifyView .tgc .bd{flex:1;min-width:0}#notifyView .tgc .bd b{display:block;font-size:14.5px}#notifyView .tgc .bd span{display:block;font-size:12px;color:var(--muted);line-height:1.5;margin-top:1px}
 #notifyView .tgjoin{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-weight:700;font-size:13px;text-decoration:none}
@@ -984,12 +997,15 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="sect"><h2>語言 Language</h2><div class="card"><div class="seg tset" id="langSeg"><button data-l="zh">中文</button><button data-l="en">English</button></div>
     <div class="small" style="margin-top:8px">新聞和市場分析的內容是每天自動整理的中文，切到英文時這些內容維持中文。</div></div></div>
   <div class="sect"><h2>帳號同步</h2><div class="card" id="syncBox"></div></div>
+  <div class="sect"><h2>資料庫</h2><button class="card setgo" id="setDb" type="button"><span><b>資料庫</b><small>查看或刪除存在這台裝置和雲端的資料</small></span><i aria-hidden="true">›</i></button></div>
   <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
   <div class="sect"><h2>App</h2><div class="card"><button class="gbtn" id="setUpd" style="margin-top:0">更新到最新版</button>
     <div class="small" style="margin-top:8px">主畫面上的 App 沒看到新版時按這裡：清掉舊的暫存並重新載入。</div>
     <div class="setl" style="margin-top:6px"><div><span>版本</span><b id="setVer">—</b></div></div></div></div>
+  <div class="sect" id="setOutSect" hidden><button class="card setout" id="setOut" type="button">登出<small id="setOutMail"></small></button></div>
   <div class="foot">HexStack 幣策略 最好的研究平台<br>內容僅供參考，非投資建議</div>
 </div></section>
+<section id="dbView" class="view"><div class="wrap"><button class="nback" id="dbBack" type="button">‹ 設定</button><div id="dbBox"></div></div></section>
 </main>
 <div id="busy"><i class="hxs"><b></b><b></b><b></b></i><span>計算中…</span></div>
 
@@ -2233,12 +2249,13 @@ $('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length
 function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css('--muted'),fontFamily:'inherit'},grid:{vertLines:{color:css('--line')},horzLines:{color:css('--line')}},rightPriceScale:{borderColor:css('--line')},timeScale:{borderColor:css('--line'),timeVisible:true,secondsVisible:false,minBarSpacing:0.001},crosshair:{mode:0}}}
 
 // ── 分頁 ──
-const VIEWS=['chart','sig','strat','news','notify','fund','set'];
-function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);$('#nav_'+k).classList.toggle('on',v===k||k==='set'&&v==='notify')});
+const VIEWS=['chart','sig','strat','news','notify','fund','set','db'];
+function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);const n=$('#nav_'+k);n&&n.classList.toggle('on',v===k||k==='set'&&(v==='notify'||v==='db'))});
   if(v==='strat'&&!pChart){initStrat();}
   // 先讓分頁切過去畫出來，各頁的載入晚一點再做，點下去不卡
-  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='set')setTab();if(v==='fund')FundTab.open();resizeAll()},20));}
-VIEWS.forEach(k=>$('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)});
+  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='db'&&window.DbTab)DbTab.open();if(v==='set')setTab();if(v==='fund')FundTab.open();resizeAll()},20));}
+VIEWS.forEach(k=>$('#nav_'+k)&&($('#nav_'+k).onclick=()=>{show(k);history.replaceState(null,'','#'+k)}));
+$('#dbBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};$('#setDb').onclick=()=>{show('db');history.replaceState(null,'','#db')};
 $('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
 
 // ── 資產總覽：向已配對的 HexStack 電腦版要各交易所即時餘額（金鑰只存在電腦；手機貼唯讀金鑰 → 電腦驗證 → 手機清掉）──
@@ -4728,14 +4745,17 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
   document.addEventListener('visibilitychange',()=>{if(!st().tok)return;if(document.hidden){if(Object.keys(H.dirty).length)push().catch(()=>{})}else run(false)});
   async function login(cred,at){msg='登入中…';render();try{const j=await api('/auth/google',at?{access_token:at}:{credential:cred});put({tok:j.token,email:j.email,last:0});gate();await run(true)}catch(e){put({});msg='登入失敗：'+e.message;render();gate()}}
   let gis=null;const loadGis=()=>gis||(gis=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=ok;sc.onerror=()=>{gis=null;no(new Error('載入 Google 登入失敗'))};document.head.appendChild(sc)}));
+  // 設定最下面的登出鍵：登入時才出現
+  function outBtn(o){const s=document.getElementById('setOutSect');if(!s)return;s.hidden=!o.tok;document.getElementById('setOutMail').textContent=o.email||'';
+    document.getElementById('setOut').onclick=()=>{if(!confirm('登出 Google 帳號？這台裝置上的資料會留著，只是不再同步。'))return;logout()}}
+  function logout(m){put({});H.on=false;H.dirty={};msg=m||'';render()}
   function render(){const b=document.getElementById('syncBox');if(!b)return;const o=st(),es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     if(o.tok){b.innerHTML='<div class="setl"><div><span>帳號</span><b>'+es(o.email||'已登入')+'</b></div><div><span>上次同步</span><b>'+(busy?'同步中…':o.at?new Date(o.at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—')+'</b></div></div>'
       +(msg?'<div class="small" style="color:var(--down);margin-top:6px">'+es(msg)+'</div>':'')
       +'<button class="gbtn" type="button" id="syncNow">立即同步</button><div class="small" style="margin-top:8px">我的策略、通知選項、外觀、資產報酬紀錄會在手機和電腦之間同步。交易所金鑰和電腦配對不會上傳，每台裝置要自己加。<a href="privacy.html" target="_blank" style="color:var(--muted)">隱私權說明</a></div>'
-      +'<div style="display:flex;gap:14px;margin-top:10px;font-size:13px"><a href="#" id="syncOut" style="color:var(--muted)">登出</a><a href="#" id="syncWipe" style="color:var(--down)">刪除雲端資料</a></div>';
-      b.querySelector('#syncNow').onclick=()=>{msg='';run(false);render()};
-      b.querySelector('#syncOut').onclick=e=>{e.preventDefault();put({});H.on=false;H.dirty={};msg='';render()};
-      b.querySelector('#syncWipe').onclick=async e=>{e.preventDefault();if(!confirm('刪除這個帳號存在雲端的同步資料？這台裝置上的設定不受影響。'))return;try{await api('/sync/wipe',{});put({});H.on=false;H.dirty={};msg='雲端資料已刪除'}catch(x){msg=x.message}render()};return}
+      ;
+      b.querySelector('#syncNow').onclick=()=>{msg='';run(false);render()};outBtn(o);return}
+    outBtn(o);
     b.innerHTML='<div class="small" style="margin-bottom:10px;font-size:13px;line-height:1.6">用 Google 帳號登入，手機和電腦的我的策略、通知選項、外觀、資產報酬紀錄就會自動同步。交易所金鑰不會上傳。</div>'+(GCID?'<div id="syncG" style="min-height:44px"></div>':'<div class="small">即將開放</div>')+(msg?'<div class="small" style="margin-top:6px">'+es(msg)+'</div>':'');
     if(GCID)gBtn('syncG')}
   // Google 按鈕：設定頁和開 App 時的登入畫面共用
@@ -4757,7 +4777,75 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
   function gate(){if(st().tok)return closeSplash();const m=document.getElementById('spM');if(m)m.textContent=msg&&msg!=='登入中…'?msg:''}
   render();if(st().tok)run(false);
   try{const m=sessionStorage.getItem('hsSyncMsg');if(m){sessionStorage.removeItem('hsSyncMsg');setTimeout(()=>{const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;font-size:13px;z-index:70';document.body.appendChild(t);setTimeout(()=>t.remove(),3000)},300)}}catch(e){}
-  return {run,render,_login:login}})();
+  return {run,render,_login:login,st,api,syncable,logout,busy:()=>busy,push:()=>push()}})();
+// ───────── 資料庫（設定 › 資料庫）─────────
+// 列出這台裝置（localStorage、IndexedDB）和雲端（登入後）存的資料，可以查看內容或刪除。
+// 已登入時刪掉會同步的項目，雲端和其他登入的裝置也會一起刪掉。金鑰、配對、登入資訊只顯示摘要，不顯示內容。
+const DbTab=(()=>{const LS=localStorage,box=()=>document.getElementById('dbBox'),es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const NM={theme3:'外觀模式',autoNight:'深夜自動切換',lang:'語言',langBoot:'語言（開場用）',cvGrp:'查看價格的分組',split_strat:'策略頁圖表高度',
+    sigLock:'我的策略',sigLockName:'我的策略名稱',sigLockOff:'我的策略暫停通知',mySeed:'範例策略',
+    bnCats:'通知類別開關',bnSigOff:'策略信號通知開關',bnLast:'最後看到的通知',bnPush:'背景推播登記',
+    fdLocal:'交易所金鑰',fdHide:'隱藏金額',fdSnap:'資產報酬紀錄',fdBot:'HexBOT 下單帳號',botHost:'電腦配對',hsSync:'Google 登入資訊',
+    tglog:'最近的通知',sig:'策略訊號',hist:'過去分析',mstrMeta:'MSTR 資料',runlog:'執行紀錄',fngHist:'恐懼貪婪歷史'};
+  // 分組：設定、策略、通知、資產、帳號、暫存（刪了會自己重抓）
+  const GRP={theme3:'設定',autoNight:'設定',lang:'設定',langBoot:'設定',cvGrp:'設定',split_strat:'設定',sigLock:'策略',sigLockName:'策略',sigLockOff:'策略',mySeed:'策略',
+    bnCats:'通知',bnSigOff:'通知',bnLast:'通知',bnPush:'通知',fdLocal:'資產',fdHide:'資產',fdSnap:'資產',fdBot:'資產',botHost:'交易',hsSync:'帳號',
+    tglog:'暫存',sig:'暫存',hist:'暫存',mstrMeta:'暫存',runlog:'暫存'};
+  const ORD=['策略','資產','交易','通知','設定','帳號','暫存','其他'];
+  const SECRET={fdLocal:1,botHost:1,hsSync:1};
+  const name=k=>NM[k]||(/^myp_/.test(k)?'我的策略參數（'+k.slice(4)+'）':/^fng/.test(k)?'恐懼貪婪指數':/^ord_/.test(k)?'選單排序（'+k.slice(4)+'）':/^xm/.test(k)?'幣種清單':k);
+  const grp=k=>GRP[k]||(/^myp_/.test(k)?'策略':/^(fng|xm)/.test(k)?'暫存':/^ord_/.test(k)?'設定':'其他');
+  const size=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
+  const logged=()=>!!HsSync.st().tok;
+  // 敏感資料只給摘要
+  function brief(k,v){try{const j=JSON.parse(v);
+    if(k==='fdLocal'){const n=Array.isArray(j)?j.length:Object.keys(j||{}).length;return '共 '+n+' 組交易所金鑰。為了安全，內容不顯示。'}
+    if(k==='botHost')return '已配對電腦：'+(j.n||j.h||'—')+'。配對密鑰不顯示。';
+    if(k==='hsSync')return '登入帳號：'+(j.email||'—')+'。登入憑證不顯示。'}catch(e){}return '內容不顯示。'}
+  function pretty(v){if(v==null)return '';try{v=JSON.stringify(JSON.parse(v),null,1)}catch(e){}return v.length>3000?v.slice(0,3000)+'\n…（還有 '+size(v.length-3000)+'）':v}
+  let tab='dev',openK=null,cloud=null,cErr='',cBusy=false,idb=null;
+  function devItems(){const a=[];for(let i=0;i<LS.length;i++){const k=LS.key(i),v=LS.getItem(k)||'';a.push({k,v,n:k.length+v.length,sync:logged()&&HsSync.syncable(k)})}
+    if(idb)a.push({k:'@hexHour',v:null,n:0,idb:1});return a}
+  async function loadCloud(){if(!logged()){cloud=null;return}cBusy=true;cErr='';draw();
+    try{let since=0,all=new Map(),j;do{j=await HsSync.api('/sync?since='+since);for(const x of j.items){since=Math.max(since,x.t);x.v===null?all.delete(x.k):all.set(x.k,x.v)}}while(j.items.length>=500);
+      cloud=[...all].map(([k,v])=>({k,v,n:k.length+v.length}))}catch(e){cErr=e.message;cloud=null}cBusy=false;draw()}
+  function list(items,where){if(!items.length)return '<div class="card"><div class="small">沒有資料。</div></div>';
+    const G={};items.forEach(x=>{const g=x.idb?'暫存':grp(x.k);(G[g]=G[g]||[]).push(x)});
+    return ORD.filter(g=>G[g]).map(g=>'<div class="dbg">'+g+(g==='暫存'?'<small>刪掉會自己重新下載</small>':'')+'</div><div class="card dbl">'+G[g].sort((a,b)=>b.n-a.n).map(x=>{const id=where+':'+x.k,op=openK===id;
+      return '<div class="dbi'+(op?' on':'')+'"><button type="button" class="dbh" data-o="'+es(id)+'" aria-expanded="'+op+'"><span><b>'+es(x.idb?'幣種 K 線':name(x.k))+'</b><small>'+(x.idb?'IndexedDB':es(x.k))+(x.sync?' · 會同步':where==='dev'&&!x.idb&&logged()?' · 只在這台':'')+'</small></span><em>'+(x.idb?'—':size(x.n))+'</em><i aria-hidden="true">›</i></button>'
+        +(op?'<div class="dbv">'+(x.idb?'<div class="small">其他幣種的 1 小時 K 線和資金費率，回測時下載後存在這裡，刪掉下次回測會重新下載。</div>':SECRET[x.k]?'<div class="small">'+es(brief(x.k,x.v))+'</div>':'<pre>'+es(pretty(x.v))+'</pre>')
+          +'<button type="button" class="dbdel" data-d="'+es(id)+'">刪除'+(where==='cloud'?'雲端的這項':'')+'</button></div>':'')+'</div>'}).join('')+'</div>').join('')}
+  function draw(){const b=box();if(!b)return;const dev=devItems(),dn=dev.reduce((a,x)=>a+x.n,0),lg=logged();
+    let h='<h2 class="dbt">資料庫</h2><div class="card setl"><div><span>這台裝置</span><b>'+dev.length+' 項 · '+size(dn)+'</b></div><div><span>雲端</span><b>'+(!lg?'未登入':cBusy?'讀取中…':cloud?cloud.length+' 項 · '+size(cloud.reduce((a,x)=>a+x.n,0))+'／3 MB':'—')+'</b></div></div>'
+      +'<div class="seg tset dbseg"><button type="button" data-t="dev" class="'+(tab==='dev'?'on':'')+'">這台裝置</button><button type="button" data-t="cloud" class="'+(tab==='cloud'?'on':'')+'">雲端</button></div>';
+    if(tab==='dev')h+=list(dev,'dev')+'<button type="button" class="dbbtn" id="dbClr">清除全部暫存</button>';
+    else if(!lg)h+='<div class="card"><div class="small">登入 Google 帳號後，這裡會列出存在雲端的資料。到「設定 › 帳號同步」登入。</div></div>';
+    else if(cErr)h+='<div class="card"><div class="small" style="color:var(--down)">'+es(cErr)+'</div></div>';
+    else if(cloud)h+=list(cloud,'cloud')+'<button type="button" class="dbbtn dbwipe" id="dbWipe">刪除全部雲端資料</button>';
+    b.innerHTML='<div class="sect">'+h+'</div>'}
+  async function del(id){const where=id.slice(0,id.indexOf(':')),k=id.slice(id.indexOf(':')+1);
+    if(where==='dev'&&k==='@hexHour'){if(!confirm('刪除幣種 K 線暫存？下次回測會重新下載。'))return;try{indexedDB.deleteDatabase('hexHour')}catch(e){}idb=false;openK=null;draw();return}
+    const nm=name(k),sync=logged()&&HsSync.syncable(k);
+    const q=where==='cloud'?'刪除雲端的「'+nm+'」？所有登入這個帳號的裝置都會一起刪掉這項。'
+      :k==='fdLocal'?'刪除這台裝置上的交易所金鑰？刪掉後要重新貼上才看得到資產。'
+      :k==='hsSync'?'刪除登入資訊等於登出，確定嗎？'
+      :'刪除「'+nm+'」？'+(sync?'已登入同步，雲端和其他裝置也會一起刪掉。':'');
+    if(!confirm(q))return;
+    if(k==='hsSync'){HsSync.logout();openK=null;cloud=null;draw();return}
+    if(where==='cloud'){try{await HsSync.api('/sync',{items:[{k,v:null}]});if(LS.getItem(k)!==null)window.__hs.rem.call(LS,k);cloud=cloud.filter(x=>x.k!==k)}catch(e){alert(e.message)}}
+    else{LS.removeItem(k);if(sync)HsSync.push().catch(()=>{});if(cloud)cloud=cloud.filter(x=>x.k!==k)}
+    openK=null;draw()}
+  async function hasIdb(){try{if(indexedDB.databases){idb=(await indexedDB.databases()).some(d=>d.name==='hexHour')}else idb=true}catch(e){idb=false}}
+  document.addEventListener('click',e=>{const b=box();if(!b||!b.contains(e.target))return;const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.t){tab=t.dataset.t;openK=null;if(tab==='cloud'&&!cloud&&logged())loadCloud();draw()}
+    else if(t.dataset.o){openK=openK===t.dataset.o?null:t.dataset.o;draw()}
+    else if(t.dataset.d)del(t.dataset.d);
+    else if(t.id==='dbClr'){if(!confirm('清除全部暫存（策略訊號、過去分析、恐懼貪婪、幣種清單、K 線等）？會自己重新下載，設定和策略不受影響。'))return;
+      const ks=[];for(let i=0;i<LS.length;i++){const k=LS.key(i);if(grp(k)==='暫存')ks.push(k)}ks.forEach(k=>LS.removeItem(k));try{indexedDB.deleteDatabase('hexHour')}catch(x){}idb=false;openK=null;draw()}
+    else if(t.id==='dbWipe'){if(!confirm('刪除這個帳號存在雲端的全部資料？這台裝置上的資料不受影響，刪完會登出。'))return;
+      HsSync.api('/sync/wipe',{}).then(()=>{HsSync.logout('雲端資料已刪除');cloud=null;tab='dev';draw()}).catch(x=>alert(x.message))}});
+  async function open(){openK=null;cloud=null;cErr='';draw();await hasIdb();draw();if(logged())loadCloud()}
+  return {open}})();window.DbTab=DbTab;
 </script>
 </body>
 </html>
