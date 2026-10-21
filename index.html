@@ -576,7 +576,7 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .bback{all:unset;cursor:pointer;color:var(--acc);font-weight:700;font-size:14px;margin:0 2px 10px;display:inline-block}
 .bsr{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px dashed var(--line)}.card>.bsr:first-child,.card>.bsr:first-of-type{border-top:0}
 button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction:column}.bsr .t b{font-size:14.5px}.bsr i{font-style:normal;color:var(--muted)}
-.bchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.bchips button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-weight:700;font-size:13.5px}.bchips button.on{background:var(--acc);border-color:transparent;color:var(--onacc,#2a1660)}.bchips button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.bchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.bchips button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-weight:700;font-size:13.5px}.bchips button.on{background:var(--acc);border-color:transparent;color:var(--onacc,#2a1660)}.bchips button.bt:not(.on){background:color-mix(in srgb,#b48cff 26%,var(--panel2));border-color:color-mix(in srgb,#b48cff 55%,transparent)}.btdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:color-mix(in srgb,#b48cff 45%,var(--panel2));border:1px solid #b48cff;margin-right:4px;vertical-align:-1px}.bchips button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .bamt{display:flex;align-items:center;gap:8px;background:var(--panel2);border-radius:10px;padding:6px 6px 6px 10px;margin-bottom:6px}.bamt input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:800 18px inherit;font-variant-numeric:tabular-nums;outline:none}.bamt .bbtn{width:auto;margin:0;padding:7px 12px}
 .bask{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 .bsheet{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}.bsheet h3{margin:0;font-size:16px}.bsheet p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}.bsheet .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -673,8 +673,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aibot .lk{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:999px;padding:2px 8px}
 .aibot .lk svg{width:11px;height:11px}
 /* 小 AI 圖示：市場分析摘要（Scout）、我的策略上方（Forge、Echo）、資產總覽（Vault）、HexBOT（Helm），點了跳到 HexAI 問那個 AI */
-.aim{flex:none;display:block}.aim svg{width:100%;height:100%;overflow:visible;animation:aiBob 3.2s ease-in-out infinite}
-@keyframes aiBob{50%{transform:translateY(-4%)}}@media (prefers-reduced-motion:reduce){.aim svg{animation:none}}
+.aim{flex:none;display:block}.aim svg{width:100%;height:100%;overflow:visible}
 .sumc .t.aitile{display:flex;align-items:center;gap:8px}.sumc .aitile .aim{width:40px;height:46px}.sumc .aitile .v{color:var(--c);font-family:inherit}
 .ailk{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}.ailk svg{width:10px;height:10px}
 .aipair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
@@ -1132,8 +1131,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 <section id="setView" class="view"><div class="wrap">
   <div class="sect"><button class="card setgo setai" type="button" data-ai="guide"><span class="setaim" id="setAiG"></span><span><b>客服機器人 AI.Guide</b><small>App 怎麼用、遇到問題都可以問它</small></span><i aria-hidden="true">›</i></button></div>
   <div class="sect"><h2>外觀</h2><div class="card"><div class="seg tset" id="themeSeg"><button data-t="dark">預設</button><button data-t="night">深夜</button><button data-t="light">白天</button></div>
-    <label class="anrow"><input type="checkbox" id="autoNight"> 跟著日出日落自動切換</label>
-    <div class="small" style="margin-top:8px">日出和黃昏用預設，白天用白天，晚上用深夜。自己點選模式（或右上角的按鈕）會關掉自動。</div></div></div>
+    <label class="anrow"><input type="checkbox" id="autoNight"> 日出日落</label></div></div>
   <div class="sect"><h2>通知</h2><button class="card setgo" id="setNotify" type="button"><span><b>通知設定</b><small>策略信號、美股開盤、重要事件、關鍵價位等開關，最近的通知</small></span><i aria-hidden="true">›</i></button></div>
   <div class="sect"><h2>資料庫</h2><button class="card setgo" id="setDb" type="button"><span><b>資料庫</b><small>查看或刪除存在這台裝置和雲端的資料</small></span><i aria-hidden="true">›</i></button></div>
   <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
@@ -2400,12 +2398,12 @@ const HexAI=(()=>{
     {k:'helm',n:'AI.Helm',r:'交易：寫下單草案，先過風控',c:'#f2c661',d:'#a8661a',l:'#fff6dc'},
     {k:'guide',n:'AI.Guide',r:'客服：App 怎麼用、遇到問題都可以問',c:'#5fd38a',d:'#1d7444',l:'#e3ffec'}];
   // 每個機器人的小配件（畫在球身座標，中心 0,0、半徑 56）：Bridge 鬍子、Forge 透明橘鐵鎚、Echo 回聲波、Scout 半透明眼鏡、Vault 半透明盾牌、Helm 劍、Guide 耳機
-  const ACC={bridge:a=>`<path d="M-30 18c6 8 18 9 30 3 12 6 24 5 30-3-2 14-14 30-30 34-16-4-28-20-30-34z" fill="#f4efe6" stroke="#cfc6b8" stroke-width="1.4" stroke-linejoin="round"/><path d="M-22 21c6 4 14 2 22-2 8 4 16 6 22 2" fill="none" stroke="#bfb5a5" stroke-width="2" stroke-linecap="round"/><path d="M-10 32l3 8M0 34v9M10 32l-3 8" stroke="#d8cfc0" stroke-width="1.6" stroke-linecap="round"/>`,
+  const ACC={bridge:a=>`<g transform="translate(0 -6)"><path d="M-30 18c6 8 18 9 30 3 12 6 24 5 30-3-2 14-14 30-30 34-16-4-28-20-30-34z" fill="#f4efe6" fill-opacity=".55" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" stroke-linejoin="round"/><path d="M-22 21c6 4 14 2 22-2 8 4 16 6 22 2" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/><path d="M-10 32l3 8M0 34v9M10 32l-3 8" stroke="#fff" stroke-opacity=".6" stroke-width="1.6" stroke-linecap="round"/></g>`,
     forge:a=>`<g transform="translate(62 36) rotate(-38) scale(1.35)"><rect x="-3.5" y="-2" width="7" height="34" rx="3.5" fill="#ff7a1a" fill-opacity=".6" stroke="#ffb27a" stroke-width="1.2"/><rect x="-15" y="-13" width="30" height="13" rx="3" fill="#ff7a1a" fill-opacity=".62" stroke="#ffb27a" stroke-width="1.6"/><rect x="-12" y="-11" width="10" height="3" rx="1.5" fill="#fff" opacity=".55"/></g>`,
     echo:a=>`<g fill="none" stroke="${a.c}" stroke-width="4" stroke-linecap="round" opacity=".9"><path d="M64 -13q9 13 0 26M73 -22q15 22 0 44M-64 -13q-9 13 0 26M-73 -22q-15 22 0 44"/></g>`,
     scout:a=>`<g stroke="${a.c}" stroke-width="2.6"><circle cx="-16.5" cy="0" r="14" fill="${a.c}" fill-opacity=".32"/><circle cx="16.5" cy="0" r="14" fill="${a.c}" fill-opacity=".32"/><path d="M-3 -2q3-3 6 0M-30 -3l-14-4M30 -3l14-4" fill="none" stroke-linecap="round"/></g><path d="M-24 -7a9 9 0 0 1 6-4M9 -7a9 9 0 0 1 6-4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>`,
     vault:a=>`<g transform="translate(52 18) rotate(8)"><path d="M0 -24l22 8v14c0 15-10 24-22 30-12-6-22-15-22-30v-14z" fill="${a.c}" fill-opacity=".38" stroke="${a.l}" stroke-width="2.4" stroke-linejoin="round"/><path d="M-9 0l7 7 12-13" fill="none" stroke="${a.l}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><path d="M-14 -12q6-6 14-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".6"/></g>`,
-    helm:a=>`<g transform="translate(62 44) rotate(-35) scale(1.35)"><path d="M-3.5 -46h7v40h-7z M0 -54l3.5 8h-7z" fill="#e8ecf4" stroke="#7d8496" stroke-width="1.2" stroke-linejoin="round"/><path d="M0 -50v42" stroke="#fff" stroke-width="1" opacity=".7"/><rect x="-11" y="-7" width="22" height="5" rx="2.5" fill="${a.d}" stroke="${a.l}" stroke-width="1.2"/><rect x="-3" y="-2" width="6" height="13" rx="2" fill="#6b3f1d"/><circle cy="13" r="3.4" fill="${a.c}" stroke="${a.d}" stroke-width="1"/></g>`,
+    helm:a=>`<g transform="translate(62 44) rotate(-35) scale(1.35)"><path d="M-3.5 -46h7v40h-7z M0 -54l3.5 8h-7z" fill="#e8ecf4" fill-opacity=".5" stroke="#fff" stroke-opacity=".85" stroke-width="1.2" stroke-linejoin="round"/><path d="M0 -50v42" stroke="#fff" stroke-width="1" opacity=".7"/><rect x="-11" y="-7" width="22" height="5" rx="2.5" fill="${a.d}" fill-opacity=".55" stroke="${a.l}" stroke-width="1.2"/><rect x="-3" y="-2" width="6" height="13" rx="2" fill="#6b3f1d" fill-opacity=".55"/><circle cy="13" r="3.4" fill="${a.c}" fill-opacity=".6" stroke="${a.d}" stroke-width="1"/></g>`,
     guide:a=>`<path d="M-55 -4a55 55 0 0 1 110 0" fill="none" stroke="#1a1a2a" stroke-width="5" stroke-linecap="round"/><rect x="-63" y="-13" width="14" height="28" rx="7" fill="${a.d}" stroke="${a.l}" stroke-width="1.6"/><rect x="49" y="-13" width="14" height="28" rx="7" fill="${a.d}" stroke="${a.l}" stroke-width="1.6"/>`};
   const mix=(h,k,f)=>{const a=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),b=[1,3,5].map(i=>parseInt(k.slice(i,i+2),16));return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*f).toString(16).padStart(2,'0')).join('')};
   const hexf=r=>[0,1,2,3,4,5].map(i=>{const a=Math.PI/3*i;return (r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)*.42).toFixed(1)}).join(' ');
@@ -2437,7 +2435,10 @@ ${ring('F')}
       b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}if(window.AiChat)AiChat.pick(a.k);else say(a.n+' 還在準備中')};all.push(o)})}
   function frame(){const box=document.getElementById('aiBots');if(!box||!box.offsetParent||document.hidden){run=false;return}
     const now=performance.now()/1000,dt=Math.min(.05,now-(last||now));last=now;
-    for(const o of all){const t=now+o.ph,j=now-o.joy<1.4;let y,x=0,rot,sx,sy,pulse=1+.07*Math.sin(t*2.6);
+    for(const o of all)step(o,now,dt);
+    requestAnimationFrame(frame)}
+  // 一顆球的一格動畫（大圖和各頁小圖示共用）
+  function step(o,now,dt){{const t=now+o.ph,j=now-o.joy<1.4;let y,x=0,rot,sx,sy,pulse=1+.07*Math.sin(t*2.6);
       if(j){const p=((now-o.joy)*1.3)%1,h=Math.max(0,Math.sin(p*Math.PI));y=-h*18;rot=Math.sin(t*2.6)*5;sx=1-.04*h;sy=1+.05*h}
       else{y=Math.sin(t*1.7)*5+Math.sin(t*3.3)*1.6;x=Math.sin(t*.9)*2;rot=Math.sin(t*1.1)*3;sx=1+.025*Math.sin(t*3.4);sy=2-sx}
       o.hv+=((y-6-o.hy)*60-o.hv*9)*dt;o.hy+=o.hv*dt;o.rv+=((rot-o.hr)*60-o.rv*9)*dt;o.hr+=o.rv*dt;
@@ -2451,12 +2452,20 @@ ${ring('F')}
       if(px!=null){const r=o.b.getBoundingClientRect(),dx=px-(r.left+r.width/2),dy=py-(r.top+r.height*.45),m=Math.hypot(dx,dy)||1,k=Math.min(1,m/120);gx=dx/m*6*k;gy=dy/m*4.5*k}
       o.lx+=(gx-o.lx)*Math.min(1,dt*10);o.ly2+=(gy-o.ly2)*Math.min(1,dt*10);o.ey.setAttribute('transform',`translate(${o.lx} ${o.ly2})`);
       if(now>o.nb){o.bl=now;o.nb=now+2+Math.random()*3.5}const bp=(now-o.bl)/.16;o.op.setAttribute('transform',`scale(1 ${bp<1?Math.max(.08,Math.abs(Math.cos(bp*Math.PI))):1})`);
-      o.op.style.display=j?'none':'';o.hp.style.display=j?'':'none'}
-    requestAnimationFrame(frame)}
+      o.op.style.display=j?'none':'';o.hp.style.display=j?'':'none'}}
+  const ctl=(b,q)=>({b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:q('.hl'),hs:q('.hs'),ly:[...b.querySelectorAll('.ly')],oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
+    hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:-9});
   function start(){build();if(run||matchMedia('(prefers-reduced-motion:reduce)').matches)return;run=true;last=0;requestAnimationFrame(frame)}
+  // 各頁小圖示也跟大圖一樣動（只動畫面上看得到的；開場動畫裡的不算）
+  let mList=[],mScan=0,mLast=0;
+  function mFrame(){const now=performance.now()/1000,dt=Math.min(.05,now-(mLast||now));mLast=now;
+    if(!document.hidden){if(now-mScan>.5){mScan=now;mList=[...document.querySelectorAll('.aim')].filter(e=>!e.closest('#splash')&&e.offsetParent).map(e=>e._hx||(e._hx=ctl(e,x=>e.querySelector(x))))}
+      for(const o of mList)if(o.b.isConnected)step(o,now,dt)}
+    requestAnimationFrame(mFrame)}
+  if(!matchMedia('(prefers-reduced-motion:reduce)').matches)requestAnimationFrame(mFrame);
   addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY},{passive:true});addEventListener('pointerdown',e=>{px=e.clientX;py=e.clientY},{passive:true});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)start()});
-  // 靜態小圖示：同一顆球擺好姿勢，只用 CSS 上下飄
+  // 小圖示：同一顆球先擺好姿勢，再由 mFrame 跟大圖一樣動
   function mini(k){const a=AI.find(x=>x.k===k);if(!a)return '';let h=svg(a,'m'+(uid++));
     h=h.replace('<g class="bd">','<g class="bd" transform="translate(100 134)">').replace(/<g class="o([BF])">/g,'<g class="o$1" transform="translate(100 134) rotate(-18)">')
       .replace('<g class="hl">','<g class="hl" transform="translate(100 64)">').replace(/class="st" r/g,'class="st" cx="62" cy="15" r');
@@ -3878,7 +3887,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     return `<button class="bback" type="button" id="botKBack">‹ ${H_(g.name)}</button><div class="bsec">${H_(y.set)}<small>${H_(g.name)}</small></div>
       <div class="card"><div class="bh"><span>① 選擇交易方式</span><span class="sub">永續合約（USDT）</span></div><div class="bchips">${D.map(o=>`<button type="button" data-bd="${H_(o[0])}"${o[0]===d?' class="on"':''}>${H_(o[1])}</button>`).join('')}</div>
         ${D.length<2?'<div class="sub">這個策略只做多。</div>':''}</div>
-      <div class="card"><div class="bh"><span>② 選擇幣種</span><span class="sub">✓＝這組參數回測過</span></div><div class="bchips">${cs.map(c=>`<button type="button" data-bs="${c}"${c===sy?' class="on"':''}>${c}${c===y.sym?' ✓':''}</button>`).join('')}</div>
+      <div class="card"><div class="bh"><span>② 選擇幣種</span><span class="sub"><i class="btdot"></i>淡紫色＝回測過</span></div><div class="bchips">${cs.map(c=>`<button type="button" data-bs="${c}" class="${[c===sy?'on':'',c===y.sym?'bt':''].join(' ').trim()}">${c}</button>`).join('')}</div>
         ${sy!==y.sym||d!==dirOf(y)?`<div class="warnbox" style="margin:6px 0 0">這組參數是用 ${H_(y.sym)}・${H_(dirName(y.st,dirOf(y)))} 回測調出來的，換成 ${H_(sy)}・${H_(dirName(y.st,d))} 前建議先到「策略分析」回測一次。</div>`:''}</div>
       <div class="card"><div class="bh"><span>${H_(sy)}・${H_(dirName(y.st,d))}</span>${led_(on)}</div>${st?`<div class="sub" style="margin-bottom:8px">${st}</div>`:''}
         <button class="bbtn ${on?'red':'pri'}" type="button" data-brun="1">${on?'停止這個':'開始執行'}</button></div>`
