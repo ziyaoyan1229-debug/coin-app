@@ -1555,9 +1555,14 @@ async function aiTool(name, a, depth, trace, from) {
     for (const a of acc) for (const x of a.assets || []) { const k = String(x.coin).replace(/（.*/, ''), o = by[k] || (by[k] = { coin: k, amount: 0, usd: 0, where: new Set() }); o.amount += +x.amount || 0; o.usd += +x.usd || 0; o.where.add(a.name + (x.acct ? '・' + x.acct : '')); }
     const pct = v => tot > 0 ? r2(v / tot * 100) : null;
     if (!acc.length) return { accounts: [], note: '資產總覽還沒有加入任何交易所帳戶（或 App 還沒回報手機上的帳戶）。可以請使用者到「資產總覽」加入唯讀金鑰' + (pc.err ? '；電腦讀取錯誤：' + pc.err : '') };
-    return { note: '這是使用者真實交易所的資產（不是模擬盤），剛剛即時讀取', totalUsd: r2(tot), phoneDataAt: ph.length && APPCTX.fundsAt ? tpeHM(APPCTX.fundsAt) : null,
-      allocation: Object.values(by).filter(o => o.usd > 0.5).sort((p, q) => q.usd - p.usd).slice(0, 30).map(o => ({ coin: o.coin, amount: +o.amount.toPrecision(8), usd: r2(o.usd), pct: pct(o.usd), in: [...o.where].slice(0, 6) })),
-      accounts: acc.map(a => ({ name: a.name, exchange: a.exchange, storedOn: a.where, ok: a.ok !== false, totalUsd: r2(a.total_usd || 0), pct: pct(a.total_usd || 0), assets: (a.assets || []).filter(x => (+x.usd || 0) > 0.5).sort((p, q) => (q.usd || 0) - (p.usd || 0)).slice(0, 12).map(x => ({ coin: x.coin, amount: x.amount, usd: r2(x.usd || 0), account: x.acct })), positions: (a.positions || []).map(p => ({ symbol: p.symbol, side: p.side, contracts: p.contracts, entry: p.entry, mark: p.mark, liq: p.liq, leverage: p.leverage, upnlUsd: p.upnl != null ? r2(p.upnl) : null, coinMargined: !!p.coinM })), notes: (a.notes || []).slice(0, 3) })) };
+    // 順序：總額 → 各交易所比例 → 配置 → 全部持倉 → 各帳號；帳號多時後面可能被截掉，重要的放前面
+    const exs = {}; for (const a of acc) exs[a.exchange] = (exs[a.exchange] || 0) + (a.total_usd || 0);
+    const pos = []; for (const a of acc) for (const p of a.positions || []) pos.push({ account: a.name, exchange: a.exchange, symbol: p.symbol, side: p.side, contracts: p.contracts, entry: p.entry, mark: p.mark, liq: p.liq, leverage: p.leverage, upnlUsd: p.upnl != null ? r2(p.upnl) : null, coinMargined: !!p.coinM || undefined });
+    return { note: '這是使用者真實交易所的資產（不是模擬盤），剛剛即時讀取', totalUsd: r2(tot), unrealizedPnlUsd: r2(pos.reduce((t, p) => t + (p.upnlUsd || 0), 0)), accountCount: acc.length, phoneDataAt: ph.length && APPCTX.fundsAt ? tpeHM(APPCTX.fundsAt) : null,
+      byExchange: Object.entries(exs).sort((p, q) => q[1] - p[1]).map(([k, v]) => ({ exchange: k, usd: r2(v), pct: pct(v) })),
+      allocation: Object.values(by).filter(o => o.usd > 0.5).sort((p, q) => q.usd - p.usd).slice(0, 15).map(o => ({ coin: o.coin, amount: +o.amount.toPrecision(8), usd: r2(o.usd), pct: pct(o.usd) })),
+      positions: pos.slice(0, 40),
+      accounts: acc.map(a => ({ name: a.name, exchange: a.exchange, storedOn: a.where, ok: a.ok !== false, totalUsd: r2(a.total_usd || 0), pct: pct(a.total_usd || 0), positions: (a.positions || []).length, topAssets: (a.assets || []).filter(x => (+x.usd || 0) > 0.5).sort((p, q) => (q.usd || 0) - (p.usd || 0)).slice(0, 6).map(x => ({ coin: x.coin, usd: r2(x.usd || 0), account: x.acct })), notes: (a.notes || []).slice(0, 2) })) };
   }
   if (name === 'get_account_balance') {
     const s = await status();
@@ -1624,7 +1629,7 @@ async function aiRun(role, hist, depth = 0, trace = []) {
   const lastU = String((hist.filter(x => x.role === 'user').pop() || {}).content || '');
   if (!depth && R.tools.includes('get_portfolio') && /資產|配置|持倉|倉位|艙位|部位|餘額|幣本位|總額|資金|多少錢|賺|賠|虧/.test(lastU)) {
     try { const pf = await aiTool('get_portfolio', {}, depth, trace, role); trace.push({ by: R.name, tool: 'get_portfolio', args: {}, ok: true });
-      const L = msgs[msgs.length - 1]; if (L && L.role === 'user') L.content = String(L.content) + '\n\n（以下是系統附上的資料，不是使用者打的）系統剛剛即時查到的使用者真實資產（資產總覽，' + tpeHM(nowS()) + '）。回答資產、配置、持倉一律以這份為準，忽略對話裡之前的數字；模擬盤是另外的假資金，不要混進來：\n' + clip(pf, 9000); } catch (e) {}
+      const L = msgs[msgs.length - 1]; if (L && L.role === 'user') L.content = String(L.content) + '\n\n（以下是系統附上的資料，不是使用者打的）系統剛剛即時查到的使用者真實資產（資產總覽，' + tpeHM(nowS()) + '）。回答資產、配置、持倉一律以這份為準，忽略對話裡之前的數字；模擬盤是另外的假資金，不要混進來：\n' + clip(pf, 12000); } catch (e) {}
   }
   for (let i = 0; i < 8; i++) {
     const T = only ? PT : [...R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), ...(depth ? [] : ['ask_user'])], m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
@@ -1639,7 +1644,7 @@ async function aiRun(role, hist, depth = 0, trace = []) {
       const step = { by: R.name, tool: nm, args, ok: true }; trace.push(step);
       let out; try { if (!R.tools.includes(nm) || nm === 'ask_user') throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace, role); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
       if (/^propose_/.test(nm) && step.ok) step.res = { kind: nm === 'propose_strategy' ? 'strat' : 'lim', by: R.name, proposed: out.proposed, reason: out.reason };
-      msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out, nm === 'get_portfolio' ? 9000 : 0) });
+      msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out, nm === 'get_portfolio' ? 12000 : 0) });
     }
   }
   return { text: '（查了太多次還沒結論，請把問題問得更具體一點）', trace };
