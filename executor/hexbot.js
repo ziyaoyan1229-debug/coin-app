@@ -50,7 +50,7 @@ fs.mkdirSync(F.cache, { recursive: true });
 if (REPLAY && !ARG.keep) { for (const f of ['state.json', 'log.jsonl', 'config.json']) try { fs.unlinkSync(path.join(DIR, f)); } catch (e) {} }
 
 // ───────── 設定 ─────────
-const LIM0 = { maxPosPct: 30, maxLev: 3, dayLossPct: 5, maxDDPct: 20 };
+const LIM0 = { maxPosPct: 30, maxLev: 3, dayLossPct: 5, maxDDPct: 20 }, LIMR = { maxPosPct: [1, 1000], maxLev: [0.1, 20], dayLossPct: [0.1, 100], maxDDPct: [0.1, 100] };
 function loadCfg() {
   const old = readJ(F.cfg, null);
   const c = Object.assign({ hostName: os.hostname(), token: rnd(32), hostId: rnd(8), port: 8787, exchange: 'bybit', testnet: true, apiKey: '', apiSecret: '', allowLive: false, limits: {}, startEquity: 1000, catchupPct: 0.5, tunnel: true, relay: '', funds: [] }, old || {});
@@ -1051,9 +1051,9 @@ const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 const AI_ROLES = {
   bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（自己不抓資料），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）', tools: ['ask_agent'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
   scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件', tools: ['get_market_data', 'get_news'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
-  echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌', tools: ['list_strategies', 'run_backtest'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
-  forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說', tools: ['ask_agent', 'list_strategies'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
-  vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」（只建議，不改設定）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
+  echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌。使用者想把某組參數存起來時，用 propose_strategy 提出（App 會跳確認框，使用者按確認才會新增）', tools: ['list_strategies', 'run_backtest', 'propose_strategy'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
+  forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說。使用者想採用某個方案時，用 propose_strategy 提出新增到「我的策略」（新策略，或某個策略底下的新參數組；App 會跳確認框，使用者按確認才會新增，不要說已經加好）', tools: ['ask_agent', 'list_strategies', 'propose_strategy'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
+  vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」。使用者想調整風險控管、或討論出新的上限時，用 propose_risk_limits 提出新值：App 會跳確認框，使用者按確認才會改（不要說已經改好）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules', 'propose_risk_limits'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
   helm: { name: 'AI.Helm', job: '執行助手：把方案寫成「下單草案」，一定要先請 Vault 審核，絕不自己下單', tools: ['ask_agent', 'get_position', 'list_strategies'], calls: ['vault', 'scout'], out: '下單草案：幣種、方向、數量或資金比例、槓桿、停損，以及 Vault 的結論' },
   guide: { name: 'AI.Guide', job: '客服：回答 HexStack App 怎麼用、遇到問題怎麼排除。只根據下面的 App 說明回答，說明裡沒有的就老實說不確定，請使用者在專案裡回報。不談行情和投資建議，那些請使用者去問 AI.Bridge', tools: [] }
 };
@@ -1081,6 +1081,8 @@ const AI_TOOLS = {
   get_account_balance: { d: '帳戶權益：模擬盤各交易所、實盤，和資產總覽的總資產', p: {} },
   get_position: { d: '目前所有持倉和執行中的策略', p: {} },
   get_risk_rules: { d: '目前的風控上限（單筆部位、槓桿、日虧損、最大回撤）和是否觸發停機', p: {} },
+  propose_strategy: { d: '提出新增到使用者的「我的策略」：新策略，或加在既有策略底下的一組參數。不會直接生效：App 會跳確認框給使用者，按確認才新增', p: { strategy: { type: 'string', description: 'list_strategies 給的代號' }, symbol: { type: 'string', description: '例如 BTC' }, params: { type: 'object', description: '跟預設不同的參數，沒給就用預設' }, name: { type: 'string', description: '策略名字（新策略用）或參數組名字，簡短' }, group: { type: 'string', description: '要加在哪個既有策略底下（使用者說的策略名字）；新策略就不給' }, reason: { type: 'string', description: '一句話：為什麼建議這組（附回測報酬、回撤）' } }, req: ['strategy', 'symbol'] },
+  propose_risk_limits: { d: '提出新的風險控管上限（只給要改的欄位）。不會直接生效：App 會跳確認框給使用者，按確認才改', p: { maxPosPct: { type: 'number', description: '單一策略最大倉位，% 帳戶，1～1000' }, maxLev: { type: 'number', description: '最大槓桿（倍），0.1～20' }, dayLossPct: { type: 'number', description: '每日最大虧損 %，到了全部暫停，0.1～100' }, maxDDPct: { type: 'number', description: '總回撤上限 %，到了全部平倉，0.1～100' }, reason: { type: 'string', description: '一句話說明為什麼這樣改' } } },
   list_strategies: { d: 'App 內建的策略清單（代號、名稱）；給 strategy 代號時改回傳那個策略在指定幣種的預設參數', p: { strategy: { type: 'string', description: '要看預設參數的策略代號，不給就只列清單' }, symbol: { type: 'string', description: '預設 BTC' } } },
   run_backtest: { d: '用 HexStack 回測引擎（含手續費、滑價、資金費率）回測一個策略', p: { strategy: { type: 'string', description: 'list_strategies 給的代號' }, symbol: { type: 'string' }, days: { type: 'integer', description: '回測天數，預設 365，最多 1000' }, params: { type: 'object', description: '要覆蓋的參數，沒給就用預設' } }, req: ['strategy', 'symbol'] }
 };
@@ -1106,6 +1108,10 @@ async function aiTool(name, a, depth, trace, from) {
   }
   if (name === 'get_position') { const s = await status(); return { positions: s.positions, strategies: s.strategies.filter(g => g.enabled).map(g => ({ name: g.name, strategy: g.st, symbol: g.sym, ledger: g.led, state: g.state, alloc: g.alloc, equity: g.equity, position: g.position })) }; }
   if (name === 'get_risk_rules') { const s = await status(); return { limits: s.limits, halted: s.halted, mdd: s.mdd, dd: s.dd, paperOnly: s.paperOnly }; }
+  if (name === 'propose_strategy') { const st = String(a.strategy || ''), sy = symOk(a.symbol), B = ENG.BEST[st]; if (!B) throw new Error('沒有策略 ' + st + '，先用 list_strategies 查代號'); if (!B[sy]) throw new Error((ENG.NAME[st] || st) + ' 沒有 ' + sy + ' 的版本，可用：' + Object.keys(B).join('、'));
+    const d = B[sy], ch = {}, cp = cleanP(a.params); for (const k in cp) if (k in d) ch[k] = cp[k];
+    return { proposed: { strategy: st, stName: ENG.NAME[st] || st, symbol: sy, params: ch, name: String(a.name || '').slice(0, 30), group: String(a.group || '').slice(0, 40) }, reason: String(a.reason || '').slice(0, 200), note: '已跳確認框給使用者，按確認才會新增' }; }
+  if (name === 'propose_risk_limits') { const o = {}; for (const k in LIMR) if (a[k] != null && a[k] !== '') { const v = +a[k]; if (!(v >= LIMR[k][0] && v <= LIMR[k][1])) throw new Error(`${k} 要在 ${LIMR[k][0]}～${LIMR[k][1]} 之間`); o[k] = v; } if (!Object.keys(o).length) throw new Error('至少要給一個要改的上限'); return { proposed: o, current: C.limits, reason: String(a.reason || '').slice(0, 200), note: '已跳確認框給使用者，按確認才會生效' }; }
   if (name === 'list_strategies') { const s = symOk(a.symbol), B = ENG.BEST[a.strategy]; if (B) return { strategy: a.strategy, name: ENG.NAME[a.strategy] || a.strategy, symbol: s, defaultParams: cleanP(B[s] || B.BTC || {}) }; return { strategies: Object.keys(ENG.BEST).map(k => ({ code: k, name: ENG.NAME[k] || k })) }; }
   if (name === 'run_backtest') {
     const st = String(a.strategy || ''), s = symOk(a.symbol); if (!ENG.BEST[st]) throw new Error('沒有策略 ' + st + '，先用 list_strategies 查代號');
@@ -1148,6 +1154,7 @@ async function aiRun(role, hist, depth = 0, trace = []) {
       const fn = tc.function || {}, nm = fn.name; let args = fn.arguments; try { args = typeof args === 'string' ? JSON.parse(args || '{}') : args || {}; } catch (e) { args = {}; }
       const step = { by: R.name, tool: nm, args, ok: true }; trace.push(step);
       let out; try { if (!R.tools.includes(nm)) throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace, role); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
+      if (/^propose_/.test(nm) && step.ok) step.res = { kind: nm === 'propose_strategy' ? 'strat' : 'lim', by: R.name, proposed: out.proposed, reason: out.reason };
       msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out) });
     }
   }
@@ -1162,7 +1169,7 @@ async function aiStart(role, text) {
   const h = AIH[role] || (AIH[role] = []), id = rnd(6), job = AIJ[id] = { id, role, done: false, trace: [], text: '', error: '', t: nowS() };
   h.push({ role: 'user', content: text, t: nowS() });
   aiRun(role, h.slice(-10).map(x => ({ role: x.role, content: String(x.content).slice(0, 1500) })), 0, job.trace)
-    .then(r => { job.text = r.text; h.push({ role: 'assistant', content: r.text, t: nowS(), steps: job.trace.length }); })
+    .then(r => { job.text = r.text; const lp = job.trace.filter(x => x.res).map(x => x.res).slice(-3); if (lp.length) job.props = lp; h.push(Object.assign({ role: 'assistant', content: r.text, t: nowS(), steps: job.trace.length }, lp.length ? { props: lp } : {})); })
     .catch(e => { job.error = e.message; h.pop(); })
     .finally(() => { job.done = true; if (h.length > 40) h.splice(0, h.length - 40); try { writeJ(F_AI, AIH); } catch (e) {} for (const k in AIJ) if (nowS() - AIJ[k].t > 3600) delete AIJ[k]; });
   return { id };
@@ -1219,7 +1226,7 @@ async function api(req, res, p) {
     return { ok: true };
   }
   if (p === '/api/limits') {
-    const R = { maxPosPct: [1, 1000], maxLev: [0.1, 20], dayLossPct: [0.1, 100], maxDDPct: [0.1, 100] };
+    const R = LIMR;
     for (const k in d) { if (k === 'catchupPct') { const v = +d[k]; if (!(v >= 0 && v <= 10)) throw new HErr(400, 'catchupPct 要在 0～10'); C.catchupPct = v; continue; }
       if (!R[k]) throw new HErr(400, '不認得的設定：' + k); const v = +d[k]; if (!(v >= R[k][0] && v <= R[k][1])) throw new HErr(400, `${k} 要在 ${R[k][0]}～${R[k][1]} 之間`); C.limits[k] = v; }
     saveCfg(); if (LED.live) LED.live.maxLev = C.limits.maxLev; log('info', { text: '風控上限：' + JSON.stringify(C.limits) }); return { ok: true, limits: C.limits, catchupPct: C.catchupPct };
