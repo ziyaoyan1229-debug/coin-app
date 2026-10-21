@@ -1042,8 +1042,10 @@ async function resumeStrat(g, why) {
   lg('resume', g, { text: why || '恢復執行' }); dirty();
 }
 // ── HexAI：策略顧問（第一版只讀、只建議，不下單、不改風控）──
-// 模型走 OpenAI 相容介面（/chat/completions + tools）：本機 Ollama、llama.cpp、vLLM 或雲端 DeepSeek 都能接，設定在 config.json 的 ai
-const AI_DEF = { base: 'http://127.0.0.1:11434/v1', model: 'qwen3:8b', key: '' };
+// 模型走 OpenAI 相容介面（/chat/completions + tools）：預設 Groq 免費的 Qwen3.8-27B；本機 Ollama、Gemini、DeepSeek 也能接，設定在 config.json 的 ai
+// Groq 免費額度每分鐘只有 8K token：工具結果、歷史都裁短，遇到 429 照 retry-after 等一下再試
+const AI_DEF = { base: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.8-27b', key: '' };
+const aiLocal = b => /^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(b);
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 const AI_ROLES = {
   bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，必要時找其他 AI 幫忙，最後整理成一個答案', tools: ['ask_agent', 'get_market_data', 'get_news', 'get_account_balance', 'get_position', 'get_risk_rules', 'list_strategies', 'run_backtest'] },
@@ -1058,11 +1060,11 @@ const aiSys = r => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。�
 const AI_TOOLS = {
   ask_agent: { d: '請另一個 AI 處理子問題，回傳它的答案', p: { role: { type: 'string', enum: ['scout', 'echo', 'forge', 'vault', 'helm'] }, question: { type: 'string' } }, req: ['role', 'question'] },
   get_market_data: { d: '某個幣的 1 小時 K 線行情摘要：現價、24h/7d/30d 漲跌、區間高低、近期收盤', p: { symbol: { type: 'string', description: '例如 BTC、ETH' }, hours: { type: 'integer', description: '要看的小時數，預設 72，最多 720' } }, req: ['symbol'] },
-  get_news: { d: 'HexStack 市場分析頁的最新盤勢摘要、行事曆和新聞標題', p: { limit: { type: 'integer', description: '新聞則數，預設 8' } } },
+  get_news: { d: 'HexStack 市場分析頁的最新盤勢摘要、行事曆和新聞標題', p: { limit: { type: 'integer', description: '新聞則數，預設 5' } } },
   get_account_balance: { d: '帳戶權益：模擬盤各交易所、實盤，和資產總覽的總資產', p: {} },
   get_position: { d: '目前所有持倉和執行中的策略', p: {} },
   get_risk_rules: { d: '目前的風控上限（單筆部位、槓桿、日虧損、最大回撤）和是否觸發停機', p: {} },
-  list_strategies: { d: 'App 內建的策略清單（代號、名稱）和指定幣種的預設參數', p: { symbol: { type: 'string', description: '預設 BTC' } } },
+  list_strategies: { d: 'App 內建的策略清單（代號、名稱）；給 strategy 代號時改回傳那個策略在指定幣種的預設參數', p: { strategy: { type: 'string', description: '要看預設參數的策略代號，不給就只列清單' }, symbol: { type: 'string', description: '預設 BTC' } } },
   run_backtest: { d: '用 HexStack 回測引擎（含手續費、滑價、資金費率）回測一個策略', p: { strategy: { type: 'string', description: 'list_strategies 給的代號' }, symbol: { type: 'string' }, days: { type: 'integer', description: '回測天數，預設 365，最多 1000' }, params: { type: 'object', description: '要覆蓋的參數，沒給就用預設' } }, req: ['strategy', 'symbol'] }
 };
 const symOk = s => { s = String(s || 'BTC').toUpperCase().replace(/USDT$/, ''); if (!MK[s]) throw new Error('沒有 ' + s + ' 的資料，可用：' + Object.keys(MK).join('、')); return s; };
@@ -1073,13 +1075,13 @@ async function aiTool(name, a, depth, trace) {
   if (name === 'get_market_data') {
     const s = symOk(a.symbol), m = MK[s], n = m.n, h = Math.max(6, Math.min(720, +a.hours || 72)), c = m.C[n - 1], at = k => m.C[Math.max(0, n - 1 - k)];
     const lo = Math.min(...m.L.slice(n - h, n)), hi = Math.max(...m.H.slice(n - h, n)), st = Math.max(1, Math.round(h / 24));
-    const closes = []; for (let i = n - h; i < n; i += st) closes.push(+fpx(m.C[i]).replace(/,/g, ''));
-    return { symbol: s, price: px(s) || c, lastBarTaipei: tpeHM(mEnd(s) - H1), chg24h: r2((c / at(24) - 1) * 100), chg7d: r2((c / at(168) - 1) * 100), chg30d: r2((c / at(720) - 1) * 100), [`high${h}h`]: hi, [`low${h}h`]: lo, closesEvery: st + 'h', closes };
+    const closes = []; for (let i = n - h; i < n; i += Math.max(st, Math.ceil(h / 24))) closes.push(+fpx(m.C[i]).replace(/,/g, ''));
+    return { symbol: s, price: px(s) || c, lastBarTaipei: tpeHM(mEnd(s) - H1), chg24h: r2((c / at(24) - 1) * 100), chg7d: r2((c / at(168) - 1) * 100), chg30d: r2((c / at(720) - 1) * 100), [`high${h}h`]: hi, [`low${h}h`]: lo, closesEvery: Math.max(st, Math.ceil(h / 24)) + 'h', closes };
   }
   if (name === 'get_news') {
     if (!NEWS_C.d || nowS() - NEWS_C.at > 600) { NEWS_C = { at: nowS(), d: await getJ(SITE + 'news.json?t=' + nowS(), {}, 20000) }; }
     const d = NEWS_C.d, m = d.market || {};
-    return { updated: m.updated, title: m.title, bias: m.bias, summary: String(m.body || '').slice(0, 1500), calendar: m.calendar || [], news: (d.news || []).slice(0, Math.max(1, Math.min(20, +a.limit || 8))).map(x => ({ time: x.ts, title: x.title, summary: String(x.summary || '').slice(0, 200), impact: x.impact, tag: x.tag })) };
+    return { updated: m.updated, title: m.title, bias: m.bias, summary: String(m.body || '').slice(0, 900), calendar: (m.calendar || []).slice(0, 5), news: (d.news || []).slice(0, Math.max(1, Math.min(10, +a.limit || 5))).map(x => ({ time: x.ts, title: x.title, summary: String(x.summary || '').slice(0, 100), impact: x.impact })) };
   }
   if (name === 'get_account_balance') {
     const s = await status(), f = await fundsAll(false).catch(() => null);
@@ -1087,27 +1089,36 @@ async function aiTool(name, a, depth, trace) {
   }
   if (name === 'get_position') { const s = await status(); return { positions: s.positions, strategies: s.strategies.filter(g => g.enabled).map(g => ({ name: g.name, strategy: g.st, symbol: g.sym, ledger: g.led, state: g.state, alloc: g.alloc, equity: g.equity, position: g.position })) }; }
   if (name === 'get_risk_rules') { const s = await status(); return { limits: s.limits, halted: s.halted, mdd: s.mdd, dd: s.dd, paperOnly: s.paperOnly }; }
-  if (name === 'list_strategies') { const s = symOk(a.symbol); return { strategies: Object.keys(ENG.BEST).map(k => ({ code: k, name: ENG.NAME[k] || k, defaultParams: (ENG.BEST[k][s] || ENG.BEST[k].BTC || null) })) }; }
+  if (name === 'list_strategies') { const s = symOk(a.symbol), B = ENG.BEST[a.strategy]; if (B) return { strategy: a.strategy, name: ENG.NAME[a.strategy] || a.strategy, symbol: s, defaultParams: cleanP(B[s] || B.BTC || {}) }; return { strategies: Object.keys(ENG.BEST).map(k => ({ code: k, name: ENG.NAME[k] || k })) }; }
   if (name === 'run_backtest') {
     const st = String(a.strategy || ''), s = symOk(a.symbol); if (!ENG.BEST[st]) throw new Error('沒有策略 ' + st + '，先用 list_strategies 查代號');
     const days = Math.max(30, Math.min(1000, +a.days || 365)), T = mEnd(s), B = ENG.BEST[st];
     const p = Object.assign({}, B[s] || B.BTC || {}, cleanP(a.params), { capital: 1000 });
     const { r } = runSim(st, s, T - days * D1, T, p), tr = Array.isArray(r.trades) ? r.trades.length : +r.trades || 0;
-    return { strategy: st, name: ENG.NAME[st] || st, symbol: s, days, returnPct: r2((r.mult - 1) * 100), maxDrawdownPct: r2(Math.abs(r.mdd || 0) * (Math.abs(r.mdd || 0) <= 1 ? 100 : 1)), trades: tr, liquidated: !!r.liq, feesUsd: r2(r.fees || 0), fundingUsd: r2(r.fund || 0), params: cleanP(p) };
+    return { strategy: st, name: ENG.NAME[st] || st, symbol: s, days, returnPct: r2((r.mult - 1) * 100), maxDrawdownPct: r2(Math.abs(r.mdd || 0) * (Math.abs(r.mdd || 0) <= 1 ? 100 : 1)), trades: tr, liquidated: !!r.liq, feesUsd: r2(r.fees || 0), fundingUsd: r2(r.fund || 0), changedParams: cleanP(a.params) };
   }
   throw new Error('沒有這個工具：' + name);
 }
 async function aiCall(msgs, tools) {
   const c = aiCfg(), h = { 'content-type': 'application/json' }; if (c.key) h.authorization = 'Bearer ' + c.key;
+  if (!c.key && !aiLocal(c.base)) throw new Error('還沒設定模型金鑰：' + (/groq/.test(c.base) ? '到 console.groq.com 免費申請 API 金鑰，在電腦版 HexAI 的模型設定貼上' : '請在電腦版 HexAI 的模型設定貼上 API 金鑰'));
   const b = { model: c.model, messages: msgs, temperature: 0.3, stream: false }; if (tools.length) b.tools = tools.map(n => ({ type: 'function', function: { name: n, description: AI_TOOLS[n].d, parameters: { type: 'object', properties: AI_TOOLS[n].p, required: AI_TOOLS[n].req || [] } } }));
-  let r; try { r = await fetchT(c.base.replace(/\/+$/, '') + '/chat/completions', { method: 'POST', headers: h, body: JSON.stringify(b) }, 300000); }
-  catch (e) { throw new Error('連不到模型（' + c.base + '）：' + (e.name === 'AbortError' ? '逾時' : e.message) + (/127\.0\.0\.1|localhost/.test(c.base) ? '。本機模型請先開 Ollama' : '')); }
-  const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (e) {}
+  let r, t, j = null;
+  for (let k = 0; ; k++) {
+    try { r = await fetchT(c.base.replace(/\/+$/, '') + '/chat/completions', { method: 'POST', headers: h, body: JSON.stringify(b) }, 300000); }
+    catch (e) { throw new Error('連不到模型（' + c.base + '）：' + (e.name === 'AbortError' ? '逾時' : e.message) + (aiLocal(c.base) ? '。本機模型請先開 Ollama' : '')); }
+    t = await r.text(); j = null; try { j = JSON.parse(t); } catch (e) {}
+    if (![429, 503].includes(r.status) || k >= 4) break;
+    // 免費額度每分鐘用完：照伺服器說的秒數等（最多 60 秒）再試
+    const m = /try again in ([\d.]+)(m?s)/i.exec(t), w = +r.headers.get('retry-after') || (m ? +m[1] / (m[2] === 'ms' ? 1000 : 1) : 10);
+    await sleep(Math.min(60, Math.max(1, w)) * 1000 + 300);
+  }
+  if (r.status === 429) throw new Error('免費額度暫時用完了（每分鐘或每天的上限），請稍後再問');
   if (!r.ok) throw new Error('模型回應錯誤 HTTP ' + r.status + '：' + String(j && j.error && (j.error.message || j.error) || t).slice(0, 200));
   const m = j && j.choices && j.choices[0] && j.choices[0].message; if (!m) throw new Error('模型沒有回答');
   return m;
 }
-const clip = o => { const s = JSON.stringify(o); return s.length > 6000 ? s.slice(0, 6000) + '…' : s; };
+const clip = o => { const s = JSON.stringify(o); return s.length > 2500 ? s.slice(0, 2500) + '…' : s; };
 async function aiRun(role, hist, depth = 0, trace = []) {
   const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role) }, ...hist];
   for (let i = 0; i < 8; i++) {
@@ -1131,7 +1142,7 @@ async function aiStart(role, text) {
   if (Object.values(AIJ).some(j => !j.done)) throw new HErr(409, '上一個問題還在處理');
   const h = AIH[role] || (AIH[role] = []), id = rnd(6), job = AIJ[id] = { id, role, done: false, trace: [], text: '', error: '', t: nowS() };
   h.push({ role: 'user', content: text, t: nowS() });
-  aiRun(role, h.slice(-20).map(x => ({ role: x.role, content: x.content })), 0, job.trace)
+  aiRun(role, h.slice(-10).map(x => ({ role: x.role, content: String(x.content).slice(0, 1500) })), 0, job.trace)
     .then(r => { job.text = r.text; h.push({ role: 'assistant', content: r.text, t: nowS(), steps: job.trace.length }); })
     .catch(e => { job.error = e.message; h.pop(); })
     .finally(() => { job.done = true; if (h.length > 40) h.splice(0, h.length - 40); try { writeJ(F_AI, AIH); } catch (e) {} for (const k in AIJ) if (nowS() - AIJ[k].t > 3600) delete AIJ[k]; });

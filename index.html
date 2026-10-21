@@ -662,6 +662,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aiset{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}.aiset label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .aiset input{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
 .aiset .sub{margin:0;font-size:12.5px}.aiset .aitm{color:var(--text)}#aiChat .aipre{display:grid;grid-template-columns:1fr 1fr;gap:8px}#aiChat .aipre .bbtn{margin:0;padding:9px}
+.aikey{display:flex;flex-direction:column;gap:4px;font-size:13.5px;line-height:1.55;background:color-mix(in srgb,var(--c) 10%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);border-radius:12px;padding:10px 12px}.aikey b{color:var(--c)}#aiChat .aikey .bbtn{margin:6px 0 0}
 .aiempty{display:flex;flex-direction:column;gap:8px;padding:14px}.aiempty .sub{margin:0}
 .aibots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .aibot{all:unset;box-sizing:border-box;cursor:pointer;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:6px 10px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;-webkit-tap-highlight-color:transparent}
@@ -3995,7 +3996,7 @@ const AiChat=(()=>{
       ${D?`<label>API 金鑰（雲端才要，本機留空）<input id="aiKey" type="password" value="${c.hasKey?'••••':''}" placeholder="sk-…" autocomplete="off"></label>`:`<p class="sub">API 金鑰只能在電腦版設定。</p>`}
       <div class="row2"><button type="button" class="bbtn pri" id="aiSave">儲存並測試</button><button type="button" class="bbtn" id="aiSetX">收起</button></div>
       ${tmsg?`<p class="sub aitm">${tmsg}</p>`:''}
-      <p class="sub">免費雲端：Groq 到 console.groq.com、Gemini 到 aistudio.google.com 申請金鑰，不用綁卡。</p><p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
+      <p class="sub">預設用 Groq 免費的 Qwen3.8-27B（開源、不用綁卡）：到 console.groq.com 申請金鑰。Gemini 免費金鑰在 aistudio.google.com。</p><p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
   function render(){const b=box();if(!b)return;
     if(!window.BotTab||!BotTab.paired()){b.innerHTML=chips()+`<div class="card aiempty"><div class="bh">先連接電腦</div><p class="sub">HexAI 跑在你電腦上的 HexStack 電腦版（模型和你的資料都在那台電腦）。先到 HexBOT 連接電腦，就能在這裡問。</p><button type="button" class="bbtn pri" id="aiToBot">到 HexBOT 連接 ›</button></div>`;return}
     const ms=H[role]||[],a=A(role),pend=job&&job.role===role&&!job.done;
@@ -4004,6 +4005,7 @@ const AiChat=(()=>{
       +(err?`<div class="aierr">${H_(err)}${/連不到模型|模型/.test(err)?'<br><button type="button" class="lk" data-open-set>打開模型設定 ›</button>':''}</div>`:'');
     const st=document.activeElement&&document.activeElement.id==='aiIn'?document.activeElement.selectionStart:null;
     b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd"><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div>
+      ${cfg&&!cfg.hasKey&&!/127\.0\.0\.1|localhost/.test(cfg.base)&&!set?`<div class="aikey"><b>第一次使用要先設定免費金鑰</b><div>1. 到 console.groq.com 用 Google 帳號登入</div><div>2. 左邊 API Keys → Create API Key，複製金鑰</div><div>3. ${window.hexDesktop?'按下面「設定金鑰」貼上，按儲存並測試':'在電腦版 HexStack 的這一頁貼上（金鑰只能在電腦上設定）'}</div>${window.hexDesktop?'<button type="button" class="bbtn pri" data-open-set>設定金鑰</button>':''}</div>`:''}
       <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
       <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?cfg.model:'…')} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
