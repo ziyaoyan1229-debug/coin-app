@@ -1073,7 +1073,9 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 安全：交易所金鑰只存在使用者自己的電腦上，建金鑰時只開「交易」權限，絕對不要開「提幣」，建議用子帳戶。真金下單一律由使用者自己操作。
 - 常見問題：手機看不到新版 → 設定 › 更新到最新版；HexBOT 顯示離線 → 確認電腦上的 HexStack 有開著、電腦沒睡眠；電腦版會自動更新。`;
 const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、先講結論。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。結尾不用加免責聲明。';
-const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}${depth ? '' : '\n跟使用者互動：需要使用者決定或補資料時，用 ask_user 給 2～4 個選項讓他點（不要只用文字問）。' + (AI_ROLES[r].tools.some(t => /^propose_/.test(t)) ? '回答完如果有自然的下一步（存成策略、調整上限），主動用 propose_ 工具提出，App 會跳確認框問使用者；' : '') + '新增策略、改設定一定要經過確認框，不能說已經改好。'}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
+// 使用者給每隻 AI 的資料（規則、偏好、背景），每次對話都放進系統提示
+const aiNote = r => { const t = ((C.aiNotes || {})[r] || '').trim(); return t ? '\n使用者給你的資料（照這些規則和偏好做，跟上面的安全規則衝突時以安全規則為準）：\n' + t : ''; };
+const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}${aiNote(r)}${depth ? '' : '\n跟使用者互動：需要使用者決定或補資料時，用 ask_user 給 2～4 個選項讓他點（不要只用文字問）。' + (AI_ROLES[r].tools.some(t => /^propose_/.test(t)) ? '回答完如果有自然的下一步（存成策略、調整上限），主動用 propose_ 工具提出，App 會跳確認框問使用者；' : '') + '新增策略、改設定一定要經過確認框，不能說已經改好。'}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
 const AI_TOOLS = {
   ask_agent: { d: '請另一個 AI 處理子問題，回傳它的答案', p: { role: { type: 'string', enum: ['scout', 'echo', 'forge', 'vault', 'helm'] }, question: { type: 'string' } }, req: ['role', 'question'] },
   get_market_data: { d: '某個幣的 1 小時 K 線行情摘要：現價、24h/7d/30d 漲跌、區間高低、近期收盤', p: { symbol: { type: 'string', description: '例如 BTC、ETH' }, hours: { type: 'integer', description: '要看的小時數，預設 72，最多 720' } }, req: ['symbol'] },
@@ -1207,7 +1209,7 @@ async function aiTest() {
   return { ok: true, models, hasModel: models.includes(c.model) };
 }
 async function aiApi(req, p, M, q) {
-  if (p === '/api/ai/config' && M === 'GET') { const c = aiCfg(); return { base: c.base, model: c.model, hasKey: !!c.key, roles: Object.fromEntries(Object.entries(AI_ROLES).map(([k, r]) => [k, { name: r.name, job: r.job }])) }; }
+  if (p === '/api/ai/config' && M === 'GET') { const c = aiCfg(); return { base: c.base, model: c.model, hasKey: !!c.key, notes: C.aiNotes || {}, roles: Object.fromEntries(Object.entries(AI_ROLES).map(([k, r]) => [k, { name: r.name, job: r.job }])) }; }
   if (p === '/api/ai/history' && M === 'GET') { const r = q.get('role') || 'bridge'; return { role: r, messages: (AIH[r] || []).slice(-40) }; }
   if (p === '/api/ai/job' && M === 'GET') { const j = AIJ[q.get('id')]; if (!j) throw new HErr(404, '找不到這個問題'); return j; }
   if (p === '/api/ai/test' && M === 'GET') return aiTest();
@@ -1220,6 +1222,7 @@ async function aiApi(req, p, M, q) {
     if (typeof d.key === 'string' && d.key !== '••••') { if (d.key && !isLocal(req)) throw new HErr(403, 'API 金鑰只能在執行器這台電腦上設定'); a.key = d.key.trim().slice(0, 300); }
     saveCfg(); return Object.assign({ ok: true }, await aiTest());
   }
+  if (p === '/api/ai/notes') { if (!AI_ROLES[d.role]) throw new HErr(400, '沒有這個 AI'); const n = C.aiNotes || (C.aiNotes = {}), t = String(d.text || '').trim().slice(0, 3000); if (t) n[d.role] = t; else delete n[d.role]; saveCfg(); return { ok: true, notes: n }; }
   if (p === '/api/ai/chat') return aiStart(d.role || 'bridge', d.text);
   if (p === '/api/ai/clear') { delete AIH[d.role || 'bridge']; writeJ(F_AI, AIH); return { ok: true }; }
   throw new HErr(404, '沒有這個功能');

@@ -670,6 +670,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aiin textarea:focus{outline:none;border-color:var(--c)}#aiChat .aiin .bbtn{flex:none;width:46px;height:42px;padding:0;display:grid;place-items:center;margin:0}.aiin .bbtn svg{width:20px;height:20px}
 .aift{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .aiset{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}.aiset label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.aiset textarea{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;resize:vertical}
 .aiset input{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
 .aiset .sub{margin:0;font-size:12.5px}.aiset .aitm{color:var(--text)}#aiChat .aipre{display:grid;grid-template-columns:1fr 1fr;gap:8px}#aiChat .aipre .bbtn{margin:0;padding:9px}
 .aikey{display:flex;flex-direction:column;gap:4px;font-size:13.5px;line-height:1.55;background:color-mix(in srgb,var(--c) 10%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);border-radius:12px;padding:10px 12px}.aikey b{color:var(--c)}#aiChat .aikey .bbtn{margin:6px 0 0}
@@ -3865,7 +3866,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     +(po?`<button class="bxt bxadd" type="button" id="botSimAdd">＋ 新增模擬交易所</button>`:s.liveReady?'':`<button class="bxt bxadd" type="button" id="botLiveAdd">＋ 新增交易所<span class="sub" style="font-weight:500">設定下單金鑰</span></button>`)+`</div>`
     +(po&&bv==='+'?simAdd():'')
     +(!po&&!R.length&&S.liveReady?`<div class="card"><p class="sub" style="margin:0">實盤帳戶連線中…</p></div>`:'')
-    +(!po?accCard():'')
+    +(!po&&xf?accForm():'')
     +(legacy.length?`<div class="card"><div class="bh"><span>之前加入的試跑策略</span></div>${legacy.map(x=>`<div class="br"><div><b>${H_(x.name)}</b>${badge(x)}<div class="sub">${H_(x.sym)}・資金 ${Math.round((+x.alloc||0)*100)}%${off(x)&&x.pauseReason?'・'+H_(x.pauseReason):''}</div>${x.canPromote?`<button class="bbtn pri" type="button" data-pro="${H_(x.id)}" style="margin-top:6px;padding:7px">試跑通過，轉為實盤</button>`:''}</div><button class="sw${!off(x)?' on':''}" type="button" data-en="${H_(x.id)}" role="switch" aria-checked="${!off(x)}" aria-label="啟用"></button></div>`).join('')}</div>`:'')
     +`<button class="bbtn red" id="botStop" type="button">${arm>Date.now()?'再按一次確認：全部平倉並暫停':'全部停止並平倉'}</button>`}
   function simAdd(){const have=(S.sims||[]).map(x=>x.k),opts=Object.keys(SIMN).filter(k=>!have.includes(k));
@@ -4086,7 +4087,7 @@ const AiChat=(()=>{
     forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？'],guide:['HexBOT 要怎麼開始自動交易？','手機和電腦要怎麼同步？']};
   const TL={get_market_data:a=>'看 '+(a.symbol||'')+' 行情',get_news:()=>'讀市場分析和新聞',get_account_balance:()=>'看帳戶權益',get_position:()=>'看持倉和策略',get_risk_rules:()=>'看風控上限',
     list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙',ask_user:()=>'問你問題',web_search:a=>'上網搜尋「'+(a.query||'')+'」',read_webpage:a=>'讀網頁 '+String(a.url||'').replace(/^https?:\/\/(www\.)?/,'').split('/')[0],propose_risk_limits:()=>'提出新的風控上限',propose_strategy:a=>'提出新增策略 '+(a.strategy||'')+' '+(a.symbol||'')};
-  let inChat=false,solo=null,prop=null,okm='',role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
+  let nset=false,nmsg='',inChat=false,solo=null,prop=null,okm='',role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
   const A=k=>window.HexAI&&HexAI.AI.find(x=>x.k===k)||{n:k,c:'#999',r:''},nm=k=>A(k).n;
   const box=()=>document.getElementById('aiChat'),api=(p,b)=>BotTab.api(p,b);
   // 一點點 markdown：粗體、標題、條列
@@ -4133,6 +4134,15 @@ const AiChat=(()=>{
       <div class="row2"><button type="button" class="bbtn pri" id="aiSave">儲存並測試</button><button type="button" class="bbtn" id="aiSetX">收起</button></div>
       ${tmsg?`<p class="sub aitm">${tmsg}</p>`:''}
       <p class="sub">預設用 Groq 免費的 Qwen3.8-27B（開源、不用綁卡）：到 console.groq.com 申請金鑰。Gemini 免費金鑰在 aistudio.google.com。</p><p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
+  // 給它的資料：使用者寫給這隻 AI 的規則、偏好、背景，存在電腦上的執行器，每次對話都會放進它的提示
+  const NEX={bridge:'例如：我是上班族，只能晚上看盤；回答先講結論，三行以內。',scout:'例如：我最在意 BTC 和 ETH；新聞先看美國利率和 ETF 資金流。',echo:'例如：回測一律用 2 年資料，手續費用 0.05%。',
+    forge:'例如：我不要回撤超過 25% 的策略；偏好低頻、一天交易不超過 3 次。',vault:'例如：我能承受的單日虧損是 3%；槓桿最多 2 倍；總資金 5,000 USDT。',helm:'例如：持倉離停損不到 2% 要特別提醒我。',guide:'例如：我是新手，講解時少用術語。'};
+  function notes(){const t=(cfg&&cfg.notes||{})[role]||'';
+    return `<div class="aiset"><div class="bh">給 ${H_(nm(role))} 的資料</div>
+      <p class="sub">寫下你希望它記住的規則、偏好或背景，之後每次對話它都會照著做。存在你電腦上的 HexStack，不會上傳。</p>
+      <textarea id="aiNote" rows="5" maxlength="3000" placeholder="${H_(NEX[role]||'')}">${H_(t)}</textarea>
+      <div class="row2"><button type="button" class="bbtn pri" id="aiNoteSave">儲存</button><button type="button" class="bbtn" id="aiNoteX">收起</button></div>
+      ${nmsg?`<p class="sub aitm">${H_(nmsg)}</p>`:''}</div>`}
   function render(){const b=box();if(!b)return;
     if(!window.BotTab||!BotTab.paired()){b.innerHTML=chips()+`<div class="card aiempty"><div class="bh">先連接電腦</div><p class="sub">HexAI 跑在你電腦上的 HexStack 電腦版（模型和你的資料都在那台電腦）。先到 HexBOT 連接電腦，就能在這裡問。</p><button type="button" class="bbtn pri" id="aiToBot">到 HexBOT 連接 ›</button></div>`;return}
     const ms=H[role]||[],a=A(role),pend=job&&job.role===role&&!job.done;
@@ -4144,8 +4154,8 @@ const AiChat=(()=>{
       ${cfg&&!cfg.hasKey&&!/127\.0\.0\.1|localhost/.test(cfg.base)&&!set?`<div class="aikey"><b>第一次使用要先設定免費金鑰</b><div>1. 到 console.groq.com 用 Google 帳號登入</div><div>2. 左邊 API Keys → Create API Key，複製金鑰</div><div>3. ${window.hexDesktop?'按下面「設定金鑰」貼上，按儲存並測試':'在電腦版 HexStack 的這一頁貼上（金鑰只能在電腦上設定）'}</div>${window.hexDesktop?'<button type="button" class="bbtn pri" data-open-set>設定金鑰</button>':''}</div>`:''}
       <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
-      <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?cfg.model:'…')} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
-      ${set?setup():''}</div>`;
+      <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?cfg.model:'…')} ›</button><button type="button" class="lk" id="aiNoteO">給它的資料${(cfg&&cfg.notes||{})[role]?'（已寫）':''} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
+      ${set?setup():''}${nset?notes():''}</div>`;
     const L=document.getElementById('aiLog');if(L)L.scrollTop=L.scrollHeight;
     if(st!=null){const i=document.getElementById('aiIn');i.focus();i.setSelectionRange(st,st)}}
   async function hist(r){try{const j=await api('/api/ai/history?role='+r);H[r]=j.messages||[]}catch(e){err=e.message}render()}
@@ -4159,7 +4169,7 @@ const AiChat=(()=>{
   function soloOpen(k){const c=box();if(!c)return;if(!solo){solo={home:c.parentNode,next:c.nextSibling};let L=document.getElementById('aiSolo');if(!L){L=document.createElement('div');L.id='aiSolo';document.body.appendChild(L)}L.hidden=false;L.appendChild(c);document.documentElement.style.overflow='hidden'}pick(k);L_top()}
   const L_top=()=>{const L=document.getElementById('aiSolo');if(L)L.scrollTop=0};
   function soloClose(){if(!solo)return;const c=box(),L=document.getElementById('aiSolo');solo.home.insertBefore(c,solo.next);solo=null;if(L)L.hidden=true;document.documentElement.style.overflow='';inChat=false;show()}
-  function pick(k){if(!ROLES.includes(k))return;if(k!==role){err='';draft='';okm=''}role=k;W('aiRole',k);inChat=true;show();render();if(!solo)window.scrollTo(0,0);if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[k])hist(k)}}
+  function pick(k){if(!ROLES.includes(k))return;if(k!==role){err='';draft='';okm='';nset=false}role=k;W('aiRole',k);inChat=true;show();render();if(!solo)window.scrollTo(0,0);if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[k])hist(k)}}
   function open(){show();if(!inChat)return;render();if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[role])hist(role)}}
   document.addEventListener('click',async e=>{const b=box();if(!b||!b.contains(e.target))return;const t=e.target.closest('button');if(!t)return;
     if('back' in t.dataset){if(solo)return soloClose();inChat=false;show();window.scrollTo(0,0);return}
@@ -4168,6 +4178,9 @@ const AiChat=(()=>{
     if(t.id==='aiToBot'){soloClose();$('#nav_sig').click();BotTab.mode('bot');return}
     if('openSet' in t.dataset){set=!set;tmsg='';render();return}
     if(t.id==='aiSetX'){set=false;render();return}
+    if(t.id==='aiNoteO'){nset=!nset;nmsg='';set=false;render();return}
+    if(t.id==='aiNoteX'){nset=false;render();return}
+    if(t.id==='aiNoteSave'){const v=document.getElementById('aiNote').value;try{const r=await api('/api/ai/notes',{role,text:v});cfg=Object.assign(cfg||{},{notes:r.notes});nmsg=v.trim()?'已儲存，下次對話開始照這些做。':'已清空。'}catch(x){nmsg=/沒有這個功能|404/.test(x.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內）再試。':'⚠ '+x.message}render();return}
     if(t.dataset.pre){const P={groq:['https://api.groq.com/openai/v1','qwen/qwen3.8-27b'],gemini:['https://generativelanguage.googleapis.com/v1beta/openai','gemini-flash-latest'],ollama:['http://127.0.0.1:11434/v1','qwen3:8b'],deepseek:['https://api.deepseek.com/v1','deepseek-chat']}[t.dataset.pre];document.getElementById('aiBase').value=P[0];document.getElementById('aiModel').value=P[1];return}
     if(t.id==='aiSave'){const k=document.getElementById('aiKey'),body={base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim()};if(k)body.key=k.value;
       tmsg='測試中…';render();try{const r=await api('/api/ai/config',body);cfg=await api('/api/ai/config');tmsg=r.ok?(r.hasModel||!r.models.length?'連線成功，可以開始問了。':'連得上，但找不到模型「'+H_(cfg.model)+'」。這台有：'+H_(r.models.slice(0,8).join('、'))+(/11434/.test(cfg.base)?'。請先在電腦上執行 ollama pull '+H_(cfg.model):'')):'⚠ '+H_(r.error)}catch(x){tmsg='⚠ '+H_(x.message)}render();return}
