@@ -638,13 +638,38 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .fdscroll{overflow-x:auto}
 .fdghost{border:1px solid var(--line);background:transparent;color:#ef5350;border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
 .fdcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:13px;line-height:1.7}
+/* HexAI 對話 */
+.airoles{display:flex;gap:4px;overflow-x:auto;contain:inline-size;scrollbar-width:none;margin:0 0 10px;padding:2px}.airoles::-webkit-scrollbar{display:none}
+.airoles button{all:unset;box-sizing:border-box;cursor:pointer;flex:1 0 54px;max-width:84px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0 6px;border-radius:12px;border:1px solid transparent;font-size:12px;font-weight:700;color:var(--muted);-webkit-tap-highlight-color:transparent}
+.airoles button .aim{width:38px;height:44px}.airoles button.on{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.airoles button:focus-visible{outline:2px solid var(--acc)}
+.aicard{display:flex;flex-direction:column;gap:10px;padding:12px}.aihd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.aihd b{color:var(--c);font-size:16px}.aihd span{color:var(--muted);font-size:12.5px}
+.ailog{display:flex;flex-direction:column;gap:10px;max-height:min(58vh,560px);min-height:120px;overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.aiu{align-self:flex-end;max-width:85%;background:color-mix(in srgb,var(--c) 20%,var(--panel2,var(--panel)));border-radius:14px 14px 4px 14px;padding:8px 11px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
+.aia{display:flex;gap:6px;align-items:flex-start;max-width:100%}.aia>.aim{width:30px;height:35px;margin-top:2px}
+.aib{min-width:0;flex:1;background:var(--chip);border-radius:4px 14px 14px 14px;padding:8px 11px;font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
+.aib .aih{font-weight:800;margin-top:4px}.aib .aili{padding-left:2px}.aib .aisp{height:6px}.aib code{font-size:12.5px;background:var(--panel);padding:0 4px;border-radius:4px}
+.aist{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.aist .bad{color:var(--down)}
+.aity{display:flex;gap:4px;padding:4px 0}.aity i{width:6px;height:6px;border-radius:50%;background:var(--c);animation:aiTy 1.2s infinite}.aity i:nth-child(2){animation-delay:.2s}.aity i:nth-child(3){animation-delay:.4s}
+@keyframes aiTy{0%,80%,100%{opacity:.25}40%{opacity:1}}@media (prefers-reduced-motion:reduce){.aity i{animation:none;opacity:.6}}
+.aihi{color:var(--muted);font-size:14px}.aisug{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.aisug button{all:unset;cursor:pointer;font-size:13px;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:5px 11px;-webkit-tap-highlight-color:transparent}.aisug button:active{opacity:.7}
+.aierr{font-size:13.5px;color:var(--down);background:color-mix(in srgb,var(--down) 10%,transparent);border-radius:10px;padding:8px 10px}
+.aierr .lk,.aift .lk{all:unset;cursor:pointer;color:var(--acc);font-size:13px}
+.aiin{display:flex;gap:8px;align-items:flex-end}.aiin textarea{flex:1 1 0;width:0;min-height:42px;max-height:140px;resize:none;box-sizing:border-box;font:inherit;font-size:15px;line-height:1.45;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+.aiin textarea:focus{outline:none;border-color:var(--c)}#aiChat .aiin .bbtn{flex:none;width:46px;height:42px;padding:0;display:grid;place-items:center;margin:0}.aiin .bbtn svg{width:20px;height:20px}
+.aift{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.aiset{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}.aiset label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.aiset input{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.aiset .sub{margin:0;font-size:12.5px}.aiset .aitm{color:var(--text)}.aipre{display:flex;gap:8px}.aipre .bbtn{flex:1}
+.aiempty{display:flex;flex-direction:column;gap:8px;padding:14px}.aiempty .sub{margin:0}
 .aibots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .aibot{all:unset;box-sizing:border-box;cursor:pointer;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:6px 10px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;-webkit-tap-highlight-color:transparent}
 .aibot:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aibot svg{width:100%;max-width:150px;height:auto;overflow:visible}
 .aibot .an{font-size:16px;font-weight:800;color:var(--c)}.aibot .ar{font-size:12.5px;color:var(--muted);line-height:1.45}
 .aibot .lk{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:999px;padding:2px 8px}
 .aibot .lk svg{width:11px;height:11px}
-/* 小 AI 圖示：市場分析摘要（Scout）、我的策略上方（Forge、Echo），點了跳「即將推出」 */
+/* 小 AI 圖示：市場分析摘要（Scout）、我的策略上方（Forge、Echo）、資產總覽（Vault）、HexBOT（Helm），點了跳到 HexAI 問那個 AI */
 .aim{flex:none;display:block}.aim svg{width:100%;height:100%;overflow:visible;animation:aiBob 3.2s ease-in-out infinite}
 @keyframes aiBob{50%{transform:translateY(-4%)}}@media (prefers-reduced-motion:reduce){.aim svg{animation:none}}
 .sumc .t.aitile{display:flex;align-items:center;gap:8px}.sumc .aitile .aim{width:40px;height:46px}.sumc .aitile .v{color:var(--c);font-family:inherit}
@@ -654,7 +679,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aimc:active{opacity:.8}.aimc:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aimc .aim{width:42px;height:48px}
 .aimc b{display:block;font-size:14.5px;color:var(--c)}.aimc small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
 @media (max-width:959px){.aibots{grid-template-columns:1fr 1fr}.aibot:last-child:nth-child(odd){grid-column:1/-1}.aibot:last-child:nth-child(odd) svg{max-width:150px}}
-@media (min-width:960px){.aibots{grid-template-columns:repeat(5,1fr)}}
+@media (min-width:960px){.aibots{grid-template-columns:repeat(6,1fr)}}
 .aigrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.aic{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}.aic .ain{font-size:18px;font-weight:800}.aic .ait{font-size:13px;color:var(--muted)}.aic .sub{margin:4px 0 0;font-size:12.5px;line-height:1.5}.aic .pill{margin:0}.tmode button small{font-size:10px;margin-left:3px}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
@@ -745,48 +770,48 @@ try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage
   #tmBot .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:0 16px;align-items:start}}
 .tmode button{flex:1;padding:10px 4px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
 .tmode button.on{background:color-mix(in srgb,var(--acc) 14%,transparent);border-color:var(--acc);color:var(--acc)}
-:is(#tmBot,.fdbot) .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
-:is(#tmBot,.fdbot) .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
-:is(#tmBot,.fdbot) .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
-:is(#tmBot,.fdbot) .card{margin-bottom:10px}
-:is(#tmBot,.fdbot) .bh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px;gap:8px}
-:is(#tmBot,.fdbot) .bh a,:is(#tmBot,.fdbot) .bh button.lk{color:var(--acc);background:none;border:0;font:inherit;cursor:pointer;padding:0;text-decoration:none}
-:is(#tmBot,.fdbot) .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
-:is(#tmBot,.fdbot) .sub{font-size:12px;color:var(--muted);line-height:1.5}
-:is(#tmBot,.fdbot) .br{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
-:is(#tmBot,.fdbot) .br:first-of-type{border-top:0}
-:is(#tmBot,.fdbot) .br>div:first-child{min-width:0}
-:is(#tmBot,.fdbot) .pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px;vertical-align:1px}
-:is(#tmBot,.fdbot) .p-ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
-:is(#tmBot,.fdbot) .p-wn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
-:is(#tmBot,.fdbot) .p-bad{background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down)}
-:is(#tmBot,.fdbot) .p-mu{background:var(--chip);color:var(--muted)}
-:is(#tmBot,.fdbot) .stp{display:flex;gap:10px;font-size:14px;line-height:1.5;padding:6px 0}
-:is(#tmBot,.fdbot) .stp i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--on-acc,#17140a);font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}
-:is(#tmBot,.fdbot) .row2{display:flex;gap:8px;margin:6px 0}
-:is(#tmBot,.fdbot) .row2>*{flex:1}
-:is(#tmBot,.fdbot) .bbtn{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none}
-:is(#tmBot,.fdbot) .bbtn.pri{background:var(--accbg,var(--acc));border-color:transparent;color:var(--on-acc,#17140a)}
-:is(#tmBot,.fdbot) .bbtn.red{background:var(--down);border-color:transparent;color:#fff}
-:is(#tmBot,.fdbot) .bbtn:disabled{opacity:.45;cursor:default}
-:is(#tmBot,.fdbot) .warnbox{background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55;margin-bottom:10px}
-:is(#tmBot,.fdbot) input[type=text],:is(#tmBot,.fdbot) input[type=number]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
-:is(#tmBot,.fdbot) .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
-:is(#tmBot,.fdbot) .lim input{width:84px;text-align:right}
-:is(#tmBot,.fdbot) .lim small{color:var(--muted)}
-:is(#tmBot,.fdbot) .cmp{display:grid;grid-template-columns:1fr auto auto;gap:5px 14px;font-size:13px;font-variant-numeric:tabular-nums;margin-top:6px}
-:is(#tmBot,.fdbot) .cmp .hd{color:var(--muted);font-size:12px}
-:is(#tmBot,.fdbot) .seg{display:flex;margin-bottom:10px}
-:is(#tmBot,.fdbot) .seg button{flex:1}
-:is(#tmBot,.fdbot) details{font-size:13.5px;line-height:1.7}
-:is(#tmBot,.fdbot) details summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4px 0}
-:is(#tmBot,.fdbot) details ol{margin:4px 0 0;padding-left:20px}
-:is(#tmBot,.fdbot) code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
-:is(#tmBot,.fdbot) .pick{max-height:260px;overflow:auto;margin:6px 0}
-:is(#tmBot,.fdbot) .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
-:is(#tmBot,.fdbot) .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
-:is(#tmBot,.fdbot) .lg{font-size:13.5px}
-:is(#tmBot,.fdbot) .lg .br{font-size:13.5px}
+:is(#tmBot,.fdbot,#aiChat) .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
+:is(#tmBot,.fdbot,#aiChat) .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
+:is(#tmBot,.fdbot,#aiChat) .card{margin-bottom:10px}
+:is(#tmBot,.fdbot,#aiChat) .bh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px;gap:8px}
+:is(#tmBot,.fdbot,#aiChat) .bh a,:is(#tmBot,.fdbot,#aiChat) .bh button.lk{color:var(--acc);background:none;border:0;font:inherit;cursor:pointer;padding:0;text-decoration:none}
+:is(#tmBot,.fdbot,#aiChat) .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+:is(#tmBot,.fdbot,#aiChat) .sub{font-size:12px;color:var(--muted);line-height:1.5}
+:is(#tmBot,.fdbot,#aiChat) .br{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .br:first-of-type{border-top:0}
+:is(#tmBot,.fdbot,#aiChat) .br>div:first-child{min-width:0}
+:is(#tmBot,.fdbot,#aiChat) .pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px;vertical-align:1px}
+:is(#tmBot,.fdbot,#aiChat) .p-ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+:is(#tmBot,.fdbot,#aiChat) .p-wn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+:is(#tmBot,.fdbot,#aiChat) .p-bad{background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down)}
+:is(#tmBot,.fdbot,#aiChat) .p-mu{background:var(--chip);color:var(--muted)}
+:is(#tmBot,.fdbot,#aiChat) .stp{display:flex;gap:10px;font-size:14px;line-height:1.5;padding:6px 0}
+:is(#tmBot,.fdbot,#aiChat) .stp i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--on-acc,#17140a);font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}
+:is(#tmBot,.fdbot,#aiChat) .row2{display:flex;gap:8px;margin:6px 0}
+:is(#tmBot,.fdbot,#aiChat) .row2>*{flex:1}
+:is(#tmBot,.fdbot,#aiChat) .bbtn{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none}
+:is(#tmBot,.fdbot,#aiChat) .bbtn.pri{background:var(--accbg,var(--acc));border-color:transparent;color:var(--on-acc,#17140a)}
+:is(#tmBot,.fdbot,#aiChat) .bbtn.red{background:var(--down);border-color:transparent;color:#fff}
+:is(#tmBot,.fdbot,#aiChat) .bbtn:disabled{opacity:.45;cursor:default}
+:is(#tmBot,.fdbot,#aiChat) .warnbox{background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55;margin-bottom:10px}
+:is(#tmBot,.fdbot,#aiChat) input[type=text],:is(#tmBot,.fdbot,#aiChat) input[type=number]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .lim input{width:84px;text-align:right}
+:is(#tmBot,.fdbot,#aiChat) .lim small{color:var(--muted)}
+:is(#tmBot,.fdbot,#aiChat) .cmp{display:grid;grid-template-columns:1fr auto auto;gap:5px 14px;font-size:13px;font-variant-numeric:tabular-nums;margin-top:6px}
+:is(#tmBot,.fdbot,#aiChat) .cmp .hd{color:var(--muted);font-size:12px}
+:is(#tmBot,.fdbot,#aiChat) .seg{display:flex;margin-bottom:10px}
+:is(#tmBot,.fdbot,#aiChat) .seg button{flex:1}
+:is(#tmBot,.fdbot,#aiChat) details{font-size:13.5px;line-height:1.7}
+:is(#tmBot,.fdbot,#aiChat) details summary{cursor:pointer;color:var(--acc);font-weight:600;padding:4px 0}
+:is(#tmBot,.fdbot,#aiChat) details ol{margin:4px 0 0;padding-left:20px}
+:is(#tmBot,.fdbot,#aiChat) code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
+:is(#tmBot,.fdbot,#aiChat) .pick{max-height:260px;overflow:auto;margin:6px 0}
+:is(#tmBot,.fdbot,#aiChat) .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
+:is(#tmBot,.fdbot,#aiChat) .lg{font-size:13.5px}
+:is(#tmBot,.fdbot,#aiChat) .lg .br{font-size:13.5px}
 </style>
 <style>.hsG{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;font:600 15px -apple-system,'PingFang TC',system-ui,sans-serif;color:#f6efff;background:linear-gradient(135deg,rgba(168,120,255,.42),rgba(110,60,220,.28));border:1px solid rgba(220,190,255,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 24px rgba(90,40,200,.35);-webkit-backdrop-filter:blur(12px) saturate(140%);backdrop-filter:blur(12px) saturate(140%);transition:transform .15s,box-shadow .15s}.hsG:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 10px 30px rgba(120,60,240,.5)}.hsG:active{transform:scale(.97)}.hsG:focus-visible{outline:2px solid #f6cf6a;outline-offset:3px}.hsG svg{width:20px;height:20px;flex:none;background:#fff;border-radius:50%;padding:3px}:root[data-theme="light"] #syncBox .hsG{color:#3b1f7a;background:linear-gradient(135deg,rgba(168,120,255,.28),rgba(110,60,220,.16));border-color:rgba(120,70,220,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 6px 18px rgba(90,40,200,.18)}</style>
 </head>
@@ -992,14 +1017,14 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
-  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="ai">HexAI<small>即將推出</small></button></div>
+  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="ai">HexAI<small>Beta</small></button></div>
   <div id="tmSig">
   <div class="sect"><h2>我的策略訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
   <div class="foot">內容僅供參考，非投資建議</div>
   </div>
-  <div id="tmAi" hidden><div class="sect"><h2>HexAI<span class="more">五個 AI 助手・即將推出</span></h2>
-    <p class="sub" style="margin:0 2px 10px">用說的做研究和交易：從想策略、回測、看市場、顧資產到下單，各有一個 AI 幫你。功能還在準備，先來認識牠們。</p>
-    <div class="aibots" id="aiBots"></div></div></div>
+  <div id="tmAi" hidden><div class="sect"><h2>HexAI<span class="more">策略顧問・Beta</span></h2><div id="aiChat"></div></div>
+    <div class="sect"><h2>六個 AI 助手<span class="more">點一個開始問</span></h2><div class="aibots" id="aiBots"></div></div>
+    <div class="foot">HexAI 跑在你電腦上的 HexStack，只做分析和建議，不會下單、不會改設定。<br>內容僅供參考，非投資建議</div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
   <div class="foot">HexBOT 自動交易由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
@@ -1014,7 +1039,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="fscr" id="fdHome">
     <section class="fdhero" aria-label="總覽">
       <div class="fdrow"><span class="fdlab">總資產（約）</span><button class="fdeye" id="fdEye" type="button" aria-label="顯示或隱藏金額" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="fdEyeI"></svg></button></div>
-      <div class="fdtotw"><div class="fdtot" id="fdTot">—</div><button class="fdai" id="fdAi" type="button" data-ai="vault" aria-label="AI.Vault（即將推出）"></button></div>
+      <div class="fdtotw"><div class="fdtot" id="fdTot">—</div><button class="fdai" id="fdAi" type="button" data-ai="vault" aria-label="問 AI.Vault"></button></div>
       <div class="fdsub" id="fdSub"></div>
       <div class="fdsplit" id="fdSplit" aria-hidden="true"></div>
       <div class="fdleg" id="fdLeg"></div>
@@ -2320,11 +2345,11 @@ function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css
 // ── 分頁 ──
 // ───────── HexAI 五個 AI 角色（功能未上線，先展示）：光球＋頭上三層 logo 脈動、LED 眼睛看手指、隨機眨眼，點一下會開心跳一下 ─────────
 const HexAI=(()=>{
-  const AI=[{k:'forge',n:'AI.Forge',r:'策略：把你的想法組成策略',c:'#f39a5f',d:'#a8481c',l:'#ffe2cc'},
+  const AI=[{k:'bridge',n:'AI.Bridge',r:'總管：聽懂你要什麼，找對的 AI',c:'#4fd1c5',d:'#16706a',l:'#dcfffb'},{k:'forge',n:'AI.Forge',r:'策略：把你的想法組成策略',c:'#f39a5f',d:'#a8481c',l:'#ffe2cc'},
     {k:'echo',n:'AI.Echo',r:'回測：跑歷史、交叉比對',c:'#9468e8',d:'#3d1f8f',l:'#efe4ff'},
     {k:'scout',n:'AI.Scout',r:'市場：新聞與多空情緒',c:'#d8b6ff',d:'#7a4cc8',l:'#ffffff'},
     {k:'vault',n:'AI.Vault',r:'資產＋風控：守住你的錢',c:'#6f7cf0',d:'#27308f',l:'#e6e9ff'},
-    {k:'helm',n:'AI.Helm',r:'交易：照策略下單、顧止損',c:'#f2c661',d:'#a8661a',l:'#fff6dc'}];
+    {k:'helm',n:'AI.Helm',r:'交易：看策略、持倉該注意什麼',c:'#f2c661',d:'#a8661a',l:'#fff6dc'}];
   const mix=(h,k,f)=>{const a=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),b=[1,3,5].map(i=>parseInt(k.slice(i,i+2),16));return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*f).toString(16).padStart(2,'0')).join('')};
   const hexf=r=>[0,1,2,3,4,5].map(i=>{const a=Math.PI/3*i;return (r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)*.42).toFixed(1)}).join(' ');
   const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
@@ -2349,10 +2374,10 @@ ${ring('F')}
 <g class="hl"><g class="hs"><ellipse class="bm" cy="24" rx="40" ry="6" fill="${a.c}" opacity=".3" filter="url(#b${id})"/>${L.map(c=>`<g class="ly"><polygon points="${hexf(54)}" fill="${c}" fill-opacity=".28" stroke="${c}" stroke-width="3.4" stroke-linejoin="round" filter="url(#b${id})"/></g>`).join('')}</g></g></svg>`}
   function build(){const box=document.getElementById('aiBots');if(!box||box.childElementCount)return;
     AI.forEach(a=>{const id='hx'+(uid++),b=document.createElement('button');b.type='button';b.className='aibot';b.style.setProperty('--c',a.c);
-      b.innerHTML=svg(a,id)+`<span class="lk">${LOCK}即將推出</span><div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
+      b.innerHTML=svg(a,id)+`<div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
       const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:q('.hl'),hs:q('.hs'),ly:[...b.querySelectorAll('.ly')],oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
         hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:0};
-      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}say(a.n+' 還在準備中，即將推出')};all.push(o)})}
+      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}if(window.AiChat)AiChat.pick(a.k,true);else say(a.n+' 還在準備中')};all.push(o)})}
   function frame(){const box=document.getElementById('aiBots');if(!box||!box.offsetParent||document.hidden){run=false;return}
     const now=performance.now()/1000,dt=Math.min(.05,now-(last||now));last=now;
     for(const o of all){const t=now+o.ph,j=now-o.joy<1.4;let y,x=0,rot,sx,sy,pulse=1+.07*Math.sin(t*2.6);
@@ -2380,7 +2405,9 @@ ${ring('F')}
       .replace('<g class="hl">','<g class="hl" transform="translate(100 64)">').replace(/class="st" r/g,'class="st" cx="62" cy="15" r');
     let i=0;h=h.replace(/<g class="ly">/g,()=>`<g class="ly" transform="translate(0 ${(1-i++)*9})">`);
     return `<span class="aim" aria-hidden="true">${h}</span>`}
-  const tap=k=>{const a=AI.find(x=>x.k===k);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}say(a.n+' 還在準備中，即將推出')};
+  // 各頁的小圖示：跳到 開始交易 › HexAI，選好那個 AI
+  const tap=k=>{const a=AI.find(x=>x.k===k);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
+    try{localStorage.setItem('tMode','"ai"');localStorage.setItem('aiRole',JSON.stringify(k))}catch(e){}const n=document.getElementById('nav_sig');if(n)n.click();if(window.BotTab)BotTab.mode('ai');if(window.AiChat)AiChat.pick(k)};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(b){e.stopPropagation();tap(b.dataset.ai)}},true);
   return {start,mini,tap,AI,LOCK}})();window.HexAI=HexAI;
 {const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault')}
@@ -3744,7 +3771,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   function home(){const s=S,R=rows(),po=paperOn(),st=R.reduce((a,r)=>a+r.start,0),eq=R.reduce((a,r)=>a+r.eq,0),dy=R.reduce((a,r)=>a+(r.day||r.eq),0),
       n=(s.strategies||[]).filter(x=>isOn(x)&&R.some(r=>r.led===x.ledger)).length,legacy=(s.strategies||[]).filter(x=>!x.ledger);
     return `<section class="fdhero bhero" aria-label="總覽"><div class="fdrow"><span class="fdlab">${po?'模擬盤總資金':'HexBOT 總權益'}</span><span class="btag${po?' sim':''}">${po?'模擬・不下真單':s.liveReady&&s.testnet?'Bybit 測試網':'實盤'}</span></div>
-      <div class="fdtotw"><div class="fdtot">$${fm(eq)}</div><button class="fdai" type="button" data-ai="helm" aria-label="AI.Helm（即將推出）">${window.HexAI?HexAI.mini('helm'):''}</button></div>
+      <div class="fdtotw"><div class="fdtot">$${fm(eq)}</div><button class="fdai" type="button" data-ai="helm" aria-label="問 AI.Helm">${window.HexAI?HexAI.mini('helm'):''}</button></div>
       <div class="fdsub bret"><span>報酬率 <b class="${cl(eq-st)}">${pc(ret(eq,st),2)}</b></span><span>今日 <b class="${cl(eq-dy)}">${pc(ret(eq,dy),2)}</b></span><span>損益 <b class="${cl(eq-st)}">${sg(eq-st)}</b></span></div>
       ${R.length&&eq>0?`<div class="fdsplit">${R.map(r=>`<i style="flex:${Math.max(r.eq,0)};background:${SIMC[r.k]||'#888'}"></i>`).join('')}</div><div class="fdleg">${R.map(r=>`<span><b style="background:${SIMC[r.k]||'#888'}"></b>${H_(SIMN[r.k]||r.k)} ${Math.round(r.eq/eq*100)}%</span>`).join('')}</div>`:''}
       <div class="fdsub fdrow"><span>${R.length} 個交易所・${n} 個策略執行中</span><span>${s.lastTick?ago(s.lastTick)+'更新':''}</span></div></section>`
@@ -3938,11 +3965,73 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botSug':return suggest();
       case 'botLimGo':{const o={};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
       case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
-  function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';if(m==='ai')setTimeout(()=>HexAI.start(),0);
+  function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';if(m==='ai'){setTimeout(()=>HexAI.start(),0);window.AiChat&&AiChat.open()}
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
   return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
+// ───────── HexAI 對話（策略顧問）：問題送到配對的執行器（/api/ai/*），執行器呼叫模型和工具；這裡只顯示對話、工具步驟和模型設定 ─────────
+const AiChat=(()=>{
+  const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  const H_=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const ROLES=['bridge','scout','echo','forge','vault','helm'];
+  const ASK={bridge:['BTC 現在適合用哪個策略？','幫我整理今天的盤勢和我的持倉'],scout:['現在 BTC 盤勢怎麼樣？','最近有什麼重要事件？'],echo:['回測突破策略 BTC 一年','比較兩個策略在 ETH 的表現'],
+    forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？']};
+  const TL={get_market_data:a=>'看 '+(a.symbol||'')+' 行情',get_news:()=>'讀市場分析和新聞',get_account_balance:()=>'看帳戶權益',get_position:()=>'看持倉和策略',get_risk_rules:()=>'看風控上限',
+    list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙'};
+  let role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
+  const A=k=>window.HexAI&&HexAI.AI.find(x=>x.k===k)||{n:k,c:'#999',r:''},nm=k=>A(k).n;
+  const box=()=>document.getElementById('aiChat'),api=(p,b)=>BotTab.api(p,b);
+  // 一點點 markdown：粗體、標題、條列
+  const md=t=>H_(t).split('\n').map(l=>{l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
+    if(/^#{1,4}\s/.test(l))return '<div class="aih">'+l.replace(/^#+\s/,'')+'</div>';if(/^\s*([-*•]|\d+\.)\s/.test(l))return '<div class="aili">'+l.replace(/^\s*([-*•])\s/,'• ')+'</div>';return l?'<div>'+l+'</div>':'<div class="aisp"></div>'}).join('');
+  const steps=tr=>tr&&tr.length?`<div class="aist">${tr.map(s=>`<div class="${s.ok?'':'bad'}">${H_(s.by)}・${H_((TL[s.tool]||(()=>s.tool))(s.args||{}))}${s.ok?'':'（失敗：'+H_(s.err||'')+'）'}</div>`).join('')}</div>`:'';
+  function chips(){return `<div class="airoles">${ROLES.map(k=>`<button type="button" class="${k===role?'on':''}" data-ar="${k}" style="--c:${A(k).c}">${window.HexAI?HexAI.mini(k):''}<span>${H_(nm(k).replace('AI.',''))}</span></button>`).join('')}</div>`}
+  function setup(){const D=!!window.hexDesktop,c=cfg||{};
+    return `<div class="aiset"><div class="bh">模型設定</div>
+      <div class="aipre"><button type="button" class="bbtn" data-pre="ollama">本機 Ollama</button><button type="button" class="bbtn" data-pre="deepseek">DeepSeek 雲端</button></div>
+      <label>模型網址<input id="aiBase" type="url" value="${H_(c.base||'')}" placeholder="http://127.0.0.1:11434/v1"></label>
+      <label>模型名稱<input id="aiModel" value="${H_(c.model||'')}" placeholder="qwen3:8b"></label>
+      ${D?`<label>API 金鑰（雲端才要，本機留空）<input id="aiKey" type="password" value="${c.hasKey?'••••':''}" placeholder="sk-…" autocomplete="off"></label>`:`<p class="sub">API 金鑰只能在電腦版設定。</p>`}
+      <div class="row2"><button type="button" class="bbtn pri" id="aiSave">儲存並測試</button><button type="button" class="bbtn" id="aiSetX">收起</button></div>
+      ${tmsg?`<p class="sub aitm">${tmsg}</p>`:''}
+      <p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
+  function render(){const b=box();if(!b)return;
+    if(!window.BotTab||!BotTab.paired()){b.innerHTML=chips()+`<div class="card aiempty"><div class="bh">先連接電腦</div><p class="sub">HexAI 跑在你電腦上的 HexStack 電腦版（模型和你的資料都在那台電腦）。先到 HexBOT 連接電腦，就能在這裡問。</p><button type="button" class="bbtn pri" id="aiToBot">到 HexBOT 連接 ›</button></div>`;return}
+    const ms=H[role]||[],a=A(role),pend=job&&job.role===role&&!job.done;
+    const log=ms.map(m=>m.role==='user'?`<div class="aiu">${H_(m.content).replace(/\n/g,'<br>')}</div>`:`<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${md(m.content)}</div></div>`).join('')
+      +(pend?`<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${steps(job.trace)}<div class="aity"><i></i><i></i><i></i></div></div></div>`:'')
+      +(err?`<div class="aierr">${H_(err)}${/連不到模型|模型/.test(err)?'<br><button type="button" class="lk" data-open-set>打開模型設定 ›</button>':''}</div>`:'');
+    const st=document.activeElement&&document.activeElement.id==='aiIn'?document.activeElement.selectionStart:null;
+    b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd"><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div>
+      <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
+      <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+      <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?cfg.model:'…')} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
+      ${set?setup():''}</div>`;
+    const L=document.getElementById('aiLog');if(L)L.scrollTop=L.scrollHeight;
+    if(st!=null){const i=document.getElementById('aiIn');i.focus();i.setSelectionRange(st,st)}}
+  async function hist(r){try{const j=await api('/api/ai/history?role='+r);H[r]=j.messages||[]}catch(e){err=e.message}render()}
+  async function loadCfg(){try{cfg=await api('/api/ai/config')}catch(e){}render()}
+  async function poll(){clearTimeout(jt);if(!job)return;try{const j=await api('/api/ai/job?id='+job.id);Object.assign(job,j)}catch(e){job.done=true;job.error=e.message}
+    if(job.done){busy=false;err=job.error?(job.error):'';const r=job.role;if(!job.error)await hist(r);else render();job=null;return}render();jt=setTimeout(poll,1500)}
+  async function send(t){t=String(t||'').trim();if(!t||busy)return;busy=true;err='';draft='';(H[role]=H[role]||[]).push({role:'user',content:t});job={role,trace:[],done:false};render();
+    try{const r=await api('/api/ai/chat',{role,text:t});job.id=r.id;poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
+  function pick(k,scroll){if(!ROLES.includes(k))return;role=k;W('aiRole',k);err='';draft='';render();if(!H[k]&&BotTab.paired())hist(k);if(scroll){const b=box();b&&b.scrollIntoView({behavior:'smooth',block:'start'})}}
+  function open(){role=J('aiRole',role);if(!ROLES.includes(role))role='bridge';render();if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[role])hist(role)}}
+  document.addEventListener('click',async e=>{const b=box();if(!b||!b.contains(e.target))return;const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.ar)return pick(t.dataset.ar);
+    if(t.dataset.q)return send(t.dataset.q);
+    if(t.id==='aiToBot'){BotTab.mode('bot');return}
+    if('openSet' in t.dataset){set=!set;tmsg='';render();return}
+    if(t.id==='aiSetX'){set=false;render();return}
+    if(t.dataset.pre){const P={ollama:['http://127.0.0.1:11434/v1','qwen3:8b'],deepseek:['https://api.deepseek.com/v1','deepseek-chat']}[t.dataset.pre];document.getElementById('aiBase').value=P[0];document.getElementById('aiModel').value=P[1];return}
+    if(t.id==='aiSave'){const k=document.getElementById('aiKey'),body={base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim()};if(k)body.key=k.value;
+      tmsg='測試中…';render();try{const r=await api('/api/ai/config',body);cfg=await api('/api/ai/config');tmsg=r.ok?(r.hasModel||!r.models.length?'連線成功，可以開始問了。':'連得上，但找不到模型「'+H_(cfg.model)+'」。這台有：'+H_(r.models.slice(0,8).join('、'))+(/11434/.test(cfg.base)?'。請先在電腦上執行 ollama pull '+H_(cfg.model):'')):'⚠ '+H_(r.error)}catch(x){tmsg='⚠ '+H_(x.message)}render();return}
+    if(t.id==='aiClr'){try{await api('/api/ai/clear',{role})}catch(x){}H[role]=[];err='';render();return}});
+  document.addEventListener('input',e=>{if(e.target.id==='aiIn'){draft=e.target.value;e.target.style.height='auto';e.target.style.height=Math.min(140,e.target.scrollHeight)+'px'}});
+  document.addEventListener('keydown',e=>{if(e.target.id==='aiIn'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&matchMedia('(pointer:fine)').matches){e.preventDefault();send(e.target.value)}});
+  document.addEventListener('submit',e=>{if(e.target.id==='aiForm'){e.preventDefault();send(document.getElementById('aiIn').value)}});
+  return {open,pick,render}})();window.AiChat=AiChat;
 
 // 我的策略：存的每個策略一張卡，放這組參數的回測成績、今天的狀態、通知開關（App 的核心：從策略庫選策略 → 取名 → 設參數 → 回測 → 儲存，照自己的參數收通知）
 const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false;
@@ -4195,7 +4284,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(ok)})).filter(x=>x.keys.length);
     if(openG&&!G.find(x=>x.g===openG))openG=null;
     if(openG)return renderGroup(G.find(x=>x.g===openG),L);
-    const AIP=`<div class="aipair">${['forge','echo'].map(k=>{const a=HexAI.AI.find(x=>x.k===k);return `<button class="aimc" type="button" data-ai="${k}" style="--c:${a.c}">${HexAI.mini(k)}<span style="min-width:0"><b>${a.n}</b><small>${k==='forge'?'幫你想策略':'回測、交叉比對'}</small><small class="ailk">${HexAI.LOCK}即將推出</small></span></button>`}).join('')}</div>`;
+    const AIP=`<div class="aipair">${['forge','echo'].map(k=>{const a=HexAI.AI.find(x=>x.k===k);return `<button class="aimc" type="button" data-ai="${k}" style="--c:${a.c}">${HexAI.mini(k)}<span style="min-width:0"><b>${a.n}</b><small>${k==='forge'?'幫你想策略':'回測、交叉比對'}</small></span></button>`}).join('')}</div>`;
     const top=(adding?'':AIP)+`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(!G.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     box().innerHTML=top+G.map(x=>{const k0=x.keys[0],[st,sym]=SigLock.part(k0);
@@ -4784,7 +4873,7 @@ function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x
   const ev=evList()[0];if(ev){const ms=ev.t-Date.now(),d=Math.floor(ms/86400e3),h=Math.floor(ms%86400e3/3600e3),mi=Math.floor(ms%3600e3/60e3),left=ms<=0?'進行中':d?`${d} 天 ${h} 小時`:h?`${h} 小時 ${mi} 分`:`${mi} 分`;
     T.push(`<div class="t${ms<86400e3?' hot':''}" data-go="ev" data-i="${ev.i}"><div class="k">下一個事件 <span>›</span></div><div class="v">${left}</div><div class="s">${esc(ev.title)}</div></div>`)}
   // 原本的「策略訊號」格換成 AI.Scout（還沒推出，點了只跳提示）
-  T.push(`<div class="t aitile" data-ai="scout" role="button" tabindex="0" style="--c:#d8b6ff">${window.HexAI?HexAI.mini('scout'):''}<div style="min-width:0"><div class="k">AI.Scout</div><div class="v">看市場的 AI</div><div class="s"><span class="ailk">${window.HexAI?HexAI.LOCK:''}即將推出</span></div></div></div>`);
+  T.push(`<div class="t aitile" data-ai="scout" role="button" tabindex="0" style="--c:#d8b6ff">${window.HexAI?HexAI.mini('scout'):''}<div style="min-width:0"><div class="k">AI.Scout</div><div class="v">看市場的 AI</div><div class="s">問問看 ›</div></div></div>`);
   if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
   box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
 document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;
