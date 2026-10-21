@@ -755,8 +755,8 @@ try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage
 <script>(function(){var t0=Date.now(),done=0,want=0;
 // 進度條：tv＝實際載入進度，畫面上的 dv 從進度條出現（1.1 秒）起最快 0.9 秒跑完 0→100，不會一出現就是 100%；跑到 100 才關掉開場畫面
 var tv=0,dv=-1,T1=t0+1100,DUR=900;function tick(){var cap=Math.max(0,Math.min(100,(Date.now()-T1)/DUR*100)),v=Math.floor(Math.min(tv,cap));
-if(v!==dv){dv=v;var b=document.getElementById('spBar'),t=document.getElementById('spPct');if(b)b.style.width=v+'%';if(t)t.textContent=v+'%'}
-if(want&&dv>=100){var el=document.getElementById('splash');if(el){if(window.__hsUpdGate&&__hsUpdGate(el))return;if(window.__hsNeedLogin&&__hsNeedLogin()){__hsSplashLogin(el);return}el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+if(v!==dv){dv=v;var b=document.getElementById('spBar'),t=document.getElementById('spPct');if(b)b.style.width=v+'%';if(t&&!t.dataset.upd)t.textContent=v+'%'}
+if(want&&dv>=100&&window.__hsSwUpd&&Date.now()-__hsSwUpd<12000){requestAnimationFrame(tick);return}if(want&&dv>=100){var el=document.getElementById('splash');if(el){if(window.__hsUpdGate&&__hsUpdGate(el))return;if(window.__hsNeedLogin&&__hsNeedLogin()){__hsSplashLogin(el);return}el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
 function hide(){if(done)return;done=1;tv=100;want=1}
 window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 <script>
@@ -4774,7 +4774,13 @@ if(matchMedia('(min-width:960px)').matches){const f=$('#expFold');if(f)f.open=tr
 // 自己架站時註冊 Service Worker（可離線、可加到主畫面）
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.host)){navigator.serviceWorker.register('sw.js').catch(()=>{});
   // 新版 sw 接手時自動重新整理一次，不用等第二次開才看到新版
-  let had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)location.reload();had=true})}
+  let had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)location.reload();had=true})
+  // 開場時先看網站有沒有新版（sw.js 的版號和手上快取的不同）：有就停在開場畫面先更新，新版接手後上面會自動重新整理，進去就是新版
+  if(had&&window.__boot)__boot.push((async()=>{try{
+    const t=await(await fetch('sw.js',{cache:'no-store'})).text(),v=(t.match(/coin-app-v\d+/)||[])[0],ks=await caches.keys();
+    if(!v||ks.includes(v)||!ks.some(k=>/^coin-app-v\d+$/.test(k)))return;
+    window.__hsSwUpd=Date.now();const p=document.getElementById('spPct');if(p){p.dataset.upd='1';p.textContent='更新到新版…'}
+    const r=await navigator.serviceWorker.getRegistration();if(r)await r.update()}catch(e){window.__hsSwUpd=0}})())}
 })();
 
 // 禁止雙指縮放整頁（Safari 不理會 user-scalable=no）；圖表自己的縮放走 touch 事件不受影響
