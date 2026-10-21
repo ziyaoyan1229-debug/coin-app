@@ -2354,10 +2354,10 @@ function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css
 // ───────── HexAI 五個 AI 角色（功能未上線，先展示）：光球＋頭上三層 logo 脈動、LED 眼睛看手指、隨機眨眼，點一下會開心跳一下 ─────────
 const HexAI=(()=>{
   const AI=[{k:'bridge',n:'AI.Bridge',r:'總管：聽懂你要什麼，找對的 AI',c:'#4fd1c5',d:'#16706a',l:'#dcfffb'},{k:'forge',n:'AI.Forge',r:'策略：把你的想法組成策略',c:'#f39a5f',d:'#a8481c',l:'#ffe2cc'},
-    {k:'echo',n:'AI.Echo',r:'回測：跑歷史、交叉比對',c:'#9468e8',d:'#3d1f8f',l:'#efe4ff'},
-    {k:'scout',n:'AI.Scout',r:'市場：新聞與多空情緒',c:'#d8b6ff',d:'#7a4cc8',l:'#ffffff'},
-    {k:'vault',n:'AI.Vault',r:'資產＋風控：守住你的錢',c:'#6f7cf0',d:'#27308f',l:'#e6e9ff'},
-    {k:'helm',n:'AI.Helm',r:'交易：看策略、持倉該注意什麼',c:'#f2c661',d:'#a8661a',l:'#fff6dc'}];
+    {k:'echo',n:'AI.Echo',r:'回測：唯一跑歷史回測的人',c:'#9468e8',d:'#3d1f8f',l:'#efe4ff'},
+    {k:'scout',n:'AI.Scout',r:'市場：行情、新聞與多空情緒',c:'#d8b6ff',d:'#7a4cc8',l:'#ffffff'},
+    {k:'vault',n:'AI.Vault',r:'風控：審核每個建議，可以否決',c:'#6f7cf0',d:'#27308f',l:'#e6e9ff'},
+    {k:'helm',n:'AI.Helm',r:'交易：寫下單草案，先過風控',c:'#f2c661',d:'#a8661a',l:'#fff6dc'}];
   const mix=(h,k,f)=>{const a=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),b=[1,3,5].map(i=>parseInt(k.slice(i,i+2),16));return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*f).toString(16).padStart(2,'0')).join('')};
   const hexf=r=>[0,1,2,3,4,5].map(i=>{const a=Math.PI/3*i;return (r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)*.42).toFixed(1)}).join(' ');
   const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';

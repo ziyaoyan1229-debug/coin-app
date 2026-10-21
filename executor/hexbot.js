@@ -1047,18 +1047,19 @@ async function resumeStrat(g, why) {
 const AI_DEF = { base: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.8-27b', key: '' };
 const aiLocal = b => /^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(b);
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
+// 一個資料來源只歸一個專家：行情、新聞只有 Scout 抓；回測只有 Echo 跑；Bridge 只派工、整合。out＝被別的 AI 呼叫時固定的回覆欄位
 const AI_ROLES = {
-  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，必要時找其他 AI 幫忙，最後整理成一個答案', tools: ['ask_agent', 'get_market_data', 'get_news', 'get_account_balance', 'get_position', 'get_risk_rules', 'list_strategies', 'run_backtest'], calls: ['scout', 'echo', 'forge', 'vault', 'helm'] },
-  scout: { name: 'AI.Scout', job: '市場偵察：讀行情和新聞，說明現在的盤勢、關鍵價位和風險事件', tools: ['get_market_data', 'get_news'] },
-  echo: { name: 'AI.Echo', job: '回測驗證：用 HexStack 的回測引擎驗證策略和參數，誠實報告報酬、回撤、交易次數', tools: ['list_strategies', 'run_backtest'] },
-  forge: { name: 'AI.Forge', job: '策略鍛造：根據目標提出策略或參數組合，每個建議都要先回測過才說', tools: ['ask_agent', 'list_strategies', 'run_backtest', 'get_market_data'], calls: ['echo', 'scout'] },
-  vault: { name: 'AI.Vault', job: '風控守門：檢查帳戶、持倉、槓桿和風控上限，指出風險並建議上限（只建議，不改設定）', tools: ['get_account_balance', 'get_position', 'get_risk_rules'] },
-  helm: { name: 'AI.Helm', job: '交易助手：看執行中的策略、持倉和行情，說明現在該注意什麼（第一版只建議，不下單）', tools: ['ask_agent', 'get_position', 'list_strategies', 'get_market_data', 'get_risk_rules'], calls: ['vault', 'scout'] }
+  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（自己不抓資料），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）', tools: ['ask_agent'], calls: ['scout', 'echo', 'forge', 'vault', 'helm'] },
+  scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件', tools: ['get_market_data', 'get_news'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
+  echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌', tools: ['list_strategies', 'run_backtest'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
+  forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說', tools: ['ask_agent', 'list_strategies'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
+  vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」（只建議，不改設定）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
+  helm: { name: 'AI.Helm', job: '執行助手：把方案寫成「下單草案」，一定要先請 Vault 審核，絕不自己下單', tools: ['ask_agent', 'get_position', 'list_strategies'], calls: ['vault', 'scout'], out: '下單草案：幣種、方向、數量或資金比例、槓桿、停損，以及 Vault 的結論' }
 };
-// 誰可以找誰（calls）：Bridge 找任何人；Forge 找 Echo 驗證、Scout 看盤；Helm 找 Vault 看風控、Scout 看盤。最多轉兩層（Bridge → Forge → Echo），不能找回自己或 Bridge
+// 誰可以找誰（calls）：Bridge 找任何人；Forge 找 Echo、Scout；Vault 找 Echo；Helm 找 Vault、Scout。最多轉兩層（Bridge → Forge → Echo），不能找回自己或 Bridge
 const AI_DEPTH = 2;
 const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、先講結論。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。結尾不用加免責聲明。';
-const aiSys = r => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls ? '需要時可以用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙。' : ''}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
+const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
 const AI_TOOLS = {
   ask_agent: { d: '請另一個 AI 處理子問題，回傳它的答案', p: { role: { type: 'string', enum: ['scout', 'echo', 'forge', 'vault', 'helm'] }, question: { type: 'string' } }, req: ['role', 'question'] },
   get_market_data: { d: '某個幣的 1 小時 K 線行情摘要：現價、24h/7d/30d 漲跌、區間高低、近期收盤', p: { symbol: { type: 'string', description: '例如 BTC、ETH' }, hours: { type: 'integer', description: '要看的小時數，預設 72，最多 720' } }, req: ['symbol'] },
@@ -1096,8 +1097,8 @@ async function aiTool(name, a, depth, trace, from) {
     const st = String(a.strategy || ''), s = symOk(a.symbol); if (!ENG.BEST[st]) throw new Error('沒有策略 ' + st + '，先用 list_strategies 查代號');
     const days = Math.max(30, Math.min(1000, +a.days || 365)), T = mEnd(s), B = ENG.BEST[st];
     const p = Object.assign({}, B[s] || B.BTC || {}, cleanP(a.params), { capital: 1000 });
-    const { r } = runSim(st, s, T - days * D1, T, p), tr = Array.isArray(r.trades) ? r.trades.length : +r.trades || 0;
-    return { strategy: st, name: ENG.NAME[st] || st, symbol: s, days, returnPct: r2((r.mult - 1) * 100), maxDrawdownPct: r2(Math.abs(r.mdd || 0) * (Math.abs(r.mdd || 0) <= 1 ? 100 : 1)), trades: tr, liquidated: !!r.liq, feesUsd: r2(r.fees || 0), fundingUsd: r2(r.fund || 0), changedParams: cleanP(a.params) };
+    const { r } = runSim(st, s, T - days * D1, T, p), tr = Array.isArray(r.trades) ? r.trades.length : +r.trades || 0, m = MK[s], c0 = m.C[Math.max(0, m.n - 1 - days * 24)];
+    return { strategy: st, name: ENG.NAME[st] || st, symbol: s, days, marketChgPct: r2((m.C[m.n - 1] / c0 - 1) * 100), returnPct: r2((r.mult - 1) * 100), maxDrawdownPct: r2(Math.abs(r.mdd || 0) * (Math.abs(r.mdd || 0) <= 1 ? 100 : 1)), trades: tr, liquidated: !!r.liq, feesUsd: r2(r.fees || 0), fundingUsd: r2(r.fund || 0), changedParams: cleanP(a.params) };
   }
   throw new Error('沒有這個工具：' + name);
 }
@@ -1122,9 +1123,11 @@ async function aiCall(msgs, tools, role) {
 }
 const clip = o => { const s = JSON.stringify(o); return s.length > 2500 ? s.slice(0, 2500) + '…' : s; };
 async function aiRun(role, hist, depth = 0, trace = []) {
-  const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role) }, ...hist];
+  const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role, depth) }, ...hist];
+  let nag = role === 'helm' && depth < AI_DEPTH;   // Helm 給下單草案前一定要問過 Vault
   for (let i = 0; i < 8; i++) {
     const T = R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
+    if (!calls.length && nag && i < 6 && /做多|做空|開倉|下單|槓桿|停損|草案/.test(m.content || '') && !trace.some(x => x.by === R.name && x.tool === 'ask_agent' && x.args && x.args.role === 'vault')) { nag = false; msgs.push({ role: 'assistant', content: m.content || '' }, { role: 'user', content: '（系統）給下單草案前一定要先用 ask_agent 請 vault 審核，把 Vault 的結論附在草案裡。' }); continue; }
     if (!calls.length) return { text: String(m.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim() || '（模型沒有回答內容）', trace };
     msgs.push({ role: 'assistant', content: m.content || '', tool_calls: calls });
     for (const tc of calls) {
