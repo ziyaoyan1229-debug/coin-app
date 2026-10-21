@@ -684,9 +684,10 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 /* 總管 Bridge：最上面橫的一長條 */
 .aibot.wide{grid-column:1/-1;flex-direction:row;align-items:center;text-align:left;gap:12px;padding:8px 16px 8px 8px}.aibot.wide svg{width:118px;max-width:118px;flex:none}
 .aibot.wide .aw{display:flex;flex-direction:column;gap:3px;min-width:0}.aibot.wide .an{font-size:18px;display:flex;align-items:baseline;gap:6px}.aibot.wide .an small{font-size:11.5px;font-weight:700;color:var(--c);border:1px solid var(--c);border-radius:999px;padding:0 7px}
+.setai{align-items:center}.setaim{flex:none;width:58px;height:58px;margin:-6px 4px -6px -6px}.setaim .aim{display:block;width:100%;height:100%}.setaim svg{width:100%;height:100%}
 .aibot.wide .ago{margin-top:4px;font-size:14px;font-weight:800;color:var(--c)}
 @media (max-width:959px){.aibots{grid-template-columns:1fr 1fr}.aibot.wide~.aibot:last-child:nth-child(even){grid-column:1/-1}.aibot.wide~.aibot:last-child:nth-child(even) svg{max-width:150px}}
-@media (min-width:960px){.aibots{grid-template-columns:repeat(5,1fr)}.aibot.wide svg{width:150px;max-width:150px}}
+@media (min-width:960px){.aibots{grid-template-columns:repeat(6,1fr)}.aibot.wide svg{width:150px;max-width:150px}}
 .aigrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.aic{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}.aic .ain{font-size:18px;font-weight:800}.aic .ait{font-size:13px;color:var(--muted)}.aic .sub{margin:4px 0 0;font-size:12.5px;line-height:1.5}.aic .pill{margin:0}.tmode button small{font-size:10px;margin-left:3px}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
@@ -699,7 +700,14 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 function mark(k){var h=window.__hs;if(h.on&&!X.test(k)){h.dirty[k]=1;h.kick&&h.kick()}}
 P.setItem=function(k,v){k=String(k);v=String(v);if(this===localStorage){if(this.getItem(k)===v)return;S.call(this,k,v);mark(k)}else S.call(this,k,v)};
 P.removeItem=function(k){k=String(k);if(this===localStorage){if(this.getItem(k)===null)return;R.call(this,k);mark(k)}else R.call(this,k)}}catch(e){}})();
-try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage.getItem('autoNight')==='1'&&(h>=22||h<6))t='night';if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+// 跟著日出日落：日出、黃昏前後用預設，白天用白天，晚上用深夜。緯度用台灣（25°），經度用手機時區推算
+window.sunTheme=function(d){d=d||new Date();var r=Math.PI/180,y=(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(d.getFullYear(),0,0))/864e5,g=2*Math.PI/365*(y-1),
+  eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g)),
+  dc=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g),
+  la=25*r,tz=-d.getTimezoneOffset(),lo=tz/4,ha=Math.acos(Math.cos(90.833*r)/(Math.cos(la)*Math.cos(dc))-Math.tan(la)*Math.tan(dc))/r,
+  up=720-4*(lo+ha)-eq+tz,dn=720-4*(lo-ha)-eq+tz,m=d.getHours()*60+d.getMinutes();
+  return m>=up-40&&m<up+60||m>=dn-60&&m<dn+40?'dark':m>=up+60&&m<dn-60?'light':'night'};
+try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!=='0')t=sunTheme();if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script>
 // 語言：設定裡選 English 時，整頁的介面文字用字典（i18n/en.json）換成英文；新聞、市場分析等 AI 產生的內容維持中文
 (function(){var L;try{L=localStorage.getItem('lang');
@@ -1030,7 +1038,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="foot">內容僅供參考，非投資建議</div>
   </div>
   <div id="tmAi" hidden><div id="aiHome"><div class="sect"><h2>HexAI<span class="more">策略顧問・Beta</span></h2>
-    <p class="sub" style="margin:0 2px 10px">六個 AI 各有專長，點一個開始對話。</p><div class="aibots" id="aiBots"></div></div></div>
+    <p class="sub" style="margin:0 2px 10px">七個 AI 各有專長，點一個開始對話。</p><div class="aibots" id="aiBots"></div></div></div>
     <div id="aiChat" class="sect" hidden></div>
     <div class="foot">HexAI 跑在你電腦上的 HexStack，只做分析和建議，不會下單、不會改設定。<br>內容僅供參考，非投資建議</div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
@@ -1092,15 +1100,16 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 設定 ───────── -->
 <section id="setView" class="view"><div class="wrap">
-  <div class="sect"><h2>通知</h2><button class="card setgo" id="setNotify" type="button"><span><b>通知設定</b><small>策略信號、美股開盤、重要事件、關鍵價位等開關，最近的通知</small></span><i aria-hidden="true">›</i></button></div>
+  <div class="sect"><button class="card setgo setai" type="button" data-ai="guide"><span class="setaim" id="setAiG"></span><span><b>客服機器人 AI.Guide</b><small>App 怎麼用、遇到問題都可以問它</small></span><i aria-hidden="true">›</i></button></div>
   <div class="sect"><h2>外觀</h2><div class="card"><div class="seg tset" id="themeSeg"><button data-t="dark">預設</button><button data-t="night">深夜</button><button data-t="light">白天</button></div>
-    <label class="anrow"><input type="checkbox" id="autoNight"> 晚上 22:00～早上 6:00 自動切到深夜模式</label>
-    <div class="small" style="margin-top:8px">也可以點右上角的按鈕依序切換。</div></div></div>
+    <label class="anrow"><input type="checkbox" id="autoNight"> 跟著日出日落自動切換</label>
+    <div class="small" style="margin-top:8px">日出和黃昏用預設，白天用白天，晚上用深夜。自己點選模式（或右上角的按鈕）會關掉自動。</div></div></div>
+  <div class="sect"><h2>通知</h2><button class="card setgo" id="setNotify" type="button"><span><b>通知設定</b><small>策略信號、美股開盤、重要事件、關鍵價位等開關，最近的通知</small></span><i aria-hidden="true">›</i></button></div>
+  <div class="sect"><h2>資料庫</h2><button class="card setgo" id="setDb" type="button"><span><b>資料庫</b><small>查看或刪除存在這台裝置和雲端的資料</small></span><i aria-hidden="true">›</i></button></div>
+  <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
   <div class="sect"><h2>語言 Language</h2><div class="card"><div class="seg tset" id="langSeg"><button data-l="zh">中文</button><button data-l="en">English</button></div>
     <div class="small" style="margin-top:8px">新聞和市場分析的內容是每天自動整理的中文，切到英文時這些內容維持中文。</div></div></div>
   <div class="sect"><h2>帳號同步</h2><div class="card" id="syncBox"></div></div>
-  <div class="sect"><h2>資料庫</h2><button class="card setgo" id="setDb" type="button"><span><b>資料庫</b><small>查看或刪除存在這台裝置和雲端的資料</small></span><i aria-hidden="true">›</i></button></div>
-  <div class="sect"><h2>資料狀態</h2><div class="card setl"><div><span>價格來源</span><b id="setSrc">—</b></div><div><span>市場分析</span><b id="setNews">—</b></div></div></div>
   <div class="sect"><h2>App</h2><div class="card"><button class="gbtn" id="setUpd" style="margin-top:0">更新到最新版</button>
     <div class="small" style="margin-top:8px">主畫面上的 App 沒看到新版時按這裡：清掉舊的暫存並重新載入。</div>
     <div class="setl" style="margin-top:6px"><div><span>版本</span><b id="setVer">—</b></div></div></div></div>
@@ -2337,17 +2346,18 @@ const TICON={dark:'<path d="M12 2.5 20.5 7.3v9.4L12 21.5l-8.5-4.8V7.3z"/>',night
 let theme=localGet('theme3');if(!THEMES.includes(theme))theme='dark';
 function localGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function localSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-// 晚上自動深夜：設定裡打開後，22:00～06:00（手機時間）自動用深夜模式，其他時間用自己選的模式
-const autoNightOn=()=>localGet('autoNight')==='1',isNightHr=()=>{const h=new Date().getHours();return h>=22||h<6},effTheme=()=>autoNightOn()&&isNightHr()?'night':theme;
+// 跟著日出日落（預設開）：日出、黃昏用預設，白天用白天，晚上用深夜；自己點選模式就關掉自動（sunTheme 在開頭的 script）
+const autoNightOn=()=>localGet('autoNight')!=='0',effTheme=()=>autoNightOn()?sunTheme():theme;
 function applyTheme(){const et=effTheme();document.documentElement.dataset.theme=et;
   const b=$('#themeBtn');b.querySelector('svg').innerHTML=TICON[et];b.setAttribute('aria-label','模式：'+TNAME[et]+'（點一下切換）');b.title='模式：'+TNAME[et];
   [chart,pChart,eChart].forEach(c=>c&&c.applyOptions(chartOpts()));
   const k={upColor:css('--up'),downColor:css('--down'),wickUpColor:css('--up'),wickDownColor:css('--down')};[cs,pcs].forEach(x=>{try{x&&x.applyOptions(k)}catch(e){}});
-  document.querySelectorAll('#themeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===theme));}
-window.__setTheme=t=>{if(!THEMES.includes(t)||t===theme)return;theme=t;localSet('theme3',theme);applyTheme();themeToast()};
+  document.querySelectorAll('#themeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===et));const c=$('#autoNight');if(c)c.checked=autoNightOn();}
+const manual=()=>{if(autoNightOn()){localSet('autoNight','0')}};
+window.__setTheme=t=>{if(!THEMES.includes(t)||t===effTheme()&&!autoNightOn())return;manual();theme=t;localSet('theme3',theme);applyTheme();themeToast()};
 function themeToast(){let t=$('#themeToast');if(!t){t=document.createElement('div');t.id='themeToast';document.body.appendChild(t)}
   t.textContent=TNAME[theme]+'模式';t.classList.remove('on');void t.offsetWidth;t.classList.add('on')}
-$('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length];localSet('theme3',theme);applyTheme();themeToast();};
+$('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(effTheme())+1)%THEMES.length];manual();localSet('theme3',theme);applyTheme();themeToast();};
 function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css('--muted'),fontFamily:'inherit'},grid:{vertLines:{color:css('--line')},horzLines:{color:css('--line')}},rightPriceScale:{borderColor:css('--line')},timeScale:{borderColor:css('--line'),timeVisible:true,secondsVisible:false,minBarSpacing:0.001},crosshair:{mode:0}}}
 
 // ── 分頁 ──
@@ -2357,7 +2367,16 @@ const HexAI=(()=>{
     {k:'echo',n:'AI.Echo',r:'回測：唯一跑歷史回測的人',c:'#9468e8',d:'#3d1f8f',l:'#efe4ff'},
     {k:'scout',n:'AI.Scout',r:'市場：行情、新聞與多空情緒',c:'#d8b6ff',d:'#7a4cc8',l:'#ffffff'},
     {k:'vault',n:'AI.Vault',r:'風控：審核每個建議，可以否決',c:'#6f7cf0',d:'#27308f',l:'#e6e9ff'},
-    {k:'helm',n:'AI.Helm',r:'交易：寫下單草案，先過風控',c:'#f2c661',d:'#a8661a',l:'#fff6dc'}];
+    {k:'helm',n:'AI.Helm',r:'交易：寫下單草案，先過風控',c:'#f2c661',d:'#a8661a',l:'#fff6dc'},
+    {k:'guide',n:'AI.Guide',r:'客服：App 怎麼用、遇到問題都可以問',c:'#5fd38a',d:'#1d7444',l:'#e3ffec'}];
+  // 每個機器人的小配件（畫在球身座標，中心 0,0、半徑 56）：Bridge 領帶、Forge 鐵鎚、Echo 回聲波、Scout 放大鏡、Vault 盾牌、Helm 舵輪、Guide 客服耳麥
+  const ACC={bridge:a=>`<path d="M-7 21h14l-3.5 6 5 15-8.5 9-8.5-9 5-15z" fill="${a.d}" stroke="${a.l}" stroke-width="1.6" stroke-linejoin="round"/><path d="M-3.5 27h7" stroke="${a.l}" stroke-width="1.4" opacity=".7"/>`,
+    forge:a=>`<g transform="translate(54 30) rotate(-38)"><rect x="-3.5" y="-2" width="7" height="34" rx="3.5" fill="#8a5a36" stroke="#3a2412" stroke-width="1.2"/><rect x="-15" y="-13" width="30" height="13" rx="3" fill="#d9dde6" stroke="#4a4f5c" stroke-width="1.6"/><rect x="-15" y="-13" width="9" height="13" rx="2" fill="${a.c}"/></g>`,
+    echo:a=>`<g fill="none" stroke="${a.c}" stroke-width="4" stroke-linecap="round" opacity=".9"><path d="M64 -13q9 13 0 26M73 -22q15 22 0 44M-64 -13q-9 13 0 26M-73 -22q-15 22 0 44"/></g>`,
+    scout:a=>`<g transform="translate(-50 30) rotate(35)"><rect x="-3.5" y="10" width="7" height="22" rx="3.5" fill="#3b2a5c" stroke="#1a1030" stroke-width="1.2"/><circle r="13" fill="${a.l}" fill-opacity=".35" stroke="#e8e0ff" stroke-width="4"/><path d="M-6 -5a8 8 0 0 1 7-4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>`,
+    vault:a=>`<path d="M0 20l17 6v11c0 10-7.5 16-17 20-9.5-4-17-10-17-20V26z" fill="${a.d}" stroke="${a.l}" stroke-width="2" stroke-linejoin="round"/><path d="M-7 37l5 5 9-10" fill="none" stroke="${a.l}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    helm:a=>`<g transform="translate(0 36)" stroke="${a.d}" stroke-width="3" stroke-linecap="round" fill="none"><circle r="11"/><path d="M0 -17v34M-17 0h34M-12 -12l24 24M12 -12l-24 24"/><circle r="4" fill="${a.l}"/></g>`,
+    guide:a=>`<g fill="none" stroke="#1a1a2a" stroke-width="5" stroke-linecap="round"><path d="M-55 -4a55 55 0 0 1 110 0"/><path d="M-55 12q0 22 26 24" stroke-width="3"/></g><rect x="-62" y="-12" width="13" height="26" rx="6" fill="${a.d}" stroke="${a.l}" stroke-width="1.6"/><rect x="49" y="-12" width="13" height="26" rx="6" fill="${a.d}" stroke="${a.l}" stroke-width="1.6"/><circle cx="-27" cy="36" r="5" fill="${a.l}" stroke="#1a1a2a" stroke-width="2"/><path d="M-8 30q8 7 16 0" fill="none" stroke="${a.l}" stroke-width="2.6" stroke-linecap="round"/>`};
   const mix=(h,k,f)=>{const a=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),b=[1,3,5].map(i=>parseInt(k.slice(i,i+2),16));return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*f).toString(16).padStart(2,'0')).join('')};
   const hexf=r=>[0,1,2,3,4,5].map(i=>{const a=Math.PI/3*i;return (r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)*.42).toFixed(1)}).join(' ');
   const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
@@ -2377,7 +2396,7 @@ const HexAI=(()=>{
 <circle r="56" fill="url(#p${id})" clip-path="url(#c${id})" opacity=".18"/><circle r="56" fill="none" stroke="${a.l}" stroke-width="1.4" opacity=".55"/>
 <ellipse cx="-20" cy="-24" rx="15" ry="8" fill="#fff" opacity=".45" transform="rotate(-30 -20 -24)"/>
 <path d="M-34 -14h68a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10v-10a10 10 0 0 1 10-10z" fill="#0d0820" fill-opacity=".78" stroke="${a.l}" stroke-opacity=".35"/>
-<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g></g></g>
+<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g>${ACC[a.k]?ACC[a.k](a):''}</g></g>
 ${ring('F')}
 <g class="hl"><g class="hs"><ellipse class="bm" cy="24" rx="40" ry="6" fill="${a.c}" opacity=".3" filter="url(#b${id})"/>${L.map(c=>`<g class="ly"><polygon points="${hexf(54)}" fill="${c}" fill-opacity=".28" stroke="${c}" stroke-width="3.4" stroke-linejoin="round" filter="url(#b${id})"/></g>`).join('')}</g></g></svg>`}
   function build(){const box=document.getElementById('aiBots');if(!box||box.childElementCount)return;
@@ -2418,7 +2437,7 @@ ${ring('F')}
     try{localStorage.setItem('tMode','"ai"');localStorage.setItem('aiRole',JSON.stringify(k))}catch(e){}const n=document.getElementById('nav_sig');if(n)n.click();if(window.BotTab)BotTab.mode('ai');if(window.AiChat)AiChat.pick(k)};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(b){e.stopPropagation();tap(b.dataset.ai)}},true);
   return {start,mini,tap,AI,LOCK}})();window.HexAI=HexAI;
-{const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault')}
+{const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault');const g=document.getElementById('setAiG');if(g)g.innerHTML=HexAI.mini('guide')}
 const VIEWS=['chart','sig','strat','news','notify','fund','set','db'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);const n=$('#nav_'+k);n&&n.classList.toggle('on',v===k||k==='set'&&(v==='notify'||v==='db'))});
   if(v==='strat'&&!pChart){initStrat();}
@@ -4014,9 +4033,9 @@ window.BotTab=BotTab;
 const AiChat=(()=>{
   const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
   const H_=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const ROLES=['bridge','scout','echo','forge','vault','helm'];
+  const ROLES=['bridge','scout','echo','forge','vault','helm','guide'];
   const ASK={bridge:['BTC 現在適合用哪個策略？','幫我整理今天的盤勢和我的持倉'],scout:['現在 BTC 盤勢怎麼樣？','最近有什麼重要事件？'],echo:['回測突破策略 BTC 一年','比較兩個策略在 ETH 的表現'],
-    forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？']};
+    forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？'],guide:['HexBOT 要怎麼開始自動交易？','手機和電腦要怎麼同步？']};
   const TL={get_market_data:a=>'看 '+(a.symbol||'')+' 行情',get_news:()=>'讀市場分析和新聞',get_account_balance:()=>'看帳戶權益',get_position:()=>'看持倉和策略',get_risk_rules:()=>'看風控上限',
     list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙'};
   let inChat=false,role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
@@ -5271,7 +5290,7 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
 // 列出這台裝置（localStorage、IndexedDB）和雲端（登入後）存的資料，可以查看內容或刪除。
 // 已登入時刪掉會同步的項目，雲端和其他登入的裝置也會一起刪掉。金鑰、配對、登入資訊只顯示摘要，不顯示內容。
 const DbTab=(()=>{const LS=localStorage,box=()=>document.getElementById('dbBox'),es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const NM={theme3:'外觀模式',autoNight:'深夜自動切換',lang:'語言',langBoot:'語言（開場用）',cvGrp:'查看價格的分組',split_strat:'策略頁圖表高度',
+  const NM={theme3:'外觀模式',autoNight:'日出日落自動切換',lang:'語言',langBoot:'語言（開場用）',cvGrp:'查看價格的分組',split_strat:'策略頁圖表高度',
     sigLock:'我的策略',sigLockName:'我的策略名稱',sigLockOff:'我的策略暫停通知',mySeed:'範例策略',
     bnCats:'通知類別開關',bnSigOff:'策略信號通知開關',bnLast:'最後看到的通知',bnPush:'背景推播登記',
     fdLocal:'交易所金鑰',fdHide:'隱藏金額',fdSnap:'資產報酬紀錄',fdBot:'HexBOT 下單帳號',botHost:'電腦配對',botShare:'同帳號連電腦',hsSync:'Google 登入資訊',
