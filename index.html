@@ -559,6 +559,8 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .fdhero::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,#f6dc8a,rgba(200,146,26,.25) 35%,rgba(255,255,255,.06) 60%,#c8921a);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:-1}
 .fdhero .fdtot{background:linear-gradient(180deg,#fff7e0,#f3c557);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px rgba(243,197,87,.25))}
 .fdhero .fdlab{color:#e9d9a8}
+.fdtotw{display:flex;align-items:center;justify-content:space-between;gap:10px}.fdtotw .fdtot{min-width:0}
+.fdai{all:unset;box-sizing:border-box;flex:none;cursor:pointer;width:46px;height:52px;margin:-10px 0 -12px;-webkit-tap-highlight-color:transparent}.fdai .aim{width:100%;height:100%}.fdai:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
 .fdhero .fdsub,.fdhero .fdleg{color:rgba(235,225,255,.75)}
 :root[data-theme="night"] .fdhero{color:#efe2c4;background:radial-gradient(120% 90% at 85% 0%,rgba(200,150,60,.12),transparent 55%),linear-gradient(160deg,rgba(26,20,12,.9),rgba(6,5,3,.95));box-shadow:0 18px 40px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,220,160,.14)}
 :root[data-theme="night"] .fdhero .fdsub,:root[data-theme="night"] .fdhero .fdleg{color:rgba(230,217,191,.7)}
@@ -612,6 +614,23 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .fdscroll{overflow-x:auto}
 .fdghost{border:1px solid var(--line);background:transparent;color:#ef5350;border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
 .fdcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:13px;line-height:1.7}
+.aibots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.aibot{all:unset;box-sizing:border-box;cursor:pointer;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:6px 10px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;-webkit-tap-highlight-color:transparent}
+.aibot:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aibot svg{width:100%;max-width:150px;height:auto;overflow:visible}
+.aibot .an{font-size:16px;font-weight:800;color:var(--c)}.aibot .ar{font-size:12.5px;color:var(--muted);line-height:1.45}
+.aibot .lk{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:999px;padding:2px 8px}
+.aibot .lk svg{width:11px;height:11px}
+/* 小 AI 圖示：市場分析摘要（Scout）、我的策略上方（Forge、Echo），點了跳「即將推出」 */
+.aim{flex:none;display:block}.aim svg{width:100%;height:100%;overflow:visible;animation:aiBob 3.2s ease-in-out infinite}
+@keyframes aiBob{50%{transform:translateY(-4%)}}@media (prefers-reduced-motion:reduce){.aim svg{animation:none}}
+.sumc .t.aitile{display:flex;align-items:center;gap:8px}.sumc .aitile .aim{width:40px;height:46px}.sumc .aitile .v{color:var(--c);font-family:inherit}
+.ailk{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}.ailk svg{width:10px;height:10px}
+.aipair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
+.aimc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:8px 10px;min-width:0;-webkit-tap-highlight-color:transparent}
+.aimc:active{opacity:.8}.aimc:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aimc .aim{width:42px;height:48px}
+.aimc b{display:block;font-size:14.5px;color:var(--c)}.aimc small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+@media (max-width:959px){.aibots{grid-template-columns:1fr 1fr}.aibot:last-child:nth-child(odd){grid-column:1/-1}.aibot:last-child:nth-child(odd) svg{max-width:150px}}
+@media (min-width:960px){.aibots{grid-template-columns:repeat(5,1fr)}}
 .aigrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.aic{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}.aic .ain{font-size:18px;font-weight:800}.aic .ait{font-size:13px;color:var(--muted)}.aic .sub{margin:4px 0 0;font-size:12.5px;line-height:1.5}.aic .pill{margin:0}.tmode button small{font-size:10px;margin-left:3px}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
@@ -949,15 +968,14 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
-  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="ai">HexAI<small>未上線</small></button></div>
+  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="ai">HexAI<small>即將推出</small></button></div>
   <div id="tmSig">
   <div class="sect"><h2>我的策略訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
-  <div class="foot">「我的策略」每個策略用自己存的參數，從最近一年回測到最新一根 K 棒，看現在是空手還是持倉、最近 24 小時有沒有進出場。收到通知後自己到交易所下單。<br>內容僅供參考，非投資建議</div>
+  <div class="foot">內容僅供參考，非投資建議</div>
   </div>
-  <div id="tmAi" hidden><div class="sect"><h2>HexAI<span class="more">研究中，未上線</span></h2>
-    <p class="sub" style="margin:0 2px 10px">用說的做研究和交易：描述想法，AI 幫你回測；講要怎麼下，AI 透過 HexBOT 幫你設單。</p>
-    <div class="aigrid"><div class="card aic"><div class="ain">BTAI</div><div class="ait">回測</div><span class="pill p-wn">未上線</span><p class="sub">說出策略想法，AI 組成規則、跑回測、比較參數。</p></div>
-    <div class="card aic"><div class="ain">tradeAI</div><div class="ait">交易執行</div><span class="pill p-wn">未上線</span><p class="sub">說要怎麼下，AI 經 HexBOT 設單；真的下單前會先問你。</p></div></div></div></div>
+  <div id="tmAi" hidden><div class="sect"><h2>HexAI<span class="more">五個 AI 助手・即將推出</span></h2>
+    <p class="sub" style="margin:0 2px 10px">用說的做研究和交易：從想策略、回測、看市場、顧資產到下單，各有一個 AI 幫你。功能還在準備，先來認識牠們。</p>
+    <div class="aibots" id="aiBots"></div></div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
   <div class="foot">HexBOT 自動交易由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
@@ -972,7 +990,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="fscr" id="fdHome">
     <section class="fdhero" aria-label="總覽">
       <div class="fdrow"><span class="fdlab">總資產（約）</span><button class="fdeye" id="fdEye" type="button" aria-label="顯示或隱藏金額" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="fdEyeI"></svg></button></div>
-      <div class="fdtot" id="fdTot">—</div>
+      <div class="fdtotw"><div class="fdtot" id="fdTot">—</div><button class="fdai" id="fdAi" type="button" data-ai="vault" aria-label="AI.Vault（即將推出）"></button></div>
       <div class="fdsub" id="fdSub"></div>
       <div class="fdsplit" id="fdSplit" aria-hidden="true"></div>
       <div class="fdleg" id="fdLeg"></div>
@@ -2276,6 +2294,72 @@ $('#themeBtn').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length
 function chartOpts(){return{layout:{background:{color:css('--bg')},textColor:css('--muted'),fontFamily:'inherit'},grid:{vertLines:{color:css('--line')},horzLines:{color:css('--line')}},rightPriceScale:{borderColor:css('--line')},timeScale:{borderColor:css('--line'),timeVisible:true,secondsVisible:false,minBarSpacing:0.001},crosshair:{mode:0}}}
 
 // ── 分頁 ──
+// ───────── HexAI 五個 AI 角色（功能未上線，先展示）：光球＋頭上三層 logo 脈動、LED 眼睛看手指、隨機眨眼，點一下會開心跳一下 ─────────
+const HexAI=(()=>{
+  const AI=[{k:'forge',n:'AI.Forge',r:'策略：把你的想法組成策略',c:'#f39a5f',d:'#a8481c',l:'#ffe2cc'},
+    {k:'echo',n:'AI.Echo',r:'回測：跑歷史、交叉比對',c:'#9468e8',d:'#3d1f8f',l:'#efe4ff'},
+    {k:'scout',n:'AI.Scout',r:'市場：新聞與多空情緒',c:'#d8b6ff',d:'#7a4cc8',l:'#ffffff'},
+    {k:'vault',n:'AI.Vault',r:'資產＋風控：守住你的錢',c:'#6f7cf0',d:'#27308f',l:'#e6e9ff'},
+    {k:'helm',n:'AI.Helm',r:'交易：照策略下單、顧止損',c:'#f2c661',d:'#a8661a',l:'#fff6dc'}];
+  const mix=(h,k,f)=>{const a=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),b=[1,3,5].map(i=>parseInt(k.slice(i,i+2),16));return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*f).toString(16).padStart(2,'0')).join('')};
+  const hexf=r=>[0,1,2,3,4,5].map(i=>{const a=Math.PI/3*i;return (r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)*.42).toFixed(1)}).join(' ');
+  const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  let all=[],run=false,px=null,py=null,last=0,uid=0;
+  const say=t=>{let e=document.getElementById('aiToast');if(!e){e=document.createElement('div');e.id='aiToast';e.style.cssText='position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:60;max-width:86vw;text-align:center;transition:opacity .3s';document.body.appendChild(e)}e.textContent=t;e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity=0,1800)};
+  function svg(a,id){const L=[mix(a.c,'#000000',.18),a.c,mix(a.c,'#ffffff',.55)];
+    const ring=h=>`<g class="o${h}"><clipPath id="${h}${id}"><rect x="-100" y="${h==='B'?-60:0}" width="200" height="60"/></clipPath><g clip-path="url(#${h}${id})"><ellipse class="rg" rx="78" ry="24" fill="none" stroke="${a.c}" stroke-opacity="${h==='B'?.35:.85}" stroke-width="${h==='B'?1.4:2.2}" stroke-dasharray="10 6"/></g><circle class="st" r="${h==='B'?3:4.2}" fill="${a.l}"/></g>`;
+    return `<svg viewBox="0 0 200 230" role="img" aria-label="${a.n}"><defs>
+<radialGradient id="g${id}" cx="38%" cy="30%" r="74%"><stop offset="0" stop-color="${a.l}"/><stop offset=".4" stop-color="${a.c}"/><stop offset="1" stop-color="${a.d}"/></radialGradient>
+<radialGradient id="w${id}"><stop offset="0" stop-color="${a.c}" stop-opacity=".55"/><stop offset="1" stop-color="${a.c}" stop-opacity="0"/></radialGradient>
+<pattern id="p${id}" width="14" height="24.2" patternUnits="userSpaceOnUse"><path d="M7 0l7 4v8l-7 4-7-4V4zM0 16.2v8M14 16.2v8" fill="none" stroke="#fff" stroke-width=".7" opacity=".5"/></pattern>
+<clipPath id="c${id}"><circle r="56"/></clipPath>
+<filter id="e${id}" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="b${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<ellipse class="sh" cx="100" cy="216" rx="44" ry="7" fill="#000" opacity=".4"/>${ring('B')}
+<g class="bd"><g class="sq"><circle r="86" fill="url(#w${id})"/><circle r="56" fill="url(#g${id})"/>
+<circle r="56" fill="url(#p${id})" clip-path="url(#c${id})" opacity=".18"/><circle r="56" fill="none" stroke="${a.l}" stroke-width="1.4" opacity=".55"/>
+<ellipse cx="-20" cy="-24" rx="15" ry="8" fill="#fff" opacity=".45" transform="rotate(-30 -20 -24)"/>
+<path d="M-34 -14h68a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10v-10a10 10 0 0 1 10-10z" fill="#0d0820" fill-opacity=".78" stroke="${a.l}" stroke-opacity=".35"/>
+<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g></g></g>
+${ring('F')}
+<g class="hl"><g class="hs"><ellipse class="bm" cy="24" rx="40" ry="6" fill="${a.c}" opacity=".3" filter="url(#b${id})"/>${L.map(c=>`<g class="ly"><polygon points="${hexf(54)}" fill="${c}" fill-opacity=".28" stroke="${c}" stroke-width="3.4" stroke-linejoin="round" filter="url(#b${id})"/></g>`).join('')}</g></g></svg>`}
+  function build(){const box=document.getElementById('aiBots');if(!box||box.childElementCount)return;
+    AI.forEach(a=>{const id='hx'+(uid++),b=document.createElement('button');b.type='button';b.className='aibot';b.style.setProperty('--c',a.c);
+      b.innerHTML=svg(a,id)+`<span class="lk">${LOCK}即將推出</span><div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
+      const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:q('.hl'),hs:q('.hs'),ly:[...b.querySelectorAll('.ly')],oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
+        hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:0};
+      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}say(a.n+' 還在準備中，即將推出')};all.push(o)})}
+  function frame(){const box=document.getElementById('aiBots');if(!box||!box.offsetParent||document.hidden){run=false;return}
+    const now=performance.now()/1000,dt=Math.min(.05,now-(last||now));last=now;
+    for(const o of all){const t=now+o.ph,j=now-o.joy<1.4;let y,x=0,rot,sx,sy,pulse=1+.07*Math.sin(t*2.6);
+      if(j){const p=((now-o.joy)*1.3)%1,h=Math.max(0,Math.sin(p*Math.PI));y=-h*18;rot=Math.sin(t*2.6)*5;sx=1-.04*h;sy=1+.05*h}
+      else{y=Math.sin(t*1.7)*5+Math.sin(t*3.3)*1.6;x=Math.sin(t*.9)*2;rot=Math.sin(t*1.1)*3;sx=1+.025*Math.sin(t*3.4);sy=2-sx}
+      o.hv+=((y-6-o.hy)*60-o.hv*9)*dt;o.hy+=o.hv*dt;o.rv+=((rot-o.hr)*60-o.rv*9)*dt;o.hr+=o.rv*dt;
+      o.bd.setAttribute('transform',`translate(${100+x} ${134+y}) rotate(${rot})`);o.sq.setAttribute('transform',`scale(${sx} ${sy})`);
+      o.hl.setAttribute('transform',`translate(${100+x} ${70+o.hy}) rotate(${o.hr})`);o.hs.setAttribute('transform',`scale(${1+(pulse-1)*.6})`);
+      const gap=9+(pulse-1)*70;o.ly.forEach((l,i)=>l.setAttribute('transform',`translate(0 ${(1-i)*gap})`));o.bm.setAttribute('opacity',.15+.4*Math.max(0,pulse-1)/.07);
+      const oa=t*1.2,tilt=-18+Math.sin(t*.5)*14;[o.oB,o.oF].forEach(g=>g.setAttribute('transform',`translate(${100+x} ${134+y}) rotate(${tilt})`));o.rg.forEach(r=>r.setAttribute('stroke-dashoffset',-t*36));
+      const cx=Math.cos(oa)*78,cy=Math.sin(oa)*24,f=Math.sin(oa)>0;o.sF.setAttribute('cx',cx);o.sF.setAttribute('cy',cy);o.sF.setAttribute('opacity',f?1:0);o.sB.setAttribute('cx',cx);o.sB.setAttribute('cy',cy);o.sB.setAttribute('opacity',f?0:.6);
+      o.sh.setAttribute('rx',44-Math.max(0,-y)*.6);
+      if(now>o.nx){o.tx=(Math.random()-.5)*10;o.ty=(Math.random()-.5)*6;o.nx=now+1.2+Math.random()*2.5}let gx=o.tx,gy=o.ty;
+      if(px!=null){const r=o.b.getBoundingClientRect(),dx=px-(r.left+r.width/2),dy=py-(r.top+r.height*.45),m=Math.hypot(dx,dy)||1,k=Math.min(1,m/120);gx=dx/m*6*k;gy=dy/m*4.5*k}
+      o.lx+=(gx-o.lx)*Math.min(1,dt*10);o.ly2+=(gy-o.ly2)*Math.min(1,dt*10);o.ey.setAttribute('transform',`translate(${o.lx} ${o.ly2})`);
+      if(now>o.nb){o.bl=now;o.nb=now+2+Math.random()*3.5}const bp=(now-o.bl)/.16;o.op.setAttribute('transform',`scale(1 ${bp<1?Math.max(.08,Math.abs(Math.cos(bp*Math.PI))):1})`);
+      o.op.style.display=j?'none':'';o.hp.style.display=j?'':'none'}
+    requestAnimationFrame(frame)}
+  function start(){build();if(run||matchMedia('(prefers-reduced-motion:reduce)').matches)return;run=true;last=0;requestAnimationFrame(frame)}
+  addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY},{passive:true});addEventListener('pointerdown',e=>{px=e.clientX;py=e.clientY},{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)start()});
+  // 靜態小圖示：同一顆球擺好姿勢，只用 CSS 上下飄
+  function mini(k){const a=AI.find(x=>x.k===k);if(!a)return '';let h=svg(a,'m'+(uid++));
+    h=h.replace('<g class="bd">','<g class="bd" transform="translate(100 134)">').replace(/<g class="o([BF])">/g,'<g class="o$1" transform="translate(100 134) rotate(-18)">')
+      .replace('<g class="hl">','<g class="hl" transform="translate(100 64)">').replace(/class="st" r/g,'class="st" cx="62" cy="15" r');
+    let i=0;h=h.replace(/<g class="ly">/g,()=>`<g class="ly" transform="translate(0 ${(1-i++)*9})">`);
+    return `<span class="aim" aria-hidden="true">${h}</span>`}
+  const tap=k=>{const a=AI.find(x=>x.k===k);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}say(a.n+' 還在準備中，即將推出')};
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(b){e.stopPropagation();tap(b.dataset.ai)}},true);
+  return {start,mini,tap,AI,LOCK}})();window.HexAI=HexAI;
+{const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault')}
 const VIEWS=['chart','sig','strat','news','notify','fund','set','db'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);const n=$('#nav_'+k);n&&n.classList.toggle('on',v===k||k==='set'&&(v==='notify'||v==='db'))});
   if(v==='strat'&&!pChart){initStrat();}
@@ -3484,7 +3568,7 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
     else txt='空手　這一年沒有交易';
     if(recent.length)txt+=`<br><span class="tbadge">24h 內</span> ${recent.slice(-3).map(m=>`${md(m.t)} ${m.text||(m.type==='entry'?'進場':m.type==='stop'?'停損':'出場')}`).join('、')}`;
     return {txt,hot:recent.length>0,my:!!my}}
-  function open(){const t1=E.lastClosed('BTC'),k=t1+JSON.stringify(window.SigLock?[SigLock.get(),SigLock.names()]:{});if(busy||k===key)return;busy=true;
+  function open(){syncSw();const t1=E.lastClosed('BTC'),k=t1+JSON.stringify(window.SigLock?[SigLock.get(),SigLock.names()]:{});if(busy||k===key)return;busy=true;
     $('#sigAsOf').textContent='資料到 '+md(t1-3600);const jobs=[];
     // 只列「我的策略」：每個照各自存的參數算（範例策略在「策略分析 › 策略」自己研究）
     const L=window.SigLock?SigLock.get():{};Object.keys(L).forEach(k=>{const[st,sym]=k.split('|');if(BEST[st]&&BEST[st][sym])jobs.push([st,sym,k])});
@@ -3496,12 +3580,17 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
       HXup(box(),`計算中 ${i}／${jobs.length}…`,i/jobs.length);setTimeout(step,0)};setTimeout(step,30)}
   function render(res){const M=res.mine||{},P=window.SigLock?SigLock.paused():{},mk=Object.keys(M).filter(k=>window.SigLock&&SigLock.get()[k]);
     if(!mk.length){box().innerHTML='<div class="card empty" style="line-height:1.8">「我的策略」還沒有策略。<br>到「策略分析 › 我的策略」新增，這裡就會列出每個策略現在持倉還是空手、最近 24 小時有沒有進出場。</div>';return}
-    const on_=(()=>{try{return !!(JSON.parse(localStorage.getItem('bnCats'))||{}).sig}catch(e){return false}})();
-    box().innerHTML=(on_?'':'<p class="mtip"><b>還沒開通知</b>：到「設定 › 通知」打開「策略信號」，下面開著通知的策略才會推播。</p>')+(mk.length?mk.map((k,n)=>{const x=M[k],sym=k.split('|')[1];
-      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">${n+1}</span><span class="nm">${(SigLock.name(k)||'').replace(/[&<>]/g,'')}</span><span class="small sgn">通知</span><button class="sw${P[k]?'':' on'}" type="button" data-n="${k.replace(/"/g,'')}" role="switch" aria-checked="${!P[k]}" aria-label="通知"></button></div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join(''):'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
+    const on_=sigOn();
+    box().innerHTML=(mk.length?mk.map((k,n)=>{const x=M[k],sym=k.split('|')[1];
+      return `<div class="card sgc mine${x&&x.hot?' hot':''}" data-k="${k.replace(/"/g,'')}"><div class="hd"><span class="no">${n+1}</span><span class="nm">${(SigLock.name(k)||'').replace(/[&<>]/g,'')}</span><span class="small sgn">通知</span><button class="sw${on_&&!P[k]?' on':''}" type="button" data-n="${k.replace(/"/g,'')}" role="switch" aria-checked="${on_&&!P[k]}" aria-label="通知"></button></div><div class="row" data-sym="${sym}"><span class="sym">${sym}</span><span class="st">${x?x.txt:''}</span><span class="ar">›</span></div></div>`}).join(''):'')+ORDER.filter(st=>res[st]).map((st,k)=>{const R=res[st],hot=Object.values(R).some(x=>x&&x.hot),no=[...$('#sStrat').options].findIndex(o=>o.value===st)+1;
     return `<div class="card sgc${hot?' hot':''}" data-st="${st}"><div class="hd"><span class="no">${ORDER.indexOf(st)+1}</span>${nm(st)}</div>${Object.entries(R).filter(([,x])=>x).map(([sym,x])=>`<div class="row" data-sym="${sym}"><span class="sym">${sym}${x.my?' 🔒':''}</span><span class="st">${x.txt}</span><span class="ar">›</span></div>`).join('')}</div>`}).join('')}
   // 點一列：跳到策略分析的那個策略、那個幣
-  document.addEventListener('click',e=>{const sw=e.target.closest('#sigBox .sw[data-n]');if(sw){e.stopPropagation();const k=sw.dataset.n,P=SigLock.paused(),on=!!P[k];SigLock.pause(k,!on);sw.classList.toggle('on',on);sw.setAttribute('aria-checked',on);return}
+  // 開關跟「設定 › 通知 › 策略信號」同步：打開任何一個策略時，策略信號沒開就順便打開；設定那邊關掉，這裡全部顯示關
+  const sigOn=()=>window.NotifyTab&&NotifyTab.sigOn?NotifyTab.sigOn():false;
+  function syncSw(){const P=window.SigLock?SigLock.paused():{},g=sigOn();document.querySelectorAll('#sigBox .sw[data-n]').forEach(b=>{const v=g&&!P[b.dataset.n];b.classList.toggle('on',v);b.setAttribute('aria-checked',v)})}
+  document.addEventListener('click',async e=>{const sw=e.target.closest('#sigBox .sw[data-n]');if(sw){e.stopPropagation();const k=sw.dataset.n,want=!sw.classList.contains('on');
+      if(want&&!sigOn()){const ok=await NotifyTab.setSig(true);if(!ok){syncSw();return}}
+      SigLock.pause(k,!want);syncSw();return}
     const c=e.target.closest('#sigBox .sgc');if(!c)return;if(c.dataset.k){window.__focusToday=Date.now()+4000;$('#nav_strat').click();window.MyStrat&&MyStrat.open(c.dataset.k);return}const row=e.target.closest('.row'),sym=(row||c.querySelector('.row')).dataset.sym;
     $('#nav_strat').click();const ss=$('#sSym');if(ss.value!==sym){ss.value=sym;ss.dispatchEvent(new Event('change'))}const b=$('#sList .scard[data-v="'+c.dataset.st+'"]');if(b)b.click()});
   return {open,one,nm,md,reset(){key=''}}})();
@@ -3735,7 +3824,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botSug':return suggest();
       case 'botLimGo':{const o={};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
       case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
-  function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';
+  function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';if(m==='ai')setTimeout(()=>HexAI.start(),0);
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
   return {open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
@@ -3992,7 +4081,8 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(ok)})).filter(x=>x.keys.length);
     if(openG&&!G.find(x=>x.g===openG))openG=null;
     if(openG)return renderGroup(G.find(x=>x.g===openG),L);
-    const top=`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
+    const AIP=`<div class="aipair">${['forge','echo'].map(k=>{const a=HexAI.AI.find(x=>x.k===k);return `<button class="aimc" type="button" data-ai="${k}" style="--c:${a.c}">${HexAI.mini(k)}<span style="min-width:0"><b>${a.n}</b><small>${k==='forge'?'幫你想策略':'回測、交叉比對'}</small><small class="ailk">${HexAI.LOCK}即將推出</small></span></button>`}).join('')}</div>`;
+    const top=(adding?'':AIP)+`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(!G.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     box().innerHTML=top+G.map(x=>{const k0=x.keys[0],[st,sym]=SigLock.part(k0);
       return `<div class="card mys mysg" data-g="${esc(x.g)}" role="button" tabindex="0"><div class="hd"><b>${esc(SigLock.gname(x.g))}<button class="ic" type="button" data-a="gren" aria-label="改名">${ICE}</button><button class="ic" type="button" data-a="gdel" aria-label="移除">${ICD}</button></b><span class="sym">${sym}</span></div>
@@ -4137,7 +4227,8 @@ const NotifyTab=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-
     if(!d)try{d=JSON.parse(localStorage.getItem('tglog')||'null')}catch(e){}
     return d}
   async function open(){render(await load(false))}
-  return {open,sync:pushLater}})();
+  // 訊號交易頁的開關直接用這裡：sigOn() 現在有沒有開、setSig(true) 打開（會問瀏覽器允許通知）
+  return {open,sync:pushLater,sigOn:()=>!!on.sig,setSig:async v=>{if(!!on.sig!==!!v)await toggle('sig');return !!on.sig}}})();
 window.NotifyTab=NotifyTab;
 {const pr=()=>{if(/^#pair=/.test(location.hash)){window.BotTab&&BotTab.fromHash();history.replaceState(null,'','#sig');return true}};addEventListener('hashchange',()=>{if(pr())show('sig')});pr();const h=location.hash.slice(1);show(h==='strategy'?'strat':VIEWS.includes(h)?h:'chart')}   // 一打開預設在查看價格
 })();
@@ -4578,12 +4669,8 @@ function renderSum(){const box=$('#sumBox');if(!box)return;const T=[];const pc=x
   if(fg){const v=+fg[0].value,k=FNG_ZH[fg[0].value_classification]||[fg[0].value_classification,fngCls(v)],y=fg[1]?+fg[1].value:null;T.push(`<div class="t" data-go="fng"><div class="k">恐懼貪婪 <span>›</span></div><div class="v fc${fngCls(v)}">${v} ${esc(k[0])}</div><div class="s">昨天 ${y==null?'—':y}</div></div>`)}
   const ev=evList()[0];if(ev){const ms=ev.t-Date.now(),d=Math.floor(ms/86400e3),h=Math.floor(ms%86400e3/3600e3),mi=Math.floor(ms%3600e3/60e3),left=ms<=0?'進行中':d?`${d} 天 ${h} 小時`:h?`${h} 小時 ${mi} 分`:`${mi} 分`;
     T.push(`<div class="t${ms<86400e3?' hot':''}" data-go="ev" data-i="${ev.i}"><div class="k">下一個事件 <span>›</span></div><div class="v">${left}</div><div class="s">${esc(ev.title)}</div></div>`)}
-  let sg=null;try{sg=JSON.parse(localStorage.getItem('sig')||'null')}catch(e){}
-  let cur='';try{cur=String(Engine.lastClosed('BTC'))}catch(e){}
-  if(sg&&sg.res&&sg.k!==cur)sg=null;   // 舊資料算的不顯示，等背景重算（開 App 後自動算，見 sigdone）
-  if(sg&&sg.res){let hold=0,hot=0;for(const st in sg.res)for(const sym in sg.res[st]){const x=sg.res[st][sym];if(!x)continue;if(/持倉中/.test(x.txt))hold++;if(x.hot)hot++}
-    T.push(`<div class="t${hot?' hot':''}" data-go="sig"><div class="k">策略訊號 <span>›</span></div><div class="v">${hot?hot+' 個新訊號':'沒有新訊號'}</div><div class="s">${hold} 個持倉中${hot?'・24 小時內有新進出場':''}</div></div>`)}
-  else T.push(`<div class="t" data-go="sig"><div class="k">策略訊號 <span>›</span></div><div class="v" style="font-size:14px"><span class="spin"></span> 計算中…</div><div class="s">正在算我的策略現在持倉或空手</div></div>`);
+  // 原本的「策略訊號」格換成 AI.Scout（還沒推出，點了只跳提示）
+  T.push(`<div class="t aitile" data-ai="scout" role="button" tabindex="0" style="--c:#d8b6ff">${window.HexAI?HexAI.mini('scout'):''}<div style="min-width:0"><div class="k">AI.Scout</div><div class="v">看市場的 AI</div><div class="s"><span class="ailk">${window.HexAI?HexAI.LOCK:''}即將推出</span></div></div></div>`);
   if(T.length%2)T[T.length-1]=T[T.length-1].replace('<div class="t','<div class="t w');
   box.innerHTML=T.join('')||'<div class="empty">—</div>';const n=new Date();$('#sumAt').textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')} 整理`}
 document.addEventListener('click',e=>{const t=e.target.closest('#sumBox .t');if(!t)return;const g=t.dataset.go;
