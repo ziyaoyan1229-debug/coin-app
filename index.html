@@ -608,6 +608,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .fdt{flex:1;min-width:0}.fdt small{color:var(--muted)}
 .fdplus{width:32px;height:32px;border-radius:50%;background:var(--accbg);color:var(--on-acc);display:grid;place-items:center;font-size:20px;font-weight:700;flex:none}
 .fdgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* 電腦版：資產總覽放寬、交易所方塊三欄（HexBOT 一樣） */@media (min-width:960px){#fundView>.wrap{max-width:1000px}.fdgrid,.bxg{grid-template-columns:repeat(3,1fr)}}
 .fdtile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:124px;gap:8px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
 .fdtile .tp{display:flex;align-items:center;gap:8px;min-width:0}.fdtile .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fdtile .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}.fdtile .d{font-size:12px}
@@ -645,6 +646,10 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .airoles button:focus-visible{outline:2px solid var(--acc)}
 #aiSolo{position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}#aiSolo>#aiChat{max-width:760px;margin:0 auto}#aiSolo .ailog{max-height:calc(100vh - 300px);max-height:calc(100dvh - 300px)}
 .bsheet .br{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}.bsheet .br b{text-align:right}
+.aihelp{margin-left:22px;animation:aiPop .45s cubic-bezier(.2,1.4,.4,1) both}.aihelp .aib{border:1px solid color-mix(in srgb,var(--c) 40%,var(--line))}.aiht{font-size:12.5px;color:var(--muted)}.aiht b{color:var(--c)}.aihq{font-size:13px;margin:4px 0;opacity:.85}
+@keyframes aiPop{0%{opacity:0;transform:translateY(10px) scale(.6)}100%{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.aihelp{animation:none}}
+.aihl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:0 0 -4px 38px}.aihl span{display:inline-flex;align-items:center;gap:2px;color:var(--c);font-weight:700}.aihl .aim{width:20px;height:23px}.aihl em{font-style:normal}
+.aich{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.aich button{all:unset;box-sizing:border-box;cursor:pointer;padding:10px 12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--c) 50%,var(--line));background:color-mix(in srgb,var(--c) 12%,var(--panel2));font-size:13.5px;font-weight:700;line-height:1.35;text-align:center;animation:aiPop .35s both}.aich button:active{transform:scale(.97)}.aich button:focus-visible{outline:2px solid var(--acc)}
 .aiprop{margin-top:8px;border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));background:color-mix(in srgb,var(--c) 10%,transparent);border-radius:10px;padding:8px 10px;font-size:13px;display:flex;flex-direction:column;gap:6px}.aiprop .bbtn{padding:7px 10px;font-size:13px}.aiok{font-size:13px;color:var(--up);padding:2px 4px}
 .aiback{all:unset;cursor:pointer;display:inline-block;color:var(--acc);font-size:14.5px;font-weight:700;padding:2px 2px 10px}.aiback:focus-visible{outline:2px solid var(--acc)}
 .aihd .aim{width:40px;height:46px}.aihd>div{display:flex;flex-direction:column;min-width:0}
@@ -4080,7 +4085,7 @@ const AiChat=(()=>{
   const ASK={bridge:['BTC 現在適合用哪個策略？','幫我整理今天的盤勢和我的持倉'],scout:['現在 BTC 盤勢怎麼樣？','最近有什麼重要事件？'],echo:['回測突破策略 BTC 一年','比較兩個策略在 ETH 的表現'],
     forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？'],guide:['HexBOT 要怎麼開始自動交易？','手機和電腦要怎麼同步？']};
   const TL={get_market_data:a=>'看 '+(a.symbol||'')+' 行情',get_news:()=>'讀市場分析和新聞',get_account_balance:()=>'看帳戶權益',get_position:()=>'看持倉和策略',get_risk_rules:()=>'看風控上限',
-    list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙',propose_risk_limits:()=>'提出新的風控上限',propose_strategy:a=>'提出新增策略 '+(a.strategy||'')+' '+(a.symbol||'')};
+    list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙',ask_user:()=>'問你問題',web_search:a=>'上網搜尋「'+(a.query||'')+'」',read_webpage:a=>'讀網頁 '+String(a.url||'').replace(/^https?:\/\/(www\.)?/,'').split('/')[0],propose_risk_limits:()=>'提出新的風控上限',propose_strategy:a=>'提出新增策略 '+(a.strategy||'')+' '+(a.symbol||'')};
   let inChat=false,solo=null,prop=null,okm='',role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
   const A=k=>window.HexAI&&HexAI.AI.find(x=>x.k===k)||{n:k,c:'#999',r:''},nm=k=>A(k).n;
   const box=()=>document.getElementById('aiChat'),api=(p,b)=>BotTab.api(p,b);
@@ -4112,6 +4117,11 @@ const AiChat=(()=>{
         else k=SigLock.create(q.strategy,q.symbol,q.name||q.stName,P);
         if(!k)return;window.SigTab&&SigTab.reset();okm=gsel?`已加到「${SigLock.gname(gsel)}」底下：${SigLock.setName(k)}`:`已新增到我的策略：${q.name||q.stName}`}}
     catch(e){okm='⚠ 沒有改成：'+e.message}render()}
+  // 處理中：主角的步驟；它請別的 AI 幫忙時，那隻 AI 會跳出一個自己的對話框，顯示它在做什麼
+  function pending(a){const tr=job.trace||[],dots='<div class="aity"><i></i><i></i><i></i></div>',asks=tr.filter(s=>s.tool==='ask_agent'&&s.args&&s.args.role&&ROLES.includes(s.args.role)),last=asks[asks.length-1];
+    const mine=tr.filter(s=>s.by===a.n);
+    return `<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${steps(mine)}${asks.length?'':dots}</div></div>`
+      +asks.map(s=>{const k=s.args.role,h=A(k),own=tr.filter(x=>x.by===h.n);return `<div class="aia aihelp" style="--c:${h.c}">${window.HexAI?HexAI.mini(k):''}<div class="aib"><div class="aiht"><b>${H_(h.n)}</b> 被 ${H_(s.by)} 請來幫忙</div>${s.args.question?`<div class="aihq">${H_(String(s.args.question).slice(0,120))}</div>`:''}${steps(own)}${s===last?dots:''}</div></div>`}).join('')}
   function chips(){return `<button type="button" class="aiback" data-back>‹ ${solo?'返回':'HexAI'}</button>`}
   function show(){const h=document.getElementById('aiHome'),c=box();if(h)h.hidden=inChat;if(c)c.hidden=!inChat;if(!inChat&&window.HexAI)setTimeout(()=>HexAI.start(),0)}
   function setup(){const D=!!window.hexDesktop,c=cfg||{};
@@ -4126,8 +4136,8 @@ const AiChat=(()=>{
   function render(){const b=box();if(!b)return;
     if(!window.BotTab||!BotTab.paired()){b.innerHTML=chips()+`<div class="card aiempty"><div class="bh">先連接電腦</div><p class="sub">HexAI 跑在你電腦上的 HexStack 電腦版（模型和你的資料都在那台電腦）。先到 HexBOT 連接電腦，就能在這裡問。</p><button type="button" class="bbtn pri" id="aiToBot">到 HexBOT 連接 ›</button></div>`;return}
     const ms=H[role]||[],a=A(role),pend=job&&job.role===role&&!job.done;
-    const log=ms.map((m,i)=>m.role==='user'?`<div class="aiu">${H_(m.content).replace(/\n/g,'<br>')}</div>`:`<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${md(m.content)}${(m.props||[]).map((p,j)=>`<div class="aiprop"><span>${H_(pdesc(p))}</span><button type="button" class="bbtn pri" data-prop="${i}.${j}">${p.kind==='lim'?'套用這組上限':'新增這個策略'} ›</button></div>`).join('')}</div></div>`).join('')+(okm?`<div class="aiok">${H_(okm)}</div>`:'')
-      +(pend?`<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${steps(job.trace)}<div class="aity"><i></i><i></i><i></i></div></div></div>`:'')
+    const log=ms.map((m,i)=>m.role==='user'?`<div class="aiu">${H_(m.content).replace(/\n/g,'<br>')}</div>`:`${(m.helpers||[]).length?`<div class="aihl">${m.helpers.map(k=>`<span style="--c:${A(k).c}">${window.HexAI?HexAI.mini(k):''}${H_(nm(k))}</span>`).join('')}<em>有幫忙</em></div>`:''}<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${md(m.content)}${(m.props||[]).map((p,j)=>`<div class="aiprop"><span>${H_(pdesc(p))}</span><button type="button" class="bbtn pri" data-prop="${i}.${j}">${p.kind==='lim'?'套用這組上限':'新增這個策略'} ›</button></div>`).join('')}${(m.choices||[]).length&&i===ms.length-1&&!pend?`<div class="aich">${m.choices.map(c=>`<button type="button" data-q="${H_(c)}">${H_(c)}</button>`).join('')}</div>`:''}</div></div>`).join('')+(okm?`<div class="aiok">${H_(okm)}</div>`:'')
+      +(pend?pending(a):'')
       +(err?`<div class="aierr">${H_(err)}${/連不到模型|模型/.test(err)?'<br><button type="button" class="lk" data-open-set>打開模型設定 ›</button>':''}</div>`:'');
     const st=document.activeElement&&document.activeElement.id==='aiIn'?document.activeElement.selectionStart:null;
     b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd">${window.HexAI?HexAI.mini(role):''}<div><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div></div>

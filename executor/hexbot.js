@@ -1050,7 +1050,7 @@ const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 // 一個資料來源只歸一個專家：行情、新聞只有 Scout 抓；回測只有 Echo 跑；Bridge 只派工、整合。out＝被別的 AI 呼叫時固定的回覆欄位
 const AI_ROLES = {
   bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（自己不抓資料），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）', tools: ['ask_agent'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
-  scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件', tools: ['get_market_data', 'get_news'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
+  scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件。App 裡沒有的消息就用 web_search 上網查、用 read_webpage 讀內文，回答時附上來源網站和日期', tools: ['get_market_data', 'get_news', 'web_search', 'read_webpage'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
   echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌。使用者想把某組參數存起來時，用 propose_strategy 提出（App 會跳確認框，使用者按確認才會新增）', tools: ['list_strategies', 'run_backtest', 'propose_strategy'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
   forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說。使用者想採用某個方案時，用 propose_strategy 提出新增到「我的策略」（新策略，或某個策略底下的新參數組；App 會跳確認框，使用者按確認才會新增，不要說已經加好）', tools: ['ask_agent', 'list_strategies', 'propose_strategy'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
   vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」。使用者想調整風險控管、或討論出新的上限時，用 propose_risk_limits 提出新值：App 會跳確認框，使用者按確認才會改（不要說已經改好）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules', 'propose_risk_limits'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
@@ -1073,14 +1073,17 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 安全：交易所金鑰只存在使用者自己的電腦上，建金鑰時只開「交易」權限，絕對不要開「提幣」，建議用子帳戶。真金下單一律由使用者自己操作。
 - 常見問題：手機看不到新版 → 設定 › 更新到最新版；HexBOT 顯示離線 → 確認電腦上的 HexStack 有開著、電腦沒睡眠；電腦版會自動更新。`;
 const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、先講結論。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。結尾不用加免責聲明。';
-const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
+const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}${depth ? '' : '\n跟使用者互動：需要使用者決定或補資料時，用 ask_user 給 2～4 個選項讓他點（不要只用文字問）。' + (AI_ROLES[r].tools.some(t => /^propose_/.test(t)) ? '回答完如果有自然的下一步（存成策略、調整上限），主動用 propose_ 工具提出，App 會跳確認框問使用者；' : '') + '新增策略、改設定一定要經過確認框，不能說已經改好。'}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
 const AI_TOOLS = {
   ask_agent: { d: '請另一個 AI 處理子問題，回傳它的答案', p: { role: { type: 'string', enum: ['scout', 'echo', 'forge', 'vault', 'helm'] }, question: { type: 'string' } }, req: ['role', 'question'] },
   get_market_data: { d: '某個幣的 1 小時 K 線行情摘要：現價、24h/7d/30d 漲跌、區間高低、近期收盤', p: { symbol: { type: 'string', description: '例如 BTC、ETH' }, hours: { type: 'integer', description: '要看的小時數，預設 72，最多 720' } }, req: ['symbol'] },
+  web_search: { d: '用使用者電腦的網路上網搜尋（DuckDuckGo），回傳標題、網址、摘要', p: { query: { type: 'string', description: '搜尋關鍵字，英文通常結果比較多' }, limit: { type: 'integer', description: '幾筆，預設 6，最多 10' } }, req: ['query'] },
+  read_webpage: { d: '讀一個網頁的文字內容（web_search 找到的網址）', p: { url: { type: 'string' } }, req: ['url'] },
   get_news: { d: 'HexStack 市場分析頁的最新盤勢摘要、行事曆和新聞標題', p: { limit: { type: 'integer', description: '新聞則數，預設 5' } } },
   get_account_balance: { d: '帳戶權益：模擬盤各交易所、實盤，和資產總覽的總資產', p: {} },
   get_position: { d: '目前所有持倉和執行中的策略', p: {} },
   get_risk_rules: { d: '目前的風控上限（單筆部位、槓桿、日虧損、最大回撤）和是否觸發停機', p: {} },
+  ask_user: { d: '問使用者一個問題，給 2～4 個選項讓他點（他也可以自己打字）。呼叫後這一輪就結束，等使用者回答', p: { question: { type: 'string' }, options: { type: 'array', items: { type: 'string' }, description: '2～4 個簡短選項，每個 20 字內' } }, req: ['question', 'options'] },
   propose_strategy: { d: '提出新增到使用者的「我的策略」：新策略，或加在既有策略底下的一組參數。不會直接生效：App 會跳確認框給使用者，按確認才新增', p: { strategy: { type: 'string', description: 'list_strategies 給的代號' }, symbol: { type: 'string', description: '例如 BTC' }, params: { type: 'object', description: '跟預設不同的參數，沒給就用預設' }, name: { type: 'string', description: '策略名字（新策略用）或參數組名字，簡短' }, group: { type: 'string', description: '要加在哪個既有策略底下（使用者說的策略名字）；新策略就不給' }, reason: { type: 'string', description: '一句話：為什麼建議這組（附回測報酬、回撤）' } }, req: ['strategy', 'symbol'] },
   propose_risk_limits: { d: '提出新的風險控管上限（只給要改的欄位）。不會直接生效：App 會跳確認框給使用者，按確認才改', p: { maxPosPct: { type: 'number', description: '單一策略最大倉位，% 帳戶，1～1000' }, maxLev: { type: 'number', description: '最大槓桿（倍），0.1～20' }, dayLossPct: { type: 'number', description: '每日最大虧損 %，到了全部暫停，0.1～100' }, maxDDPct: { type: 'number', description: '總回撤上限 %，到了全部平倉，0.1～100' }, reason: { type: 'string', description: '一句話說明為什麼這樣改' } } },
   list_strategies: { d: 'App 內建的策略清單（代號、名稱）；給 strategy 代號時改回傳那個策略在指定幣種的預設參數', p: { strategy: { type: 'string', description: '要看預設參數的策略代號，不給就只列清單' }, symbol: { type: 'string', description: '預設 BTC' } } },
@@ -1088,6 +1091,27 @@ const AI_TOOLS = {
 };
 const symOk = s => { s = String(s || 'BTC').toUpperCase().replace(/USDT$/, ''); if (!MK[s]) throw new Error('沒有 ' + s + ' 的資料，可用：' + Object.keys(MK).join('、')); return s; };
 let NEWS_C = { at: 0, d: null };
+// 上網：用使用者自己電腦的網路，不用金鑰。只讀公開網頁，擋掉本機和區網位址
+const UA = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36', 'accept-language': 'zh-TW,zh;q=0.9,en;q=0.8' };
+const deH = t => String(t || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#x27;|&#39;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+function pubUrl(u) { let x; try { x = new URL(String(u || '')); } catch (e) { throw new Error('網址不對'); } if (!/^https?:$/.test(x.protocol)) throw new Error('只能讀 http/https 網頁'); const h = x.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (h === 'localhost' || h.endsWith('.local') || h.endsWith('.internal') || /^(127\.|10\.|192\.168\.|169\.254\.|0\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h) || h === '::1' || /^f[cd]|^fe80/.test(h) || /^\d+$/.test(h)) throw new Error('不能讀本機或區網的網址'); return x.href; }
+async function webSearch(q, n) {
+  const one = async u => { const r = await fetchT(u, { headers: UA }, 15000), h = await r.text(), out = [];
+    let m; for (const ch of h.split('class="result__a"').slice(1)) { if (out.length >= n) break; m = ch.match(/href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/); if (!m) continue; m[3] = (ch.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/) || [])[1]; let url = m[1].replace(/&amp;/g, '&'); const g = url.match(/[?&]uddg=([^&]+)/); if (g) url = decodeURIComponent(g[1]); if (url.startsWith('//')) url = 'https:' + url; if (/duckduckgo\.com\/y\.js/.test(url)) continue; out.push({ title: deH(m[2]), url, snippet: deH(m[3]).slice(0, 240) }); }
+    if (!out.length) { const re2 = /<a[^>]+href="([^"]+)"[^>]*class=['"]result-link['"][^>]*>([\s\S]*?)<\/a>[\s\S]*?<td class=['"]result-snippet['"]>([\s\S]*?)<\/td>/g; while ((m = re2.exec(h)) && out.length < n) { let url = m[1].replace(/&amp;/g, '&'); const g = url.match(/[?&]uddg=([^&]+)/); if (g) url = decodeURIComponent(g[1]); if (url.startsWith('//')) url = 'https:' + url; out.push({ title: deH(m[2]), url, snippet: deH(m[3]).slice(0, 240) }); } }
+    return out; };
+  let r = await one('https://html.duckduckgo.com/html/?q=' + encodeURIComponent(q)).catch(() => []);
+  if (!r.length) r = await one('https://lite.duckduckgo.com/lite/?q=' + encodeURIComponent(q)).catch(() => []);
+  if (!r.length) throw new Error('搜尋沒有結果（可能是網路或搜尋網站暫時擋住），換個關鍵字再試');
+  return r;
+}
+async function readPage(u) { const url = pubUrl(u), r = await fetchT(url, { headers: UA, redirect: 'follow' }, 20000); if (!r.ok) throw new Error('HTTP ' + r.status); pubUrl(r.url || url);
+  const ct = r.headers.get('content-type') || ''; if (!/text|html|json|xml/.test(ct)) throw new Error('不是網頁（' + ct + '）');
+  let h = (await r.text()).slice(0, 1500000); const title = deH((h.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]).slice(0, 160);
+  h = h.replace(/<(script|style|noscript|svg|nav|footer|header|form|iframe)[\s\S]*?<\/\1>/gi, ' ').replace(/<\/(p|div|li|h[1-6]|tr|br|article|section)>/gi, '\n');
+  const text = h.split('\n').map(deH).filter(l => l.length > 30).join('\n');
+  return { url: r.url || url, title, text: text.slice(0, 2000), truncated: text.length > 2000 }; }
 async function aiTool(name, a, depth, trace, from) {
   a = a && typeof a === 'object' ? a : {};
   if (name === 'ask_agent') { if (depth >= AI_DEPTH || !((AI_ROLES[from] || {}).calls || []).includes(a.role)) throw new Error('不能轉給 ' + (a.role || '') + '，請自己用工具處理'); return { role: a.role, answer: (await aiRun(a.role, [{ role: 'user', content: String(a.question || '').slice(0, 2000) }], depth + 1, trace)).text }; }
@@ -1097,6 +1121,8 @@ async function aiTool(name, a, depth, trace, from) {
     const closes = []; for (let i = n - h; i < n; i += Math.max(st, Math.ceil(h / 24))) closes.push(+fpx(m.C[i]).replace(/,/g, ''));
     return { symbol: s, price: px(s) || c, lastBarTaipei: tpeHM(mEnd(s) - H1), chg24h: r2((c / at(24) - 1) * 100), chg7d: r2((c / at(168) - 1) * 100), chg30d: r2((c / at(720) - 1) * 100), [`high${h}h`]: hi, [`low${h}h`]: lo, closesEvery: Math.max(st, Math.ceil(h / 24)) + 'h', closes };
   }
+  if (name === 'web_search') return { query: String(a.query || ''), results: await webSearch(String(a.query || '').slice(0, 200), Math.max(1, Math.min(10, +a.limit || 6))) };
+  if (name === 'read_webpage') return await readPage(a.url);
   if (name === 'get_news') {
     if (!NEWS_C.d || nowS() - NEWS_C.at > 600) { NEWS_C = { at: nowS(), d: await getJ(SITE + 'news.json?t=' + nowS(), {}, 20000) }; }
     const d = NEWS_C.d, m = d.market || {};
@@ -1146,14 +1172,15 @@ async function aiRun(role, hist, depth = 0, trace = []) {
   const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role, depth) }, ...hist];
   let nag = role === 'helm' && depth < AI_DEPTH;   // Helm 給下單草案前一定要問過 Vault
   for (let i = 0; i < 8; i++) {
-    const T = R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
+    const T = [...R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), ...(depth ? [] : ['ask_user'])], m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
     if (!calls.length && nag && i < 6 && /做多|做空|開倉|下單|槓桿|停損|草案/.test(m.content || '') && !trace.some(x => x.by === R.name && x.tool === 'ask_agent' && x.args && x.args.role === 'vault')) { nag = false; msgs.push({ role: 'assistant', content: m.content || '' }, { role: 'user', content: '（系統）給下單草案前一定要先用 ask_agent 請 vault 審核，把 Vault 的結論附在草案裡。' }); continue; }
     if (!calls.length) return { text: String(m.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim() || '（模型沒有回答內容）', trace };
     msgs.push({ role: 'assistant', content: m.content || '', tool_calls: calls });
     for (const tc of calls) {
       const fn = tc.function || {}, nm = fn.name; let args = fn.arguments; try { args = typeof args === 'string' ? JSON.parse(args || '{}') : args || {}; } catch (e) { args = {}; }
+      if (nm === 'ask_user' && !depth) { const q = String(args.question || '').slice(0, 300), o = (Array.isArray(args.options) ? args.options : []).map(x => String(x).slice(0, 40)).filter(Boolean).slice(0, 4); trace.push({ by: R.name, tool: nm, args: { question: q }, ok: true }); return { text: [String(m.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim(), q].filter(Boolean).join('\n\n') || q, choices: o, trace }; }
       const step = { by: R.name, tool: nm, args, ok: true }; trace.push(step);
-      let out; try { if (!R.tools.includes(nm)) throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace, role); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
+      let out; try { if (!R.tools.includes(nm) || nm === 'ask_user') throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace, role); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
       if (/^propose_/.test(nm) && step.ok) step.res = { kind: nm === 'propose_strategy' ? 'strat' : 'lim', by: R.name, proposed: out.proposed, reason: out.reason };
       msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out) });
     }
@@ -1169,7 +1196,7 @@ async function aiStart(role, text) {
   const h = AIH[role] || (AIH[role] = []), id = rnd(6), job = AIJ[id] = { id, role, done: false, trace: [], text: '', error: '', t: nowS() };
   h.push({ role: 'user', content: text, t: nowS() });
   aiRun(role, h.slice(-10).map(x => ({ role: x.role, content: String(x.content).slice(0, 1500) })), 0, job.trace)
-    .then(r => { job.text = r.text; const lp = job.trace.filter(x => x.res).map(x => x.res).slice(-3); if (lp.length) job.props = lp; h.push(Object.assign({ role: 'assistant', content: r.text, t: nowS(), steps: job.trace.length }, lp.length ? { props: lp } : {})); })
+    .then(r => { job.text = r.text; const lp = job.trace.filter(x => x.res).map(x => x.res).slice(-3); if (lp.length) job.props = lp; const hp = [...new Set(job.trace.filter(x => x.tool === 'ask_agent' && x.ok && x.args && x.args.role).map(x => x.args.role))]; if (r.choices && r.choices.length) job.choices = r.choices; h.push(Object.assign({ role: 'assistant', content: r.text, t: nowS(), steps: job.trace.length }, lp.length ? { props: lp } : {}, hp.length ? { helpers: hp } : {}, r.choices && r.choices.length ? { choices: r.choices } : {})); })
     .catch(e => { job.error = e.message; h.pop(); })
     .finally(() => { job.done = true; if (h.length > 40) h.splice(0, h.length - 40); try { writeJ(F_AI, AIH); } catch (e) {} for (const k in AIJ) if (nowS() - AIJ[k].t > 3600) delete AIJ[k]; });
   return { id };
