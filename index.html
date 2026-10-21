@@ -681,8 +681,12 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aimc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:8px 10px;min-width:0;-webkit-tap-highlight-color:transparent}
 .aimc:active{opacity:.8}.aimc:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aimc .aim{width:42px;height:48px}
 .aimc b{display:block;font-size:14.5px;color:var(--c)}.aimc small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
-@media (max-width:959px){.aibots{grid-template-columns:1fr 1fr}.aibot:last-child:nth-child(odd){grid-column:1/-1}.aibot:last-child:nth-child(odd) svg{max-width:150px}}
-@media (min-width:960px){.aibots{grid-template-columns:repeat(6,1fr)}}
+/* 總管 Bridge：最上面橫的一長條 */
+.aibot.wide{grid-column:1/-1;flex-direction:row;align-items:center;text-align:left;gap:12px;padding:8px 16px 8px 8px}.aibot.wide svg{width:118px;max-width:118px;flex:none}
+.aibot.wide .aw{display:flex;flex-direction:column;gap:3px;min-width:0}.aibot.wide .an{font-size:18px;display:flex;align-items:baseline;gap:6px}.aibot.wide .an small{font-size:11.5px;font-weight:700;color:var(--c);border:1px solid var(--c);border-radius:999px;padding:0 7px}
+.aibot.wide .ago{margin-top:4px;font-size:14px;font-weight:800;color:var(--c)}
+@media (max-width:959px){.aibots{grid-template-columns:1fr 1fr}.aibot.wide~.aibot:last-child:nth-child(even){grid-column:1/-1}.aibot.wide~.aibot:last-child:nth-child(even) svg{max-width:150px}}
+@media (min-width:960px){.aibots{grid-template-columns:repeat(5,1fr)}.aibot.wide svg{width:150px;max-width:150px}}
 .aigrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.aic{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}.aic .ain{font-size:18px;font-weight:800}.aic .ait{font-size:13px;color:var(--muted)}.aic .sub{margin:4px 0 0;font-size:12.5px;line-height:1.5}.aic .pill{margin:0}.tmode button small{font-size:10px;margin-left:3px}
 #setView>.wrap{max-width:640px;margin:0 auto;width:100%}
 .tset{width:100%}.tset button{flex:1;height:40px}
@@ -2377,8 +2381,8 @@ const HexAI=(()=>{
 ${ring('F')}
 <g class="hl"><g class="hs"><ellipse class="bm" cy="24" rx="40" ry="6" fill="${a.c}" opacity=".3" filter="url(#b${id})"/>${L.map(c=>`<g class="ly"><polygon points="${hexf(54)}" fill="${c}" fill-opacity=".28" stroke="${c}" stroke-width="3.4" stroke-linejoin="round" filter="url(#b${id})"/></g>`).join('')}</g></g></svg>`}
   function build(){const box=document.getElementById('aiBots');if(!box||box.childElementCount)return;
-    AI.forEach(a=>{const id='hx'+(uid++),b=document.createElement('button');b.type='button';b.className='aibot';b.style.setProperty('--c',a.c);
-      b.innerHTML=svg(a,id)+`<div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
+    AI.forEach(a=>{const id='hx'+(uid++),b=document.createElement('button');b.type='button';b.className='aibot'+(a.k==='bridge'?' wide':'');b.style.setProperty('--c',a.c);
+      b.innerHTML=a.k==='bridge'?svg(a,id)+`<div class="aw"><div class="an">${a.n}<small>總管</small></div><div class="ar">${a.r.replace(/^總管：/,'')}。不知道該問誰，就問它。</div><span class="ago">點擊開始對話 ›</span></div>`:svg(a,id)+`<div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
       const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:q('.hl'),hs:q('.hs'),ly:[...b.querySelectorAll('.ly')],oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
         hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:0};
       b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}if(window.AiChat)AiChat.pick(a.k);else say(a.n+' 還在準備中')};all.push(o)})}
