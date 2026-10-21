@@ -207,6 +207,20 @@ async function aiRoute(p, req, env) {
   const hd = { 'content-type': 'application/json; charset=utf-8' }, ra = r.headers.get('retry-after'); if (ra) hd['retry-after'] = ra;
   return new Response(await r.text(), { status: r.status, headers: hd });
 }
+// 確認紀錄（同意條款、AI 提案確認、HexBOT 開關）：存 D1 audit 表，一筆一列，便宜又查得到。登入了記帳號，沒登入記裝置編號；每台每天最多 500 筆
+let AUOK = false;
+async function auditRoute(req, env) {
+  if (!env.DB) return json({ error: '紀錄服務還沒開通' }, 503);
+  if (!AUOK) { await env.DB.exec('CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER NOT NULL, u TEXT, d TEXT NOT NULL, k TEXT NOT NULL, x TEXT, ct INTEGER)'); await env.DB.exec('CREATE INDEX IF NOT EXISTS audit_d ON audit (d, t)'); AUOK = true; }
+  const b = await req.json().catch(() => ({})), me = await sUser(req, env), now = Date.now();
+  const d = String(b.d || ''), items = (Array.isArray(b.items) ? b.items : []).slice(0, 50);
+  if (!/^[0-9a-z]{8,40}$/.test(d) || !items.length) return json({ error: 'bad request' }, 400);
+  const n = (await env.DB.prepare('SELECT COUNT(*) AS n FROM audit WHERE d = ? AND t > ?').bind(d, now - 864e5).first()).n;
+  if (n + items.length > 500) return json({ error: 'too many' }, 429);
+  const ok = items.filter(x => x && typeof x.k === 'string' && /^[\w.:-]{1,40}$/.test(x.k)).map(x => env.DB.prepare('INSERT INTO audit (t, u, d, k, x, ct) VALUES (?, ?, ?, ?, ?, ?)').bind(now, me ? me.u : null, d, x.k, JSON.stringify(x.x == null ? null : x.x).slice(0, 2000), Math.min(now, Math.max(0, +x.t || now))));
+  if (ok.length) await env.DB.batch(ok);
+  return json({ ok: true, n: ok.length });
+}
 async function syncRoute(p, req, env, u) {
   if (!env.DB) return json({ error: '同步服務還沒開通' }, 503);
   if (!DBOK) { await env.DB.exec('CREATE TABLE IF NOT EXISTS sync (u TEXT NOT NULL, k TEXT NOT NULL, v TEXT, t INTEGER NOT NULL, PRIMARY KEY (u, k))'); DBOK = true; }
@@ -244,6 +258,7 @@ export default {
       if (p === '/x' && (req.method === 'GET' || req.method === 'POST')) return xproxy(req, u);
       if (p === '/auth/google' || p.startsWith('/sync')) return await syncRoute(p, req, env, u);
       if (p.startsWith('/ai/')) return await aiRoute(p, req, env);
+      if (p === '/audit' && req.method === 'POST') return await auditRoute(req, env);
       if (p === '/vapid') return json({ key: (await vapid(env)).pub });
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;
