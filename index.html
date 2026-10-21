@@ -3796,8 +3796,12 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       return act('/api/run',{led:a.led,key:a.k,on:a.on,strat:{st:y.st,sym:y.sym,p:y.p,name:y.name+'・'+y.set}},a.on?'已開始執行':'已停止')}}
   function badge(x){if(off(x))return `<span class="pill p-mu">已暫停</span>`;if(isLive(x)&&S&&S.paperOnly)return `<span class="pill p-wn">模擬盤</span>`;if(isLive(x))return `<span class="pill p-ok">實盤</span>`;
     if(x.mode==='testnet')return `<span class="pill p-ok">測試網</span>`;const d=x.trialDays||7,el=x.trialStart?Math.floor((Date.now()/1000-sec(x.trialStart))/86400):0;return `<span class="pill p-wn">試跑 ${Math.min(el,d)}／${d} 天</span>`}
+  // 連到的執行器還是舊版（狀態裡沒有 sims）：電腦版叫主程式馬上去抓新執行器，手機提示到電腦上重開
+  let xAsk=0;function oldEx(){const D=window.hexDesktop,L=!!(D&&D.checkExec);
+    if(L&&!xAsk){xAsk=1;D.checkExec().catch(()=>{})}
+    return `<div class="warnbox">執行器還是舊版，新的 HexBOT 畫面要等它更新。${L?'正在自動更新，約半分鐘後會換上。':window.hexDesktop?'請在系統匣的 HexStack 圖示按右鍵「結束」，再重新打開 HexStack（會提示更新電腦版就按更新）。':'請到電腦上把 HexStack 完全結束（系統匣圖示右鍵「結束」）再打開，執行器就會換成新版。'}</div>`}
   function ov(){if(isNew()){setTimeout(syncAsk,0);return bv&&bv!=='+'?detail():home()}const s=S,st=s.strategies||[],ps=s.positions||[],liveN=s.paperOnly?0:st.filter(isLive).length,eq=+s.equity||0,base=+s.startEquity||0;
-    return `<div class="bcols"><div>`+(s.halted?`<div class="warnbox">已觸發安全上限：${H_(s.halted.reason)}，全部策略暫停。<button class="lk" id="botResume" type="button" style="color:var(--acc);background:none;border:0;font:inherit;padding:0;cursor:pointer">確認後恢復 ›</button></div>`:'')
+    return `<div class="bcols"><div>`+oldEx()+(s.halted?`<div class="warnbox">已觸發安全上限：${H_(s.halted.reason)}，全部策略暫停。<button class="lk" id="botResume" type="button" style="color:var(--acc);background:none;border:0;font:inherit;padding:0;cursor:pointer">確認後恢復 ›</button></div>`:'')
     +`<div class="card"><div class="bh"><span>帳戶權益<span class="pill ${liveN?'p-ok':'p-wn'}">${liveN?`實盤 ${liveN} 個策略`:'模擬盤'}</span></span><span>今日 <b class="${cl(s.dayPct)}">${pc(s.dayPct,2)}</b></span></div>
       <div class="big">$${fm(eq)} <span style="font-size:15px" class="${cl(eq-base)}">${sg(eq-base)}</span></div>
       <div class="sub">起始 $${fm(base,0)}・最大回撤 ${pc(-Math.abs(s.mdd||0),1).replace('−','')}${s.startT?'・啟動 '+md(s.startT).split(' ')[0]:''}・${H_(s.exchange||'')}${s.testnet?' 測試網':''}</div></div>
