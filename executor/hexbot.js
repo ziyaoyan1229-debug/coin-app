@@ -138,7 +138,7 @@ function loadEngine(f) {
   buildMaster();
 }
 const COST = () => ENG.ctx.Engine.COST;
-const slipOf = (sym, stop) => { const c = COST(); return (stop ? c.stopSlip : c.slip) * (sym === 'BTC' || sym === 'ETH' ? 1 : 2.5); };
+const slipOf = (sym, stop) => { const c = COST(); sym = String(sym).split('.')[0]; return (stop ? c.stopSlip : c.slip) * (sym === 'BTC' || sym === 'ETH' ? 1 : 2.5); };
 
 // ───────── K 線：內建資料 + 之後抓的 1h K（主檔 MK），每次算策略時切一段給引擎 ─────────
 const MK = {}, IG = {}, K5 = {};
@@ -254,7 +254,15 @@ async function refreshIgn(sym) {
 
 // ───────── 價格 ─────────
 const PX = {};
-const px = s => PX[s] && PX[s].px || (MK[s] ? MK[s].C[MK[s].n - 1] : 0);
+// 交易所層級的部位代號：BTC＝永續合約、BTC.S＝現貨、BTC.M＝槓桿（全倉借貸）
+const MKT = { fut: '', spot: '.S', mrg: '.M' }, MKT_NAME = { fut: '永續合約', spot: '現貨', mrg: '槓桿' };
+const mktOf = g => MKT[g && g.mkt] != null ? g.mkt : 'fut';
+const xk = g => g.sym + MKT[mktOf(g)];
+const baseOf = k => String(k).split('.')[0];
+const mktK = k => /\.S$/.test(k) ? 'spot' : /\.M$/.test(k) ? 'mrg' : 'fut';
+const MRG_LEV = 3;     // 槓桿（借貸）帳戶的最大倍數：各家全倉槓桿最保守的上限
+const SPOT_FEE = 0.001;
+const px = s => { s = baseOf(s); return PX[s] && PX[s].px || (MK[s] ? MK[s].C[MK[s].n - 1] : 0); };
 let ghPx = { at: 0, v: {} };
 async function refreshPrices(syms) {
   for (const s of syms) {
@@ -284,7 +292,7 @@ class PaperExchange {
     const cur = this.s.pos[sym] || { q: 0, avg: 0 }; let q = qty;
     if (reduceOnly) q = sgn(cur.q) === -side ? Math.min(q, Math.abs(cur.q)) : 0;
     if (!(q > 0)) return { qty: 0, px: p0, fee: 0 };
-    const fill = p0 * (1 + side * slipOf(sym, kind === 'stop') * this.slipMul), fee = q * fill * COST().fee;
+    const fill = p0 * (1 + side * slipOf(sym, kind === 'stop') * this.slipMul), fee = q * fill * feeOf(sym);
     const nq = cur.q + side * q;
     if (cur.q && sgn(cur.q) !== side) { const red = Math.min(q, Math.abs(cur.q)); this.s.cash += sgn(cur.q) * red * (fill - cur.avg); if (Math.abs(nq) > 1e-12 && sgn(nq) === side) cur.avg = fill; }
     else cur.avg = cur.q ? (cur.avg * Math.abs(cur.q) + fill * q) / (Math.abs(cur.q) + q) : fill;
@@ -301,14 +309,23 @@ class PaperExchange {
       const s = sgn(p.q), [hi, lo] = hiLo && hiLo[sym] || [px(sym), px(sym)], adv = s > 0 ? lo : hi, fav = s > 0 ? hi : lo;
       const hitS = sl.stop && (s > 0 ? adv <= sl.stop : adv >= sl.stop), hitT = !hitS && sl.tp && (s > 0 ? fav >= sl.tp : fav <= sl.tp);
       if (!hitS && !hitT) continue;
-      const lvl = hitS ? sl.stop : sl.tp, fill = lvl * (1 - s * (hitS ? slipOf(sym, true) : 0)), q = Math.abs(p.q), fee = q * fill * COST().fee;
+      const lvl = hitS ? sl.stop : sl.tp, fill = lvl * (1 - s * (hitS ? slipOf(sym, true) : 0)), q = Math.abs(p.q), fee = q * fill * feeOf(sym);
       this.s.cash += s * q * (fill - p.avg) - fee; this.s.fees += fee; delete this.s.pos[sym]; delete this.s.sl[sym];
       this.s.ev.push({ t: nowS(), sym, kind: hitS ? 'stop' : 'tp', px: fill, qty: q, fee });
       if (this.s.ev.length > 50) this.s.ev.splice(0, 10);
     }
   }
   async stopFills(sym, since) { return this.s.ev.filter(e => e.sym === sym && e.t >= since); }
+  // 槓桿帳戶的借款利息（每小時扣一次）：做空借的是幣、做多超過權益的部分借 USDT
+  interest(h) {
+    let lg = 0, out = 0;
+    for (const [k, p] of Object.entries(this.s.pos)) if (mktK(k) === 'mrg' && p.q) { const n = Math.abs(p.q) * px(k); if (p.q < 0) out += n; else lg += n; }
+    out += Math.max(0, lg - Math.max(0, this.s.cash)); if (!(out > 0)) return 0;
+    const fee = out * MRG_RATE * h; this.s.cash -= fee; this.s.fees += fee; return fee;
+  }
 }
+const MRG_RATE = 0.1 / 8760;    // 模擬盤借款年利率約 10%
+const feeOf = k => mktK(k) === 'fut' ? COST().fee : SPOT_FEE;
 
 // Bybit v5（USDT 永續，單向持倉）。照官方 v5 文件寫的，**還沒有在真的帳戶上測過**（liveTested:false）。
 // 簽名：HMAC-SHA256(timestamp + apiKey + recvWindow + (GET 的 query 字串 | POST 的 JSON body))
@@ -387,7 +404,7 @@ class BybitExchange {
 }
 
 // ── 其他交易所實盤（USDT 永續、單向持倉、全倉），介面跟 BybitExchange 一樣。照 2026-10 官方文件寫的，**還沒有在真的帳戶上測過**，請先用模擬交易／測試網 ──
-const dec = x => (String(x).split('.')[1] || '').length;
+const dec = x => { const t = String(x), m = t.match(/e-(\d+)$/); return m ? +m[1] + (t.split('e')[0].split('.')[1] || '').length : (t.split('.')[1] || '').length; };   // 1e-8 這種科學記號也要算對
 const floorTo = (q, step) => +(Math.floor(q / step + 1e-9) * step).toFixed(dec(step));
 const tickTo = (v, tick) => (Math.round(v / tick) * tick).toFixed(dec(tick));
 const cid = () => 'hx' + Date.now().toString(36) + rnd(3);
@@ -401,10 +418,10 @@ const finalErr = m => Object.assign(new Error(m), { final: true });
 // 停損停利：2025-12 起舊的 STOP_MARKET 下單介面不收（-4120），改用 Algo 條件單 /fapi/v1/algoOrder（closePosition＝整個部位）
 class BinanceExchange {
   constructor(c) { this.key = c.apiKey; this.sec = c.apiSecret; this.base = c.testnet ? 'https://demo-fapi.binance.com' : 'https://fapi.binance.com'; this.off = 0; this.inst = null; this.levOk = {}; this.name = 'binance'; this.maxLev = c.limits.maxLev; this.ready = false; }
-  async req(method, p, params = {}, signed = true) {
+  async req(method, p, params = {}, signed = true, base = this.base) {
     const q = new URLSearchParams(); for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== '') q.set(k, String(v));
     if (signed) { q.set('timestamp', String(Date.now() + this.off)); q.set('recvWindow', '5000'); q.set('signature', hmac(this.sec, q.toString())); }
-    const qs = q.toString(), r = await fetchT(this.base + p + (qs ? '?' + qs : ''), { method, headers: signed ? { 'X-MBX-APIKEY': this.key } : {} }, 15000);
+    const qs = q.toString(), r = await fetchT(base + p + (qs ? '?' + qs : ''), { method, headers: signed ? { 'X-MBX-APIKEY': this.key } : {} }, 15000);
     const j = await r.json().catch(() => ({ code: -1, msg: 'HTTP ' + r.status }));
     if (!r.ok || j && typeof j.code === 'number' && j.code < 0) { const e = new Error(`幣安 ${j.code} ${j.msg || 'HTTP ' + r.status}`); e.code = j.code; throw e; }
     return j;
@@ -612,6 +629,120 @@ class BitgetExchange {
         out.push({ t: Math.floor(+(x.uTime || a.uTime || Date.now()) / 1000), kind: /profit/.test(a.planType) ? 'tp' : 'stop', px: +x.priceAvg, qty: +x.baseVolume, fee: Math.abs(+x.fee || 0) }); } catch (e) {} }
     return out;
   }
+}
+// ───────── 現貨（BTC.S）、槓桿（BTC.M，全倉借貸、自動借還）─────────
+// 部位代號帶 .S／.M 的呼叫轉給 SPOT[交易所]；部位＝帳戶裡這個幣的淨數量（槓桿＝持有−借款−利息，負的是放空）
+// 停損停利沒有掛在交易所，由執行器每分鐘檢查。照官方文件寫的，**還沒有在真的帳戶上測過**
+const liveMk = () => { const o = { spot: new Set(), mrg: new Set() }; for (const g of S.strategies) if (g.led === 'live' && mktOf(g) !== 'fut' && (g.enabled || g.pos)) o[mktOf(g)].add(g.sym); return o; };
+const SLIP_IOC = 0.005;   // 沒辦法用幣的數量下市價買單的交易所，改掛 ±0.5% 的立即成交限價單（IOC）
+const feeUsd = (fee, coin, b, p) => Math.abs(+fee || 0) * (coin && coin !== 'USDT' && coin === b ? p : 1);
+const SPOT = {
+  bybit: {
+    async price(M, b) { return +(await this.req('GET', '/v5/market/tickers', { category: 'spot', symbol: b + 'USDT' }, false)).list[0].lastPrice; },
+    async inst(M, b) { const x = (await this.req('GET', '/v5/market/instruments-info', { category: 'spot', symbol: b + 'USDT' }, false)).list[0]; if (!x) throw new Error('Bybit 沒有現貨 ' + b + 'USDT');
+      if (M === 'mrg' && x.marginTrading && !/both|utaOnly/.test(x.marginTrading)) throw finalErr('Bybit 的 ' + b + ' 不能槓桿交易');
+      const l = x.lotSizeFilter || {}, step = +l.basePrecision; return { step, min: Math.max(step, +l.minOrderQty || 0), minNot: +l.minOrderAmt || 5, tick: +(x.priceFilter || {}).tickSize || 0.01 }; },
+    async pos(M, b) { const r = await this.req('GET', '/v5/account/wallet-balance', { accountType: 'UNIFIED', coin: b }), c = ((r.list && r.list[0] || {}).coin || []).find(x => x.coin === b); if (!c) return 0;
+      return +c.walletBalance - (+c.spotBorrow || 0) - (M === 'mrg' ? +c.accruedInterest || 0 : 0); },
+    async setup(M) { if (M !== 'mrg') return;
+      try { await this.req('POST', '/v5/spot-margin-trade/switch-mode', { spotMarginMode: '1' }); } catch (e) { throw finalErr('Bybit 現貨槓桿還沒開通（要先在 Bybit App 完成槓桿問答）：' + e.message); }
+      try { await this.req('POST', '/v5/spot-margin-trade/set-leverage', { leverage: String(MRG_LEV) }); } catch (e) { console.log('Bybit 設槓桿倍數：', e.message); }
+      try { await this.req('POST', '/v5/spot-margin-trade/set-auto-repay-mode', { autoRepayMode: '1' }); } catch (e) { console.log('Bybit 自動還款：', e.message); } },
+    async order(M, b, side, q, p) {
+      const o = await this.req('POST', '/v5/order/create', { category: 'spot', symbol: b + 'USDT', side: side > 0 ? 'Buy' : 'Sell', orderType: 'Market', qty: String(q), marketUnit: 'baseCoin', isLeverage: M === 'mrg' ? 1 : 0, orderLinkId: cid() });
+      return waitFill(async () => { for (const ep of ['/v5/order/realtime', '/v5/order/history']) { const x = ((await this.req('GET', ep, { category: 'spot', orderId: o.orderId })).list || [])[0];
+        if (x && /Filled|Cancel|Reject/.test(x.orderStatus) && x.orderStatus !== 'PartiallyFilled') { if (!(+x.cumExecQty > 0)) throw finalErr('Bybit 下單沒成交：' + (x.rejectReason || x.orderStatus));
+          const fd = x.cumFeeDetail || {}, fee = Object.entries(fd).reduce((a, [c, v]) => a + feeUsd(v, c, b, +x.avgPrice), 0); return { qty: +x.cumExecQty, px: +x.avgPrice, fee }; } } return null; }, 'Bybit', o.orderId); },
+    async eq() { return 0; }   // 統一帳戶的總權益本來就含現貨、借款
+  },
+  binance: {
+    sb() { return this.base.includes('demo') ? 'https://demo-api.binance.com' : 'https://api.binance.com'; },
+    async price(M, b) { return +(await this.req('GET', '/api/v3/ticker/price', { symbol: b + 'USDT' }, false, SPOT.binance.sb.call(this))).price; },
+    async inst(M, b) { const x = ((await this.req('GET', '/api/v3/exchangeInfo', { symbol: b + 'USDT' }, false, SPOT.binance.sb.call(this))).symbols || [])[0]; if (!x) throw new Error('幣安沒有現貨 ' + b + 'USDT');
+      const F = t => (x.filters || []).find(f => f.filterType === t) || {}, ls = F('LOT_SIZE'), ms = F('MARKET_LOT_SIZE'), step = +ms.stepSize > 0 ? +ms.stepSize : +ls.stepSize;
+      return { step, min: Math.max(+ls.minQty || 0, +ms.minQty || 0, step), minNot: +(F('NOTIONAL').minNotional || F('MIN_NOTIONAL').minNotional) || 5, tick: +F('PRICE_FILTER').tickSize || 0.01 }; },
+    async pos(M, b) { if (M === 'mrg') { const a = ((await this.req('GET', '/sapi/v1/margin/account', {}, true, SPOT.binance.sb.call(this))).userAssets || []).find(x => x.asset === b); return a ? +a.netAsset : 0; }
+      const a = ((await this.req('GET', '/api/v3/account', { omitZeroBalances: 'true' }, true, SPOT.binance.sb.call(this))).balances || []).find(x => x.asset === b); return a ? +a.free + +a.locked : 0; },
+    async setup(M) { if (M === 'mrg' && this.base.includes('demo')) throw finalErr('幣安模擬交易沒有槓桿（借貸）帳戶，槓桿只能在正式網用'); },
+    async order(M, b, side, q) {
+      const P = { symbol: b + 'USDT', side: side > 0 ? 'BUY' : 'SELL', type: 'MARKET', quantity: String(q), newClientOrderId: cid(), newOrderRespType: 'FULL' };
+      if (M === 'mrg') Object.assign(P, { isIsolated: 'FALSE', sideEffectType: 'AUTO_BORROW_REPAY' });
+      const x = await this.req('POST', M === 'mrg' ? '/sapi/v1/margin/order' : '/api/v3/order', P, true, SPOT.binance.sb.call(this)), n = +x.executedQty;
+      if (!(n > 0)) throw finalErr('幣安下單沒成交：' + x.status);
+      const avg = +x.cummulativeQuoteQty / n; return { qty: n, px: avg, fee: (x.fills || []).reduce((a, f) => a + (f.commissionAsset === 'BNB' ? 0 : feeUsd(f.commission, f.commissionAsset, b, avg)), 0) }; },
+    async eq(U) { let e = 0, sb = SPOT.binance.sb.call(this);
+      if (U.spot.size) for (const x of (await this.req('GET', '/api/v3/account', { omitZeroBalances: 'true' }, true, sb)).balances || []) { const n = +x.free + +x.locked; if (x.asset === 'USDT') e += n; else if (U.spot.has(x.asset)) e += n * (px(x.asset) || await SPOT.binance.price.call(this, 'spot', x.asset)); }
+      if (U.mrg.size) { const a = await this.req('GET', '/sapi/v1/margin/account', {}, true, sb); e += +a.totalNetAssetOfBtc * (px('BTC') || await SPOT.binance.price.call(this, 'mrg', 'BTC')); }
+      return e; }
+  },
+  okx: {
+    async price(M, b) { return +(await this.req('GET', '/api/v5/market/ticker', { instId: b + '-USDT' }, false))[0].last; },
+    async inst(M, b) { const x = (await this.req('GET', '/api/v5/public/instruments', { instType: 'SPOT', instId: b + '-USDT' }, false))[0]; if (!x) throw new Error('OKX 沒有現貨 ' + b + '-USDT');
+      return { step: +x.lotSz, min: Math.max(+x.minSz, +x.lotSz), minNot: 1, tick: +x.tickSz }; },
+    async pos(M, b) { const d = (((await this.req('GET', '/api/v5/account/balance', { ccy: b }))[0] || {}).details || []).find(x => x.ccy === b); return d ? +(d.eq !== '' ? d.eq : d.cashBal) : 0; },
+    async setup(M) { if (M !== 'mrg') return; const c = (await this.req('GET', '/api/v5/account/config'))[0] || {};
+      if (!['3', '4'].includes(String(c.acctLv))) throw finalErr('OKX 槓桿要先把帳戶模式改成「跨幣種保證金」或「組合保證金」（OKX App › 交易設定 › 帳戶模式）');
+      try { await this.req('POST', '/api/v5/account/set-auto-loan', { autoLoan: true }); } catch (e) { console.log('OKX 自動借幣：', e.message); } },
+    async order(M, b, side, q, p, I) {
+      const B = { instId: b + '-USDT', side: side > 0 ? 'buy' : 'sell', sz: String(q), clOrdId: cid() };
+      if (M === 'spot') Object.assign(B, { tdMode: 'cash', ordType: 'market', tgtCcy: 'base_ccy', banAmend: true });
+      else { const t = (await this.req('GET', '/api/v5/market/ticker', { instId: b + '-USDT' }, false))[0], ref = side > 0 ? +t.askPx || +t.last : +t.bidPx || +t.last; Object.assign(B, { tdMode: 'cross', ordType: 'ioc', px: tickTo(ref * (1 + side * SLIP_IOC), I.tick) }); }
+      const o = (await this.req('POST', '/api/v5/trade/order', B))[0];
+      return waitFill(async () => { const x = (await this.req('GET', '/api/v5/trade/order', { instId: b + '-USDT', ordId: o.ordId }))[0];
+        if (!x || !/filled|canceled|mmp_canceled/.test(x.state) || x.state === 'partially_filled') return null; if (!(+x.accFillSz > 0)) throw finalErr('OKX 下單沒成交：' + x.state);
+        return { qty: +x.accFillSz, px: +x.avgPx, fee: feeUsd(x.fee, x.feeCcy, b, +x.avgPx) }; }, 'OKX', o.ordId); },
+    async eq(U) { const cs = [...new Set([...U.spot, ...U.mrg])]; if (!cs.length) return 0; let e = 0;
+      for (const d of ((await this.req('GET', '/api/v5/account/balance', { ccy: cs.join(',') }))[0] || {}).details || []) if (cs.includes(d.ccy)) e += +(d.eqUsd || 0) || +d.eq * (px(d.ccy) || 0);
+      return e; }
+  },
+  bitget: {
+    async tk(b) { return (await this.req('GET', '/api/v2/spot/market/tickers', { symbol: b + 'USDT' }, false))[0]; },
+    async price(M, b) { return +(await SPOT.bitget.tk.call(this, b)).lastPr; },
+    async inst(M, b) { const x = (await this.req('GET', '/api/v2/spot/public/symbols', { symbol: b + 'USDT' }, false) || [])[0]; if (!x) throw new Error('Bitget 沒有現貨 ' + b + 'USDT');
+      const step = +Math.pow(10, -(+x.quantityPrecision || 0)).toFixed(+x.quantityPrecision || 0); return { step, min: step, minNot: +x.minTradeUSDT || 1, tick: +Math.pow(10, -(+x.pricePrecision || 0)).toFixed(+x.pricePrecision || 0) }; },
+    async pos(M, b) { if (M === 'mrg') { const a = (await this.req('GET', '/api/v2/margin/crossed/account/assets', { coin: b }) || []).find(x => x.coin === b); return a ? +a.net : 0; }
+      const a = (await this.req('GET', '/api/v2/spot/account/assets', { coin: b }) || []).find(x => String(x.coin).toUpperCase() === b); return a ? +a.available + +(a.frozen || 0) + +(a.locked || 0) : 0; },
+    async setup() {},
+    async order(M, b, side, q, p, I) {
+      const t = await SPOT.bitget.tk.call(this, b), ref = side > 0 ? +t.askPr || +t.lastPr : +t.bidPr || +t.lastPr, lim = tickTo(ref * (1 + side * SLIP_IOC), I.tick), id = cid(), t0 = Date.now() - 60000;
+      // 市價買單只能填 USDT 金額，所以買賣都用 ±0.5% 的 IOC 限價單，數量照幣算
+      if (M === 'spot') { const o = await this.req('POST', '/api/v2/spot/trade/place-order', { symbol: b + 'USDT', side: side > 0 ? 'buy' : 'sell', orderType: 'limit', force: 'ioc', price: lim, size: String(q), clientOid: id });
+        return waitFill(async () => { const x = (await this.req('GET', '/api/v2/spot/trade/orderInfo', { orderId: o.orderId }) || [])[0];
+          if (!x || !/filled|cancelled/.test(x.status) || x.status === 'partially_filled') return null; if (!(+x.baseVolume > 0)) throw finalErr('Bitget 下單沒成交：' + x.status);
+          let fee = 0; try { const f = JSON.parse(x.feeDetail || '{}'); fee = f.newFees ? feeUsd(f.newFees.t, side > 0 ? b : 'USDT', b, +x.priceAvg) : Object.entries(f).reduce((a, [c, v]) => a + feeUsd(v && v.totalFee, c, b, +x.priceAvg), 0); } catch (e) {}
+          return { qty: +x.baseVolume, px: +x.priceAvg, fee: fee || +x.baseVolume * +x.priceAvg * SPOT_FEE }; }, 'Bitget', o.orderId); }
+      const o = await this.req('POST', '/api/v2/margin/crossed/place-order', { symbol: b + 'USDT', side: side > 0 ? 'buy' : 'sell', orderType: 'limit', force: 'ioc', loanType: 'autoLoanAndRepay', price: lim, baseSize: String(q), clientOid: id });
+      return waitFill(async () => { const x = ((await this.req('GET', '/api/v2/margin/crossed/history-orders', { symbol: b + 'USDT', startTime: String(t0), orderId: o.orderId }) || {}).orderList || [])[0];
+        if (!x || !/filled|cancelled/.test(x.status) || x.status === 'partially_filled') return null; if (!(+x.size > 0)) throw finalErr('Bitget 下單沒成交：' + x.status);
+        return { qty: +x.size, px: +x.priceAvg, fee: +x.size * +x.priceAvg * SPOT_FEE }; }, 'Bitget', o.orderId); },
+    async eq(U) { let e = 0;
+      if (U.spot.size) for (const a of await this.req('GET', '/api/v2/spot/account/assets', {}) || []) { const c = String(a.coin).toUpperCase(), n = +a.available + +(a.frozen || 0) + +(a.locked || 0); if (c === 'USDT') e += n; else if (U.spot.has(c)) e += n * (px(c) || 0); }
+      if (U.mrg.size) for (const a of await this.req('GET', '/api/v2/margin/crossed/account/assets', {}) || []) { const c = String(a.coin).toUpperCase(); if (c === 'USDT') e += +a.net; else e += +a.net * (px(c) || 0); }
+      return e; }
+  }
+};
+// 把 SPOT 接到四家交易所的類別上：.S／.M 的部位走現貨、槓桿，其他照舊（永續合約）
+for (const [k, Cls] of Object.entries({ bybit: BybitExchange, binance: BinanceExchange, okx: OkxExchange, bitget: BitgetExchange })) {
+  const X = SPOT[k], P = Cls.prototype, o = {}; for (const m of ['price', 'instrument', 'round', 'minQty', 'position', 'marketOrder', 'setStop', 'stopFills', 'getEquity', 'getPositions']) o[m] = P[m];
+  P.spotOk = true;
+  P.sInst = async function (M, b) { const c = this.sinst || (this.sinst = {}), key = M + b; return c[key] || (c[key] = await X.inst.call(this, M, b)); };
+  P.price = function (sym, ...a) { const M = mktK(sym); return M === 'fut' ? o.price.call(this, sym, ...a) : X.price.call(this, M, baseOf(sym)); };
+  P.instrument = async function (sym) { const M = mktK(sym); return M === 'fut' ? o.instrument.call(this, sym) : this.sInst(M, baseOf(sym)); };
+  P.round = async function (sym, q) { const M = mktK(sym); return M === 'fut' ? o.round.call(this, sym, q) : floorTo(q, (await this.sInst(M, baseOf(sym))).step); };
+  P.minQty = async function (sym) { const M = mktK(sym); if (M === 'fut') return o.minQty.call(this, sym); const i = await this.sInst(M, baseOf(sym)), p = px(sym) || await this.price(sym); return Math.max(i.min, i.minNot * 1.05 / p); };
+  P.position = async function (sym) { const M = mktK(sym); if (M === 'fut') return o.position.call(this, sym); await this.init(); const i = await this.sInst(M, baseOf(sym)), n = await X.pos.call(this, M, baseOf(sym)), p = px(sym) || 1; return Math.abs(n) < Math.max(i.step / 2, i.minNot * 0.5 / p) ? 0 : n; };   // 賣不掉的零頭（不到最小金額一半）當 0
+  P.marketOrder = async function (sym, side, qty, reduceOnly) { const M = mktK(sym); if (M === 'fut') return o.marketOrder.call(this, sym, side, qty, reduceOnly);
+    await this.init(); const b = baseOf(sym), I = await this.sInst(M, b);
+    if (!(this.sset || (this.sset = {}))[M]) { await X.setup.call(this, M); this.sset[M] = 1; }
+    if (reduceOnly || M === 'spot' && side < 0) { const h = await X.pos.call(this, M, b); qty = sgn(h) === -side ? Math.min(qty, Math.abs(h)) : M === 'spot' ? 0 : qty; if (M === 'mrg' && side > 0 && reduceOnly && qty >= Math.abs(h) - 1e-12) qty = Math.abs(h) * (1 + SPOT_FEE * 1.2); }   // 現貨賣不能超過手上的幣；槓桿回補空單多買一點抵手續費（手續費扣幣），免得留下欠款零頭
+    const q = floorTo(qty, I.step), p = px(sym) || await this.price(sym); if (!(q > 0) || q * p < I.minNot) return { qty: 0, px: 0, fee: 0 };
+    return X.order.call(this, M, b, side, q, p, I); };
+  P.setStop = async function (sym, ...a) { return mktK(sym) === 'fut' ? o.setStop.call(this, sym, ...a) : undefined; };
+  P.stopFills = async function (sym, since) { return mktK(sym) === 'fut' ? o.stopFills.call(this, sym, since) : []; };
+  P.getEquity = async function () { const e = await o.getEquity.call(this), U = liveMk(); return U.spot.size || U.mrg.size ? e + await X.eq.call(this, U) : e; };
+  P.getPositions = async function () { const out = await o.getPositions.call(this), U = liveMk();
+    for (const M of ['spot', 'mrg']) for (const b of U[M]) { const key = b + MKT[M]; try { const n = await this.position(key); if (n) { const g = S.strategies.find(g => g.led === 'live' && xk(g) === key && g.pos), mark = px(b); out.push({ sym: key, side: sgn(n), qty: Math.abs(n), entry: g ? g.pos.entry : mark, stop: g ? g.pos.stop || 0 : 0, tp: g ? g.pos.tp || 0 : 0, mark, upnl: g ? n * (mark - g.pos.entry) : 0 }); } } catch (e) {} }
+    return out; };
 }
 const LIVE_EX = { bybit: BybitExchange, binance: BinanceExchange, okx: OkxExchange, bitget: BitgetExchange };
 const LIVE_NAME = { bybit: 'Bybit', binance: '幣安', okx: 'OKX', bitget: 'Bitget' };
@@ -851,13 +982,17 @@ const liveAllowed = () => liveReady() && (C.testnet || C.allowLive === true);   
 
 // ───────── 策略 ─────────
 const posQ = g => g.pos ? g.pos.side * g.pos.qty : 0;
-const activeSyms = () => [...new Set([...S.strategies.filter(g => g.enabled).map(g => g.sym), ...Object.keys(S.paper.pos), ...Object.values(S.sims).flatMap(x => Object.keys(x.pos))])];
+const activeSyms = () => [...new Set([...S.strategies.filter(g => g.enabled).map(g => g.sym), ...Object.keys(S.paper.pos), ...Object.values(S.sims).flatMap(x => Object.keys(x.pos))].map(baseOf))];
 function cleanP(p) {
   const q = {};
   for (const [a, v] of Object.entries(p && typeof p === 'object' ? p : {}).slice(0, 100)) if (/^\w{1,20}$/.test(a) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || typeof v === 'string' && (v.length <= 40 || a === 'rules' && v.length <= 3000))) q[a] = v;
   delete q.capital; return q;
 }
-function fullP(g) { const B = ENG.BEST[g.st] || {}; return Object.assign({}, B[g.sym] || B.BTC || {}, g.p, { capital: 1000 }); }
+function fullP(g) { const B = ENG.BEST[g.st] || {}, o = Object.assign({}, B[g.sym] || B.BTC || {}, g.p, { capital: 1000 }); const M = mktOf(g); if (M === 'fut') return o;
+  // 現貨：只做多、1 倍、沒有資金費率；槓桿：最多 MRG_LEV 倍、沒有資金費率（改付借款利息）
+  if ('funding' in o) o.funding = false; if (M === 'spot' && 'dir' in o) o.dir = 'long';
+  const cap = M === 'spot' ? 1 : MRG_LEV; for (const k of ['lev', 'maxLev', 'rollLev']) if (+o[k] > cap) o[k] = cap;
+  return o; }
 // 跑一次策略回測，回傳期末部位：side、ratio（名目÷策略權益，帶正負）、停損、停利、造成這個部位的訊號
 function runSim(st, sym, t0, t1, p) { let fin = null; ENG.ctx.__FIN = x => { fin = x; }; try { return { r: ENG.simulate(st, sym, t0, t1, p), fin }; } finally { ENG.ctx.__FIN = null; } }
 function target(g, T) {
@@ -910,10 +1045,13 @@ function book(g, dq, fillPx, fee, ref, kind, text) {
 // 對交易所下單，讓「策略帳本合計＋手動部位」＝ 實際部位；deltas：[{g, dq, kind, text, ref}]
 async function execute(L, sym, deltas) {
   const X = LED[L], A = acct(L); if (!X) return false;
-  const actual = await X.position(sym);
+  const actual = await X.position(sym), before = deltas.map(d => posQ(d.g));
   if (!(await guard(L, sym, actual))) return false;
-  const want = S.strategies.filter(g => ledOf(g) === L && g.sym === sym).reduce((a, g) => a + posQ(g), 0) + deltas.reduce((a, d) => a + d.dq, 0) + (A.offset[sym] || 0);
+  deltas = deltas.filter((d, i) => Math.abs(posQ(d.g) - before[i]) < 1e-12);   // 對帳時交易所停損剛好觸發、帳本已經記掉了，這筆就不要再記一次
+  let want = S.strategies.filter(g => ledOf(g) === L && xk(g) === sym).reduce((a, g) => a + posQ(g), 0) + deltas.reduce((a, d) => a + d.dq, 0) + (A.offset[sym] || 0);
+  const M = mktK(sym); if (M === 'spot') want = Math.max(0, want);   // 現貨不能放空
   let diff = want - actual, fills = [], err = null;
+  if (M !== 'fut' && want && sgn(want) === sgn(actual) && Math.abs(diff) < 0.005 * Math.abs(want)) diff = 0;   // 現貨手續費從幣裡扣，差 0.5% 內不補單
   try {
     const mq = await X.minQty(sym);
     if (Math.abs(diff) >= mq * 0.999) {
@@ -929,7 +1067,7 @@ async function execute(L, sym, deltas) {
 }
 // 交易所層級的保護停損：同一個幣的策略都同方向時，取最遠的停損；只有一個策略時連停利一起設
 async function protect(L, sym) {
-  const X = LED[L], A = acct(L), gs = S.strategies.filter(g => ledOf(g) === L && g.sym === sym && g.pos);
+  const X = LED[L], A = acct(L), gs = S.strategies.filter(g => ledOf(g) === L && xk(g) === sym && g.pos);
   let stop = 0, tp = 0;
   if (gs.length && gs.every(g => g.pos.side === gs[0].pos.side) && !(A.offset[sym])) {
     const s = gs[0].pos.side, ss = gs.map(g => g.pos.stop || 0);
@@ -941,9 +1079,9 @@ async function protect(L, sym) {
 }
 // 對帳：實際部位跟上次設定不一樣，而且不是自己的停損單觸發 → 有人手動操作，暫停這個幣的策略，不跟使用者對打
 async function guard(L, sym, actual) {
-  const X = LED[L], A = acct(L), gs = S.strategies.filter(g => ledOf(g) === L && g.sym === sym);
+  const X = LED[L], A = acct(L), gs = S.strategies.filter(g => ledOf(g) === L && xk(g) === sym);
   if (!(sym in A.lastSet)) { A.lastSet[sym] = actual; const ours = gs.reduce((a, g) => a + posQ(g), 0); A.offset[sym] = actual - ours; if (Math.abs(actual - ours) > 1e-9) log('info', { sym, led: L, text: `交易所原本就有 ${fmt(actual - ours, 6)} 的部位，當成手動部位不去動它` }); dirty(); return true; }
-  const last = A.lastSet[sym], tol = Math.max(1e-9, Math.abs(last) * 1e-6, L === 'live' ? (await X.instrument(sym).catch(() => ({ step: 0 }))).step / 2 : 0);
+  const last = A.lastSet[sym], tol = Math.max(1e-9, Math.abs(last) * (mktK(sym) === 'fut' ? 1e-6 : 2e-3), L === 'live' ? (await X.instrument(sym).catch(() => ({ step: 0 }))).step / 2 : 0);
   if (Math.abs(actual - last) <= tol) return true;
   // 自己設的停損／停利單觸發？
   let ev = []; try { ev = await X.stopFills(sym, (A.setAt[sym] || 0) - 5); } catch (e) {}
@@ -964,7 +1102,7 @@ async function guard(L, sym, actual) {
 // 手動暫停後恢復：手動改過的部分當成使用者的部位（offset），這個幣的策略帳本歸零（照當時價格結算），之後遇到新訊號再進場
 async function adopt(L, sym) {
   const X = LED[L], A = acct(L), actual = await X.position(sym), p = await X.price(sym);
-  for (const g of S.strategies.filter(g => ledOf(g) === L && g.sym === sym && g.pos)) { const q = posQ(g); g.pos.qty = Math.abs(q); book(g, -q, p, 0, p, 'close', '手動接手，帳本歸零（不動交易所）'); }
+  for (const g of S.strategies.filter(g => ledOf(g) === L && xk(g) === sym && g.pos)) { const q = posQ(g); g.pos.qty = Math.abs(q); book(g, -q, p, 0, p, 'close', '手動接手，帳本歸零（不動交易所）'); }
   A.offset[sym] = actual; A.lastSet[sym] = actual; A.setAt[sym] = nowS(); A.stops[sym] = ''; if (A.manual) delete A.manual[sym]; dirty();
 }
 
@@ -972,6 +1110,12 @@ async function adopt(L, sym) {
 async function hourTick(T) {
   if (!ENG.ok) return;
   setViews(T);
+  // 模擬盤的槓桿（借貸）利息：每小時扣一次，按名目分攤到有槓桿部位的策略
+  for (const L of LEDS()) if (isPaperL(L)) {
+    const X = LED[L], h = X.s.intT ? Math.min(24, (T - X.s.intT) / H1) : 0; X.s.intT = T; if (!(h > 0)) continue;
+    const fee = X.interest(h), gm = S.strategies.filter(g => ledOf(g) === L && g.pos && mktOf(g) === 'mrg'), tot = gm.reduce((a, g) => a + g.pos.qty, 0) && gm.reduce((a, g) => a + g.pos.qty * px(g.sym), 0);
+    if (fee > 0 && tot > 0) for (const g of gm) { const f_ = fee * g.pos.qty * px(g.sym) / tot; g.real = (g.real || 0) - f_; g.feeSum = (g.feeSum || 0) + f_; g.pos.pnl -= f_; }
+  }
   const gs = S.strategies.filter(g => g.enabled && (g.lastBar || 0) < T);
   if (!gs.length) return;
   const eqs = {}; for (const L of LEDS()) try { eqs[L] = await LED[L].getEquity(); } catch (e) { log('error', { led: L, text: '讀權益失敗：' + e.message }); }
@@ -980,10 +1124,13 @@ async function hourTick(T) {
     const L = ledOf(g), eq = eqs[L]; if (!(eq > 0)) continue;
     if (g.state === 'paused' && g.pauseKind === 'manual' || blocked(g)) { g.lastBar = T; continue; }
     let tg; try { tg = target(g, T); } catch (e) { lg('error', g, { text: '回測計算失敗：' + e.message }); continue; }
-    const P = await LED[L].price(g.sym) || tg.c; if (!P) continue;
+    const M = mktOf(g);
+    if (M === 'spot' && tg.side < 0) tg = Object.assign({}, tg, { side: 0, ratio: 0, stop: 0, tp: 0, sigT: 0, sigText: '', lastMark: tg.lastMark && tg.lastMark.type === 'entry' ? null : tg.lastMark });   // 現貨只做多：空單訊號當空手
+    const P = await LED[L].price(xk(g)) || tg.c; if (!P) continue;
     const held = posQ(g), lim = C.limits, inc = g.state !== 'paused' && !acct(L).halt;
     let wAbs = Math.abs(tg.ratio) * g.alloc * eq / P;
     wAbs = Math.min(wAbs, lim.maxPosPct / 100 * eq / P);                         // 單一策略名目 ≤ 權益 × maxPosPct%
+    if (M !== 'fut') wAbs = Math.min(wAbs, g.alloc * eq / P * (M === 'spot' ? 1 : MRG_LEV));   // 現貨 1 倍、槓桿最多 MRG_LEV 倍
     g.tg = { side: tg.side, ratio: r2(tg.ratio, 3), stop: tg.stop, tp: tg.tp, sigT: tg.sigT, sigPx: tg.sigPx, at: T };
     const newMark = tg.lastMark && tg.lastMark.t > (g.lastBar || 0) - H1 && tg.lastMark.t > (g.markT || 0);
     let want = held, kind = '', text = '';
@@ -1025,7 +1172,7 @@ async function hourTick(T) {
   }
   // 依幣別一次下單
   const by = {};
-  for (const x of plans) { x.g.lastBar = T; if (Math.abs(x.want - x.held) > 1e-12 * Math.max(1, Math.abs(x.held))) (by[x.L + '|' + x.g.sym] || (by[x.L + '|' + x.g.sym] = [])).push(x); else if (x.g.pos && x.tg.side === x.g.pos.side) { x.g.pos.stop = x.tg.stop; x.g.pos.tp = x.tg.tp; } }
+  for (const x of plans) { x.g.lastBar = T; if (Math.abs(x.want - x.held) > 1e-12 * Math.max(1, Math.abs(x.held))) (by[x.L + '|' + xk(x.g)] || (by[x.L + '|' + xk(x.g)] = [])).push(x); else if (x.g.pos && x.tg.side === x.g.pos.side) { x.g.pos.stop = x.tg.stop; x.g.pos.tp = x.tg.tp; } }
   for (const [k, xs] of Object.entries(by)) {
     const [L, sym] = k.split('|');
     const ds = xs.map(x => ({ g: x.g, dq: x.want - x.held, kind: x.kind || (Math.abs(x.want) > Math.abs(x.held) ? 'open' : 'close'), text: x.text, ref: x.ref }));
@@ -1033,7 +1180,7 @@ async function hourTick(T) {
     if (ok) for (const x of xs) if (x.g.pos) { x.g.pos.stop = x.tg.stop; x.g.pos.tp = x.tg.tp; }
     if (ok) await protect(L, sym);
   }
-  for (const L of LEDS()) for (const sym of new Set(S.strategies.filter(g => ledOf(g) === L && g.pos).map(g => g.sym))) await protect(L, sym);
+  for (const L of LEDS()) for (const sym of new Set(S.strategies.filter(g => ledOf(g) === L && g.pos).map(xk))) await protect(L, sym);
   // 策略權益曲線
   for (const g of S.strategies.filter(g => g.enabled)) { const e = stratEq(g); (g.curve || (g.curve = [])).push([T, r2(e)]); thin(g.curve); }
   S.lastBar = Math.max(S.lastBar, T); S.lastTickAt = nowS(); dirty();
@@ -1046,14 +1193,14 @@ const stratEq = g => (g.base || 0) + (g.real || 0) + (g.pos ? g.pos.side * g.pos
 async function stopChecks() {
   for (const g of S.strategies) {
     if (!g.pos || !g.enabled || g.pauseKind === 'manual' && g.state === 'paused') continue;
-    const L = ledOf(g), P = await LED[L].price(g.sym).catch(() => 0); if (!P) continue;
+    const L = ledOf(g), P = await LED[L].price(xk(g)).catch(() => 0); if (!P) continue;
     const s = g.pos.side, hitS = g.pos.stop && (s > 0 ? P <= g.pos.stop : P >= g.pos.stop), hitT = !hitS && g.pos.tp && (s > 0 ? P >= g.pos.tp : P <= g.pos.tp);
-    if (hitS || hitT) await execute(L, g.sym, [{ g, dq: -posQ(g), kind: hitS ? 'stop' : 'tp', ref: hitS ? g.pos.stop : g.pos.tp, text: hitS ? `價格 ${fpx(P)} 碰到停損 ${fpx(g.pos.stop)}` : `價格 ${fpx(P)} 碰到停利 ${fpx(g.pos.tp)}` }]);
+    if (hitS || hitT) await execute(L, xk(g), [{ g, dq: -posQ(g), kind: hitS ? 'stop' : 'tp', ref: hitS ? g.pos.stop : g.pos.tp, text: hitS ? `價格 ${fpx(P)} 碰到停損 ${fpx(g.pos.stop)}` : `價格 ${fpx(P)} 碰到停利 ${fpx(g.pos.tp)}` }]);
   }
 }
 async function watch() {
   for (const L of LEDS()) { const X = LED[L]; const A = acct(L);
-    const syms = new Set([...Object.keys(A.lastSet), ...S.strategies.filter(g => ledOf(g) === L && g.pos).map(g => g.sym)]);
+    const syms = new Set([...Object.keys(A.lastSet), ...S.strategies.filter(g => ledOf(g) === L && g.pos).map(xk)]);
     for (const sym of syms) { try { await guard(L, sym, await X.position(sym)); } catch (e) {} }
   }
 }
@@ -1069,7 +1216,7 @@ async function account() {
     const gs = S.strategies.filter(g => ledOf(g) === L && g.pos), gross = gs.reduce((a, g) => a + g.pos.qty * px(g.sym), 0);
     if (eq > 0 && gross > C.limits.maxLev * 1.5 * eq) {
       const f = C.limits.maxLev / (gross / eq);
-      for (const sym of new Set(gs.map(g => g.sym))) await execute(L, sym, gs.filter(g => g.sym === sym).map(g => ({ g, dq: -posQ(g) * (1 - f), kind: 'close', text: `總槓桿 ${(gross / eq).toFixed(1)} 倍超過上限，自動降倉` })));
+      for (const sym of new Set(gs.map(xk))) await execute(L, sym, gs.filter(g => xk(g) === sym).map(g => ({ g, dq: -posQ(g) * (1 - f), kind: 'close', text: `總槓桿 ${(gross / eq).toFixed(1)} 倍超過上限，自動降倉` })));
     }
     if (A.halt) continue;
     const dayPct = A.dayStart > 0 ? (eq / A.dayStart - 1) * 100 : 0;
@@ -1084,8 +1231,8 @@ async function halt(L, reason, close, short) {
   log('halt', { led: L, text: reason }); notify('🛑 帳戶煞車', reason); dirty();
 }
 async function closeLedger(L, why) {
-  for (const sym of new Set(S.strategies.filter(g => ledOf(g) === L && g.pos).map(g => g.sym)))
-    await execute(L, sym, S.strategies.filter(g => ledOf(g) === L && g.pos && g.sym === sym && !(g.state === 'paused' && g.pauseKind === 'manual')).map(g => ({ g, dq: -posQ(g), kind: 'close', text: why })));
+  for (const sym of new Set(S.strategies.filter(g => ledOf(g) === L && g.pos).map(xk)))
+    await execute(L, sym, S.strategies.filter(g => ledOf(g) === L && g.pos && xk(g) === sym && !(g.state === 'paused' && g.pauseKind === 'manual')).map(g => ({ g, dq: -posQ(g), kind: 'close', text: why })));
 }
 // 偏離回測：平均滑價 > 回測 3 倍（至少 3 筆成交），或漏單／略過 ≥ 2 筆 → 暫停
 function driftCheck() {
@@ -1234,14 +1381,14 @@ const pairLink = () => APP + '#pair=' + Buffer.from(JSON.stringify({ u: PUB.url 
 async function status() {
   const L = mainL(), A = acct(L), eq = A.eq != null ? A.eq : await LED[L].getEquity().catch(() => 0);
   const positions = [];
-  for (const l of LEDS()) try { for (const p of await LED[l].getPositions()) positions.push({ sym: p.sym, side: p.side, qty: p.qty, entry: p.entry, stop: p.stop, tp: p.tp, upnl: r2(p.upnl), mark: p.mark, led: l }); } catch (e) {}
+  for (const l of LEDS()) try { for (const p of await LED[l].getPositions()) positions.push({ sym: baseOf(p.sym), mkt: mktK(p.sym), side: p.side, qty: p.qty, entry: p.entry, stop: p.stop, tp: p.tp, upnl: r2(p.upnl), mark: p.mark, led: l }); } catch (e) {}
   const strategies = S.strategies.map(g => { const rv = (() => { try { const r = review(g, 0); return { status: r.status, reasons: r.reasons }; } catch (e) { return { status: 'ok', reasons: [] }; } })();
     const P = px(g.sym), cp_ = canPromote(g);
-    return { id: g.id, key: g.key || '', name: stName(g), st: g.st, sym: g.sym, p: g.p, alloc: g.alloc, enabled: g.enabled, mode: g.mode, state: g.state, pauseReason: g.pauseReason || '', trialStart: g.trialStart, trialDays: g.trialDays, ledger: g.led || '', trialLeft: r2(trialLeft(g), 2), canPromote: cp_.ok, promoteWhy: cp_.why, led: ledOf(g),
+    return { id: g.id, key: g.key || '', name: stName(g), st: g.st, sym: g.sym, mkt: mktOf(g), p: g.p, alloc: g.alloc, enabled: g.enabled, mode: g.mode, state: g.state, pauseReason: g.pauseReason || '', trialStart: g.trialStart, trialDays: g.trialDays, ledger: g.led || '', trialLeft: r2(trialLeft(g), 2), canPromote: cp_.ok, promoteWhy: cp_.why, led: ledOf(g),
       equity: r2(stratEq(g)), base: r2(g.base || 0), position: g.pos ? { side: g.pos.side, qty: g.pos.qty, entry: g.pos.entry, stop: g.pos.stop || 0, tp: g.pos.tp || 0, upnl: r2(g.pos.side * g.pos.qty * (P - g.pos.entry)) } : null, target: g.tg || null, lastBar: g.lastBar || 0, review: rv };
   });
   const cnt = k => S.strategies.filter(g => g.state === k).length;
-  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), liveExs: Object.keys(LIVE_EX), hasPass: !!C.apiPass, allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
+  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), liveExs: Object.keys(LIVE_EX), mkts: { paper: Object.keys(MKT), live: LIVE_EX[C.exchange] && LIVE_EX[C.exchange].prototype.spotOk ? Object.keys(MKT) : ['fut'] }, hasPass: !!C.apiPass, allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
     mode: L === 'paper' ? 'paper' : C.testnet ? 'testnet' : 'live', counts: { trial: cnt('trial'), running: cnt('running'), paused: cnt('paused') },
     now: nowS(), lastTick: S.lastTickAt || 0, lastBar: S.lastBar || 0, equity: r2(eq), startEquity: r2(A.start || eq), startT: A.startT || S.startT,
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
@@ -1263,15 +1410,15 @@ function addStrategies(list) {
     if (tot > 1.0001) throw new HErr(400, `資金比例合計 ${r2(tot * 100, 0)}% 超過 100%`);
     if (a.st === 'cus' && !(a.p && a.p.rules)) throw new HErr(400, '自訂策略要帶規則（p.rules）');
     const L = 'paper', eq = acct(L).eq || S.paper.cash;
-    const g = { id: 's' + (S.nextId++), key: String(a.key || '').slice(0, 80), name: String(a.name || '').slice(0, 40) || (ENG.NAME[a.st] || a.st) + ' ' + sym, st: a.st, sym, p: cleanP(a.p), alloc, enabled: true, mode: 'paper', state: 'trial', pauseReason: '', trialStart: nowS(), trialDays: Math.max(0, Math.min(60, a.trialDays != null ? +a.trialDays : 7)), start: nowS(), base: alloc * eq, real: 0, fills: [], trades: [], curve: [], skips: [], lastBar: 0 };
+    const g = { id: 's' + (S.nextId++), mkt: MKT[a.mkt] != null ? a.mkt : 'fut', key: String(a.key || '').slice(0, 80), name: String(a.name || '').slice(0, 40) || (ENG.NAME[a.st] || a.st) + ' ' + sym, st: a.st, sym, p: cleanP(a.p), alloc, enabled: true, mode: 'paper', state: 'trial', pauseReason: '', trialStart: nowS(), trialDays: Math.max(0, Math.min(60, a.trialDays != null ? +a.trialDays : 7)), start: nowS(), base: alloc * eq, real: 0, fills: [], trades: [], curve: [], skips: [], lastBar: 0 };
     out.push(g);
   }
   for (const g of out) { S.strategies.push(g); lg('info', g, { text: `新增策略，資金比例 ${Math.round(g.alloc * 100)}%，先模擬盤試跑 ${g.trialDays} 天` }); }
   dirty(); return out;
 }
-async function closeStrat(g, why) { if (g.pos) await execute(ledOf(g), g.sym, [{ g, dq: -posQ(g), kind: 'close', text: why }]); }
+async function closeStrat(g, why) { if (g.pos) await execute(ledOf(g), xk(g), [{ g, dq: -posQ(g), kind: 'close', text: why }]); }
 async function resumeStrat(g, why) {
-  if (g.pauseKind === 'manual') await adopt(ledOf(g), g.sym).catch(e => log('error', { text: e.message }));
+  if (g.pauseKind === 'manual') await adopt(ledOf(g), xk(g)).catch(e => log('error', { text: e.message }));
   g.state = g.promoted ? 'running' : 'trial'; g.pauseReason = ''; g.pauseKind = ''; g.skipKey = ''; g.driftFrom = nowS();   // 偏離檢查從恢復時重新算
   lg('resume', g, { text: why || '恢復執行' }); dirty();
 }
@@ -1303,7 +1450,7 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 策略分析：選內建策略和幣種跑回測（含手續費、滑價、資金費率），可以調參數；滿意的參數存成「我的策略」，同一個策略可以有好幾組參數（參數1、參數2…）。
 - 查看價格：K 線圖，可以畫量尺、斜線、水平線、方框，點圖形可以刪除。
 - 開始交易 › 訊號交易：「我的策略」出現進出場訊號時推播通知，自己決定要不要下單。
-- 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（做多／做空／雙向，永續合約）② 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定下單金鑰（Bybit、幣安、OKX、Bitget；OKX、Bitget 要填 Passphrase），可以先用測試網或模擬交易。「風險控管」分頁可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
+- 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（永續合約；現貨＝只做多、1 倍；槓桿＝全倉借貸、可做空、最多 3 倍、要付借款利息）② 選方向（做多／做空／雙向）③ 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定下單金鑰（Bybit、幣安、OKX、Bitget；OKX、Bitget 要填 Passphrase），可以先用測試網或模擬交易。「風險控管」分頁可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
 - 開始交易 › HexAI：AI 顧問。Bridge 是總管，Scout 看行情新聞（會上網查）、Echo 回測、Forge 想策略、Vault 風控、Helm 寫下單草案、Guide 是客服。AI 只給建議，不會下單；它要新增策略或改風控上限時會跳確認框，按確認才會改。每隻 AI 下面的「給它的資料」可以寫你的規則和偏好。預設用 HexStack 雲端 AI，不用設定金鑰；想用自己的金鑰或本機模型，到電腦版 HexAI 的模型設定改。
 - 資產總覽：把各交易所帳戶的資產加總，看報酬率。在資產總覽按「＋ 加入」，用只勾「讀取」的唯讀金鑰加入。
 - 設定：客服機器人、外觀（預設、深夜、白天，可以跟著日出日落自動切換）、通知設定、資料庫、資料狀態、語言、帳號同步（Google 登入後手機和電腦的我的策略、通知、外觀、資產紀錄會同步，交易所金鑰不會上傳）、更新到最新版（看不到新版時按這裡）。
@@ -1532,7 +1679,11 @@ async function api(req, res, p) {
         const a = d.strat || {}; if (!ENG.BEST[a.st]) throw new HErr(400, '不認得的策略：' + a.st);
         const sym = String(a.sym || '').toUpperCase(); if (!isCoin(sym)) throw new HErr(400, '幣種格式不對：' + a.sym);
         if (a.st === 'cus' && !(a.p && a.p.rules)) throw new HErr(400, '自訂策略要帶規則（p.rules）');
-        g = { id: 's' + (S.nextId++), key, led: L, name: String(a.name || '').slice(0, 40) || (ENG.NAME[a.st] || a.st) + ' ' + sym, st: a.st, sym, p: cleanP(a.p), alloc: 0, enabled: false, mode: L === 'live' ? 'live' : 'paper', promoted: true, state: 'running', pauseReason: '', trialStart: nowS(), trialDays: 0, start: nowS(), base: 0, real: 0, fills: [], trades: [], curve: [], skips: [] };
+        const mkt = MKT[a.mkt] != null ? a.mkt : 'fut';
+        if (L === 'live' && mkt !== 'fut' && !LED.live.spotOk) throw new HErr(409, liveName() + ' 實盤還不支援' + MKT_NAME[mkt]);
+        // Bybit、OKX 是統一帳戶：同一個幣的現貨和槓桿是同一筆餘額，分不出來，不能同時跑
+        if (L === 'live' && mkt !== 'fut' && ['bybit', 'okx'].includes(C.exchange) && S.strategies.some(x => x.led === 'live' && x.enabled && x.sym === sym && mktOf(x) !== 'fut' && mktOf(x) !== mkt)) throw new HErr(409, `${liveName()} 的現貨和槓桿共用同一個帳戶，${sym} 已經有${MKT_NAME[mkt === 'spot' ? 'mrg' : 'spot']}策略在跑，不能同時跑${MKT_NAME[mkt]}`);
+        g = { id: 's' + (S.nextId++), key, led: L, mkt, name: String(a.name || '').slice(0, 40) || (ENG.NAME[a.st] || a.st) + ' ' + sym, st: a.st, sym, p: cleanP(a.p), alloc: 0, enabled: false, mode: L === 'live' ? 'live' : 'paper', promoted: true, state: 'running', pauseReason: '', trialStart: nowS(), trialDays: 0, start: nowS(), base: 0, real: 0, fills: [], trades: [], curve: [], skips: [] };
         S.strategies.push(g);
       } else if (d.strat && d.strat.p) g.p = cleanP(d.strat.p);
       if (!g.enabled) { g.enabled = true; g.state = 'running'; g.pauseKind = ''; g.pauseReason = ''; g.lastBar = 0; g.start = nowS(); g.driftFrom = nowS(); }
