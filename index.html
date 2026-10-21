@@ -644,7 +644,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .airoles button{all:unset;box-sizing:border-box;cursor:pointer;flex:1 0 54px;max-width:84px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0 6px;border-radius:12px;border:1px solid transparent;font-size:12px;font-weight:700;color:var(--muted);-webkit-tap-highlight-color:transparent}
 .airoles button .aim{width:38px;height:44px}.airoles button.on{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
 .airoles button:focus-visible{outline:2px solid var(--acc)}
-#aiSolo{position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}#aiSolo>#aiChat{max-width:760px;margin:0 auto}#aiSolo .ailog{max-height:calc(100vh - 300px);max-height:calc(100dvh - 300px)}
+#aiSolo{position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}#aiSolo>#aiChat{max-width:760px;margin:0 auto}#aiSolo .ailog{height:calc(100vh - 330px);height:calc(100dvh - 330px)}
 .bsheet .br{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}.bsheet .br b{text-align:right}
 .aihelp{margin-left:22px;animation:aiPop .45s cubic-bezier(.2,1.4,.4,1) both}.aihelp .aib{border:1px solid color-mix(in srgb,var(--c) 40%,var(--line))}.aiht{font-size:12.5px;color:var(--muted)}.aiht b{color:var(--c)}.aihq{font-size:13px;margin:4px 0;opacity:.85}
 @keyframes aiPop{0%{opacity:0;transform:translateY(10px) scale(.6)}100%{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.aihelp{animation:none}}
@@ -654,10 +654,10 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aiback{all:unset;cursor:pointer;display:inline-block;color:var(--acc);font-size:14.5px;font-weight:700;padding:2px 2px 10px}.aiback:focus-visible{outline:2px solid var(--acc)}
 .aihd .aim{width:40px;height:46px}.aihd>div{display:flex;flex-direction:column;min-width:0}
 .aicard{display:flex;flex-direction:column;gap:10px;padding:12px}.aihd{display:flex;align-items:center;gap:8px}.aihd b{color:var(--c);font-size:16px}.aihd span{color:var(--muted);font-size:12.5px}
-.ailog{display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 340px);min-height:min(46vh,420px);overflow-y:auto;overscroll-behavior:contain;padding:2px}
-.aiu{align-self:flex-end;max-width:85%;background:color-mix(in srgb,var(--c) 20%,var(--panel2,var(--panel)));border-radius:14px 14px 4px 14px;padding:8px 11px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
+.ailog{display:flex;flex-direction:column;gap:10px;height:calc(100vh - 360px);height:calc(100dvh - 360px);min-height:300px;flex:none;overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.aiu{align-self:flex-end;max-width:72%;background:color-mix(in srgb,var(--c) 20%,var(--panel2,var(--panel)));border-radius:14px 14px 4px 14px;padding:8px 11px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
 .aia{display:flex;gap:6px;align-items:flex-start;max-width:100%}.aia>.aim{width:30px;height:35px;margin-top:2px}
-.aib{min-width:0;flex:1;background:var(--chip);border-radius:4px 14px 14px 14px;padding:8px 11px;font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
+.aib{min-width:0;flex:0 1 auto;max-width:min(82%,560px);background:var(--chip);border-radius:4px 14px 14px 14px;padding:8px 11px;font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
 .aib .aih{font-weight:800;margin-top:4px}.aib .aili{padding-left:2px}.aib .aisp{height:6px}.aib code{font-size:12.5px;background:var(--panel);padding:0 4px;border-radius:4px}
 .aist{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.aist .bad{color:var(--down)}
 .aity{display:flex;gap:4px;padding:4px 0}.aity i{width:6px;height:6px;border-radius:50%;background:var(--c);animation:aiTy 1.2s infinite}.aity i:nth-child(2){animation-delay:.2s}.aity i:nth-child(3){animation-delay:.4s}
@@ -669,6 +669,13 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aiin{display:flex;gap:8px;align-items:flex-end}.aiin textarea{flex:1 1 0;width:0;min-height:42px;max-height:140px;resize:none;box-sizing:border-box;font:inherit;font-size:15px;line-height:1.45;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:12px;padding:9px 11px}
 .aiin textarea:focus{outline:none;border-color:var(--c)}#aiChat .aiin .bbtn{flex:none;width:46px;height:42px;padding:0;display:grid;place-items:center;margin:0}.aiin .bbtn svg{width:20px;height:20px}
 .aift{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.lgrisk{margin:8px 0 0;font-size:12px;line-height:1.55;color:var(--muted)}.lgrisk button{all:unset;cursor:pointer;color:var(--acc);font-size:12px;margin-left:4px}
+.lgset{display:flex;flex-direction:column;padding:0}.lgset button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-top:1px solid var(--line);color:var(--text);font-size:15px}.lgset button:first-child{border-top:0}.lgset i{color:var(--muted);font-style:normal}
+#lgGate{position:fixed;inset:0;z-index:10000;background:rgba(10,6,24,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
+.lgc{width:100%;max-width:440px;max-height:100%;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;color:var(--text)}.lgc h3{margin:0;font-size:18px}.lgc p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}
+.lgl{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}.lgl button{all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-top:1px solid var(--line);font-size:15px}.lgl button:first-child{border-top:0}.lgl i{color:var(--muted);font-style:normal}
+.lgk{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.55;color:var(--text)}.lgk input{margin-top:3px;flex:none;width:18px;height:18px}.lgc .gbtn:disabled{opacity:.45;cursor:default}
+#lgV{position:fixed;inset:0;z-index:10001;background:var(--page,var(--bg));overflow:auto;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(24px,env(safe-area-inset-bottom,0px))}.lgw{max-width:680px;margin:0 auto;color:var(--text)}.lgw h3{font-size:20px;margin:10px 0}.lgd{font-size:14.5px;line-height:1.75}.lgd h4{font-size:15.5px;margin:18px 0 4px}.lgd p{margin:0 0 8px;color:var(--text)}.lgu{color:var(--muted);font-size:12px}
 .aiset{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}.aiset label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .aiset textarea{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;resize:vertical}
 .aiset input{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
@@ -704,7 +711,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 @media (prefers-reduced-motion:reduce){#themeToast.on{animation:none}:root[data-theme="light"] *{transition:none!important}}
 </style>
 <script>// 帳號同步：記下哪些設定被改過（登入且第一次同步完才開始記）。快取、交易所金鑰、電腦配對不同步
-(function(){try{var P=Storage.prototype,S=P.setItem,R=P.removeItem,X=/^(fdLocal|botHost|sig|hist|fng.*|mstrMeta|tglog|runlog|langBoot|hsSync|bnLast|bnPush|sigLockH)$/;window.__hs={set:S,rem:R,X:X,dirty:{},on:false,kick:null};
+(function(){try{var P=Storage.prototype,S=P.setItem,R=P.removeItem,X=/^(fdLocal|botHost|sig|hist|fng.*|mstrMeta|tglog|runlog|langBoot|hsSync|bnLast|bnPush|sigLockH|hsAudit|hsDev)$/;window.__hs={set:S,rem:R,X:X,dirty:{},on:false,kick:null};
 function mark(k){var h=window.__hs;if(h.on&&!X.test(k)){h.dirty[k]=1;h.kick&&h.kick()}}
 P.setItem=function(k,v){k=String(k);v=String(v);if(this===localStorage){if(this.getItem(k)===v)return;S.call(this,k,v);mark(k)}else S.call(this,k,v)};
 P.removeItem=function(k){k=String(k);if(this===localStorage){if(this.getItem(k)===null)return;R.call(this,k);mark(k)}else R.call(this,k)}}catch(e){}})();
@@ -1148,6 +1155,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
     <div class="small" style="margin-top:8px">主畫面上的 App 沒看到新版時按這裡：清掉舊的暫存並重新載入。</div>
     <div class="setl" style="margin-top:6px"><div><span>版本</span><b id="setVer">—</b></div></div></div></div>
   <div class="sect" id="setOutSect" hidden><button class="card setout" id="setOut" type="button">登出<small id="setOutMail"></small></button></div>
+  <div class="sect"><h2>條款與聲明</h2><div class="card setl lgset"><button type="button" data-legal="disc"><span>免責聲明</span><i aria-hidden="true">›</i></button><button type="button" data-legal="terms"><span>使用條款</span><i aria-hidden="true">›</i></button><button type="button" data-legal="priv"><span>隱私權政策</span><i aria-hidden="true">›</i></button><button type="button" data-legal="risk"><span>風險提示</span><i aria-hidden="true">›</i></button></div></div>
   <div class="foot">HexStack 幣策略 最好的研究平台<br>內容僅供參考，非投資建議</div>
 </div></section>
 <section id="dbView" class="view"><div class="wrap"><button class="nback" id="dbBack" type="button">‹ 設定</button><div id="dbBox"></div></div></section>
@@ -3908,12 +3916,13 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     else if(ask.t==='paper'){h='關掉模擬盤？';p=`切到實盤畫面，實盤帳戶裡開著的策略會開始在 <b>${S.liveReady?(S.testnet?'Bybit 測試網':'Bybit 正式網（真錢）'):'交易所'}</b> 下單。`+(S.liveReady?'':'<br>還沒設定下單金鑰，暫時不會下任何單。');ok='確認關掉';red=true}
     else if(ask.t==='sim'){h=`把 ${H_(SIMN[ask.k]||ask.k)} 模擬帳戶改成 ${fm(ask.v,0)} USDT？`;p='會把這個模擬帳戶的倉位平掉，從新的金額重新開始算報酬率。';ok='確認修改'}
     else if(ask.t==='simdel'){h=`移除 ${H_(SIMN[ask.k]||ask.k)} 模擬帳戶？`;p='這個帳戶的紀錄會一起刪掉。';ok='確認移除';red=true}
+    if(ask.t==='run'&&ask.on||ask.t==='paper')p+=`<br><span class="lgrisk">${RISK_TIP}</span>`;
     return `<div class="bask" id="botAsk"><div class="bsheet" role="dialog" aria-modal="true"><h3>${h}</h3><p>${p}</p><div class="row2"><button class="bbtn" id="botAskNo" type="button">取消</button><button class="bbtn ${red?'red':'pri'}" id="botAskOk" type="button">${ok}</button></div></div></div>`}
   // 確認視窗放在 body 最上層（分頁裡的 fixed 會被底部選單蓋住）
   function syncAsk(){let L=document.getElementById('botAskL');if(!L){L=document.createElement('div');L.id='botAskL';document.body.appendChild(L);
-      L.onclick=e=>{const t=e.target;if(t.id==='botAsk'||t.id==='botAskNo'){ask=null;syncAsk();return}if(t.closest('#botAskOk'))askGo()}}
+      L.onclick=e=>{const t=e.target;if(t.id==='botAsk'||t.id==='botAskNo'){if(ask&&window.Audit)Audit.log('bot.cancel',ask);ask=null;syncAsk();return}if(t.closest('#botAskOk'))askGo()}}
     L.innerHTML=ask&&$('#sigView').classList.contains('on')?sheet():''}
-  async function askGo(){const a=ask;ask=null;render();
+  async function askGo(){const a=ask;ask=null;render();window.Audit&&Audit.log('bot.'+a.t,a);
     if(a.t==='paper')return act('/api/paperonly',{on:false},'已切到實盤');
     if(a.t==='sim')return act('/api/sim',{k:a.k,start:a.v},'起始金額已改');
     if(a.t==='simdel'){bv=null;return act('/api/sim',{k:a.k,remove:1},'已移除')}
@@ -3963,7 +3972,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       ${!tr&&ex==='bybit'?ck('botXtn',xf.tn,'測試網帳戶'):''}
       ${tr&&!xf.tn?ck('botXal',xf.al,'允許正式網下真單')+'<p class="sub" style="margin:0 0 4px">勾了也不會馬上下單：每個策略要先試跑 7 天，你按「轉為實盤」才會用真錢。</p>':''}
       ${ck('botXt',xf.tot,'算進資產總覽的總資產')}
-      <button class="bbtn pri" id="botXgo" type="button" style="margin-top:8px">${tr?'儲存並測試連線':'驗證並加入'}</button>
+      ${tr?`<p class="lgrisk">${RISK_TIP}</p>`:''}<button class="bbtn pri" id="botXgo" type="button" style="margin-top:8px">${tr?'儲存並測試連線':'驗證並加入'}</button>
       <p class="sub" id="botXm" style="margin:8px 0 0">${H_(xmsg)}</p>
       <p class="sub" style="margin:8px 0 0">${tr?'金鑰只存在這台電腦的 HexStack，不會上傳到雲端或手機。Bybit 建金鑰時只勾「合約交易」，不要勾「提幣」，建議用子帳戶。':'只看資產要用只勾「讀取」的唯讀金鑰，有交易或提現權限會被拒收。金鑰存在電腦上的 HexStack'+(L?'':'，手機不留')+'。'}</p></div>`}
   // Bybit 10003＝這個網路（正式網／測試網）找不到這把金鑰，多半是測試網勾錯
@@ -3973,7 +3982,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       g.disabled=true;m.textContent=loc()?'驗證中…':'傳到電腦驗證中…';
       try{await api('/api/funds/add',{exchange:xf.ex,name:xf.nm.trim()||F.exName(xf.ex),apiKey:k,apiSecret:sc,passphrase:xf.ps,testnet:xf.ex==='bybit'&&xf.tn,inTotal:xf.tot});xf=null;xmsg='';toast('已加入')}
       catch(e){xf.s='';xf.ps='';m.textContent=xf.ex==='bybit'?netHint(e.message,xf.tn):e.message;g.disabled=false;const i=$('#botXs');if(i)i.value='';return}return refresh()}
-    const o={exchange:'bybit',testnet:xf.tn,allowLive:!xf.tn&&xf.al,tradeInTotal:xf.tot};
+    const o={exchange:'bybit',testnet:xf.tn,allowLive:!xf.tn&&xf.al,tradeInTotal:xf.tot};window.Audit&&Audit.log('bot.livekey',{exchange:o.exchange,testnet:o.testnet,allowLive:o.allowLive});
     if(!S.liveReady&&(!k||!sc))return m.textContent='要填 API Key 和 Secret';if(!!k!==!!sc&&!S.liveReady)return m.textContent='API Key 和 Secret 要一起填';
     if(k)o.apiKey=k;if(sc)o.apiSecret=sc;
     if(o.allowLive&&!S.allowLive&&!confirm('允許正式網下真單？\n\n策略還是要試跑通過、你按「轉為實盤」才會用真錢下單。'))return;
@@ -4106,11 +4115,11 @@ const AiChat=(()=>{
       const ch=Object.keys(q.params||{});
       b=`<div class="br"><span>策略</span><b>${H_(q.stName)}・${H_(q.symbol)}</b></div><div class="br"><span>參數</span><b>${ch.length?ch.map(k=>H_(k)+'='+H_(q.params[k])).join('、'):'預設參數'}</b></div>`
         +(G.length?`<label class="br"><span>加到</span><select id="aiPropG" style="max-width:60%"><option value="">新的策略</option>${G.map(x=>`<option value="${H_(x.g)}"${pre===x?' selected':''}>「${H_(SigLock.gname(x.g))}」底下的新參數組</option>`).join('')}</select></label>`:'')}
-    return `<div class="bask" id="aiPropBg"><div class="bsheet" role="dialog" aria-modal="true"><h3>${H_(h)}</h3>${b}${p.reason?`<p>${H_(p.reason)}</p>`:''}<p>按確認才會改；取消就什麼都不動。</p><div class="row2"><button class="bbtn" id="aiPropNo" type="button">取消</button><button class="bbtn pri" id="aiPropOk" type="button">${ok}</button></div></div></div>`}
+    return `<div class="bask" id="aiPropBg"><div class="bsheet" role="dialog" aria-modal="true"><h3>${H_(h)}</h3>${b}${p.reason?`<p>${H_(p.reason)}</p>`:''}<p>按確認才會改；取消就什麼都不動。你的確認會留存紀錄。</p><p class="lgrisk">${H_(RISK_TIP)}</p><div class="row2"><button class="bbtn" id="aiPropNo" type="button">取消</button><button class="bbtn pri" id="aiPropOk" type="button">${ok}</button></div></div></div>`}
   function syncProp(){let L=document.getElementById('aiPropL');if(!L){L=document.createElement('div');L.id='aiPropL';document.body.appendChild(L);
-      L.onclick=e=>{const t=e.target;if(t.id==='aiPropBg'||t.id==='aiPropNo'){prop=null;syncProp();return}if(t.closest('#aiPropOk'))applyProp()}}
+      L.onclick=e=>{const t=e.target;if(t.id==='aiPropBg'||t.id==='aiPropNo'){if(prop&&window.Audit)Audit.log('ai.cancel',{by:prop.by,kind:prop.kind,proposed:prop.proposed});prop=null;syncProp();return}if(t.closest('#aiPropOk'))applyProp()}}
     L.innerHTML=psheet()}
-  async function applyProp(){const p=prop,q=p.proposed,gs=document.getElementById('aiPropG');if(gs)p._g=gs.value;prop=null;syncProp();
+  async function applyProp(){const p=prop,q=p.proposed,gs=document.getElementById('aiPropG');if(gs)p._g=gs.value;prop=null;syncProp();window.Audit&&Audit.log('ai.confirm',{by:p.by,kind:p.kind,proposed:q,group:p._g||'',reason:p.reason||''});
     try{if(p.kind==='lim'){await api('/api/limits',q);okm='已更新風險控管：'+pdesc(p).replace(/^風險控管：/,'');window.BotTab&&BotTab.refresh()}
       else{const B=BEST[q.strategy]&&BEST[q.strategy][q.symbol];if(!B)throw new Error('這個 App 版本沒有 '+q.stName+' '+q.symbol);
         const P=SigLock.clean(Object.assign({},B,q.params||{}));let k;
@@ -4155,7 +4164,7 @@ const AiChat=(()=>{
       <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
       <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?(cfg.cloud?'HexStack 雲端':cfg.model):'…')} ›</button><button type="button" class="lk" id="aiNoteO">給它的資料${(cfg&&cfg.notes||{})[role]?'（已寫）':''} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
-      ${set?setup():''}${nset?notes():''}</div>`;
+      ${set?setup():''}${nset?notes():''}<p class="lgrisk">AI 回答僅供參考，不是投資建議；交易可能虧損全部本金，請自行判斷。<button type="button" class="lk" data-legal="risk">風險提示 ›</button></p></div>`;
     const L=document.getElementById('aiLog');if(L)L.scrollTop=L.scrollHeight;
     if(st!=null){const i=document.getElementById('aiIn');i.focus();i.setSelectionRange(st,st)}}
   async function hist(r){try{const j=await api('/api/ai/history?role='+r);H[r]=j.messages||[]}catch(e){err=e.message}render()}
@@ -5451,6 +5460,69 @@ const DbTab=(()=>{const LS=localStorage,box=()=>document.getElementById('dbBox')
       HsSync.api('/sync/wipe',{}).then(()=>{HsSync.logout('雲端資料已刪除');cloud=null;tab='dev';draw()}).catch(x=>alert(x.message))}});
   async function open(){openK=null;cloud=null;cErr='';draw();await hasIdb();draw();if(logged())loadCloud()}
   return {open}})();window.DbTab=DbTab;
+</script>
+<script>const LEGAL_V='2026-10-21',LEGAL=[
+['disc','免責聲明',`<p>HexStack 幣策略（以下稱「本服務」）提供的市場分析、新聞整理、策略回測、交易訊號、AI 對話內容與自動交易工具，<b>僅供研究與教育參考，不構成任何投資建議、要約或招攬</b>，也不保證獲利。</p>
+<h4>一、不是投資顧問</h4><p>本服務不是證券投資顧問或期貨顧問事業，沒有依任何法令取得投資顧問執照。所有內容都不考慮你個人的財務狀況、投資目標與風險承受度。</p>
+<h4>二、回測與 AI 內容的限制</h4><p>回測結果是用歷史資料計算的，已計入手續費、滑價與資金費率的估計值，仍可能與實際成交不同；過去績效不代表未來結果。AI 回答由語言模型產生，可能出錯、過時或與事實不符，重要數字請自行查證。</p>
+<h4>三、決定與責任在你</h4><p>AI 只能提出建議與提案；任何新增策略、修改風險上限、開始或停止自動交易、真實下單，都必須由你本人看過確認框後按下確認才會執行。你依本服務內容所做的任何交易決定，盈虧與風險都由你自行承擔。</p>
+<h4>四、資料與服務中斷</h4><p>價格、新聞等資料來自第三方（交易所、資料商、網站），可能延遲、錯誤或中斷。本服務、你的電腦、網路、交易所或第三方服務發生故障、延遲、停機，導致無法下單、平倉或通知，本服務在法律允許的最大範圍內不負賠償責任。</p>
+<h4>五、交易所與金鑰</h4><p>交易所帳戶與 API 金鑰由你自己申請與管理。請只開「讀取」或「交易」權限，絕對不要開「提幣」，建議使用子帳戶。因金鑰外洩、權限設定不當或交易所本身的問題造成的損失，由你自行承擔。</p>`],
+['terms','使用條款',`<p>使用 HexStack 幣策略（網站、手機 App、電腦版 HexStack／HexBOT、HexAI，以下合稱「本服務」）前，請詳閱本條款。你開始使用或按下同意，即表示你已閱讀、理解並同意遵守。</p>
+<h4>一、資格</h4><p>你必須年滿 18 歲（或你所在地法定成年年齡），具完全行為能力，且你所在地的法律允許你使用加密貨幣與衍生性商品相關服務。</p>
+<h4>二、服務內容</h4><p>本服務提供行情與市場分析、策略回測、訊號通知、資產總覽、AI 顧問，以及在你自己電腦上執行的自動交易工具（HexBOT）。自動交易的下單由你電腦上的程式透過你自己的交易所金鑰送出，本服務不代為保管資金，也不經手你的資產。</p>
+<h4>三、人工確認原則</h4><p>AI 做出的任何重要決定（新增或修改策略、修改風險控管上限、開始或停止自動交易、切換實盤）一律需要你本人在確認框按下確認。你的確認與取消會被記錄（時間、帳號或裝置編號、內容），作為日後查核依據。</p>
+<h4>四、你的責任</h4><p>你同意：(1) 自行判斷每一個交易決定並承擔結果；(2) 妥善保管登入帳號、配對碼與交易所金鑰；(3) 不以任何方式攻擊、逆向工程、濫用或干擾本服務，不用本服務從事洗錢、詐欺、操縱市場或其他違法行為；(4) 遵守你所在地的法令與交易所的使用規範。</p>
+<h4>五、AI 與雲端用量</h4><p>為了公平使用，雲端 AI 每台電腦每天有呼叫上限；本服務可依營運需要調整上限、模型或功能。</p>
+<h4>六、免費服務與變更</h4><p>本服務目前免費提供，依「現況」提供，不保證不中斷或無錯誤。我們可能隨時修改、暫停或停止部分功能，並可能修改本條款；重大修改會在 App 內通知並請你重新同意，你繼續使用即視為同意修改後的條款。</p>
+<h4>七、責任限制</h4><p>在法律允許的最大範圍內，本服務對任何直接、間接、附帶或衍生的損失（包括交易虧損、利潤損失、資料遺失）不負賠償責任。</p>
+<h4>八、終止</h4><p>你可以隨時停止使用並在「設定 › 帳號同步」刪除雲端資料。若你違反本條款，我們可以停止你使用本服務。</p>
+<h4>九、準據法</h4><p>本條款以中華民國（台灣）法律為準據法；因本條款產生的爭議，以臺灣臺北地方法院為第一審管轄法院。</p>
+<h4>十、聯絡</h4><p>有任何問題請寫信到 ziyaoyan1229@gmail.com。</p>`],
+['priv','隱私權政策',`<p>我們重視你的隱私。本政策說明 HexStack 幣策略（以下稱「本服務」）收集哪些資料、怎麼使用與保存。</p>
+<h4>一、我們收集的資料</h4><p>(1) <b>Google 登入</b>：只有你的 email 與帳號編號，用來辨認你並同步設定；拿不到密碼，也不讀信件、雲端硬碟或聯絡人。(2) <b>同步資料</b>：我的策略與參數、通知選項、外觀、語言、資產總覽的餘額紀錄。(3) <b>確認紀錄</b>：你同意條款、確認或取消 AI 提案、開關自動交易的時間、內容、帳號或隨機產生的裝置編號。(4) <b>推播訂閱</b>：瀏覽器提供的推播位址。</p>
+<h4>二、不會上傳的資料</h4><p>交易所 API 金鑰、HexStack 電腦版的配對碼、你寫給 AI 的「給它的資料」、AI 對話紀錄，都只存在你自己的裝置或電腦上。</p>
+<h4>三、AI 對話</h4><p>你問 AI 的問題與 AI 需要的行情、帳戶摘要，會由你的電腦送到模型服務商產生回答。使用 HexStack 雲端 AI 時，經我們的後端轉送到模型服務商（預設 Groq），我們只記錄呼叫次數，不保存對話內容；模型服務商依其隱私政策處理。你也可以改用自己的金鑰或本機模型。</p>
+<h4>四、使用目的</h4><p>提供與改善服務、同步設定、發送你開啟的通知、保存確認紀錄以釐清責任與因應法律要求。我們不賣、不出租、不分享你的資料給第三方做行銷，也不放廣告追蹤。</p>
+<h4>五、保存與安全</h4><p>雲端資料存在 Cloudflare（Workers、KV、D1），以 HTTPS 傳輸。同步資料保存到你刪除為止；確認紀錄為了查核需要會保存至少 5 年，期滿刪除或去識別化。</p>
+<h4>六、你的權利</h4><p>依個人資料保護法，你可以查詢、閱覽、複製、補充更正、停止使用或刪除你的個人資料。在「設定 › 帳號同步」可刪除雲端同步資料；其他請求請來信。</p>
+<h4>七、第三方服務</h4><p>本服務會連到交易所、資料來源、Google、Cloudflare、GitHub 與模型服務商，它們各自有隱私政策。</p>
+<h4>八、修改與聯絡</h4><p>本政策修改時會在 App 內通知。聯絡信箱：ziyaoyan1229@gmail.com。</p>`],
+['risk','風險提示',`<p><b>加密貨幣與永續合約交易風險極高，你可能損失全部投入的資金。</b>請只用你完全賠得起的錢，使用前務必了解以下風險：</p>
+<h4>一、價格波動</h4><p>加密貨幣一天內漲跌 10% 以上很常見，可能因消息、監管、駭客事件瞬間暴跌，甚至歸零。</p>
+<h4>二、槓桿與爆倉</h4><p>永續合約使用槓桿，虧損會放大；價格反向移動到一定程度會被強制平倉（爆倉），保證金全部損失。資金費率會持續產生成本。</p>
+<h4>三、自動交易</h4><p>自動交易程式可能因電腦關機、睡眠、斷網、程式錯誤、交易所 API 異常、滑價或流動性不足，而沒有照策略下單、平倉或停損。停損單也可能在劇烈行情中以更差的價格成交。實盤前請先用模擬盤或測試網試跑。</p>
+<h4>四、策略與 AI</h4><p>回測好的策略在未來可能失效；AI 可能誤判或產生錯誤資訊。任何策略與建議都不保證獲利。</p>
+<h4>五、交易所與法規</h4><p>交易所可能倒閉、凍結提領、被駭或改變規則；各國對加密貨幣的法規可能變動，部分地區限制或禁止相關交易。你有責任確認自己所在地的規定。</p>
+<h4>六、帳戶安全</h4><p>API 金鑰外洩可能導致資產被操作。金鑰不要開提幣權限，建議用子帳戶並限制資金。</p>`]];
+// ───────── 條款與確認紀錄：第一次使用要同意四份文件（免責聲明、使用條款、隱私權政策、風險提示），設定最底下也看得到 ─────────
+// 確認紀錄（同意條款、AI 提案確認／取消、HexBOT 開關）送到後端 /audit 存 D1；送不出去先排在這台裝置，下次再送
+const Audit=(()=>{const B='https://hexstack-push.hexstack-df20e2.workers.dev',Q='hsAudit',J=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  const dev=()=>{let d=J('hsDev');if(!d){d=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');W('hsDev',d)}return d};
+  let busy=false;
+  async function flush(){if(busy)return;const q=J(Q)||[];if(!q.length)return;busy=true;const items=q.slice(0,50),s=J('hsSync')||{};
+    try{const r=await fetch(B+'/audit',{method:'POST',headers:Object.assign({'content-type':'application/json'},s.tok?{authorization:'Bearer '+s.tok}:{}),body:JSON.stringify({d:dev(),items}),keepalive:true});
+      if(r.ok||r.status===400){W(Q,(J(Q)||[]).slice(items.length));busy=false;if(items.length===50)flush();return}}catch(e){}busy=false}
+  function log(k,x){const q=J(Q)||[];q.push({k,x,t:Date.now()});W(Q,q.slice(-300));setTimeout(flush,0)}
+  setTimeout(flush,5000);window.addEventListener('online',flush);
+  return {log,flush,dev}})();window.Audit=Audit;
+const RISK_TIP='⚠ 風險提示：加密貨幣與合約交易波動大，可能虧損全部本金。內容僅供參考，不是投資建議，請自行判斷並承擔風險。';
+const Legal=(()=>{const ok=()=>{try{return localStorage.getItem('hsLegal')===LEGAL_V}catch(e){return false}};
+  const doc=k=>LEGAL.find(x=>x[0]===k);
+  function read(k){const d=doc(k);if(!d)return;let L=document.getElementById('lgV');if(!L){L=document.createElement('div');L.id='lgV';document.body.appendChild(L);L.onclick=e=>{if(e.target.closest('[data-lgx]'))L.hidden=true}}
+    L.hidden=false;L.innerHTML=`<div class="lgw"><button type="button" class="nback" data-lgx>‹ 返回</button><h3>${d[1]}</h3><div class="lgd">${d[2]}</div><p class="lgu">版本 ${LEGAL_V}</p><button type="button" class="gbtn" data-lgx>看完了</button></div>`;L.scrollTop=0}
+  function gate(){if(ok()||document.getElementById('lgGate'))return;const G=document.createElement('div');G.id='lgGate';
+    G.innerHTML=`<div class="lgc" role="dialog" aria-modal="true" aria-labelledby="lgT"><h3 id="lgT">開始使用前</h3><p>請先閱讀以下四份文件。HexStack 只提供研究工具與參考資訊，AI 的任何重要決定都要你本人確認，交易盈虧由你自行承擔。</p>
+      <div class="lgl">${LEGAL.map(d=>`<button type="button" data-lg="${d[0]}"><span>${d[1]}</span><i aria-hidden="true">›</i></button>`).join('')}</div>
+      <label class="lgk"><input type="checkbox" id="lgChk"> 我已年滿 18 歲，已閱讀並同意以上免責聲明、使用條款、隱私權政策與風險提示</label>
+      <button type="button" class="gbtn" id="lgGo" disabled>同意並開始使用</button></div>`;
+    document.body.appendChild(G);
+    G.onclick=e=>{const b=e.target.closest('[data-lg]');if(b)return read(b.dataset.lg);if(e.target.id==='lgGo'&&document.getElementById('lgChk').checked){try{localStorage.setItem('hsLegal',LEGAL_V)}catch(x){}Audit.log('legal.accept',{v:LEGAL_V,docs:LEGAL.map(d=>d[0])});G.remove()}};
+    G.onchange=e=>{if(e.target.id==='lgChk')document.getElementById('lgGo').disabled=!e.target.checked}}
+  // 開場畫面（含 Google 登入、更新提示）關掉後才跳
+  (function wait(){if(ok())return;if(document.getElementById('splash'))return setTimeout(wait,400);gate()})();
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();read(b.dataset.legal)}});
+  return {read,gate,ok}})();window.Legal=Legal;
 </script>
 </body>
 </html>
