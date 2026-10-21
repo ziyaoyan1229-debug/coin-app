@@ -643,8 +643,10 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .airoles button{all:unset;box-sizing:border-box;cursor:pointer;flex:1 0 54px;max-width:84px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0 6px;border-radius:12px;border:1px solid transparent;font-size:12px;font-weight:700;color:var(--muted);-webkit-tap-highlight-color:transparent}
 .airoles button .aim{width:38px;height:44px}.airoles button.on{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
 .airoles button:focus-visible{outline:2px solid var(--acc)}
-.aicard{display:flex;flex-direction:column;gap:10px;padding:12px}.aihd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.aihd b{color:var(--c);font-size:16px}.aihd span{color:var(--muted);font-size:12.5px}
-.ailog{display:flex;flex-direction:column;gap:10px;max-height:min(58vh,560px);min-height:120px;overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.aiback{all:unset;cursor:pointer;display:inline-block;color:var(--acc);font-size:14.5px;font-weight:700;padding:2px 2px 10px}.aiback:focus-visible{outline:2px solid var(--acc)}
+.aihd .aim{width:40px;height:46px}.aihd>div{display:flex;flex-direction:column;min-width:0}
+.aicard{display:flex;flex-direction:column;gap:10px;padding:12px}.aihd{display:flex;align-items:center;gap:8px}.aihd b{color:var(--c);font-size:16px}.aihd span{color:var(--muted);font-size:12.5px}
+.ailog{display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 340px);min-height:min(46vh,420px);overflow-y:auto;overscroll-behavior:contain;padding:2px}
 .aiu{align-self:flex-end;max-width:85%;background:color-mix(in srgb,var(--c) 20%,var(--panel2,var(--panel)));border-radius:14px 14px 4px 14px;padding:8px 11px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
 .aia{display:flex;gap:6px;align-items:flex-start;max-width:100%}.aia>.aim{width:30px;height:35px;margin-top:2px}
 .aib{min-width:0;flex:1;background:var(--chip);border-radius:4px 14px 14px 14px;padding:8px 11px;font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
@@ -1023,8 +1025,9 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="sect"><h2>我的策略訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
   <div class="foot">內容僅供參考，非投資建議</div>
   </div>
-  <div id="tmAi" hidden><div class="sect"><h2>HexAI<span class="more">策略顧問・Beta</span></h2><div id="aiChat"></div></div>
-    <div class="sect"><h2>六個 AI 助手<span class="more">點一個開始問</span></h2><div class="aibots" id="aiBots"></div></div>
+  <div id="tmAi" hidden><div id="aiHome"><div class="sect"><h2>HexAI<span class="more">策略顧問・Beta</span></h2>
+    <p class="sub" style="margin:0 2px 10px">六個 AI 各有專長，點一個開始對話。</p><div class="aibots" id="aiBots"></div></div></div>
+    <div id="aiChat" class="sect" hidden></div>
     <div class="foot">HexAI 跑在你電腦上的 HexStack，只做分析和建議，不會下單、不會改設定。<br>內容僅供參考，非投資建議</div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
   <div class="foot">HexBOT 自動交易由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
@@ -2378,7 +2381,7 @@ ${ring('F')}
       b.innerHTML=svg(a,id)+`<div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
       const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:q('.hl'),hs:q('.hs'),ly:[...b.querySelectorAll('.ly')],oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
         hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:0};
-      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}if(window.AiChat)AiChat.pick(a.k,true);else say(a.n+' 還在準備中')};all.push(o)})}
+      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}if(window.AiChat)AiChat.pick(a.k);else say(a.n+' 還在準備中')};all.push(o)})}
   function frame(){const box=document.getElementById('aiBots');if(!box||!box.offsetParent||document.hidden){run=false;return}
     const now=performance.now()/1000,dt=Math.min(.05,now-(last||now));last=now;
     for(const o of all){const t=now+o.ph,j=now-o.joy<1.4;let y,x=0,rot,sx,sy,pulse=1+.07*Math.sin(t*2.6);
@@ -3984,14 +3987,16 @@ const AiChat=(()=>{
     forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？']};
   const TL={get_market_data:a=>'看 '+(a.symbol||'')+' 行情',get_news:()=>'讀市場分析和新聞',get_account_balance:()=>'看帳戶權益',get_position:()=>'看持倉和策略',get_risk_rules:()=>'看風控上限',
     list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙'};
-  let role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
+  let inChat=false,role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
   const A=k=>window.HexAI&&HexAI.AI.find(x=>x.k===k)||{n:k,c:'#999',r:''},nm=k=>A(k).n;
   const box=()=>document.getElementById('aiChat'),api=(p,b)=>BotTab.api(p,b);
   // 一點點 markdown：粗體、標題、條列
   const md=t=>H_(t).split('\n').map(l=>{l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
     if(/^#{1,4}\s/.test(l))return '<div class="aih">'+l.replace(/^#+\s/,'')+'</div>';if(/^\s*([-*•]|\d+\.)\s/.test(l))return '<div class="aili">'+l.replace(/^\s*([-*•])\s/,'• ')+'</div>';return l?'<div>'+l+'</div>':'<div class="aisp"></div>'}).join('');
   const steps=tr=>tr&&tr.length?`<div class="aist">${tr.map(s=>`<div class="${s.ok?'':'bad'}">${H_(s.by)}・${H_((TL[s.tool]||(()=>s.tool))(s.args||{}))}${s.ok?'':'（失敗：'+H_(s.err||'')+'）'}</div>`).join('')}</div>`:'';
-  function chips(){return `<div class="airoles">${ROLES.map(k=>`<button type="button" class="${k===role?'on':''}" data-ar="${k}" style="--c:${A(k).c}">${window.HexAI?HexAI.mini(k):''}<span>${H_(nm(k).replace('AI.',''))}</span></button>`).join('')}</div>`}
+  // 兩層：第一層 #aiHome 是六個機器人，點了才進這個 AI 的對話（#aiChat），左上返回
+  function chips(){return `<button type="button" class="aiback" data-back>‹ HexAI</button>`}
+  function show(){const h=document.getElementById('aiHome'),c=box();if(h)h.hidden=inChat;if(c)c.hidden=!inChat;if(!inChat&&window.HexAI)setTimeout(()=>HexAI.start(),0)}
   function setup(){const D=!!window.hexDesktop,c=cfg||{};
     return `<div class="aiset"><div class="bh">模型設定</div>
       <div class="aipre"><button type="button" class="bbtn" data-pre="groq">Groq 免費</button><button type="button" class="bbtn" data-pre="gemini">Gemini 免費</button><button type="button" class="bbtn" data-pre="ollama">本機 Ollama</button><button type="button" class="bbtn" data-pre="deepseek">DeepSeek</button></div>
@@ -4008,7 +4013,7 @@ const AiChat=(()=>{
       +(pend?`<div class="aia">${window.HexAI?HexAI.mini(role):''}<div class="aib">${steps(job.trace)}<div class="aity"><i></i><i></i><i></i></div></div></div>`:'')
       +(err?`<div class="aierr">${H_(err)}${/連不到模型|模型/.test(err)?'<br><button type="button" class="lk" data-open-set>打開模型設定 ›</button>':''}</div>`:'');
     const st=document.activeElement&&document.activeElement.id==='aiIn'?document.activeElement.selectionStart:null;
-    b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd"><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div>
+    b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd">${window.HexAI?HexAI.mini(role):''}<div><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div></div>
       ${cfg&&!cfg.hasKey&&!/127\.0\.0\.1|localhost/.test(cfg.base)&&!set?`<div class="aikey"><b>第一次使用要先設定免費金鑰</b><div>1. 到 console.groq.com 用 Google 帳號登入</div><div>2. 左邊 API Keys → Create API Key，複製金鑰</div><div>3. ${window.hexDesktop?'按下面「設定金鑰」貼上，按儲存並測試':'在電腦版 HexStack 的這一頁貼上（金鑰只能在電腦上設定）'}</div>${window.hexDesktop?'<button type="button" class="bbtn pri" data-open-set>設定金鑰</button>':''}</div>`:''}
       <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
@@ -4022,10 +4027,10 @@ const AiChat=(()=>{
     if(job.done){busy=false;err=job.error?(job.error):'';const r=job.role;if(!job.error)await hist(r);else render();job=null;return}render();jt=setTimeout(poll,1500)}
   async function send(t){t=String(t||'').trim();if(!t||busy)return;busy=true;err='';draft='';(H[role]=H[role]||[]).push({role:'user',content:t});job={role,trace:[],done:false};render();
     try{const r=await api('/api/ai/chat',{role,text:t});job.id=r.id;poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
-  function pick(k,scroll){if(!ROLES.includes(k))return;role=k;W('aiRole',k);err='';draft='';render();if(!H[k]&&BotTab.paired())hist(k);if(scroll){const b=box();b&&b.scrollIntoView({behavior:'smooth',block:'start'})}}
-  function open(){role=J('aiRole',role);if(!ROLES.includes(role))role='bridge';render();if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[role])hist(role)}}
+  function pick(k){if(!ROLES.includes(k))return;if(k!==role){err='';draft=''}role=k;W('aiRole',k);inChat=true;show();render();window.scrollTo(0,0);if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[k])hist(k)}}
+  function open(){show();if(!inChat)return;render();if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[role])hist(role)}}
   document.addEventListener('click',async e=>{const b=box();if(!b||!b.contains(e.target))return;const t=e.target.closest('button');if(!t)return;
-    if(t.dataset.ar)return pick(t.dataset.ar);
+    if('back' in t.dataset){inChat=false;show();window.scrollTo(0,0);return}
     if(t.dataset.q)return send(t.dataset.q);
     if(t.id==='aiToBot'){BotTab.mode('bot');return}
     if('openSet' in t.dataset){set=!set;tmsg='';render();return}
