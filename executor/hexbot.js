@@ -1435,13 +1435,13 @@ const aiSign = body => { const ts = Date.now(); return { 'x-hs-host': C.hostId, 
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 // 一個資料來源只歸一個專家：行情、新聞只有 Scout 抓；回測只有 Echo 跑；Bridge 只派工、整合。out＝被別的 AI 呼叫時固定的回覆欄位
 const AI_ROLES = {
-  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（自己不抓資料），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）。使用者要新增策略或調整風控上限時，整合專家意見後自己用 propose_strategy／propose_risk_limits 提出（App 會跳確認框，使用者按確認才會改）', tools: ['ask_agent', 'propose_strategy', 'propose_risk_limits'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
+  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（行情、回測自己不抓；系統狀態可以用 get_system_info 自己查），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）。使用者要新增策略或調整風控上限時，整合專家意見後自己用 propose_strategy／propose_risk_limits 提出（App 會跳確認框，使用者按確認才會改）', tools: ['ask_agent', 'get_system_info', 'propose_strategy', 'propose_risk_limits'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
   scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件。App 裡沒有的消息就用 web_search 上網查、用 read_webpage 讀內文，回答時附上來源網站和日期', tools: ['get_market_data', 'get_news', 'web_search', 'read_webpage'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
-  echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌。使用者想把某組參數存起來時，用 propose_strategy 提出（App 會跳確認框，使用者按確認才會新增）', tools: ['list_strategies', 'run_backtest', 'propose_strategy'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
-  forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說。使用者想採用某個方案時，用 propose_strategy 提出新增到「我的策略」（新策略，或某個策略底下的新參數組；App 會跳確認框，使用者按確認才會新增，不要說已經加好）', tools: ['ask_agent', 'list_strategies', 'propose_strategy'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
-  vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」。使用者想調整風險控管、或討論出新的上限時，用 propose_risk_limits 提出新值：App 會跳確認框，使用者按確認才會改（不要說已經改好）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules', 'propose_risk_limits'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
-  helm: { name: 'AI.Helm', job: '執行助手：把方案寫成「下單草案」，一定要先請 Vault 審核，絕不自己下單', tools: ['ask_agent', 'get_position', 'list_strategies'], calls: ['vault', 'scout'], out: '下單草案：幣種、方向、數量或資金比例、槓桿、停損，以及 Vault 的結論' },
-  guide: { name: 'AI.Guide', job: '客服：回答 HexStack App 怎麼用、遇到問題怎麼排除。只根據下面的 App 說明回答，說明裡沒有的就老實說不確定，請使用者在專案裡回報。不談行情和投資建議，那些請使用者去問 AI.Bridge', tools: [] }
+  echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌。使用者想把某組參數存起來時，用 propose_strategy 提出（App 會跳確認框，使用者按確認才會新增）', tools: ['list_strategies', 'run_backtest', 'get_backtest_records', 'get_my_strategies', 'get_strategy_review', 'propose_strategy'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
+  forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說。使用者想採用某個方案時，用 propose_strategy 提出新增到「我的策略」（新策略，或某個策略底下的新參數組；App 會跳確認框，使用者按確認才會新增，不要說已經加好）', tools: ['ask_agent', 'list_strategies', 'get_my_strategies', 'get_backtest_records', 'propose_strategy'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
+  vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」。使用者想調整風險控管、或討論出新的上限時，用 propose_risk_limits 提出新值：App 會跳確認框，使用者按確認才會改（不要說已經改好）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules', 'get_system_info', 'get_strategy_review', 'get_trade_log', 'propose_risk_limits'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
+  helm: { name: 'AI.Helm', job: '執行助手：把方案寫成「下單草案」，一定要先請 Vault 審核，絕不自己下單', tools: ['ask_agent', 'get_position', 'list_strategies', 'get_my_strategies', 'get_system_info'], calls: ['vault', 'scout'], out: '下單草案：幣種、方向、數量或資金比例、槓桿、停損，以及 Vault 的結論' },
+  guide: { name: 'AI.Guide', job: '客服：回答 HexStack App 怎麼用、遇到問題怎麼排除。只根據下面的 App 說明回答，說明裡沒有的就老實說不確定，請使用者在專案裡回報。不談行情和投資建議，那些請使用者去問 AI.Bridge', tools: ['get_system_info'] }
 };
 // 誰可以找誰（calls）：Bridge 找任何人；Forge 找 Echo、Scout；Vault 找 Echo；Helm 找 Vault、Scout。最多轉兩層（Bridge → Forge → Echo），不能找回自己或 Bridge
 const AI_DEPTH = 2;
@@ -1452,13 +1452,14 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 策略分析：選內建策略和幣種跑回測（含手續費、滑價、資金費率），可以調參數；滿意的參數存成「我的策略」，同一個策略可以有好幾組參數（參數1、參數2…）。
 - 查看價格：K 線圖，可以畫量尺、斜線、水平線、方框，點圖形可以刪除。
 - 開始交易 › 訊號交易：「我的策略」出現進出場訊號時推播通知，自己決定要不要下單。
+- HexAI 可以查系統資訊（版本、資料、交易所、風控）、App「我的策略」、「策略分析」的回測紀錄（存在手機上，從 App 開對話時會帶給 AI）、HexBOT 交易紀錄和策略回顧；查不到時會先問你要不要現在回測。
 - 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（永續合約；現貨＝只做多、1 倍；槓桿＝全倉借貸、可做空、最多 3 倍、要付借款利息）② 選方向（做多／做空／雙向）③ 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定下單金鑰（Bybit、幣安、OKX、Bitget；OKX、Bitget 要填 Passphrase），可以先用測試網或模擬交易。「風險控管」分頁可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
 - 開始交易 › HexAI：AI 顧問。Bridge 是總管，Scout 看行情新聞（會上網查）、Echo 回測、Forge 想策略、Vault 風控、Helm 寫下單草案、Guide 是客服。AI 只給建議，不會下單；它要新增策略或改風控上限時會跳確認框，按確認才會改。每隻 AI 下面的「給它的資料」可以寫你的規則和偏好。預設用 HexStack 雲端 AI，不用設定金鑰；想用自己的金鑰或本機模型，到電腦版 HexAI 的模型設定改。
 - 資產總覽：把各交易所帳戶的資產加總，看報酬率。在資產總覽按「＋ 加入」，用只勾「讀取」的唯讀金鑰加入。
 - 設定：客服機器人、外觀（預設、深夜、白天，可以跟著日出日落自動切換）、通知設定、資料庫、資料狀態、語言、帳號同步（Google 登入後手機和電腦的我的策略、通知、外觀、資產紀錄會同步，交易所金鑰不會上傳）、更新到最新版（看不到新版時按這裡）。
 - 安全：交易所金鑰只存在使用者自己的電腦上，建金鑰時只開「交易」權限，絕對不要開「提幣」，建議用子帳戶。真金下單一律由使用者自己操作。
 - 常見問題：手機看不到新版 → 設定 › 更新到最新版；HexBOT 顯示離線 → 確認電腦上的 HexStack 有開著、電腦沒睡眠；電腦版會自動更新。`;
-const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、第一行用「結論：」開頭先講結論；用 **粗體** 標出 2～4 個重點（關鍵數字、決定、風險），不要整段都粗體。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。任何重要決定（新增或修改策略、改風控上限、開始或停止交易、下單）都只能提出建議，由使用者本人確認。給投資建議（買賣方向、倉位、槓桿、策略選擇）時，最後加一行「⚠ 風險提示：加密貨幣波動大，可能虧損全部本金，僅供參考，請自行判斷。」；單純回答操作問題不用加。';
+const AI_RULES = '規則：查不到需要的資料（例如沒有回測紀錄、沒有交易紀錄）時，不要猜，用 ask_user 問使用者要不要現在去跑（例如「要不要我現在回測？」選項：要／不要）。一律用繁體中文（台灣用語）回答，簡潔、第一行用「結論：」開頭先講結論；用 **粗體** 標出 2～4 個重點（關鍵數字、決定、風險），不要整段都粗體。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。任何重要決定（新增或修改策略、改風控上限、開始或停止交易、下單）都只能提出建議，由使用者本人確認。給投資建議（買賣方向、倉位、槓桿、策略選擇）時，最後加一行「⚠ 風險提示：加密貨幣波動大，可能虧損全部本金，僅供參考，請自行判斷。」；單純回答操作問題不用加。';
 // 使用者給每隻 AI 的資料（規則、偏好、背景），每次對話都放進系統提示
 const aiNote = r => { const t = ((C.aiNotes || {})[r] || '').trim(); return t ? '\n使用者給你的資料（照這些規則和偏好做，跟上面的安全規則衝突時以安全規則為準）：\n' + t : ''; };
 const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}${aiNote(r)}${depth ? '' : '\n跟使用者互動：需要使用者決定或補資料時，用 ask_user 給 2～4 個選項讓他點（不要只用文字問）。' + (AI_ROLES[r].tools.some(t => /^propose_/.test(t)) ? '回答完如果有自然的下一步（存成策略、調整上限），主動用 propose_ 工具提出，App 會跳確認框問使用者；' : '') + '新增策略、改設定一定要經過確認框，不能說已經改好。'}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
@@ -1470,6 +1471,11 @@ const AI_TOOLS = {
   get_news: { d: 'HexStack 市場分析頁的最新盤勢摘要、行事曆和新聞標題', p: { limit: { type: 'integer', description: '新聞則數，預設 5' } } },
   get_account_balance: { d: '帳戶權益：模擬盤各交易所、實盤，和資產總覽的總資產', p: {} },
   get_position: { d: '目前所有持倉和執行中的策略', p: {} },
+  get_system_info: { d: 'HexStack 系統資訊：電腦版和 App 版本、引擎、各幣資料到哪一天、下單交易所（測試網／正式網、模擬盤開關）、模擬帳戶、AI 模型、風控上限與哪些關掉了、策略數量', p: {} },
+  get_my_strategies: { d: '使用者 App「我的策略」裡存的策略和參數組（名稱、策略代號、幣種、參數），以及哪些正在 HexBOT 執行', p: {} },
+  get_backtest_records: { d: '使用者在 App「策略分析」跑過的回測紀錄（最新在前）：策略、幣種、期間、報酬、最大回撤、勝率、交易次數、參數。沒有紀錄時回傳空清單', p: { strategy: { type: 'string', description: '只看這個策略代號，可不給' }, symbol: { type: 'string', description: '只看這個幣，可不給' }, limit: { type: 'integer', description: '幾筆，預設 10，最多 40' } } },
+  get_trade_log: { d: 'HexBOT 最近的交易與事件紀錄（開倉、平倉、停損、停利、暫停、錯誤）', p: { limit: { type: 'integer', description: '幾筆，預設 20，最多 80' }, symbol: { type: 'string', description: '只看這個幣，可不給' } } },
+  get_strategy_review: { d: 'HexBOT 執行中策略的實際績效對回測（報酬、交易次數、勝率、回撤、滑價），和是否偏離回測', p: { days: { type: 'integer', description: '看最近幾天，0＝從開始執行算，預設 0' } } },
   get_risk_rules: { d: '目前的風控上限（單筆部位、槓桿、日虧損、最大回撤）和是否觸發停機', p: {} },
   ask_user: { d: '問使用者一個問題，給 2～4 個選項讓他點（他也可以自己打字）。呼叫後這一輪就結束，等使用者回答', p: { question: { type: 'string' }, options: { type: 'array', items: { type: 'string' }, description: '2～4 個簡短選項，每個 20 字內' } }, req: ['question', 'options'] },
   propose_strategy: { d: '提出新增到使用者的「我的策略」：新策略，或加在既有策略底下的一組參數。不會直接生效：App 會跳確認框給使用者，按確認才新增', p: { strategy: { type: 'string', description: 'list_strategies 給的代號' }, symbol: { type: 'string', description: '例如 BTC' }, params: { type: 'object', description: '跟預設不同的參數，沒給就用預設' }, name: { type: 'string', description: '策略名字（新策略用）或參數組名字，簡短' }, group: { type: 'string', description: '要加在哪個既有策略底下（使用者說的策略名字）；新策略就不給' }, reason: { type: 'string', description: '一句話：為什麼建議這組（附回測報酬、回撤）' } }, req: ['strategy', 'symbol'] },
@@ -1527,6 +1533,18 @@ async function aiTool(name, a, depth, trace, from) {
     return { proposed: { strategy: st, stName: ENG.NAME[st] || st, symbol: sy, params: ch, name: String(a.name || '').slice(0, 30), group: String(a.group || '').slice(0, 40) }, reason: String(a.reason || '').slice(0, 200), note: '已跳確認框給使用者，按確認才會新增' }; }
   if (name === 'propose_risk_limits') { const o = {}; for (const k in LIMR) if (a[k] != null && a[k] !== '') { const v = +a[k]; if (!(v >= LIMR[k][0] && v <= LIMR[k][1])) throw new Error(`${k} 要在 ${LIMR[k][0]}～${LIMR[k][1]} 之間`); o[k] = v; } if (!Object.keys(o).length) throw new Error('至少要給一個要改的上限'); return { proposed: o, current: C.limits, reason: String(a.reason || '').slice(0, 200), note: '已跳確認框給使用者，按確認才會生效' }; }
   if (name === 'list_strategies') { const s = symOk(a.symbol), B = ENG.BEST[a.strategy]; if (B) return { strategy: a.strategy, name: ENG.NAME[a.strategy] || a.strategy, symbol: s, defaultParams: cleanP(B[s] || B.BTC || {}) }; return { strategies: Object.keys(ENG.BEST).map(k => ({ code: k, name: ENG.NAME[k] || k })) }; }
+  if (name === 'get_system_info') { const s = await status(), A = APPCTX.app || {};
+    return { hexstack: s.ver, app: A.ver || '不知道（App 還沒回報）', engine: s.engine, data: s.data, exchange: s.exchange, testnet: s.testnet, liveReady: s.liveReady, allowLive: s.allowLive, paperOnly: s.paperOnly, mode: s.mode, sims: s.sims, live: s.live, ai: (() => { const c = aiCfg(); return { cloud: aiCloud(c), model: c.model }; })(), limits: s.limits, limitsOff: Object.keys(s.limitsOff || {}), halted: s.halted, counts: s.counts, strategiesRunning: s.strategies.filter(g => g.enabled).length, myStrategies: (APPCTX.mine || []).length, backtestRecords: (APPCTX.runs || []).length, appContextAt: APPCTX.at ? tpeHM(APPCTX.at) : null }; }
+  if (name === 'get_my_strategies') { const on = S.strategies.filter(g => g.enabled); const mine = APPCTX.mine || [];
+    return { count: mine.length, strategies: mine.map(m => Object.assign({}, m, { running: on.filter(g => String(g.key || '').split('@')[0] === m.key).map(g => ({ symbol: g.sym, market: MKT_NAME[mktOf(g)], ledger: g.led, state: g.state })) })), note: mine.length ? undefined : 'App 的「我的策略」是空的，或 App 還沒回報（要從 App 開對話才會帶上）' }; }
+  if (name === 'get_backtest_records') { let L = APPCTX.runs || []; if (a.strategy) L = L.filter(x => x.strategy === a.strategy); if (a.symbol) L = L.filter(x => x.symbol === String(a.symbol).toUpperCase().replace(/USDT$/, ''));
+    const n = Math.max(1, Math.min(40, +a.limit || 10)); return L.length ? { total: L.length, records: L.slice(0, n) } : { total: 0, records: [], note: '沒有符合的回測紀錄。先用 ask_user 問使用者要不要現在用 run_backtest 回測（給選項：要／不要），不要自己編數字' }; }
+  if (name === 'get_trade_log') { const n = Math.max(1, Math.min(80, +a.limit || 20)), sy = a.symbol ? String(a.symbol).toUpperCase() : '';
+    const L = LOGS.filter(e => e.type !== 'report' && (!sy || e.sym === sy)).slice(-n).reverse().map(e => ({ time: tpeHM(e.t), type: TYPE[e.type] || e.type, name: e.name, symbol: e.sym, side: e.side, price: e.px, qty: e.qty, pnl: e.pnl, text: e.text }));
+    return L.length ? { records: L } : { records: [], note: 'HexBOT 還沒有交易紀錄' }; }
+  if (name === 'get_strategy_review') { const d = Math.max(0, Math.min(365, +a.days || 0)), out = [];
+    for (const g of S.strategies.filter(g => g.enabled)) { try { const r = review(g, d); out.push({ name: r.name, symbol: r.sym, market: MKT_NAME[mktOf(g)], real: Object.assign({}, r.real, { curve: undefined }), backtest: Object.assign({}, r.bt, { curve: undefined }), status: r.status === 'drift' ? '偏離回測' : '正常', reasons: r.reasons }); } catch (e) {} }
+    return out.length ? { strategies: out } : { strategies: [], note: 'HexBOT 目前沒有執行中的策略' }; }
   if (name === 'run_backtest') {
     const st = String(a.strategy || ''), s = symOk(a.symbol); if (!ENG.BEST[st]) throw new Error('沒有策略 ' + st + '，先用 list_strategies 查代號');
     const days = Math.max(30, Math.min(1000, +a.days || 365)), T = mEnd(s), B = ENG.BEST[st];
@@ -1584,6 +1602,16 @@ async function aiRun(role, hist, depth = 0, trace = []) {
 }
 // 對話存在 hexbot-data/ai.json：每個角色一串，最多留 40 則；工作是非同步的（本機模型可能要一兩分鐘，通道會逾時），App 輪詢 /api/ai/job
 const F_AI = path.join(DIR, 'ai.json'), AIH = readJ(F_AI, {}), AIJ = {};
+// App 開對話時順便帶上「我的策略」和回測紀錄（存在手機上），AI 才查得到；存檔，電腦版重開也還在
+const F_CTX = path.join(DIR, 'appctx.json'); let APPCTX = readJ(F_CTX, {});
+function setCtx(c) {
+  if (!c || typeof c !== 'object') return; const j = JSON.stringify(c); if (j.length > 120000) return;
+  const str = (v, n) => String(v == null ? '' : v).slice(0, n), num = v => isFinite(+v) ? +v : null;
+  APPCTX = { at: nowS(), app: { ver: str(c.app && c.app.ver, 20) },
+    mine: (Array.isArray(c.mine) ? c.mine : []).slice(0, 60).map(m => ({ key: str(m.key, 80), group: str(m.group, 40), set: str(m.set, 40), strategy: str(m.strategy, 20), name: str(m.name, 40), symbol: str(m.symbol, 12), params: cleanP(m.params) })),
+    runs: (Array.isArray(c.runs) ? c.runs : []).slice(0, 60).map(x => ({ at: str(x.at, 20), strategy: str(x.strategy, 20), name: str(x.name, 40), symbol: str(x.symbol, 12), period: str(x.period, 40), capital: num(x.capital), returnPct: num(x.returnPct), maxDrawdownPct: num(x.maxDrawdownPct), winRate: str(x.winRate, 12), trades: num(x.trades), liquidated: !!x.liquidated, starred: !!x.starred, changedParams: Array.isArray(x.changedParams) ? x.changedParams.slice(0, 20).map(y => str(y, 60)) : [] })) };
+  try { writeJ(F_CTX, APPCTX); } catch (e) {}
+}
 async function aiStart(role, text) {
   if (!AI_ROLES[role]) throw new HErr(400, '沒有這個 AI');
   text = String(text || '').trim().slice(0, 4000); if (!text) throw new HErr(400, '請輸入問題');
@@ -1617,7 +1645,7 @@ async function aiApi(req, p, M, q) {
     saveCfg(); return Object.assign({ ok: true }, await aiTest());
   }
   if (p === '/api/ai/notes') { if (!AI_ROLES[d.role]) throw new HErr(400, '沒有這個 AI'); const n = C.aiNotes || (C.aiNotes = {}), t = String(d.text || '').trim().slice(0, 3000); if (t) n[d.role] = t; else delete n[d.role]; saveCfg(); return { ok: true, notes: n }; }
-  if (p === '/api/ai/chat') return aiStart(d.role || 'bridge', d.text);
+  if (p === '/api/ai/chat') { setCtx(d.ctx); return aiStart(d.role || 'bridge', d.text); }
   if (p === '/api/ai/clear') { delete AIH[d.role || 'bridge']; writeJ(F_AI, AIH); return { ok: true }; }
   throw new HErr(404, '沒有這個功能');
 }
