@@ -386,6 +386,237 @@ class BybitExchange {
   }
 }
 
+// ── 其他交易所實盤（USDT 永續、單向持倉、全倉），介面跟 BybitExchange 一樣。照 2026-10 官方文件寫的，**還沒有在真的帳戶上測過**，請先用模擬交易／測試網 ──
+const dec = x => (String(x).split('.')[1] || '').length;
+const floorTo = (q, step) => +(Math.floor(q / step + 1e-9) * step).toFixed(dec(step));
+const tickTo = (v, tick) => (Math.round(v / tick) * tick).toFixed(dec(tick));
+const cid = () => 'hx' + Date.now().toString(36) + rnd(3);
+async function waitFill(get, name, id) {
+  for (let k = 0; k < 10; k++) { await sleep(500); let r = null; try { r = await get(); } catch (e) { if (e.final) throw e; } if (r) return r; }
+  throw new Error(name + ' 下單後查不到成交（' + id + '）');
+}
+const finalErr = m => Object.assign(new Error(m), { final: true });
+
+// 幣安 USDⓈ-M。簽名：HMAC-SHA256(query 字串) 轉 hex，參數一律放 query。測試網（模擬交易）是 demo-fapi.binance.com，要用模擬交易建的金鑰
+// 停損停利：2025-12 起舊的 STOP_MARKET 下單介面不收（-4120），改用 Algo 條件單 /fapi/v1/algoOrder（closePosition＝整個部位）
+class BinanceExchange {
+  constructor(c) { this.key = c.apiKey; this.sec = c.apiSecret; this.base = c.testnet ? 'https://demo-fapi.binance.com' : 'https://fapi.binance.com'; this.off = 0; this.inst = null; this.levOk = {}; this.name = 'binance'; this.maxLev = c.limits.maxLev; this.ready = false; }
+  async req(method, p, params = {}, signed = true) {
+    const q = new URLSearchParams(); for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== '') q.set(k, String(v));
+    if (signed) { q.set('timestamp', String(Date.now() + this.off)); q.set('recvWindow', '5000'); q.set('signature', hmac(this.sec, q.toString())); }
+    const qs = q.toString(), r = await fetchT(this.base + p + (qs ? '?' + qs : ''), { method, headers: signed ? { 'X-MBX-APIKEY': this.key } : {} }, 15000);
+    const j = await r.json().catch(() => ({ code: -1, msg: 'HTTP ' + r.status }));
+    if (!r.ok || j && typeof j.code === 'number' && j.code < 0) { const e = new Error(`幣安 ${j.code} ${j.msg || 'HTTP ' + r.status}`); e.code = j.code; throw e; }
+    return j;
+  }
+  async init() {
+    if (this.ready) return;
+    try { this.off = +(await this.req('GET', '/fapi/v1/time', {}, false)).serverTime - Date.now(); } catch (e) {}
+    try { await this.req('POST', '/fapi/v1/positionSide/dual', { dualSidePosition: 'false' }); } catch (e) { if (e.code !== -4059) console.log('幣安切單向持倉：', e.message); }
+    this.ready = true;
+  }
+  async price(sym) { return +(await this.req('GET', '/fapi/v1/ticker/price', { symbol: sym + 'USDT' }, false)).price; }
+  async getEquity() {
+    await this.init(); const a = await this.req('GET', '/fapi/v3/account'), u = (a.assets || []).find(x => x.asset === 'USDT');
+    if (u) return +u.marginBalance; if (a.totalMarginBalance != null) return +a.totalMarginBalance; throw new Error('讀不到幣安合約權益');
+  }
+  async algos(sym) { const r = await this.req('GET', '/fapi/v1/openAlgoOrders', sym ? { symbol: sym + 'USDT' } : {}); return Array.isArray(r) ? r : r.orders || r.rows || []; }
+  async getPositions() {
+    const r = await this.req('GET', '/fapi/v3/positionRisk'); let al = []; try { al = await this.algos(); } catch (e) {}
+    return (r || []).filter(x => +x.positionAmt && /USDT$/.test(x.symbol)).map(x => { const o = al.filter(a => a.symbol === x.symbol), f = t => +((o.find(a => (a.orderType || a.type) === t) || {}).triggerPrice || 0);
+      return { sym: x.symbol.replace(/USDT$/, ''), side: +x.positionAmt > 0 ? 1 : -1, qty: Math.abs(+x.positionAmt), entry: +x.entryPrice, stop: f('STOP_MARKET'), tp: f('TAKE_PROFIT_MARKET'), mark: +x.markPrice, upnl: +x.unRealizedProfit }; });
+  }
+  async position(sym) { const r = await this.req('GET', '/fapi/v3/positionRisk', { symbol: sym + 'USDT' }); return (r || []).reduce((a, x) => a + (+x.positionAmt || 0), 0); }
+  async instrument(sym) {
+    if (!this.inst) { const r = await this.req('GET', '/fapi/v1/exchangeInfo', {}, false); this.inst = {}; for (const s of r.symbols || []) this.inst[s.symbol] = s; }
+    const s = this.inst[sym + 'USDT']; if (!s || s.contractType !== 'PERPETUAL') throw new Error('幣安沒有 ' + sym + 'USDT 永續');
+    const F = t => (s.filters || []).find(f => f.filterType === t) || {}, lot = F('MARKET_LOT_SIZE').stepSize ? F('MARKET_LOT_SIZE') : F('LOT_SIZE');
+    return { step: +lot.stepSize, min: +lot.minQty, tick: +F('PRICE_FILTER').tickSize };
+  }
+  async round(sym, q) { return floorTo(q, (await this.instrument(sym)).step); }
+  async minQty(sym) { return (await this.instrument(sym)).min; }
+  async lev(sym) {
+    if (this.levOk[sym]) return;
+    try { await this.req('POST', '/fapi/v1/marginType', { symbol: sym + 'USDT', marginType: 'CROSSED' }); } catch (e) { if (e.code !== -4046) console.log('幣安改全倉：', e.message); }
+    await this.req('POST', '/fapi/v1/leverage', { symbol: sym + 'USDT', leverage: Math.max(1, Math.ceil(this.maxLev)) });
+    this.levOk[sym] = 1;
+  }
+  async marketOrder(sym, side, qty, reduceOnly) {
+    await this.init(); const q = await this.round(sym, qty); if (!(q > 0)) return { qty: 0, px: 0, fee: 0 };
+    if (!reduceOnly) await this.lev(sym);
+    const s = sym + 'USDT', o = await this.req('POST', '/fapi/v1/order', { symbol: s, side: side > 0 ? 'BUY' : 'SELL', type: 'MARKET', quantity: q, reduceOnly: reduceOnly ? 'true' : undefined, newClientOrderId: cid(), newOrderRespType: 'RESULT' });
+    const fee = async () => { try { const t = await this.req('GET', '/fapi/v1/userTrades', { symbol: s, orderId: o.orderId }); return (t || []).reduce((a, x) => a + (x.commissionAsset === 'USDT' ? +x.commission : 0), 0); } catch (e) { return 0; } };
+    const done = async x => x.status === 'FILLED' || ['CANCELED', 'EXPIRED', 'EXPIRED_IN_MATCH'].includes(x.status) && +x.executedQty > 0 ? { qty: +x.executedQty, px: +x.avgPrice, fee: await fee() } : ['REJECTED', 'CANCELED', 'EXPIRED', 'EXPIRED_IN_MATCH'].includes(x.status) ? Promise.reject(finalErr('幣安訂單 ' + x.status)) : null;
+    const first = await done(o); if (first) return first;
+    return waitFill(async () => done(await this.req('GET', '/fapi/v1/order', { symbol: s, orderId: o.orderId })), '幣安', o.orderId);
+  }
+  // 先掛新的條件單，再撤舊的（中間不會有沒保護的空窗）
+  async setStop(sym, stop, tp) {
+    const s = sym + 'USDT', i = await this.instrument(sym); let old = []; try { old = await this.algos(sym); } catch (e) {}
+    const p = stop || tp ? await this.position(sym) : 0;
+    if (p) for (const [t, v] of [['STOP_MARKET', stop], ['TAKE_PROFIT_MARKET', tp]]) if (v) await this.req('POST', '/fapi/v1/algoOrder', { algoType: 'CONDITIONAL', symbol: s, side: p > 0 ? 'SELL' : 'BUY', type: t, triggerPrice: tickTo(v, i.tick), closePosition: 'true', workingType: 'CONTRACT_PRICE', clientAlgoId: cid() });
+    for (const a of old) try { await this.req('DELETE', '/fapi/v1/algoOrder', { algoId: a.algoId }); } catch (e) {}
+  }
+  async closeAll() { for (const p of await this.getPositions()) await this.marketOrder(p.sym, -p.side, p.qty, true); }
+  async stopFills(sym, since) {
+    const s = sym + 'USDT', r = await this.req('GET', '/fapi/v1/allAlgoOrders', { symbol: s, startTime: since * 1000 }), al = (Array.isArray(r) ? r : r.orders || r.rows || []).filter(a => a.actualOrderId && +a.actualOrderId > 0);
+    if (!al.length) return [];
+    const t = await this.req('GET', '/fapi/v1/userTrades', { symbol: s, startTime: since * 1000 }), out = [];
+    for (const a of al) { const f = (t || []).filter(x => String(x.orderId) === String(a.actualOrderId)); if (!f.length) continue; const q = f.reduce((z, x) => z + +x.qty, 0);
+      out.push({ t: Math.floor(Math.max(...f.map(x => +x.time)) / 1000), kind: (a.orderType || a.type) === 'TAKE_PROFIT_MARKET' ? 'tp' : 'stop', px: f.reduce((z, x) => z + x.qty * x.price, 0) / q, qty: q, fee: f.reduce((z, x) => z + (x.commissionAsset === 'USDT' ? +x.commission : 0), 0) }); }
+    return out;
+  }
+}
+
+// OKX v5（BTC-USDT-SWAP）。簽名：base64(HMAC-SHA256(時間 ISO + 方法 + 路徑含 query + body))，要 Passphrase。模擬交易加 header x-simulated-trading: 1，用模擬交易建的金鑰
+// 數量單位是「張」：幣數＝張數 × ctVal。整個部位的停損停利只能掛一張（oco 或 conditional），所以先撤舊的再掛新的
+class OkxExchange {
+  constructor(c) { this.key = c.apiKey; this.sec = c.apiSecret; this.pass = c.apiPass || ''; this.demo = !!c.testnet; this.base = 'https://www.okx.com'; this.off = 0; this.inst = {}; this.levOk = {}; this.name = 'okx'; this.maxLev = c.limits.maxLev; this.ready = false; }
+  async req(method, p, params = {}, signed = true) {
+    const qs = method === 'GET' ? new URLSearchParams(params).toString() : '', path = p + (qs ? '?' + qs : ''), body = method === 'GET' ? '' : JSON.stringify(params), ts = new Date(Date.now() + this.off).toISOString();
+    const h = { 'Content-Type': 'application/json' }; if (this.demo) h['x-simulated-trading'] = '1';
+    if (signed) Object.assign(h, { 'OK-ACCESS-KEY': this.key, 'OK-ACCESS-SIGN': crypto.createHmac('sha256', this.sec).update(ts + method + path + body).digest('base64'), 'OK-ACCESS-TIMESTAMP': ts, 'OK-ACCESS-PASSPHRASE': this.pass });
+    const r = await fetchT(this.base + path, { method, headers: h, body: method === 'GET' ? undefined : body }, 15000);
+    const j = await r.json().catch(() => ({ code: '-1', msg: 'HTTP ' + r.status })), d0 = (j.data || [])[0];
+    if (j.code !== '0' || d0 && d0.sCode && d0.sCode !== '0') { const c = d0 && d0.sCode && d0.sCode !== '0' ? d0.sCode : j.code, e = new Error(`OKX ${c} ${d0 && d0.sMsg || j.msg || ''}`.trim()); e.code = c; throw e; }
+    return j.data || [];
+  }
+  id(sym) { return sym + '-USDT-SWAP'; }
+  async init() {
+    if (this.ready) return;
+    try { this.off = +(await this.req('GET', '/api/v5/public/time', {}, false))[0].ts - Date.now(); } catch (e) {}
+    try { const c = (await this.req('GET', '/api/v5/account/config'))[0]; if (c && c.posMode !== 'net_mode') await this.req('POST', '/api/v5/account/set-position-mode', { posMode: 'net_mode' }); } catch (e) { console.log('OKX 切單向持倉：', e.message); }
+    this.ready = true;
+  }
+  async price(sym) { return +(await this.req('GET', '/api/v5/market/ticker', { instId: this.id(sym) }, false))[0].last; }
+  async getEquity() {
+    await this.init(); const a = (await this.req('GET', '/api/v5/account/balance', { ccy: 'USDT' }))[0] || {}, u = (a.details || []).find(x => x.ccy === 'USDT');
+    if (u && u.eq !== '') return +u.eq; if (a.totalEq) return +a.totalEq; throw new Error('讀不到 OKX 權益');
+  }
+  async instrument(sym) {
+    if (this.inst[sym]) return this.inst[sym];
+    const x = (await this.req('GET', '/api/v5/public/instruments', { instType: 'SWAP', instId: this.id(sym) }, false))[0];
+    if (!x) throw new Error('OKX 沒有 ' + this.id(sym));
+    const ct = +x.ctVal * (+x.ctMult || 1), lot = +x.lotSz;
+    return (this.inst[sym] = { step: +(lot * ct).toPrecision(12), min: +(+x.minSz * ct).toPrecision(12), tick: +x.tickSz, ct, lot });
+  }
+  async round(sym, q) { const i = await this.instrument(sym); return +(floorTo(q / i.ct, i.lot) * i.ct).toPrecision(12); }
+  async minQty(sym) { return (await this.instrument(sym)).min; }
+  async rawPos(sym) { return this.req('GET', '/api/v5/account/positions', Object.assign({ instType: 'SWAP' }, sym ? { instId: this.id(sym) } : {})); }
+  async getPositions() {
+    const out = [];
+    for (const x of await this.rawPos()) { if (!/-USDT-SWAP$/.test(x.instId) || !+x.pos) continue; const sym = x.instId.replace(/-USDT-SWAP$/, ''), i = await this.instrument(sym), al = (x.closeOrderAlgo || [])[0] || {};
+      out.push({ sym, side: +x.pos > 0 ? 1 : -1, qty: Math.abs(+x.pos) * i.ct, entry: +x.avgPx, stop: +al.slTriggerPx || 0, tp: +al.tpTriggerPx || 0, mark: +x.markPx, upnl: +x.upl }); }
+    return out;
+  }
+  async position(sym) { const i = await this.instrument(sym); return (await this.rawPos(sym)).reduce((a, x) => a + (+x.pos || 0), 0) * i.ct; }
+  async lev(sym) { if (this.levOk[sym]) return; await this.req('POST', '/api/v5/account/set-leverage', { instId: this.id(sym), lever: String(Math.max(1, Math.ceil(this.maxLev))), mgnMode: 'cross' }); this.levOk[sym] = 1; }
+  async marketOrder(sym, side, qty, reduceOnly) {
+    await this.init(); const i = await this.instrument(sym), sz = floorTo(qty / i.ct, i.lot); if (!(sz > 0)) return { qty: 0, px: 0, fee: 0 };
+    if (!reduceOnly) await this.lev(sym);
+    const o = (await this.req('POST', '/api/v5/trade/order', Object.assign({ instId: this.id(sym), tdMode: 'cross', side: side > 0 ? 'buy' : 'sell', ordType: 'market', sz: String(sz), clOrdId: cid() }, reduceOnly ? { reduceOnly: true } : {})))[0];
+    return waitFill(async () => { const x = (await this.req('GET', '/api/v5/trade/order', { instId: this.id(sym), ordId: o.ordId }))[0];
+      if (!x) return null; const f = +x.accFillSz;
+      if (x.state === 'filled' || /canceled/.test(x.state) && f > 0) return { qty: f * i.ct, px: +x.avgPx, fee: Math.abs(+x.fee || 0) };
+      if (/canceled/.test(x.state)) throw finalErr('OKX 訂單已取消'); return null; }, 'OKX', o.ordId);
+  }
+  async setStop(sym, stop, tp) {
+    const id = this.id(sym), i = await this.instrument(sym), old = [];
+    for (const t of ['oco', 'conditional']) try { old.push(...(await this.req('GET', '/api/v5/trade/orders-algo-pending', { ordType: t, instId: id })).map(a => ({ algoId: a.algoId, instId: id }))); } catch (e) {}
+    if (old.length) await this.req('POST', '/api/v5/trade/cancel-algos', old.slice(0, 10));
+    const p = stop || tp ? await this.position(sym) : 0; if (!p) return;
+    const b = { instId: id, tdMode: 'cross', side: p > 0 ? 'sell' : 'buy', ordType: stop && tp ? 'oco' : 'conditional', closeFraction: '1', reduceOnly: true, cxlOnClosePos: true, algoClOrdId: cid() };
+    if (stop) Object.assign(b, { slTriggerPx: tickTo(stop, i.tick), slOrdPx: '-1', slTriggerPxType: 'last' });
+    if (tp) Object.assign(b, { tpTriggerPx: tickTo(tp, i.tick), tpOrdPx: '-1', tpTriggerPxType: 'last' });
+    await this.req('POST', '/api/v5/trade/order-algo', b);
+  }
+  async closeAll() { for (const p of await this.getPositions()) await this.marketOrder(p.sym, -p.side, p.qty, true); }
+  async stopFills(sym, since) {
+    const id = this.id(sym), i = await this.instrument(sym), out = [];
+    for (const t of ['oco', 'conditional']) {
+      let r = []; try { r = await this.req('GET', '/api/v5/trade/orders-algo-history', { ordType: t, state: 'effective', instId: id }); } catch (e) { continue; }
+      for (const a of r) { const tt = Math.floor(+(a.triggerTime || a.uTime || 0) / 1000); if (tt < since) continue; let fee = 0, px = +a.actualPx || 0, q = +a.actualSz || 0;
+        for (const oid of a.ordIdList || []) try { const x = (await this.req('GET', '/api/v5/trade/order', { instId: id, ordId: oid }))[0]; if (x) { fee += Math.abs(+x.fee || 0); if (+x.avgPx) px = +x.avgPx; if (+x.accFillSz) q = +x.accFillSz; } } catch (e) {}
+        if (q > 0) out.push({ t: tt, kind: a.actualSide === 'tp' ? 'tp' : 'stop', px, qty: q * i.ct, fee }); }
+    }
+    return out;
+  }
+}
+
+// Bitget v2 合約（USDT-FUTURES，Classic 帳戶）。簽名：base64(HMAC-SHA256(毫秒時間 + 方法 + 路徑 + ?query + body))，要 Passphrase。模擬交易加 header paptrading: 1，用模擬交易建的金鑰
+class BitgetExchange {
+  constructor(c) { this.key = c.apiKey; this.sec = c.apiSecret; this.pass = c.apiPass || ''; this.demo = !!c.testnet; this.base = 'https://api.bitget.com'; this.off = 0; this.inst = {}; this.levOk = {}; this.name = 'bitget'; this.maxLev = c.limits.maxLev; this.ready = false; this.PT = 'USDT-FUTURES'; }
+  async req(method, p, params = {}, signed = true) {
+    const qs = method === 'GET' ? new URLSearchParams(params).toString() : '', body = method === 'GET' ? '' : JSON.stringify(params), ts = String(Date.now() + this.off);
+    const h = { 'Content-Type': 'application/json', locale: 'en-US' }; if (this.demo) h.paptrading = '1';
+    if (signed) Object.assign(h, { 'ACCESS-KEY': this.key, 'ACCESS-SIGN': crypto.createHmac('sha256', this.sec).update(ts + method + p + (qs ? '?' + qs : '') + body).digest('base64'), 'ACCESS-TIMESTAMP': ts, 'ACCESS-PASSPHRASE': this.pass });
+    const r = await fetchT(this.base + p + (qs ? '?' + qs : ''), { method, headers: h, body: method === 'GET' ? undefined : body }, 15000);
+    const j = await r.json().catch(() => ({ code: '-1', msg: 'HTTP ' + r.status }));
+    if (j.code !== '00000') { const e = new Error(`Bitget ${j.code} ${j.msg || ''}`.trim()); e.code = j.code; throw e; }
+    return j.data;
+  }
+  async init() {
+    if (this.ready) return;
+    try { this.off = +(await this.req('GET', '/api/v2/public/time', {}, false)).serverTime - Date.now(); } catch (e) {}
+    try { await this.req('POST', '/api/v2/mix/account/set-position-mode', { productType: this.PT, posMode: 'one_way_mode' }); } catch (e) { console.log('Bitget 切單向持倉：', e.message); }
+    this.ready = true;
+  }
+  async price(sym) { return +(await this.req('GET', '/api/v2/mix/market/ticker', { symbol: sym + 'USDT', productType: this.PT }, false))[0].lastPr; }
+  async getEquity() {
+    await this.init(); const u = (await this.req('GET', '/api/v2/mix/account/accounts', { productType: this.PT }) || []).find(x => x.marginCoin === 'USDT');
+    if (u) return +(u.accountEquity || u.usdtEquity); throw new Error('讀不到 Bitget 合約權益');
+  }
+  async instrument(sym) {
+    if (this.inst[sym]) return this.inst[sym];
+    const x = (await this.req('GET', '/api/v2/mix/market/contracts', { productType: this.PT, symbol: sym + 'USDT' }, false) || [])[0];
+    if (!x) throw new Error('Bitget 沒有 ' + sym + 'USDT 永續');
+    const step = +x.sizeMultiplier || 10 ** -(+x.volumePlace || 0);
+    return (this.inst[sym] = { step, min: Math.max(+x.minTradeNum || 0, step), tick: +((+x.priceEndStep || 1) * 10 ** -(+x.pricePlace || 0)).toPrecision(12) });
+  }
+  async round(sym, q) { return floorTo(q, (await this.instrument(sym)).step); }
+  async minQty(sym) { return (await this.instrument(sym)).min; }
+  async rawPos() { return (await this.req('GET', '/api/v2/mix/position/all-position', { productType: this.PT, marginCoin: 'USDT' })) || []; }
+  sideOf(x) { return /^(long|buy)$/.test(x.holdSide) ? 1 : -1; }
+  async getPositions() { return (await this.rawPos()).filter(x => +x.total > 0).map(x => ({ sym: x.symbol.replace(/USDT$/, ''), side: this.sideOf(x), qty: +x.total, entry: +x.openPriceAvg, stop: +x.stopLoss || 0, tp: +x.takeProfit || 0, mark: +x.markPrice, upnl: +x.unrealizedPL, hold: x.holdSide })); }
+  async position(sym) { return (await this.getPositions()).filter(p => p.sym === sym).reduce((a, p) => a + p.side * p.qty, 0); }
+  async lev(sym) {
+    if (this.levOk[sym]) return; const b = { symbol: sym + 'USDT', productType: this.PT, marginCoin: 'USDT' };
+    try { await this.req('POST', '/api/v2/mix/account/set-margin-mode', Object.assign({ marginMode: 'crossed' }, b)); } catch (e) { console.log('Bitget 改全倉：', e.message); }
+    await this.req('POST', '/api/v2/mix/account/set-leverage', Object.assign({ leverage: String(Math.max(1, Math.ceil(this.maxLev))) }, b));
+    this.levOk[sym] = 1;
+  }
+  async marketOrder(sym, side, qty, reduceOnly) {
+    await this.init(); const q = await this.round(sym, qty); if (!(q > 0)) return { qty: 0, px: 0, fee: 0 };
+    if (!reduceOnly) await this.lev(sym);
+    const c = cid(); await this.req('POST', '/api/v2/mix/order/place-order', { symbol: sym + 'USDT', productType: this.PT, marginMode: 'crossed', marginCoin: 'USDT', size: String(q), side: side > 0 ? 'buy' : 'sell', orderType: 'market', reduceOnly: reduceOnly ? 'YES' : 'NO', clientOid: c });
+    return waitFill(async () => { const x = await this.req('GET', '/api/v2/mix/order/detail', { symbol: sym + 'USDT', productType: this.PT, clientOid: c });
+      if (!x) return null; const f = +x.baseVolume;
+      if (x.state === 'filled' || x.state === 'canceled' && f > 0) return { qty: f, px: +x.priceAvg, fee: Math.abs(+x.fee || 0) };
+      if (x.state === 'canceled') throw finalErr('Bitget 訂單已取消'); return null; }, 'Bitget', c);
+  }
+  async setStop(sym, stop, tp) {
+    const b = { symbol: sym + 'USDT', productType: this.PT, marginCoin: 'USDT' }, i = await this.instrument(sym);
+    for (const planType of ['pos_loss', 'pos_profit']) try { await this.req('POST', '/api/v2/mix/order/cancel-plan-order', Object.assign({ planType }, b)); } catch (e) {}
+    if (!stop && !tp) return;
+    const p = (await this.getPositions()).find(x => x.sym === sym); if (!p) return;
+    const o = Object.assign({ holdSide: p.hold }, b);
+    if (stop) Object.assign(o, { stopLossTriggerPrice: tickTo(stop, i.tick), stopLossTriggerType: 'fill_price' });
+    if (tp) Object.assign(o, { stopSurplusTriggerPrice: tickTo(tp, i.tick), stopSurplusTriggerType: 'fill_price' });
+    await this.req('POST', '/api/v2/mix/order/place-pos-tpsl', o);
+  }
+  async closeAll() { for (const p of await this.getPositions()) await this.marketOrder(p.sym, -p.side, p.qty, true); }
+  async stopFills(sym, since) {
+    const d = await this.req('GET', '/api/v2/mix/order/orders-plan-history', { planType: 'profit_loss', productType: this.PT, symbol: sym + 'USDT', startTime: String(since * 1000), endTime: String(Date.now()), planStatus: 'executed' }), out = [];
+    for (const a of (d && d.entrustedList) || []) { if (!a.executeOrderId) continue;
+      try { const x = await this.req('GET', '/api/v2/mix/order/detail', { symbol: sym + 'USDT', productType: this.PT, orderId: a.executeOrderId }); if (!x || !(+x.baseVolume > 0)) continue;
+        out.push({ t: Math.floor(+(x.uTime || a.uTime || Date.now()) / 1000), kind: /profit/.test(a.planType) ? 'tp' : 'stop', px: +x.priceAvg, qty: +x.baseVolume, fee: Math.abs(+x.fee || 0) }); } catch (e) {} }
+    return out;
+  }
+}
+const LIVE_EX = { bybit: BybitExchange, binance: BinanceExchange, okx: OkxExchange, bitget: BitgetExchange };
+const LIVE_NAME = { bybit: 'Bybit', binance: '幣安', okx: 'OKX', bitget: 'Bitget' };
+const LIVE_PASS = { okx: 1, bitget: 1 };
+
 // ───────── 資產總覽（唯讀）─────────
 // 只讀餘額與持倉，不下單。手機把「唯讀金鑰」傳來，這裡先向交易所確認金鑰真的是唯讀（有交易或提現權限就拒收、不存），通過才存進 config.json。
 // 其他交易所用下面共用的 FX_READ。**各家讀取都還沒在真的帳戶上測過。**
@@ -564,20 +795,22 @@ const FX_H = {
   },
 };
 const fxSend = async (ex, net, p, qs, h, body) => { const r = await fetchT(FXS[ex].host[net] + p + (qs ? '?' + qs : ''), body ? { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/x-www-form-urlencoded' }, h), body } : { headers: h }, 15000); return { status: r.status, j: await r.json().catch(() => null) }; };
-const fxFunds = ex => a => fxRead(ex, { key: a.apiKey, secret: a.apiSecret, pass: a.passphrase }, fxSend, FX_H, () => { throw new HErr(400, `這把 ${FXS[ex].name} 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。`); });
+const fxFunds = ex => a => fxRead(ex, { key: a.apiKey, secret: a.apiSecret, pass: a.passphrase }, fxSend, FX_H, a.trade ? () => {} : () => { throw new HErr(400, `這把 ${FXS[ex].name} 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。`); });
 const FUND_EX = { bybit: { name: 'Bybit', read: bybitFunds } };
 for (const k of Object.keys(FXS)) FUND_EX[k] = { name: FXS[k].name, pass: !!FXS[k].pass, read: fxFunds(k) };
 const FUND_CACHE = {};
 const fundList = () => (C.funds || []).map(a => ({ id: a.id, name: a.name, exchange: a.exchange, testnet: !!a.testnet, keyTail: a.apiKey.slice(-4), inTotal: a.inTotal !== false }));
-// 下單用的 Bybit 金鑰也能算進資產總覽（tradeInTotal）：用同一個讀取函式，但不檢查唯讀（它本來就有交易權限）
-const tradeAcct = () => liveReady() && C.tradeInTotal !== false ? { id: 'trade', name: C.tradeName || 'Bybit・下單用', exchange: 'bybit', testnet: !!C.testnet, apiKey: C.apiKey, apiSecret: C.apiSecret, trade: true } : null;
+// 下單用的金鑰也能算進資產總覽（tradeInTotal）：用同一個讀取函式，但不檢查唯讀（它本來就有交易權限）；其他交易所的模擬交易金鑰查不到正式網，改用下單介面讀合約權益和持倉
+const liveRead = async () => { const X = LED.live, eq = await X.getEquity(), ps = await X.getPositions().catch(() => []);
+  return { total_usd: eq, assets: [{ coin: 'USDT', amount: eq, usd: eq, acct: C.testnet ? '合約帳戶（模擬交易）' : '合約帳戶' }], positions: ps.map(x => ({ symbol: x.sym + 'USDT', side: x.side > 0 ? 'long' : 'short', contracts: x.qty, entry: x.entry, mark: x.mark, upnl: x.upnl })), notes: [] }; };
+const tradeAcct = () => liveReady() && C.tradeInTotal !== false ? { id: 'trade', name: C.tradeName || LIVE_NAME[C.exchange] + '・下單用', exchange: C.exchange, testnet: !!C.testnet, apiKey: C.apiKey, apiSecret: C.apiSecret, passphrase: C.apiPass, trade: true, read: C.exchange !== 'bybit' && C.testnet ? liveRead : null } : null;
 async function fundsAll(force) {
   const now = Date.now(), res = [], T = tradeAcct();
   for (const a of (T ? [T] : []).concat((C.funds || []).filter(x => x.inTotal !== false))) {
     const c = FUND_CACHE[a.id];
     if (!force && c && now - c.at < 60000) { res.push(c.v); continue; }
     let v;
-    try { v = Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, await FUND_EX[a.exchange].read(a)); }
+    try { v = Object.assign({ id: a.id, name: a.name, exchange: a.exchange, ok: true }, await (a.read || FUND_EX[a.exchange].read)(a)); }
     catch (e) { v = { id: a.id, name: a.name, exchange: a.exchange, ok: false, total_usd: 0, assets: [], positions: [], notes: [e.message] }; }
     FUND_CACHE[a.id] = { at: now, v }; res.push(v);
   }
@@ -604,8 +837,9 @@ const LED = { paper: new PaperExchange(S.paper), live: null };
 for (const k of Object.keys(S.sims)) LED['sim:' + k] = new PaperExchange(S.sims[k]);
 const LEDS = () => Object.keys(LED).filter(L => LED[L]);
 const isPaperL = L => LED[L] instanceof PaperExchange;
-const liveReady = () => C.exchange === 'bybit' && !!C.apiKey && !!C.apiSecret;
-function setupLive() { LED.live = liveReady() ? new BybitExchange(C) : null; }
+const liveReady = () => !!LIVE_EX[C.exchange] && !!C.apiKey && !!C.apiSecret && (!LIVE_PASS[C.exchange] || !!C.apiPass);
+const liveName = () => (LIVE_NAME[C.exchange] || C.exchange) + (C.testnet ? (C.exchange === 'bybit' ? ' 測試網' : ' 模擬交易') : ' 正式帳戶');
+function setupLive() { LED.live = liveReady() ? new LIVE_EX[C.exchange](C) : null; }
 setupLive();
 const mainL = () => LED.live ? 'live' : 'paper';
 // g.led：在哪個帳本跑（'sim:<交易所>' 或 'live'）；舊策略沒有 g.led，照 mode 走試跑帳本／實盤
@@ -1007,7 +1241,7 @@ async function status() {
       equity: r2(stratEq(g)), base: r2(g.base || 0), position: g.pos ? { side: g.pos.side, qty: g.pos.qty, entry: g.pos.entry, stop: g.pos.stop || 0, tp: g.pos.tp || 0, upnl: r2(g.pos.side * g.pos.qty * (P - g.pos.entry)) } : null, target: g.tg || null, lastBar: g.lastBar || 0, review: rv };
   });
   const cnt = k => S.strategies.filter(g => g.state === k).length;
-  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
+  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), liveExs: Object.keys(LIVE_EX), hasPass: !!C.apiPass, allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
     mode: L === 'paper' ? 'paper' : C.testnet ? 'testnet' : 'live', counts: { trial: cnt('trial'), running: cnt('running'), paused: cnt('paused') },
     now: nowS(), lastTick: S.lastTickAt || 0, lastBar: S.lastBar || 0, equity: r2(eq), startEquity: r2(A.start || eq), startT: A.startT || S.startT,
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
@@ -1069,7 +1303,7 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 策略分析：選內建策略和幣種跑回測（含手續費、滑價、資金費率），可以調參數；滿意的參數存成「我的策略」，同一個策略可以有好幾組參數（參數1、參數2…）。
 - 查看價格：K 線圖，可以畫量尺、斜線、水平線、方框，點圖形可以刪除。
 - 開始交易 › 訊號交易：「我的策略」出現進出場訊號時推播通知，自己決定要不要下單。
-- 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（做多／做空／雙向，永續合約）② 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定 Bybit 下單金鑰，可以先用測試網。「風險控管」分頁可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
+- 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（做多／做空／雙向，永續合約）② 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定下單金鑰（Bybit、幣安、OKX、Bitget；OKX、Bitget 要填 Passphrase），可以先用測試網或模擬交易。「風險控管」分頁可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
 - 開始交易 › HexAI：AI 顧問。Bridge 是總管，Scout 看行情新聞（會上網查）、Echo 回測、Forge 想策略、Vault 風控、Helm 寫下單草案、Guide 是客服。AI 只給建議，不會下單；它要新增策略或改風控上限時會跳確認框，按確認才會改。每隻 AI 下面的「給它的資料」可以寫你的規則和偏好。預設用 HexStack 雲端 AI，不用設定金鑰；想用自己的金鑰或本機模型，到電腦版 HexAI 的模型設定改。
 - 資產總覽：把各交易所帳戶的資產加總，看報酬率。在資產總覽按「＋ 加入」，用只勾「讀取」的唯讀金鑰加入。
 - 設定：客服機器人、外觀（預設、深夜、白天，可以跟著日出日落自動切換）、通知設定、資料庫、資料狀態、語言、帳號同步（Google 登入後手機和電腦的我的策略、通知、外觀、資產紀錄會同步，交易所金鑰不會上傳）、更新到最新版（看不到新版時按這裡）。
@@ -1258,7 +1492,7 @@ async function api(req, res, p) {
     if (LED.live) { await closeStrat(g, '轉實盤，模擬倉平掉'); g.mode = 'live'; g.base = g.alloc * (await LED.live.getEquity()); g.lastBar = 0; }
     g.promoted = true; g.state = 'running'; g.trialSummary = review(g, 0); g.start = nowS(); g.real = 0; g.fills = []; g.trades = []; g.curve = []; g.skips = [];
     if (!LED.live) g.base = stratEq(g);
-    lg('resume', g, { text: LED.live ? `轉正：開始在 ${C.testnet ? 'Bybit 測試網' : 'Bybit 正式帳戶'} 執行` : '轉正（沒有設定交易所，繼續用模擬盤）' }); dirty(); save();
+    lg('resume', g, { text: LED.live ? `轉正：開始在 ${liveName()} 執行` : '轉正（沒有設定交易所，繼續用模擬盤）' }); dirty(); save();
     return { ok: true };
   }
   if (p === '/api/limits') {
@@ -1277,7 +1511,7 @@ async function api(req, res, p) {
     } else {
       C.paperOnly = false; saveCfg();
       for (const g of S.strategies.filter(g => ledOf(g) === 'live' && g.enabled)) g.lastBar = 0;
-      log('info', { text: LED.live ? `關閉模擬盤：實盤的策略開始在 ${C.testnet ? 'Bybit 測試網' : 'Bybit 正式帳戶'} 執行` : '關閉模擬盤（還沒設定下單金鑰，不會下真單）' });
+      log('info', { text: LED.live ? `關閉模擬盤：實盤的策略開始在 ${liveName()} 執行` : '關閉模擬盤（還沒設定下單金鑰，不會下真單）' });
     }
     dirty(); save(); return { ok: true, paperOnly: C.paperOnly === true };
   }
@@ -1339,17 +1573,22 @@ async function api(req, res, p) {
 async function localApi(req, p) {
   const d = await body(req).catch(e => { throw new HErr(400, e.message); });
   if (p === '/local/config') {
-    if ('exchange' in d) { if (!['paper', 'bybit'].includes(d.exchange)) throw new HErr(400, '交易所只支援 paper、bybit'); C.exchange = d.exchange; }
+    if ('exchange' in d) { if (d.exchange !== 'paper' && !LIVE_EX[d.exchange]) throw new HErr(400, '下單只支援：' + Object.values(LIVE_NAME).join('、'));
+      // 換交易所前，實盤的策略要先平倉（不然舊交易所的部位會沒人管）
+      if (d.exchange !== C.exchange && S.strategies.some(g => ledOf(g) === 'live' && g.pos)) throw new HErr(400, '實盤還有持倉，先把實盤策略停止平倉再換交易所');
+      if (d.exchange !== C.exchange) { C.apiKey = ''; C.apiSecret = ''; C.apiPass = ''; }
+      C.exchange = d.exchange; }
     if ('testnet' in d) C.testnet = !!d.testnet;
     if ('allowLive' in d) C.allowLive = d.allowLive === true;
     if ('tradeInTotal' in d) { C.tradeInTotal = d.tradeInTotal !== false; delete FUND_CACHE.trade; }
     if (typeof d.apiKey === 'string' && d.apiKey !== '••••') C.apiKey = d.apiKey.trim().slice(0, 100);
     if (typeof d.apiSecret === 'string' && d.apiSecret !== '••••') C.apiSecret = d.apiSecret.trim().slice(0, 200);
+    if (typeof d.apiPass === 'string' && d.apiPass !== '••••') C.apiPass = d.apiPass.slice(0, 100);
     if (typeof d.hostName === 'string' && d.hostName.trim()) C.hostName = d.hostName.trim().slice(0, 40);
     saveCfg(); setupLive(); delete FUND_CACHE.trade;
     let test = '';
     if (LED.live) try { test = '連線成功，權益 ' + fmt(await LED.live.getEquity()) + ' USDT'; } catch (e) { test = '連線失敗：' + e.message; }
-    log('info', { text: `交易所設定更新：${C.exchange}${C.exchange === 'bybit' ? (C.testnet ? '（測試網）' : '（正式網）') : ''}${test ? '，' + test : ''}` });
+    log('info', { text: `交易所設定更新：${C.exchange === 'paper' ? '模擬盤' : liveName()}${test ? '，' + test : ''}` });
     return { ok: true, test };
   }
   throw new HErr(404, '沒有這個功能');
@@ -1402,11 +1641,11 @@ label{display:block;margin:6px 0}.row{display:flex;gap:16px;flex-wrap:wrap;align
 <div class="k">配對碼</div><code id="code"></code><p><button id="cp">複製配對連結</button></p><div class="mu" id="pub"></div></div></div></div>
 <div class="card"><h2>策略</h2><div class="tw"><table id="st"></table></div><p class="mu">策略從 App 加入。新策略先用模擬盤試跑，試跑期滿且沒有偏離回測才可以轉實盤。</p></div>
 <div class="card"><h2>交易所設定（只能在這台電腦改）</h2>
-<label>交易所 <select id="ex"><option value="paper">模擬盤（不下真單）</option><option value="bybit">Bybit USDT 永續</option></select></label>
-<label><input type="checkbox" id="tn"> 測試網（testnet，建議先用這個）</label>
-<label>API Key <input id="ak" autocomplete="off" style="width:100%"></label><label>API Secret <input id="as" type="password" autocomplete="off" style="width:100%"></label>
+<label>交易所 <select id="ex"><option value="paper">模擬盤（不下真單）</option><option value="bybit">Bybit USDT 永續</option><option value="binance">幣安 USDⓈ-M 永續</option><option value="okx">OKX USDT 永續</option><option value="bitget">Bitget USDT 永續</option></select></label>
+<label><input type="checkbox" id="tn"> 測試網／模擬交易（建議先用這個；幣安、OKX、Bitget 要用模擬交易建的金鑰）</label>
+<label>API Key <input id="ak" autocomplete="off" style="width:100%"></label><label>API Secret <input id="as" type="password" autocomplete="off" style="width:100%"></label><label>Passphrase（OKX、Bitget 才要）<input id="ap" type="password" autocomplete="off" style="width:100%"></label>
 <label><input type="checkbox" id="al"> 允許正式網下單（allowLive）</label>
-<p class="mu">API Key 只開「合約交易」，<b>不要開提幣</b>。Bybit 介面還沒在真的帳戶測過，請先用測試網。</p><button id="sv">儲存並測試連線</button> <span id="svm" class="mu"></span></div>
+<p class="mu">API Key 只開「合約交易」，<b>不要開提幣</b>。各交易所下單介面都還沒在真的帳戶測過，請先用測試網／模擬交易。</p><button id="sv">儲存並測試連線</button> <span id="svm" class="mu"></span></div>
 <div class="card"><h2>最新紀錄</h2><div class="tw"><table id="lg"></table></div></div>
 <p class="mu">區網網址：${lan.map(a => `http://${a}:${C.port}`).join('、') || '—'}（手機同一個 Wi-Fi 時可用）</p>
 </main><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script>
@@ -1415,7 +1654,7 @@ const f2=x=>(+x||0).toLocaleString('en-US',{maximumFractionDigits:2}),tm=t=>t?ne
 const TY=${JSON.stringify(TYPE)};let link='',qr=null;
 async function j(u,o){const r=await fetch(u,Object.assign({headers:H},o));const d=await r.json();if(!r.ok)throw new Error(d.error||r.status);return d}
 async function load(){try{const s=await j('/api/status');
-$('#sum').innerHTML=[['模式',{paper:'模擬盤',testnet:'Bybit 測試網',live:'Bybit 正式'}[s.mode]],['權益',f2(s.equity)+' USDT'],['今日',(s.dayPct>=0?'+':'')+s.dayPct+'%'],['最大回撤',s.mdd+'%'],['策略',s.strategies.length+' 個'],['上次執行',tm(s.lastTick)]].map(([k,v])=>'<div><div class="k">'+k+'</div><div class="v">'+esc(v)+'</div></div>').join('');
+$('#sum').innerHTML=[['模式',{paper:'模擬盤',testnet:'測試網／模擬交易',live:'正式網'}[s.mode]],['權益',f2(s.equity)+' USDT'],['今日',(s.dayPct>=0?'+':'')+s.dayPct+'%'],['最大回撤',s.mdd+'%'],['策略',s.strategies.length+' 個'],['上次執行',tm(s.lastTick)]].map(([k,v])=>'<div><div class="k">'+k+'</div><div class="v">'+esc(v)+'</div></div>').join('');
 $('#sub').innerHTML=(s.halted?'<span class="warn">煞車中：'+esc(s.halted.reason)+'</span>　':'')+'引擎 '+esc(s.engine.src)+' '+esc(s.engine.ver)+'　推播後端 '+(s.relay.ok?'已連線':'未連線 '+esc(s.relay.err))+'　Bybit 介面 liveTested:false';
 $('#pub').textContent=s.publicUrl?'對外網址：'+s.publicUrl:'對外通道還沒建立（App 會透過推播後端找這台）';
 $('#st').innerHTML='<tr><th>名稱</th><th>幣</th><th>比例</th><th>狀態</th><th>部位</th><th></th></tr>'+s.strategies.map(g=>'<tr><td>'+esc(g.name)+'</td><td>'+g.sym+'</td><td>'+Math.round(g.alloc*100)+'%</td><td>'+({trial:'試跑',running:'執行中',paused:'暫停'}[g.state])+(g.pauseReason?'（'+esc(g.pauseReason)+'）':'')+(g.state==='trial'?' 剩 '+g.trialLeft+' 天':'')+(g.review.status==='drift'?' <span class="warn">偏離</span>':'')+'</td><td>'+(g.position?(g.position.side>0?'多 ':'空 ')+g.position.qty.toPrecision(4)+' @'+f2(g.position.entry):'空手')+'</td><td>'+(g.state==='paused'||!g.enabled?'<button data-on="'+g.id+'">恢復</button>':'<button data-off="'+g.id+'">停用</button>')+(g.canPromote?' <button data-pr="'+g.id+'">轉正</button>':'')+'</td></tr>').join('');
@@ -1426,8 +1665,8 @@ if(pl!==link){link=pl;$('#code').textContent=pl.split('#pair=')[1];$('#qr').inne
 function b64u(s){return btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'')}
 $('#cp').onclick=()=>navigator.clipboard.writeText(link).then(()=>$('#cp').textContent='已複製');
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;try{if(b.dataset.on)await j('/api/strategies',{method:'POST',body:JSON.stringify({id:b.dataset.on,enabled:true})});else if(b.dataset.off)await j('/api/strategies',{method:'POST',body:JSON.stringify({id:b.dataset.off,enabled:false})});else if(b.dataset.pr)await j('/api/promote',{method:'POST',body:JSON.stringify({id:b.dataset.pr})});else return;load()}catch(x){alert(x.message)}});
-$('#ex').value=${JSON.stringify(C.exchange)};$('#tn').checked=${!!C.testnet};$('#al').checked=${C.allowLive === true};$('#ak').value=${JSON.stringify(C.apiKey ? '••••' : '')};$('#as').value=${JSON.stringify(C.apiSecret ? '••••' : '')};
-$('#sv').onclick=async()=>{$('#svm').textContent='測試中…';try{const r=await j('/local/config',{method:'POST',body:JSON.stringify({exchange:$('#ex').value,testnet:$('#tn').checked,allowLive:$('#al').checked,apiKey:$('#ak').value,apiSecret:$('#as').value})});$('#svm').textContent='已儲存 '+(r.test||'')}catch(x){$('#svm').textContent=x.message}load()};
+$('#ex').value=${JSON.stringify(C.exchange)};$('#tn').checked=${!!C.testnet};$('#al').checked=${C.allowLive === true};$('#ak').value=${JSON.stringify(C.apiKey ? '••••' : '')};$('#as').value=${JSON.stringify(C.apiSecret ? '••••' : '')};$('#ap').value=${JSON.stringify(C.apiPass ? '••••' : '')};
+$('#sv').onclick=async()=>{$('#svm').textContent='測試中…';try{const r=await j('/local/config',{method:'POST',body:JSON.stringify({exchange:$('#ex').value,testnet:$('#tn').checked,allowLive:$('#al').checked,apiKey:$('#ak').value,apiSecret:$('#as').value,apiPass:$('#ap').value})});$('#svm').textContent='已儲存 '+(r.test||'')}catch(x){$('#svm').textContent=x.message}load()};
 load();setInterval(load,10000);
 </script></body></html>`;
 }
@@ -1514,7 +1753,7 @@ async function main() {
   console.log(`引擎 ${ENG.src} ${ENG.hash}，策略 ${Object.keys(ENG.NAME).length} 個`);
   if (REPLAY) return replay();
   if (FIRST) log('info', { text: `第一次啟動：模擬盤起始 ${C.startEquity} USDT。配對碼在主控台 http://localhost:${C.port}/` });
-  if (LED.live) log('info', { text: `Bybit ${C.testnet ? '測試網' : '正式網'}已設定（此介面還沒在真帳戶測過）` });
+  if (LED.live) log('info', { text: `${liveName()}已設定（此介面還沒在真帳戶測過）` });
   server();
   lastHb = nowS();
   if (C.tunnel !== false && !ARG['no-tunnel']) startTunnel(); else heartbeat();

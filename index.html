@@ -849,7 +849,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 <!-- 開場畫面：logo 三層六角依序疊上；網頁載完、即時價格、市場分析、恐懼貪婪、模擬盤都抓完（至少 1.5 秒、最多 15 秒）才淡出 -->
 <div id="splash"><style>
 #splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle at 50% 40%,#3a1d7a,#160b34 70%);transition:opacity .35s}
-#splash.out{opacity:0;pointer-events:none}#splash .sbot{position:absolute;left:0;top:0;transform-origin:50% 58.26%;opacity:0;pointer-events:none}#splash .sbot .aim{display:block;width:100%;height:auto}#splash .sbot svg{display:block;width:100%;height:auto;overflow:visible;animation:none}#splash .sbot .hl{display:none}#splash .sshd{position:absolute;height:5px;border-radius:50%;background:#000;filter:blur(2px);opacity:0;pointer-events:none}#splash>svg{width:132px;height:132px;overflow:visible}
+#splash.out{opacity:0;pointer-events:none}#splash .sbot{position:absolute;left:0;top:0;transform-origin:50% 58.26%;opacity:0;pointer-events:none}#splash .sbot .aim{display:block;width:100%;height:auto}#splash .sbot svg{display:block;width:100%;height:auto;overflow:visible;animation:none}#splash .sbot .hl,#splash .sbot .acc{display:none}#splash .sshd{position:absolute;height:5px;border-radius:50%;background:#000;filter:blur(2px);opacity:0;pointer-events:none}#splash>svg{width:132px;height:132px;overflow:visible}
 #splash .sl{opacity:0;transform:translateY(-34px);animation:slDrop .42s cubic-bezier(.2,.9,.3,1.25) forwards}
 #splash .nm{color:#f3ecff;font:700 26px -apple-system,"PingFang TC",system-ui,sans-serif;letter-spacing:1px;opacity:0;animation:slFade .4s .95s forwards}
 #splash .bar{width:120px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;opacity:0;animation:slFade .3s 1.1s forwards}
@@ -2438,7 +2438,7 @@ const HexAI=(()=>{
 <circle r="56" fill="url(#p${id})" clip-path="url(#c${id})" opacity=".18"/><circle r="56" fill="none" stroke="${a.l}" stroke-width="1.4" opacity=".55"/>
 <ellipse cx="-20" cy="-24" rx="15" ry="8" fill="#fff" opacity=".45" transform="rotate(-30 -20 -24)"/>
 <path d="M-34 -14h68a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10v-10a10 10 0 0 1 10-10z" fill="#0d0820" fill-opacity=".78" stroke="${a.l}" stroke-opacity=".35"/>
-<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g>${ACC[a.k]?ACC[a.k](a):''}</g></g>
+<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g>${ACC[a.k]?'<g class="acc">'+ACC[a.k](a)+'</g>':''}</g></g>
 ${ring('F')}
 <g class="hl"><g class="hs"><ellipse class="bm" cy="24" rx="40" ry="6" fill="${a.c}" opacity=".3" filter="url(#b${id})"/>${L.map(c=>`<g class="ly"><polygon points="${hexf(54)}" fill="${c}" fill-opacity=".28" stroke="${c}" stroke-width="3.4" stroke-linejoin="round" filter="url(#b${id})"/></g>`).join('')}</g></g></svg>`}
   function build(){const box=document.getElementById('aiBots');if(!box||box.childElementCount)return;
@@ -3843,10 +3843,12 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   const SIMN={binance:'Binance',okx:'OKX',bybit:'Bybit',bitget:'Bitget',gate:'Gate',kucoin:'KuCoin',mexc:'MEXC',coinbase:'Coinbase',kraken:'Kraken'};
   const SIMC={binance:'#f3c557',okx:'#b9b9c6',bybit:'#ef9a4a',bitget:'#3ccfae',gate:'#5aa9ef',kucoin:'#7dd87d',mexc:'#6f9cf0',coinbase:'#4f7cff',kraken:'#9d7cf0'};
   const isNew=()=>!!S&&'sims' in S,paperOn=()=>S.paperOnly===true;
+  // 實盤下單支援的交易所（新版執行器才有 liveExs）；名稱：幣安測試網叫「模擬交易」
+  const LX=()=>S&&S.liveExs||['bybit'],liveLab=()=>(SIMN[S.exchange]||'交易所')+(S.testnet?(S.exchange==='bybit'?' 測試網':' 模擬交易'):'');
   function paperSw(){if(!isNew())return '';const po=paperOn();
     return `<div class="btop"><b>HexBOT</b><span class="bps">模擬盤<button class="sw${po?' on':''}" id="botPaper" type="button" role="switch" aria-checked="${po}" aria-label="模擬盤"></button></span></div>`}
   const rows=()=>paperOn()?(S.sims||[]).map(x=>({k:x.k,led:x.led,start:+x.start||0,eq:+x.equity||0,day:+x.dayStart||0,halt:x.halted}))
-    :S.liveReady&&S.live?[{k:'bybit',led:'live',start:+S.live.start||0,eq:+S.live.equity||0,day:+S.live.dayStart||0,halt:S.live.halted}]:[];
+    :S.liveReady&&S.live?[{k:S.exchange||'bybit',led:'live',start:+S.live.start||0,eq:+S.live.equity||0,day:+S.live.dayStart||0,halt:S.live.halted}]:[];
   const runOf=(led,k)=>(S.strategies||[]).find(x=>x.ledger===led&&x.key===k);
   // 同一組參數可以換交易方式、幣種各跑一份：key＝參數 key（原本的幣種＋方向），換了就是 key@幣種~方向
   const runsOf=(led,k)=>(S.strategies||[]).filter(x=>x.ledger===led&&(x.key===k||x.key.startsWith(k+'@')));
@@ -3863,7 +3865,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   const led_=(on,t)=>`<span class="bled${on?' on':''}" aria-label="${t||(on?'執行中':'沒在跑')}"></span>`;
   function home(){const s=S,R=rows(),po=paperOn(),st=R.reduce((a,r)=>a+r.start,0),eq=R.reduce((a,r)=>a+r.eq,0),dy=R.reduce((a,r)=>a+(r.day||r.eq),0),
       n=(s.strategies||[]).filter(x=>isOn(x)&&R.some(r=>r.led===x.ledger)).length,legacy=(s.strategies||[]).filter(x=>!x.ledger);
-    return `<section class="fdhero bhero" aria-label="總覽"><div class="fdrow"><span class="fdlab">${po?'模擬盤總資金':'HexBOT 總權益'}</span><span class="btag${po?' sim':''}">${po?'模擬・不下真單':s.liveReady&&s.testnet?'Bybit 測試網':'實盤'}</span></div>
+    return `<section class="fdhero bhero" aria-label="總覽"><div class="fdrow"><span class="fdlab">${po?'模擬盤總資金':'HexBOT 總權益'}</span><span class="btag${po?' sim':''}">${po?'模擬・不下真單':s.liveReady&&s.testnet?liveLab():'實盤'}</span></div>
       <div class="fdtotw"><div class="fdtot">$${fm(eq)}</div><button class="fdai" type="button" data-ai="helm" aria-label="問 AI.Helm">${window.HexAI?HexAI.mini('helm'):''}</button></div>
       <div class="fdsub bret"><span>報酬率 <b class="${cl(eq-st)}">${pc(ret(eq,st),2)}</b></span><span>今日 <b class="${cl(eq-dy)}">${pc(ret(eq,dy),2)}</b></span><span>損益 <b class="${cl(eq-st)}">${sg(eq-st)}</b></span></div>
       ${R.length&&eq>0?`<div class="fdsplit">${R.map(r=>`<i style="flex:${Math.max(r.eq,0)};background:${SIMC[r.k]||'#888'}"></i>`).join('')}</div><div class="fdleg">${R.map(r=>`<span><b style="background:${SIMC[r.k]||'#888'}"></b>${H_(SIMN[r.k]||r.k)} ${Math.round(r.eq/eq*100)}%</span>`).join('')}</div>`:''}
@@ -3913,7 +3915,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     if(ask.t==='run'){const G=groups(),g=G.find(x=>x.keys.some(y=>y.k===ask.k)),y=g&&g.keys.find(z=>z.k===ask.k),r=rows().find(x=>x.led===ask.led),where=(SIMN[r&&r.k]||'')+(po?' 模擬帳戶':' 下單帳戶');
       h=`${ask.on?'開始執行':'停止'}「${H_(g?g.name+'・'+y.set:ask.k)}」？`;if(y&&ask.sym)h+=`<br><span style="font-size:14px">${H_(ask.sym)}・${H_(dirName(y.st,ask.dir))}</span>`;p=ask.on?`會在 <b>${H_(where)}</b> 照這組參數自動交易，資金平均分給這個帳戶裡開著的策略。`:'停止後會先把這個策略的持倉平掉。';
       p+=po?'<br>模擬盤只記帳，不會下真單。':`<br><b class="neg">這是實盤，會用${S.testnet?'測試網的假錢':'真錢'}下單。</b>`;ok=ask.on?'確認開啟':'確認停止';red=!ask.on||!po}
-    else if(ask.t==='paper'){h='關掉模擬盤？';p=`切到實盤畫面，實盤帳戶裡開著的策略會開始在 <b>${S.liveReady?(S.testnet?'Bybit 測試網':'Bybit 正式網（真錢）'):'交易所'}</b> 下單。`+(S.liveReady?'':'<br>還沒設定下單金鑰，暫時不會下任何單。');ok='確認關掉';red=true}
+    else if(ask.t==='paper'){h='關掉模擬盤？';p=`切到實盤畫面，實盤帳戶裡開著的策略會開始在 <b>${S.liveReady?(S.testnet?liveLab():(SIMN[S.exchange]||'')+' 正式網（真錢）'):'交易所'}</b> 下單。`+(S.liveReady?'':'<br>還沒設定下單金鑰，暫時不會下任何單。');ok='確認關掉';red=true}
     else if(ask.t==='sim'){h=`把 ${H_(SIMN[ask.k]||ask.k)} 模擬帳戶改成 ${fm(ask.v,0)} USDT？`;p='會把這個模擬帳戶的倉位平掉，從新的金額重新開始算報酬率。';ok='確認修改'}
     else if(ask.t==='simdel'){h=`移除 ${H_(SIMN[ask.k]||ask.k)} 模擬帳戶？`;p='這個帳戶的紀錄會一起刪掉。';ok='確認移除';red=true}
     if(ask.t==='run'&&ask.on||ask.t==='paper')p+=`<br><span class="lgrisk">${RISK_TIP}</span>`;
@@ -3959,22 +3961,23 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
         :L?`<div class="br"><span class="sub">還沒設定下單金鑰，只會跑模擬盤</span><button class="lk xlk" id="botXe" type="button">設定</button></div>`:''}
       ${fs.map(x=>`<div class="br"><div class="xac">${F.lg(x.exchange)}<div><b>${H_(x.name)}</b><span class="pill p-mu">只看資產</span><div class="sub">${H_(F.exName(x.exchange))}・金鑰 …${H_(x.keyTail)}${x.testnet?'・測試網':''}</div></div></div><span class="xtot">總資產${sw(x.id,x.inTotal!==false,x.name)}</span></div>`).join('')}
       <p class="sub" style="margin:8px 0 0">${old?'電腦上的 HexStack 版本較舊，更新後可以在這裡加入各交易所。':'「總資產」開著，這個帳戶就會算進資產總覽。金鑰都只存在'+(L?'這台電腦':'電腦上的 HexStack')+'。'}</p></div>`}
-  function accForm(){const F=FT(),L=loc(),ex=xf.ex,tr=xf.use==='trade',canTr=ex==='bybit'&&L,exs=(S.fundEx||['bybit']);
+  function accForm(){const F=FT(),L=loc(),ex=xf.ex,tr=xf.use==='trade',canTr=LX().includes(ex)&&L,exs=(S.fundEx||['bybit']),same=S.liveReady&&S.exchange===ex;
     const ck=(id,on,t)=>`<label class="xck"><input type="checkbox" id="${id}"${on?' checked':''}> ${t}</label>`;
     return `<div class="card" id="botXf"><div class="bh"><span>${xf.edit?'下單金鑰':'加入交易所'}</span><button class="lk" id="botXc" type="button">取消</button></div>
       ${xf.edit?'':`<div class="xgrid">${Object.keys(F.EX).map(k=>`<button type="button" data-xe="${k}"${k===ex?' class="on"':''}${exs.includes(k)?'':' disabled'}>${F.lg(k)}<span>${H_(F.exName(k))}</span></button>`).join('')}</div>
       <div class="xl">用途</div><div class="seg" id="botXu"><button type="button" data-xu="trade"${tr?' class="on"':''}${canTr?'':' disabled'}>下單</button><button type="button" data-xu="view"${tr?'':' class="on"'}>只看資產</button></div>
-      ${canTr?'':`<p class="sub" style="margin:0 0 4px">${ex!=='bybit'?H_(F.exName(ex))+' 自動下單還沒支援，目前可以先加入看資產。':'下單金鑰要在電腦版 HexStack 的這一頁設定，不經過手機。'}</p>`}`}
-      ${tr?ck('botXtn',xf.tn,'用測試網（假錢，先試跑）'):`<div class="xl">名稱</div><input type="text" id="botXn" autocomplete="off" value="${H_(xf.nm)}" placeholder="例如 ${H_(F.exName(ex))} 主帳戶">`}
-      <div class="xl">API Key</div><input type="text" id="botXk" autocomplete="off" spellcheck="false" value="${H_(xf.k)}" placeholder="${tr&&S.liveReady?'已設定，不改就留空':'貼上 '+H_(F.exName(ex))+' API Key'}">
-      <div class="xl">API Secret</div><input type="password" id="botXs" autocomplete="off" value="${H_(xf.s)}" placeholder="${tr&&S.liveReady?'已設定，不改就留空':'貼上 API Secret'}">
-      ${!tr&&F.pass(ex)?`<div class="xl">Passphrase</div><input type="password" id="botXp" autocomplete="off" value="${H_(xf.ps)}" placeholder="建立金鑰時自己設的密碼">`:''}
+      ${canTr?'':`<p class="sub" style="margin:0 0 4px">${!LX().includes(ex)?H_(F.exName(ex))+' 自動下單還沒支援，目前可以先加入看資產。':'下單金鑰要在電腦版 HexStack 的這一頁設定，不經過手機。'}</p>`}`}
+      ${tr&&S.liveReady&&!same?`<p class="sub" style="margin:0 0 4px">目前下單交易所是 ${H_(F.exName(S.exchange))}，儲存後會換成 ${H_(F.exName(ex))}（實盤有持倉時不能換）。</p>`:''}
+      ${tr?ck('botXtn',xf.tn,ex==='bybit'?'用測試網（假錢，先試跑）':'用模擬交易（假錢，先試跑；要用模擬交易建的金鑰）'):`<div class="xl">名稱</div><input type="text" id="botXn" autocomplete="off" value="${H_(xf.nm)}" placeholder="例如 ${H_(F.exName(ex))} 主帳戶">`}
+      <div class="xl">API Key</div><input type="text" id="botXk" autocomplete="off" spellcheck="false" value="${H_(xf.k)}" placeholder="${tr&&same?'已設定，不改就留空':'貼上 '+H_(F.exName(ex))+' API Key'}">
+      <div class="xl">API Secret</div><input type="password" id="botXs" autocomplete="off" value="${H_(xf.s)}" placeholder="${tr&&same?'已設定，不改就留空':'貼上 API Secret'}">
+      ${F.pass(ex)?`<div class="xl">Passphrase</div><input type="password" id="botXp" autocomplete="off" value="${H_(xf.ps)}" placeholder="${tr&&same&&S.hasPass?'已設定，不改就留空':'建立金鑰時自己設的密碼'}">`:''}
       ${!tr&&ex==='bybit'?ck('botXtn',xf.tn,'測試網帳戶'):''}
       ${tr&&!xf.tn?ck('botXal',xf.al,'允許正式網下真單')+'<p class="sub" style="margin:0 0 4px">勾了也不會馬上下單：每個策略要先試跑 7 天，你按「轉為實盤」才會用真錢。</p>':''}
       ${ck('botXt',xf.tot,'算進資產總覽的總資產')}
       ${tr?`<p class="lgrisk">${RISK_TIP}</p>`:''}<button class="bbtn pri" id="botXgo" type="button" style="margin-top:8px">${tr?'儲存並測試連線':'驗證並加入'}</button>
       <p class="sub" id="botXm" style="margin:8px 0 0">${H_(xmsg)}</p>
-      <p class="sub" style="margin:8px 0 0">${tr?'金鑰只存在這台電腦的 HexStack，不會上傳到雲端或手機。Bybit 建金鑰時只勾「合約交易」，不要勾「提幣」，建議用子帳戶。':'只看資產要用只勾「讀取」的唯讀金鑰，有交易或提現權限會被拒收。金鑰存在電腦上的 HexStack'+(L?'':'，手機不留')+'。'}</p></div>`}
+      <p class="sub" style="margin:8px 0 0">${tr?'金鑰只存在這台電腦的 HexStack，不會上傳到雲端或手機。建金鑰時只開合約（期貨）交易權限，不要開「提幣」，建議用子帳戶。'+(ex==='bybit'?'':'這家的下單介面還沒在真的帳戶測過，請先用模擬交易試跑。'):'只看資產要用只勾「讀取」的唯讀金鑰，有交易或提現權限會被拒收。金鑰存在電腦上的 HexStack'+(L?'':'，手機不留')+'。'}</p></div>`}
   // Bybit 10003＝這個網路（正式網／測試網）找不到這把金鑰，多半是測試網勾錯
   const netHint=(m,tn)=>/10003|API key is invalid/i.test(m)?m+(tn?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：在 testnet.bybit.com 建的金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):m;
   async function exSave(){const tr=xf.use==='trade',k=xf.k.trim(),sc=xf.s.trim(),m=$('#botXm'),g=$('#botXgo');
@@ -3982,12 +3985,13 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       g.disabled=true;m.textContent=loc()?'驗證中…':'傳到電腦驗證中…';
       try{await api('/api/funds/add',{exchange:xf.ex,name:xf.nm.trim()||F.exName(xf.ex),apiKey:k,apiSecret:sc,passphrase:xf.ps,testnet:xf.ex==='bybit'&&xf.tn,inTotal:xf.tot});xf=null;xmsg='';toast('已加入')}
       catch(e){xf.s='';xf.ps='';m.textContent=xf.ex==='bybit'?netHint(e.message,xf.tn):e.message;g.disabled=false;const i=$('#botXs');if(i)i.value='';return}return refresh()}
-    const o={exchange:'bybit',testnet:xf.tn,allowLive:!xf.tn&&xf.al,tradeInTotal:xf.tot};window.Audit&&Audit.log('bot.livekey',{exchange:o.exchange,testnet:o.testnet,allowLive:o.allowLive});
-    if(!S.liveReady&&(!k||!sc))return m.textContent='要填 API Key 和 Secret';if(!!k!==!!sc&&!S.liveReady)return m.textContent='API Key 和 Secret 要一起填';
-    if(k)o.apiKey=k;if(sc)o.apiSecret=sc;
+    const same=S.liveReady&&S.exchange===xf.ex,o={exchange:xf.ex,testnet:xf.tn,allowLive:!xf.tn&&xf.al,tradeInTotal:xf.tot};window.Audit&&Audit.log('bot.livekey',{exchange:o.exchange,testnet:o.testnet,allowLive:o.allowLive});
+    if(!same&&(!k||!sc))return m.textContent='要填 API Key 和 Secret';if(!!k!==!!sc&&!same)return m.textContent='API Key 和 Secret 要一起填';
+    if(FT().pass(xf.ex)&&!xf.ps&&!(same&&S.hasPass))return m.textContent=FT().exName(xf.ex)+' 還要填 Passphrase';
+    if(k)o.apiKey=k;if(sc)o.apiSecret=sc;if(xf.ps)o.apiPass=xf.ps;
     if(o.allowLive&&!S.allowLive&&!confirm('允許正式網下真單？\n\n策略還是要試跑通過、你按「轉為實盤」才會用真錢下單。'))return;
     g.disabled=true;m.textContent='儲存中，測試連線…';
-    try{const r=await api('/local/config',o),bad=/^連線失敗/.test(r.test||'');xmsg=r.test||'已儲存';if(bad){xmsg=netHint(xmsg,xf.tn);m.textContent=xmsg;g.disabled=false;xf.s='';$('#botXs').value='';return}xf=null;toast(xmsg)}
+    try{const r=await api('/local/config',o),bad=/^連線失敗/.test(r.test||'');xmsg=r.test||'已儲存';if(bad){if(xf.ex==='bybit')xmsg=netHint(xmsg,xf.tn);m.textContent=xmsg;g.disabled=false;xf.s='';$('#botXs').value='';return}xf=null;toast(xmsg)}
     catch(e){m.textContent=e.message;g.disabled=false;return}refresh()}
   // 加入策略：從我的策略挑（資金比例平均分），或一鍵帶入策略框架 v1 的 7 個子帳戶（整體 ×1.5，跟組合回測一致）
   function picker(){const L=SigLock.get(),ks=Object.keys(L),have=new Set((S.strategies||[]).map(x=>x.key));
@@ -4042,7 +4046,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       if(xf){const id=e.target.id,v=e.target.value;if(id==='botXk')xf.k=v;else if(id==='botXs')xf.s=v;else if(id==='botXp')xf.ps=v;else if(id==='botXn')xf.nm=v}};
     b.onchange=e=>{if(!xf)return;const id=e.target.id;if(id==='botXtn'){xf.tn=e.target.checked;render()}else if(id==='botXal')xf.al=e.target.checked;else if(id==='botXt')xf.tot=e.target.checked};
     b.onclick=async e=>{const t=e.target.closest('button');if(!t)return;
-    if(t.dataset.xe){xf.ex=t.dataset.xe;if(xf.ex!=='bybit'||!loc())xf.use='view';xmsg='';render();return}
+    if(t.dataset.xe){xf.ex=t.dataset.xe;if(!LX().includes(xf.ex)||!loc())xf.use='view';xmsg='';render();return}
     if(t.dataset.xu){xf.use=t.dataset.xu;xmsg='';render();return}
     if(t.dataset.tot){const id=t.dataset.tot,on=t.classList.contains('on');return act('/api/funds/set',{id,inTotal:!on},on?'不算進總資產':'已算進總資產')}
     if(t.dataset.t){tab=t.dataset.t;W('botTab',tab);render();refresh();return}
@@ -4061,7 +4065,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     switch(t.id){case 'botRetry':err='';render();return refresh();
       case 'botUnpair':{const h=host();if(h&&!window.hexDesktop)W('botNoShare',h.h)}W('botHost',null);S=null;err='';return render();
       case 'botCon':return window.hexDesktop&&hexDesktop.openConsole&&hexDesktop.openConsole();
-      case 'botXe':bv=bg=bk=null;xf={edit:1,ex:'bybit',use:'trade',tn:S.exchange==='bybit'?!!S.testnet:true,al:!!S.allowLive,tot:S.tradeInTotal!==false,k:'',s:'',ps:'',nm:''};xmsg='';return render();
+      case 'botXe':bv=bg=bk=null;xf={edit:1,ex:LX().includes(S.exchange)?S.exchange:'bybit',use:'trade',tn:LX().includes(S.exchange)?!!S.testnet:true,al:!!S.allowLive,tot:S.tradeInTotal!==false,k:'',s:'',ps:'',nm:''};xmsg='';return render();
       case 'botXa':xf={ex:'bybit',use:loc()&&!S.liveReady?'trade':'view',tn:false,al:false,tot:true,k:'',s:'',ps:'',nm:''};xmsg='';return render();
       case 'botXc':xf=null;xmsg='';return render();
       case 'botXgo':return exSave();
@@ -4070,7 +4074,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botBack':bv=null;bg=null;bk=null;render();return scrollTo(0,0);
       case 'botGBack':bg=null;bk=null;return render();
       case 'botKBack':bk=null;return render();
-      case 'botLiveAdd':if(!loc())return toast('下單金鑰要在電腦的 HexStack 上設定（手機不會存金鑰）');xf={edit:1,ex:'bybit',use:'trade',tn:true,al:false,tot:true,k:'',s:'',ps:'',nm:''};xmsg='';render();return setTimeout(()=>{const f=$('#botXf');f&&f.scrollIntoView({block:'start',behavior:'smooth'})},50);
+      case 'botLiveAdd':if(!loc())return toast('下單金鑰要在電腦的 HexStack 上設定（手機不會存金鑰）');xf={ex:'bybit',use:'trade',tn:true,al:false,tot:true,k:'',s:'',ps:'',nm:''};xmsg='';render();return setTimeout(()=>{const f=$('#botXf');f&&f.scrollIntoView({block:'start',behavior:'smooth'})},50);
       case 'botSimAdd':bv=bv==='+'?null:'+';return render();
       case 'botSimX':bv=null;return render();
       case 'botSimSave':{const v=parseFloat($('#botSimSt').value),r=rows().find(x=>x.led===bv);if(!(v>=10))return toast('金額至少 10 USDT');ask={t:'sim',k:r.k,v};return render()}
