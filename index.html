@@ -4130,6 +4130,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   return {onKeys:()=>new Set(S?(S.strategies||[]).filter(x=>isOn(x)&&x.key).map(x=>String(x.key).split('@')[0]):[]),reset(){bv=bg=bk=bd=bs=ask=null;xf=null;pick=false;if(tab!=='ov'){tab='ov';W('botTab','ov')}vis&&S&&render()},lims:()=>S&&S.limits,refresh:()=>host()&&refresh(),open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
 // ───────── HexAI 對話（策略顧問）：問題送到配對的執行器（/api/ai/*），執行器呼叫模型和工具；這裡只顯示對話、工具步驟和模型設定 ─────────
+const AI_BUILD=164;   // 需要的執行器版號（executor/hexbot.js BUILD），比這個舊就提醒
 const AiChat=(()=>{
   const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
   const H_=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -4226,9 +4227,9 @@ const AiChat=(()=>{
   async function hist(r){try{const j=await api('/api/ai/history?role='+r);H[r]=j.messages||[]}catch(e){err=e.message}render()}
   async function loadCfg(){try{cfg=await api('/api/ai/config')}catch(e){}render()}
   async function poll(){clearTimeout(jt);if(!job)return;try{const j=await api('/api/ai/job?id='+job.id);Object.assign(job,j)}catch(e){job.done=true;job.error=e.message}
-    if(job.done){busy=false;err=job.error?(job.error):'';const r=job.role,pp=job.props;if(!job.error)await hist(r);else render();job=null;if(pp&&pp.length){openProp(pp[pp.length-1])}return}render();jt=setTimeout(poll,1500)}
+    if(job.done){busy=false;err=job.error?(job.error):job.old?(window.hexDesktop&&window.hexDesktop.checkExec?'電腦上的執行器是舊版，這個回答可能不正確（例如看不到資產總覽、持倉）。正在自動更新，約 1 分鐘後再問一次。':'電腦上的 HexStack 執行器是舊版，這個回答可能不正確（例如看不到資產總覽、持倉）。請到電腦上把 HexStack 完全結束（系統匣圖示按右鍵「結束」）再打開，它會換成新版。'):'';const r=job.role,pp=job.props;if(!job.error)await hist(r);else render();job=null;if(pp&&pp.length){openProp(pp[pp.length-1])}return}render();jt=setTimeout(poll,1500)}
   async function send(t){t=String(t||'').trim();if(!t||busy)return;busy=true;err='';draft='';(H[role]=H[role]||[]).push({role:'user',content:t});job={role,trace:[],done:false};render();
-    try{const ctx=aiCtx();try{if(window.FundTab)Object.assign(ctx,await FundTab.ai())}catch(e){}const r=await api('/api/ai/chat',{role,text:t,ctx});job.id=r.id;poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
+    try{const ctx=aiCtx();try{if(window.FundTab)Object.assign(ctx,await FundTab.ai())}catch(e){}const r=await api('/api/ai/chat',{role,text:t,ctx});job.id=r.id;job.old=!(r.build>=AI_BUILD);if(job.old){const D=window.hexDesktop;try{D&&D.checkExec&&D.checkExec().catch(()=>{})}catch(e){}}poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
   function openProp(p){prop=Object.assign({},p);if(p.kind==='strat'){const G=sameG(p),pre=p.proposed.group&&G.find(x=>SigLock.gname(x.g)===p.proposed.group);prop._g=pre?pre.g:''}syncProp()}
   // 從各頁的小圖示點進來：開一個獨立的對話頁蓋在上面，返回就回到原本那頁
   function soloOpen(k){const c=box();if(!c)return;if(!solo){solo={home:c.parentNode,next:c.nextSibling};let L=document.getElementById('aiSolo');if(!L){L=document.createElement('div');L.id='aiSolo';document.body.appendChild(L)}L.hidden=false;L.appendChild(c);document.documentElement.style.overflow='hidden'}pick(k);L_top()}
