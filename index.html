@@ -852,16 +852,13 @@ if(want&&dv>=100&&(window.__hsSwUpd&&Date.now()-__hsSwUpd<12000||!window.__hsAni
 function hide(){if(done)return;done=1;tv=100;want=1}
 window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 <script>
-// 開場動畫：三層 logo 落下 → 左右擺兩次 → 最上層掀開，七個 AI 機器人像球一樣往前方丟出來（重力、反彈、滾動摩擦，滾越遠越小，
+// 開場動畫：三層 logo 照原本的方式落下 → 七個 AI 機器人直接像球一樣往前方丟出來（重力、反彈、滾動摩擦，滾越遠越小，
 // 只有球身在轉、頭上的光環不轉）→ 滾完淡出。__hsAnimDone＝播完；開場畫面要等資料載完而且動畫播完才關（最多 12 秒）
 (function(){var sp=document.getElementById('splash');window.__hsAnimDone=false;function done(){window.__hsAnimDone=true}
 if(!sp||!sp.animate||matchMedia('(prefers-reduced-motion:reduce)').matches)return done();
-var lg=sp.querySelector('svg'),ps=lg.querySelectorAll('polygon'),top=ps[2];
-lg.style.transformOrigin='50% 80%';lg.animate([{transform:'rotate(0)'},{transform:'rotate(-12deg) scale(1.04,.96)'},{transform:'rotate(11deg) scale(.97,1.03)'},{transform:'rotate(-10deg) scale(1.04,.96)'},{transform:'rotate(9deg) scale(.97,1.03)'},{transform:'rotate(0) scale(1.08,.9)'},{transform:'none'}],{duration:1100,delay:1250,easing:'ease-in-out'});
-top.style.transformBox='fill-box';top.style.transformOrigin='50% 50%';
-setTimeout(function(){top.animate([{transform:'none'},{transform:'translateY(-14px) rotate(-8deg)',offset:.3},{transform:'translateY(-14px) rotate(-8deg)',offset:.75},{transform:'none'}],{duration:1300,easing:'ease-out'})},2300);
-setTimeout(throwBots,2400);setTimeout(done,5200);
-function throwBots(){var A=window.HexAI&&HexAI.AI;if(!A||!document.getElementById('splash'))return done();
+var lg=sp.querySelector('svg');
+setTimeout(throwBots,1000);setTimeout(done,8000);
+function throwBots(){var A=window.HexAI&&HexAI.AI;if(!document.getElementById('splash'))return done();if(!A)return performance.now()<6000?setTimeout(throwBots,80):done();
   var R=lg.getBoundingClientRect(),nm=sp.querySelector('.nm').getBoundingClientRect(),U=R.height*5.4,Wp=Math.min(innerWidth,R.height*3.1),cx=R.left+R.width/2,
     w=Math.round(Math.min(26,R.height*.19)),G=2.4*U,G0=R.top+R.height*.8,L=cx-Wp*.46,Rt=cx+Wp*.46,t=0,last=performance.now();
   var P=A.map(function(a,i){var b=document.createElement('div');b.className='sbot';b.style.width=w+'px';b.innerHTML=HexAI.mini(a.k);sp.appendChild(b);
