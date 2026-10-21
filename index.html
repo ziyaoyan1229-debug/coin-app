@@ -2529,7 +2529,7 @@ const FXS = {
   okx: { name: 'OKX', pass: true, host: { main: 'https://www.okx.com' }, time: ['/api/v5/public/time', d => +d[0].ts],
     ok: j => j.code === '0', data: j => j.data,
     sign: async (a, p, qs, t, H) => { const ts = new Date(t).toISOString(); return { qs, h: { 'OK-ACCESS-KEY': a.key, 'OK-ACCESS-SIGN': await H.hmac('SHA-256', 'b64', a.secret, ts + 'GET' + p + (qs ? '?' + qs : '')), 'OK-ACCESS-TIMESTAMP': ts, 'OK-ACCESS-PASSPHRASE': a.pass || '' } }; } },
-  binance: { name: '幣安', host: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com' }, time: ['/api/v3/time', d => +d.serverTime],
+  binance: { name: '幣安', host: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com', dfut: 'https://dapi.binance.com' }, time: ['/api/v3/time', d => +d.serverTime],
     ok: j => !(typeof j.code === 'number' && j.code < 0), data: j => j,
     sign: async (a, p, qs, t, H) => { qs += (qs ? '&' : '') + 'timestamp=' + t + '&recvWindow=10000'; return { qs: qs + '&signature=' + await H.hmac('SHA-256', 'hex', a.secret, qs), h: { 'X-MBX-APIKEY': a.key } }; } },
   bitget: { name: 'Bitget', pass: true, host: { main: 'https://api.bitget.com' }, time: ['/api/v2/public/time', d => +d.serverTime],
@@ -2581,6 +2581,11 @@ const FX_READ = {
       for (const x of await rq('/fapi/v2/balance', {}, true, 'fut')) { const n = +x.balance; if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(x.asset), acct: 'U 本位合約' }); }
       out.positions = (await rq('/fapi/v2/positionRisk', {}, true, 'fut')).filter(x => +x.positionAmt).map(x => ({ symbol: x.symbol, side: +x.positionAmt > 0 ? 'long' : 'short', contracts: Math.abs(+x.positionAmt), entry: +x.entryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.leverage || null, margin_mode: x.marginType === 'isolated' ? 'isolated' : 'cross', upnl: +x.unRealizedProfit || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    // 幣本位合約（dapi）：餘額是幣，持倉 upnl 也是幣計價
+    try {
+      for (const x of await rq('/dapi/v1/balance', {}, true, 'dfut')) { const n = +x.balance + (+x.crossUnPnl || 0); if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(x.asset), acct: '幣本位合約' }); }
+      for (const x of await rq('/dapi/v1/positionRisk', {}, true, 'dfut')) if (+x.positionAmt) { const c = String(x.symbol).replace(/USD_.*$/, ''); out.positions.push({ symbol: x.symbol, side: +x.positionAmt > 0 ? 'long' : 'short', contracts: Math.abs(+x.positionAmt), entry: +x.entryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.leverage || null, margin_mode: x.marginType === 'isolated' ? 'isolated' : 'cross', upnl: (+x.unRealizedProfit || 0) * await price(c), coinM: true }); }
+    } catch (e) { if (!/-2015|permission|not.*open/i.test(e.message)) out.notes.push('幣本位合約讀取失敗：' + e.message); }
     // 資金錢包、理財等其他錢包只拿得到 BTC 計價總額
     try { const btc = await price('BTC'); for (const x of await rq('/sapi/v1/asset/wallet/balance', {})) { const n = +x.balance; if (n > 0 && !/^Spot$|^USD.-M Futures$/.test(x.walletName)) out.assets.push({ coin: 'BTC（約當）', amount: n, usd: n * btc, acct: x.walletName }); } } catch (e) {}
     return out;
@@ -2593,6 +2598,10 @@ const FX_READ = {
       for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'USDT-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: 'U 本位合約' }); }
       out.positions = (await rq('/api/v2/mix/position/all-position', { productType: 'USDT-FUTURES', marginCoin: 'USDT' })).filter(x => +x.total).map(x => ({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.unrealizedPL || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    try {
+      for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'COIN-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: '幣本位合約' }); }
+      for (const x of await rq('/api/v2/mix/position/all-position', { productType: 'COIN-FUTURES' })) if (+x.total) out.positions.push({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: (+x.unrealizedPL || 0) * await price(x.marginCoin), coinM: true });
+    } catch (e) { out.notes.push('幣本位合約讀取失敗：' + e.message); }
     // 槓桿帳戶（全倉、逐倉）：用淨資產＝總額−借款−利息
     const mg = (x, nm) => { const t = +x.totalAmount || 0, n = x.net != null && x.net !== '' ? +x.net : t - (+x.borrow || 0) - (+x.interest || 0); return { t, n, nm }; };
     for (const [p, nm] of [['/api/v2/margin/crossed/account/assets', '全倉槓桿'], ['/api/v2/margin/isolated/account/assets', '逐倉槓桿']]) {
@@ -2608,6 +2617,11 @@ const FX_READ = {
       const f = await rq('/api/v4/futures/usdt/accounts', {}), n = +f.total + (+f.unrealised_pnl || 0); if (n > 0) out.assets.push({ coin: 'USDT', amount: n, usd: n, acct: 'U 本位合約' });
       out.positions = (await rq('/api/v4/futures/usdt/positions', {})).filter(x => +x.size).map(x => ({ symbol: x.contract, side: +x.size > 0 ? 'long' : 'short', contracts: Math.abs(+x.size), entry: +x.entry_price, mark: +x.mark_price, liq: +x.liq_price || null, leverage: +x.leverage || +x.cross_leverage_limit || null, margin_mode: +x.leverage ? 'isolated' : 'cross', upnl: +x.unrealised_pnl || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    // BTC 結算（幣本位）合約
+    try {
+      const f = await rq('/api/v4/futures/btc/accounts', {}), n = +f.total + (+f.unrealised_pnl || 0), bp = await price('BTC'); if (n > 0) out.assets.push({ coin: 'BTC', amount: n, usd: n * bp, acct: '幣本位合約' });
+      for (const x of await rq('/api/v4/futures/btc/positions', {})) if (+x.size) out.positions.push({ symbol: x.contract, side: +x.size > 0 ? 'long' : 'short', contracts: Math.abs(+x.size), entry: +x.entry_price, mark: +x.mark_price, liq: +x.liq_price || null, leverage: +x.leverage || +x.cross_leverage_limit || null, margin_mode: +x.leverage ? 'isolated' : 'cross', upnl: (+x.unrealised_pnl || 0) * bp, coinM: true });
+    } catch (e) { if (!/USER_NOT_FOUND|not found/i.test(e.message)) out.notes.push('幣本位合約讀取失敗：' + e.message); }
     return out;
   },
   async mexc(rq) {
@@ -2625,6 +2639,7 @@ const FX_READ = {
     for (const x of await rq('/api/v1/accounts', {})) { const n = +x.balance; if (n > 0) out.assets.push({ coin: x.currency, amount: n, usd: n * await price(x.currency), acct: AC[x.type] || x.type }); }
     try {
       const f = await rq('/api/v1/account-overview', { currency: 'USDT' }, true, 'fut'), n = +f.accountEquity; if (n > 0) out.assets.push({ coin: 'USDT', amount: n, usd: n, acct: 'U 本位合約' });
+      try { const b = await rq('/api/v1/account-overview', { currency: 'XBT' }, true, 'fut'), m = +b.accountEquity; if (m > 0) out.assets.push({ coin: 'BTC', amount: m, usd: m * await price('BTC'), acct: '幣本位合約' }); } catch (e) {}
       out.positions = (await rq('/api/v1/positions', {}, true, 'fut')).filter(x => +x.currentQty).map(x => ({ symbol: x.symbol, side: +x.currentQty > 0 ? 'long' : 'short', contracts: Math.abs(+x.currentQty), entry: +x.avgEntryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.realLeverage || +x.leverage || null, margin_mode: x.crossMode ? 'cross' : 'isolated', upnl: +x.unrealisedPnl || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
     return out;
@@ -2689,15 +2704,18 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if(info.readOnly!==1)throw Object.assign(new Error('這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。'),{rw:1});
     const out={total_usd:0,assets:[],positions:[],notes:[],master:typeof info.isMaster==='boolean'?info.isMaster:undefined},px={},ST=['USDT','USDC','USD','FDUSD','DAI'];
     const price=async c=>{if(ST.includes(c))return 1;if(px[c]==null)try{px[c]=+(await bybitReq(a,'/v5/market/tickers',{category:'spot',symbol:c+'USDT'},false)).list[0].lastPrice}catch(e){px[c]=0}return px[c]};
-    let got=false;
+    // 統一帳戶之外，舊版統一帳戶與經典帳戶的幣本位合約在 CONTRACT，兩個都讀
+    let got=false,uta=false;
     for(const t of ['UNIFIED','CONTRACT']){try{const r=await bybitReq(a,'/v5/account/wallet-balance',{accountType:t}),w=r.list&&r.list[0];if(!w)continue;
-      for(const c of w.coin||[]){const n=+c.walletBalance;if(!(n>0))continue;out.assets.push({coin:c.coin,amount:n,usd:c.usdValue!==''&&c.usdValue!=null?+c.usdValue:n*await price(c.coin),acct:t==='UNIFIED'?'統一帳戶':'合約帳戶'})}got=true;break}
-      catch(e){if(t==='CONTRACT')out.notes.push('統一／合約帳戶讀取失敗：'+e.message)}}
+      for(const c of w.coin||[]){const n=+c.walletBalance;if(!(n>0))continue;out.assets.push({coin:c.coin,amount:n,usd:c.usdValue!==''&&c.usdValue!=null?+c.usdValue:n*await price(c.coin),acct:t==='UNIFIED'?'統一帳戶':uta&&!ST.includes(c.coin)?'幣本位合約':'合約帳戶'})}got=true;if(t==='UNIFIED')uta=true}
+      catch(e){if(t==='CONTRACT'&&!uta)out.notes.push('統一／合約帳戶讀取失敗：'+e.message)}}
     try{const r=await bybitReq(a,'/v5/asset/transfer/query-account-coins-balance',{accountType:'FUND'});for(const c of r.balance||[]){const n=+c.walletBalance;if(n>0)out.assets.push({coin:c.coin,amount:n,usd:n*await price(c.coin),acct:'資金帳戶'})}got=true}
     catch(e){out.notes.push('資金帳戶讀取失敗：'+e.message)}
     if(!got)throw new Error('讀不到 Bybit 餘額：'+out.notes.join('；'));
     try{const r=await bybitReq(a,'/v5/position/list',{category:'linear',settleCoin:'USDT'});out.positions=(r.list||[]).filter(x=>+x.size>0).map(x=>({symbol:x.symbol,side:x.side==='Buy'?'long':'short',contracts:+x.size,entry:+x.avgPrice,mark:+x.markPrice,liq:+x.liqPrice||null,leverage:+x.leverage||null,margin_mode:x.tradeMode===1?'isolated':'cross',upnl:+x.unrealisedPnl}))}
     catch(e){out.notes.push('持倉讀取失敗：'+e.message)}
+    try{const r=await bybitReq(a,'/v5/position/list',{category:'inverse'});for(const x of (r.list||[]).filter(x=>+x.size>0))out.positions.push({symbol:x.symbol,side:x.side==='Buy'?'long':'short',contracts:+x.size,entry:+x.avgPrice,mark:+x.markPrice,liq:+x.liqPrice||null,leverage:+x.leverage||null,margin_mode:x.tradeMode===1?'isolated':'cross',upnl:(+x.unrealisedPnl||0)*await price(String(x.symbol).replace(/USD.*$/,'')),coinM:true})}
+    catch(e){out.notes.push('幣本位持倉讀取失敗：'+e.message)}
     out.total_usd=out.assets.reduce((t,x)=>t+(x.usd||0),0);return out}
   const LREAD={bybit:bybitLocal};
   for(const k of Object.keys(FXS))LREAD[k]=a=>fxRead(k,a,fxSend,FX_H,()=>{throw Object.assign(new Error('這把 '+FXS[k].name+' 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。'),{rw:1})});
@@ -2787,7 +2805,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if(x.notes&&x.notes.length)h+='<div class="fdcard fdmu">'+x.notes.map(es).join('<br>')+'</div>';
     if(x.assets&&x.assets.length)h+='<div class="fdpanel"><b>幣種</b><div class="fdscroll"><table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>'+x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)).map(a=>'<tr><td>'+es(a.coin)+(a.acct?' <span class="fdchip">'+es(a.acct)+'</span>':'')+'</td><td>'+(hide?'••••':am(a.amount))+'</td><td>'+(hide?'••••':fm(a.usd))+'</td></tr>').join('')+'</table></div></div>';
     if(x.positions&&x.positions.length)h+='<div class="fdpanel"><b>持倉</b>'+x.positions.map(p=>{const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null,c=dist==null?'':dist<10?'fdw':'fdup';
-      return '<div class="fdpos"><div class="fdrow"><span><b class="'+(p.side==='long'?'fdup':'fddn')+'">'+(p.side==='long'?'多':'空')+'</b> '+es(String(p.symbol).split(':')[0])+' <span class="fdchip">'+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':'全倉')+'</span></span><span class="'+((+p.upnl||0)>=0?'fdup':'fddn')+'">'+(hide?'••••':fm(p.upnl))+'</span></div>'
+      return '<div class="fdpos"><div class="fdrow"><span><b class="'+(p.side==='long'?'fdup':'fddn')+'">'+(p.side==='long'?'多':'空')+'</b> '+es(String(p.symbol).split(':')[0])+' <span class="fdchip">'+(p.coinM?'幣本位 ':'')+(p.leverage?fm(p.leverage,1)+'x ':'')+(p.margin_mode==='isolated'?'逐倉':'全倉')+'</span></span><span class="'+((+p.upnl||0)>=0?'fdup':'fddn')+'">'+(hide?'••••':fm(p.upnl))+'</span></div>'
         +'<div class="fdrow fdmu"><span>數量 '+(hide?'••••':am(p.contracts))+'</span><span>開倉 '+am(p.entry)+'</span></div><div class="fdrow fdmu"><span>標記 '+am(p.mark)+'</span><span>強平 '+am(p.liq)+'</span></div>'
         +(dist!=null?'<div class="fdrow"><small class="fdmu">距強平</small><small class="'+c+'">'+fm(dist,1)+'%</small></div><div class="fdbar"><i class="" style="width:'+Math.min(100,dist*4).toFixed(0)+'%;background:'+(dist<10?'#f5a524':'#26a69a')+'"></i></div>':'')+'</div>'}).join('')+'</div>';
     const k=(D.list||[]).find(a=>a.id===id);
@@ -2850,7 +2868,12 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
       $('#fdK').value='';$('#fdS').value='';$('#fdP').value='';go('home');await load(true)}
     catch(err2){$('#fdS').value='';$('#fdP').value='';{const M=err2.message;m.textContent=M+(pickEx==='bybit'&&/10003|API key is invalid/i.test(M)?($('#fdT').checked?'。這把金鑰在測試網找不到：在 bybit.com 建的金鑰請取消勾選測試網。':'。這把金鑰在正式網找不到：測試網金鑰請勾選測試網；Demo Trading 的金鑰不能用。'):'')}$('#fdAddGo').disabled=false}
   });
-  return {home:()=>go('home'),EX,lg,exName,pass:k=>!!(FXS[k]&&FXS[k].pass),pre:()=>load(false),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
+  // 給 HexAI：只送存在手機的帳戶（電腦上的帳戶 HexStack 自己讀得到）；還沒讀過就先讀一次，最多等 8 秒
+  async function ai(){if(!LJ().length)return {funds:[]};
+    if(!D||Date.now()-Date.parse(D.updated_at)>300000){const t0=Date.now();if(!busy)load(false).catch(()=>{});await new Promise(r=>{const w=()=>!busy||Date.now()-t0>8000?r():setTimeout(w,200);setTimeout(w,50)})}
+    const acc=D?D.accounts.filter(x=>x.where==='phone'):[];
+    return {funds:acc.map(x=>({name:x.name,exchange:x.exchange,ok:x.ok,total_usd:x.total_usd,assets:(x.assets||[]).map(a=>({coin:a.coin,amount:a.amount,usd:a.usd,acct:a.acct})),positions:x.positions||[],notes:x.notes||[]})),fundsAt:D?Math.floor(Date.parse(D.updated_at)/1000):null}}
+  return {home:()=>go('home'),EX,lg,exName,ai,pass:k=>!!(FXS[k]&&FXS[k].pass),pre:()=>load(false),open(){if($('#fdSetup').hidden&&$('#fdPick').hidden&&$('#fdDetail').hidden&&$('#fdEx').hidden)go('home');home();load(false);
     if(!timer)timer=setInterval(()=>{if($('#fundView').classList.contains('on')&&!document.hidden)load(false)},60000)}};
 })();
 window.FundTab=FundTab;
@@ -4200,7 +4223,7 @@ const AiChat=(()=>{
   async function poll(){clearTimeout(jt);if(!job)return;try{const j=await api('/api/ai/job?id='+job.id);Object.assign(job,j)}catch(e){job.done=true;job.error=e.message}
     if(job.done){busy=false;err=job.error?(job.error):'';const r=job.role,pp=job.props;if(!job.error)await hist(r);else render();job=null;if(pp&&pp.length){openProp(pp[pp.length-1])}return}render();jt=setTimeout(poll,1500)}
   async function send(t){t=String(t||'').trim();if(!t||busy)return;busy=true;err='';draft='';(H[role]=H[role]||[]).push({role:'user',content:t});job={role,trace:[],done:false};render();
-    try{const r=await api('/api/ai/chat',{role,text:t,ctx:aiCtx()});job.id=r.id;poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
+    try{const ctx=aiCtx();try{if(window.FundTab)Object.assign(ctx,await FundTab.ai())}catch(e){}const r=await api('/api/ai/chat',{role,text:t,ctx});job.id=r.id;poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
   function openProp(p){prop=Object.assign({},p);if(p.kind==='strat'){const G=sameG(p),pre=p.proposed.group&&G.find(x=>SigLock.gname(x.g)===p.proposed.group);prop._g=pre?pre.g:''}syncProp()}
   // 從各頁的小圖示點進來：開一個獨立的對話頁蓋在上面，返回就回到原本那頁
   function soloOpen(k){const c=box();if(!c)return;if(!solo){solo={home:c.parentNode,next:c.nextSibling};let L=document.getElementById('aiSolo');if(!L){L=document.createElement('div');L.id='aiSolo';document.body.appendChild(L)}L.hidden=false;L.appendChild(c);document.documentElement.style.overflow='hidden'}pick(k);L_top()}

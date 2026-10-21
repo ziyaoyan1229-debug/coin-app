@@ -760,13 +760,14 @@ async function bybitFunds(a) {
   if (info.readOnly !== 1 && !a.trade) throw new HErr(400, '這把 Bybit 金鑰有交易或提現權限，不是唯讀。請另外建一把只勾「讀取」的金鑰。');
   const out = { total_usd: 0, assets: [], positions: [], notes: [], master: typeof info.isMaster === 'boolean' ? info.isMaster : undefined, uid: info.userID != null ? String(info.userID) : undefined };
   const px = {}, price = async c => { if (STABLE.has(c)) return 1; if (px[c] == null) { try { px[c] = +(await ex.req('GET', '/v5/market/tickers', { category: 'spot', symbol: c + 'USDT' }, false)).list[0].lastPrice; } catch (e) { px[c] = 0; } } return px[c]; };
-  let got = false;
+  // 統一帳戶之外，舊版統一帳戶與經典帳戶的幣本位合約在 CONTRACT（反向合約帳戶），兩個都讀
+  let got = false, uta = false;
   for (const accountType of ['UNIFIED', 'CONTRACT']) {
     try {
       const r = await ex.req('GET', '/v5/account/wallet-balance', { accountType }), w = r.list && r.list[0]; if (!w) continue;
-      for (const c of w.coin || []) { const n = +c.walletBalance; if (!(n > 0)) continue; out.assets.push({ coin: c.coin, amount: n, usd: c.usdValue !== '' && c.usdValue != null ? +c.usdValue : n * await price(c.coin), acct: accountType === 'UNIFIED' ? '統一帳戶' : '合約帳戶' }); }
-      got = true; break;
-    } catch (e) { if (accountType === 'CONTRACT') out.notes.push('統一／合約帳戶讀取失敗：' + e.message); }
+      for (const c of w.coin || []) { const n = +c.walletBalance; if (!(n > 0)) continue; out.assets.push({ coin: c.coin, amount: n, usd: c.usdValue !== '' && c.usdValue != null ? +c.usdValue : n * await price(c.coin), acct: accountType === 'UNIFIED' ? '統一帳戶' : uta && !STABLE.has(c.coin) ? '幣本位合約' : '合約帳戶' }); }
+      got = true; if (accountType === 'UNIFIED') uta = true;
+    } catch (e) { if (accountType === 'CONTRACT' && !uta) out.notes.push('統一／合約帳戶讀取失敗：' + e.message); }
   }
   try {
     const r = await ex.req('GET', '/v5/asset/transfer/query-account-coins-balance', { accountType: 'FUND' });
@@ -778,6 +779,11 @@ async function bybitFunds(a) {
     const r = await ex.req('GET', '/v5/position/list', { category: 'linear', settleCoin: 'USDT' });
     out.positions = (r.list || []).filter(x => +x.size > 0).map(x => ({ symbol: x.symbol, side: x.side === 'Buy' ? 'long' : 'short', contracts: +x.size, entry: +x.avgPrice, mark: +x.markPrice, liq: +x.liqPrice || null, leverage: +x.leverage || null, margin_mode: x.tradeMode === 1 ? 'isolated' : 'cross', upnl: +x.unrealisedPnl }));
   } catch (e) { out.notes.push('持倉讀取失敗：' + e.message); }
+  // 幣本位（反向）合約持倉：未實現損益是幣計價，換成美元
+  try {
+    const r = await ex.req('GET', '/v5/position/list', { category: 'inverse' });
+    for (const x of (r.list || []).filter(x => +x.size > 0)) out.positions.push({ symbol: x.symbol, side: x.side === 'Buy' ? 'long' : 'short', contracts: +x.size, entry: +x.avgPrice, mark: +x.markPrice, liq: +x.liqPrice || null, leverage: +x.leverage || null, margin_mode: x.tradeMode === 1 ? 'isolated' : 'cross', upnl: (+x.unrealisedPnl || 0) * await price(String(x.symbol).replace(/USD.*$/, '')), coinM: true });
+  } catch (e) { out.notes.push('幣本位持倉讀取失敗：' + e.message); }
   out.total_usd = out.assets.reduce((t, x) => t + (x.usd || 0), 0);
   return out;
 }
@@ -790,7 +796,7 @@ const FXS = {
   okx: { name: 'OKX', pass: true, host: { main: 'https://www.okx.com' }, time: ['/api/v5/public/time', d => +d[0].ts],
     ok: j => j.code === '0', data: j => j.data,
     sign: async (a, p, qs, t, H) => { const ts = new Date(t).toISOString(); return { qs, h: { 'OK-ACCESS-KEY': a.key, 'OK-ACCESS-SIGN': await H.hmac('SHA-256', 'b64', a.secret, ts + 'GET' + p + (qs ? '?' + qs : '')), 'OK-ACCESS-TIMESTAMP': ts, 'OK-ACCESS-PASSPHRASE': a.pass || '' } }; } },
-  binance: { name: '幣安', host: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com' }, time: ['/api/v3/time', d => +d.serverTime],
+  binance: { name: '幣安', host: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com', dfut: 'https://dapi.binance.com' }, time: ['/api/v3/time', d => +d.serverTime],
     ok: j => !(typeof j.code === 'number' && j.code < 0), data: j => j,
     sign: async (a, p, qs, t, H) => { qs += (qs ? '&' : '') + 'timestamp=' + t + '&recvWindow=10000'; return { qs: qs + '&signature=' + await H.hmac('SHA-256', 'hex', a.secret, qs), h: { 'X-MBX-APIKEY': a.key } }; } },
   bitget: { name: 'Bitget', pass: true, host: { main: 'https://api.bitget.com' }, time: ['/api/v2/public/time', d => +d.serverTime],
@@ -842,6 +848,11 @@ const FX_READ = {
       for (const x of await rq('/fapi/v2/balance', {}, true, 'fut')) { const n = +x.balance; if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(x.asset), acct: 'U 本位合約' }); }
       out.positions = (await rq('/fapi/v2/positionRisk', {}, true, 'fut')).filter(x => +x.positionAmt).map(x => ({ symbol: x.symbol, side: +x.positionAmt > 0 ? 'long' : 'short', contracts: Math.abs(+x.positionAmt), entry: +x.entryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.leverage || null, margin_mode: x.marginType === 'isolated' ? 'isolated' : 'cross', upnl: +x.unRealizedProfit || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    // 幣本位合約（dapi）：餘額是幣，持倉 upnl 也是幣計價
+    try {
+      for (const x of await rq('/dapi/v1/balance', {}, true, 'dfut')) { const n = +x.balance + (+x.crossUnPnl || 0); if (n > 0) out.assets.push({ coin: x.asset, amount: n, usd: n * await price(x.asset), acct: '幣本位合約' }); }
+      for (const x of await rq('/dapi/v1/positionRisk', {}, true, 'dfut')) if (+x.positionAmt) { const c = String(x.symbol).replace(/USD_.*$/, ''); out.positions.push({ symbol: x.symbol, side: +x.positionAmt > 0 ? 'long' : 'short', contracts: Math.abs(+x.positionAmt), entry: +x.entryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.leverage || null, margin_mode: x.marginType === 'isolated' ? 'isolated' : 'cross', upnl: (+x.unRealizedProfit || 0) * await price(c), coinM: true }); }
+    } catch (e) { if (!/-2015|permission|not.*open/i.test(e.message)) out.notes.push('幣本位合約讀取失敗：' + e.message); }
     // 資金錢包、理財等其他錢包只拿得到 BTC 計價總額
     try { const btc = await price('BTC'); for (const x of await rq('/sapi/v1/asset/wallet/balance', {})) { const n = +x.balance; if (n > 0 && !/^Spot$|^USD.-M Futures$/.test(x.walletName)) out.assets.push({ coin: 'BTC（約當）', amount: n, usd: n * btc, acct: x.walletName }); } } catch (e) {}
     return out;
@@ -854,6 +865,10 @@ const FX_READ = {
       for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'USDT-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: 'U 本位合約' }); }
       out.positions = (await rq('/api/v2/mix/position/all-position', { productType: 'USDT-FUTURES', marginCoin: 'USDT' })).filter(x => +x.total).map(x => ({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.unrealizedPL || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    try {
+      for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'COIN-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: '幣本位合約' }); }
+      for (const x of await rq('/api/v2/mix/position/all-position', { productType: 'COIN-FUTURES' })) if (+x.total) out.positions.push({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: (+x.unrealizedPL || 0) * await price(x.marginCoin), coinM: true });
+    } catch (e) { out.notes.push('幣本位合約讀取失敗：' + e.message); }
     // 槓桿帳戶（全倉、逐倉）：用淨資產＝總額−借款−利息
     const mg = (x, nm) => { const t = +x.totalAmount || 0, n = x.net != null && x.net !== '' ? +x.net : t - (+x.borrow || 0) - (+x.interest || 0); return { t, n, nm }; };
     for (const [p, nm] of [['/api/v2/margin/crossed/account/assets', '全倉槓桿'], ['/api/v2/margin/isolated/account/assets', '逐倉槓桿']]) {
@@ -869,6 +884,11 @@ const FX_READ = {
       const f = await rq('/api/v4/futures/usdt/accounts', {}), n = +f.total + (+f.unrealised_pnl || 0); if (n > 0) out.assets.push({ coin: 'USDT', amount: n, usd: n, acct: 'U 本位合約' });
       out.positions = (await rq('/api/v4/futures/usdt/positions', {})).filter(x => +x.size).map(x => ({ symbol: x.contract, side: +x.size > 0 ? 'long' : 'short', contracts: Math.abs(+x.size), entry: +x.entry_price, mark: +x.mark_price, liq: +x.liq_price || null, leverage: +x.leverage || +x.cross_leverage_limit || null, margin_mode: +x.leverage ? 'isolated' : 'cross', upnl: +x.unrealised_pnl || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
+    // BTC 結算（幣本位）合約
+    try {
+      const f = await rq('/api/v4/futures/btc/accounts', {}), n = +f.total + (+f.unrealised_pnl || 0), bp = await price('BTC'); if (n > 0) out.assets.push({ coin: 'BTC', amount: n, usd: n * bp, acct: '幣本位合約' });
+      for (const x of await rq('/api/v4/futures/btc/positions', {})) if (+x.size) out.positions.push({ symbol: x.contract, side: +x.size > 0 ? 'long' : 'short', contracts: Math.abs(+x.size), entry: +x.entry_price, mark: +x.mark_price, liq: +x.liq_price || null, leverage: +x.leverage || +x.cross_leverage_limit || null, margin_mode: +x.leverage ? 'isolated' : 'cross', upnl: (+x.unrealised_pnl || 0) * bp, coinM: true });
+    } catch (e) { if (!/USER_NOT_FOUND|not found/i.test(e.message)) out.notes.push('幣本位合約讀取失敗：' + e.message); }
     return out;
   },
   async mexc(rq) {
@@ -886,6 +906,7 @@ const FX_READ = {
     for (const x of await rq('/api/v1/accounts', {})) { const n = +x.balance; if (n > 0) out.assets.push({ coin: x.currency, amount: n, usd: n * await price(x.currency), acct: AC[x.type] || x.type }); }
     try {
       const f = await rq('/api/v1/account-overview', { currency: 'USDT' }, true, 'fut'), n = +f.accountEquity; if (n > 0) out.assets.push({ coin: 'USDT', amount: n, usd: n, acct: 'U 本位合約' });
+      try { const b = await rq('/api/v1/account-overview', { currency: 'XBT' }, true, 'fut'), m = +b.accountEquity; if (m > 0) out.assets.push({ coin: 'BTC', amount: m, usd: m * await price('BTC'), acct: '幣本位合約' }); } catch (e) {}
       out.positions = (await rq('/api/v1/positions', {}, true, 'fut')).filter(x => +x.currentQty).map(x => ({ symbol: x.symbol, side: +x.currentQty > 0 ? 'long' : 'short', contracts: Math.abs(+x.currentQty), entry: +x.avgEntryPrice, mark: +x.markPrice, liq: +x.liquidationPrice || null, leverage: +x.realLeverage || +x.leverage || null, margin_mode: x.crossMode ? 'cross' : 'isolated', upnl: +x.unrealisedPnl || 0 }));
     } catch (e) { out.notes.push('合約帳戶讀取失敗：' + e.message); }
     return out;
@@ -1435,12 +1456,12 @@ const aiSign = body => { const ts = Date.now(); return { 'x-hs-host': C.hostId, 
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 // 一個資料來源只歸一個專家：行情、新聞只有 Scout 抓；回測只有 Echo 跑；Bridge 只派工、整合。out＝被別的 AI 呼叫時固定的回覆欄位
 const AI_ROLES = {
-  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（行情、回測自己不抓；系統狀態可以用 get_system_info 自己查），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）。使用者要新增策略或調整風控上限時，整合專家意見後自己用 propose_strategy／propose_risk_limits 提出（App 會跳確認框，使用者按確認才會改）', tools: ['ask_agent', 'get_system_info', 'propose_strategy', 'propose_risk_limits'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
+  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（行情、回測自己不抓；系統狀態可以用 get_system_info 自己查），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）。使用者要新增策略或調整風控上限時，整合專家意見後自己用 propose_strategy／propose_risk_limits 提出（App 會跳確認框，使用者按確認才會改）', tools: ['ask_agent', 'get_system_info', 'get_portfolio', 'propose_strategy', 'propose_risk_limits'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
   scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件。App 裡沒有的消息就用 web_search 上網查、用 read_webpage 讀內文，回答時附上來源網站和日期', tools: ['get_market_data', 'get_news', 'web_search', 'read_webpage'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
   echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌。使用者想把某組參數存起來時，用 propose_strategy 提出（App 會跳確認框，使用者按確認才會新增）', tools: ['list_strategies', 'run_backtest', 'get_backtest_records', 'get_my_strategies', 'get_strategy_review', 'propose_strategy'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
   forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說。使用者想採用某個方案時，用 propose_strategy 提出新增到「我的策略」（新策略，或某個策略底下的新參數組；App 會跳確認框，使用者按確認才會新增，不要說已經加好）', tools: ['ask_agent', 'list_strategies', 'get_my_strategies', 'get_backtest_records', 'propose_strategy'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
-  vault: { name: 'AI.Vault', job: '風控審核：所有建議的最後一道關，看帳戶、持倉、風控上限（需要時請 Echo 給歷史回撤），給「通過／警告／否決」。使用者想調整風險控管、或討論出新的上限時，用 propose_risk_limits 提出新值：App 會跳確認框，使用者按確認才會改（不要說已經改好）', tools: ['ask_agent', 'get_account_balance', 'get_position', 'get_risk_rules', 'get_system_info', 'get_strategy_review', 'get_trade_log', 'propose_risk_limits'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
-  helm: { name: 'AI.Helm', job: '執行助手：把方案寫成「下單草案」，一定要先請 Vault 審核，絕不自己下單', tools: ['ask_agent', 'get_position', 'list_strategies', 'get_my_strategies', 'get_system_info'], calls: ['vault', 'scout'], out: '下單草案：幣種、方向、數量或資金比例、槓桿、停損，以及 Vault 的結論' },
+  vault: { name: 'AI.Vault', job: '風控審核兼資產管家：所有建議的最後一道關，看帳戶、持倉、風控上限。使用者問資產、配置、幣本位或各交易所餘額時，用 get_portfolio 查資產總覽（每個帳戶、每個幣、配置比例）（需要時請 Echo 給歷史回撤），給「通過／警告／否決」。使用者想調整風險控管、或討論出新的上限時，用 propose_risk_limits 提出新值：App 會跳確認框，使用者按確認才會改（不要說已經改好）', tools: ['ask_agent', 'get_portfolio', 'get_account_balance', 'get_position', 'get_risk_rules', 'get_system_info', 'get_strategy_review', 'get_trade_log', 'propose_risk_limits'], calls: ['echo'], out: '結論（通過／警告／否決）、理由、建議倉位上限' },
+  helm: { name: 'AI.Helm', job: '執行助手：把方案寫成「下單草案」，一定要先請 Vault 審核，絕不自己下單', tools: ['ask_agent', 'get_position', 'get_portfolio', 'list_strategies', 'get_my_strategies', 'get_system_info'], calls: ['vault', 'scout'], out: '下單草案：幣種、方向、數量或資金比例、槓桿、停損，以及 Vault 的結論' },
   guide: { name: 'AI.Guide', job: '客服：回答 HexStack App 怎麼用、遇到問題怎麼排除。只根據下面的 App 說明回答，說明裡沒有的就老實說不確定，請使用者在專案裡回報。不談行情和投資建議，那些請使用者去問 AI.Bridge', tools: ['get_system_info'] }
 };
 // 誰可以找誰（calls）：Bridge 找任何人；Forge 找 Echo、Scout；Vault 找 Echo；Helm 找 Vault、Scout。最多轉兩層（Bridge → Forge → Echo），不能找回自己或 Bridge
@@ -1474,6 +1495,7 @@ const AI_TOOLS = {
   get_system_info: { d: 'HexStack 系統資訊：電腦版和 App 版本、引擎、各幣資料到哪一天、下單交易所（測試網／正式網、模擬盤開關）、模擬帳戶、AI 模型、風控上限與哪些關掉了、策略數量', p: {} },
   get_my_strategies: { d: '使用者 App「我的策略」裡存的策略和參數組（名稱、策略代號、幣種、參數），以及哪些正在 HexBOT 執行', p: {} },
   get_backtest_records: { d: '使用者在 App「策略分析」跑過的回測紀錄（最新在前）：策略、幣種、期間、報酬、最大回撤、勝率、交易次數、參數。沒有紀錄時回傳空清單', p: { strategy: { type: 'string', description: '只看這個策略代號，可不給' }, symbol: { type: 'string', description: '只看這個幣，可不給' }, limit: { type: 'integer', description: '幾筆，預設 10，最多 40' } } },
+  get_portfolio: { d: '資產總覽的完整內容：每個交易所帳戶（電腦和手機存的都有）的總資產、各幣種數量與美元價值、所在帳戶（現貨／U 本位／幣本位合約／資金帳戶等）、資產配置比例、合約持倉', p: {} },
   get_trade_log: { d: 'HexBOT 最近的交易與事件紀錄（開倉、平倉、停損、停利、暫停、錯誤）', p: { limit: { type: 'integer', description: '幾筆，預設 20，最多 80' }, symbol: { type: 'string', description: '只看這個幣，可不給' } } },
   get_strategy_review: { d: 'HexBOT 執行中策略的實際績效對回測（報酬、交易次數、勝率、回撤、滑價），和是否偏離回測', p: { days: { type: 'integer', description: '看最近幾天，0＝從開始執行算，預設 0' } } },
   get_risk_rules: { d: '目前的風控上限（單筆部位、槓桿、日虧損、最大回撤）和是否觸發停機', p: {} },
@@ -1521,6 +1543,16 @@ async function aiTool(name, a, depth, trace, from) {
     if (!NEWS_C.d || nowS() - NEWS_C.at > 600) { NEWS_C = { at: nowS(), d: await getJ(SITE + 'news.json?t=' + nowS(), {}, 20000) }; }
     const d = NEWS_C.d, m = d.market || {};
     return { updated: m.updated, title: m.title, bias: m.bias, summary: String(m.body || '').slice(0, 900), calendar: (m.calendar || []).slice(0, 5), news: (d.news || []).slice(0, Math.max(1, Math.min(10, +a.limit || 5))).map(x => ({ time: x.ts, title: x.title, summary: String(x.summary || '').slice(0, 100), impact: x.impact })) };
+  }
+  if (name === 'get_portfolio') {
+    const pc = await fundsAll(false).catch(e => ({ accounts: [], err: e.message })), ph = (APPCTX.funds || []).map(a => Object.assign({ where: '手機' }, a));
+    const acc = pc.accounts.map(a => Object.assign({ where: '電腦' }, a)).concat(ph), tot = acc.reduce((t, a) => t + (a.total_usd || 0), 0), by = {};
+    for (const a of acc) for (const x of a.assets || []) { const k = String(x.coin).replace(/（.*/, ''), o = by[k] || (by[k] = { coin: k, amount: 0, usd: 0, where: new Set() }); o.amount += +x.amount || 0; o.usd += +x.usd || 0; o.where.add(a.name + (x.acct ? '・' + x.acct : '')); }
+    const pct = v => tot > 0 ? r2(v / tot * 100) : null;
+    if (!acc.length) return { accounts: [], note: '資產總覽還沒有加入任何交易所帳戶（或 App 還沒回報手機上的帳戶）。可以請使用者到「資產總覽」加入唯讀金鑰' + (pc.err ? '；電腦讀取錯誤：' + pc.err : '') };
+    return { totalUsd: r2(tot), phoneDataAt: ph.length && APPCTX.fundsAt ? tpeHM(APPCTX.fundsAt) : null,
+      allocation: Object.values(by).filter(o => o.usd > 0.5).sort((p, q) => q.usd - p.usd).slice(0, 30).map(o => ({ coin: o.coin, amount: +o.amount.toPrecision(8), usd: r2(o.usd), pct: pct(o.usd), in: [...o.where].slice(0, 6) })),
+      accounts: acc.map(a => ({ name: a.name, exchange: a.exchange, storedOn: a.where, ok: a.ok !== false, totalUsd: r2(a.total_usd || 0), pct: pct(a.total_usd || 0), assets: (a.assets || []).filter(x => (+x.usd || 0) > 0.5).sort((p, q) => (q.usd || 0) - (p.usd || 0)).slice(0, 25).map(x => ({ coin: x.coin, amount: x.amount, usd: r2(x.usd || 0), account: x.acct })), positions: (a.positions || []).map(p => ({ symbol: p.symbol, side: p.side, contracts: p.contracts, entry: p.entry, mark: p.mark, liq: p.liq, leverage: p.leverage, upnlUsd: p.upnl != null ? r2(p.upnl) : null, coinMargined: !!p.coinM })), notes: (a.notes || []).slice(0, 3) })) };
   }
   if (name === 'get_account_balance') {
     const s = await status(), f = await fundsAll(false).catch(() => null);
@@ -1609,7 +1641,9 @@ function setCtx(c) {
   const str = (v, n) => String(v == null ? '' : v).slice(0, n), num = v => isFinite(+v) ? +v : null;
   APPCTX = { at: nowS(), app: { ver: str(c.app && c.app.ver, 20) },
     mine: (Array.isArray(c.mine) ? c.mine : []).slice(0, 60).map(m => ({ key: str(m.key, 80), group: str(m.group, 40), set: str(m.set, 40), strategy: str(m.strategy, 20), name: str(m.name, 40), symbol: str(m.symbol, 12), params: cleanP(m.params) })),
-    runs: (Array.isArray(c.runs) ? c.runs : []).slice(0, 60).map(x => ({ at: str(x.at, 20), strategy: str(x.strategy, 20), name: str(x.name, 40), symbol: str(x.symbol, 12), period: str(x.period, 40), capital: num(x.capital), returnPct: num(x.returnPct), maxDrawdownPct: num(x.maxDrawdownPct), winRate: str(x.winRate, 12), trades: num(x.trades), liquidated: !!x.liquidated, starred: !!x.starred, changedParams: Array.isArray(x.changedParams) ? x.changedParams.slice(0, 20).map(y => str(y, 60)) : [] })) };
+    runs: (Array.isArray(c.runs) ? c.runs : []).slice(0, 60).map(x => ({ at: str(x.at, 20), strategy: str(x.strategy, 20), name: str(x.name, 40), symbol: str(x.symbol, 12), period: str(x.period, 40), capital: num(x.capital), returnPct: num(x.returnPct), maxDrawdownPct: num(x.maxDrawdownPct), winRate: str(x.winRate, 12), trades: num(x.trades), liquidated: !!x.liquidated, starred: !!x.starred, changedParams: Array.isArray(x.changedParams) ? x.changedParams.slice(0, 20).map(y => str(y, 60)) : [] })),
+    // 只存在手機的交易所帳戶（電腦讀不到），App 讀到的餘額跟著對話送來
+    funds: (Array.isArray(c.funds) ? c.funds : []).slice(0, 20).map(a => ({ name: str(a.name, 40), exchange: str(a.exchange, 12), ok: !!a.ok, total_usd: num(a.total_usd), assets: (Array.isArray(a.assets) ? a.assets : []).slice(0, 80).map(x => ({ coin: str(x.coin, 16), amount: num(x.amount), usd: num(x.usd), acct: str(x.acct, 30) })), positions: (Array.isArray(a.positions) ? a.positions : []).slice(0, 40).map(p => ({ symbol: str(p.symbol, 24), side: str(p.side, 6), contracts: num(p.contracts), entry: num(p.entry), mark: num(p.mark), liq: num(p.liq), leverage: num(p.leverage), upnl: num(p.upnl), coinM: !!p.coinM })), notes: (Array.isArray(a.notes) ? a.notes : []).slice(0, 5).map(y => str(y, 120)) })), fundsAt: num(c.fundsAt) };
   try { writeJ(F_CTX, APPCTX); } catch (e) {}
 }
 async function aiStart(role, text) {
