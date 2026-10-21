@@ -1048,15 +1048,17 @@ const AI_DEF = { base: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.8-27
 const aiLocal = b => /^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(b);
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 const AI_ROLES = {
-  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，必要時找其他 AI 幫忙，最後整理成一個答案', tools: ['ask_agent', 'get_market_data', 'get_news', 'get_account_balance', 'get_position', 'get_risk_rules', 'list_strategies', 'run_backtest'] },
+  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，必要時找其他 AI 幫忙，最後整理成一個答案', tools: ['ask_agent', 'get_market_data', 'get_news', 'get_account_balance', 'get_position', 'get_risk_rules', 'list_strategies', 'run_backtest'], calls: ['scout', 'echo', 'forge', 'vault', 'helm'] },
   scout: { name: 'AI.Scout', job: '市場偵察：讀行情和新聞，說明現在的盤勢、關鍵價位和風險事件', tools: ['get_market_data', 'get_news'] },
   echo: { name: 'AI.Echo', job: '回測驗證：用 HexStack 的回測引擎驗證策略和參數，誠實報告報酬、回撤、交易次數', tools: ['list_strategies', 'run_backtest'] },
-  forge: { name: 'AI.Forge', job: '策略鍛造：根據目標提出策略或參數組合，每個建議都要先回測過才說', tools: ['list_strategies', 'run_backtest', 'get_market_data'] },
+  forge: { name: 'AI.Forge', job: '策略鍛造：根據目標提出策略或參數組合，每個建議都要先回測過才說', tools: ['ask_agent', 'list_strategies', 'run_backtest', 'get_market_data'], calls: ['echo', 'scout'] },
   vault: { name: 'AI.Vault', job: '風控守門：檢查帳戶、持倉、槓桿和風控上限，指出風險並建議上限（只建議，不改設定）', tools: ['get_account_balance', 'get_position', 'get_risk_rules'] },
-  helm: { name: 'AI.Helm', job: '交易助手：看執行中的策略、持倉和行情，說明現在該注意什麼（第一版只建議，不下單）', tools: ['get_position', 'list_strategies', 'get_market_data', 'get_risk_rules'] }
+  helm: { name: 'AI.Helm', job: '交易助手：看執行中的策略、持倉和行情，說明現在該注意什麼（第一版只建議，不下單）', tools: ['ask_agent', 'get_position', 'list_strategies', 'get_market_data', 'get_risk_rules'], calls: ['vault', 'scout'] }
 };
+// 誰可以找誰（calls）：Bridge 找任何人；Forge 找 Echo 驗證、Scout 看盤；Helm 找 Vault 看風控、Scout 看盤。最多轉兩層（Bridge → Forge → Echo），不能找回自己或 Bridge
+const AI_DEPTH = 2;
 const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、先講結論。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。結尾不用加免責聲明。';
-const aiSys = r => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
+const aiSys = r => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls ? '需要時可以用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙。' : ''}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
 const AI_TOOLS = {
   ask_agent: { d: '請另一個 AI 處理子問題，回傳它的答案', p: { role: { type: 'string', enum: ['scout', 'echo', 'forge', 'vault', 'helm'] }, question: { type: 'string' } }, req: ['role', 'question'] },
   get_market_data: { d: '某個幣的 1 小時 K 線行情摘要：現價、24h/7d/30d 漲跌、區間高低、近期收盤', p: { symbol: { type: 'string', description: '例如 BTC、ETH' }, hours: { type: 'integer', description: '要看的小時數，預設 72，最多 720' } }, req: ['symbol'] },
@@ -1069,9 +1071,9 @@ const AI_TOOLS = {
 };
 const symOk = s => { s = String(s || 'BTC').toUpperCase().replace(/USDT$/, ''); if (!MK[s]) throw new Error('沒有 ' + s + ' 的資料，可用：' + Object.keys(MK).join('、')); return s; };
 let NEWS_C = { at: 0, d: null };
-async function aiTool(name, a, depth, trace) {
+async function aiTool(name, a, depth, trace, from) {
   a = a && typeof a === 'object' ? a : {};
-  if (name === 'ask_agent') { if (depth > 0 || !AI_ROLES[a.role] || a.role === 'bridge') throw new Error('不能再轉給其他 AI'); return { role: a.role, answer: (await aiRun(a.role, [{ role: 'user', content: String(a.question || '').slice(0, 2000) }], depth + 1, trace)).text }; }
+  if (name === 'ask_agent') { if (depth >= AI_DEPTH || !((AI_ROLES[from] || {}).calls || []).includes(a.role)) throw new Error('不能轉給 ' + (a.role || '') + '，請自己用工具處理'); return { role: a.role, answer: (await aiRun(a.role, [{ role: 'user', content: String(a.question || '').slice(0, 2000) }], depth + 1, trace)).text }; }
   if (name === 'get_market_data') {
     const s = symOk(a.symbol), m = MK[s], n = m.n, h = Math.max(6, Math.min(720, +a.hours || 72)), c = m.C[n - 1], at = k => m.C[Math.max(0, n - 1 - k)];
     const lo = Math.min(...m.L.slice(n - h, n)), hi = Math.max(...m.H.slice(n - h, n)), st = Math.max(1, Math.round(h / 24));
@@ -1099,10 +1101,10 @@ async function aiTool(name, a, depth, trace) {
   }
   throw new Error('沒有這個工具：' + name);
 }
-async function aiCall(msgs, tools) {
+async function aiCall(msgs, tools, role) {
   const c = aiCfg(), h = { 'content-type': 'application/json' }; if (c.key) h.authorization = 'Bearer ' + c.key;
   if (!c.key && !aiLocal(c.base)) throw new Error('還沒設定模型金鑰：' + (/groq/.test(c.base) ? '到 console.groq.com 免費申請 API 金鑰，在電腦版 HexAI 的模型設定貼上' : '請在電腦版 HexAI 的模型設定貼上 API 金鑰'));
-  const b = { model: c.model, messages: msgs, temperature: 0.3, stream: false }; if (tools.length) b.tools = tools.map(n => ({ type: 'function', function: { name: n, description: AI_TOOLS[n].d, parameters: { type: 'object', properties: AI_TOOLS[n].p, required: AI_TOOLS[n].req || [] } } }));
+  const b = { model: c.model, messages: msgs, temperature: 0.3, stream: false }; if (tools.length) b.tools = tools.map(n => ({ type: 'function', function: { name: n, description: AI_TOOLS[n].d, parameters: { type: 'object', properties: n === 'ask_agent' ? Object.assign({}, AI_TOOLS[n].p, { role: { type: 'string', enum: AI_ROLES[role].calls } }) : AI_TOOLS[n].p, required: AI_TOOLS[n].req || [] } } }));
   let r, t, j = null;
   for (let k = 0; ; k++) {
     try { r = await fetchT(c.base.replace(/\/+$/, '') + '/chat/completions', { method: 'POST', headers: h, body: JSON.stringify(b) }, 300000); }
@@ -1122,13 +1124,13 @@ const clip = o => { const s = JSON.stringify(o); return s.length > 2500 ? s.slic
 async function aiRun(role, hist, depth = 0, trace = []) {
   const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role) }, ...hist];
   for (let i = 0; i < 8; i++) {
-    const m = await aiCall(msgs, i < 7 ? R.tools : []), calls = m.tool_calls || [];
+    const T = R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
     if (!calls.length) return { text: String(m.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim() || '（模型沒有回答內容）', trace };
     msgs.push({ role: 'assistant', content: m.content || '', tool_calls: calls });
     for (const tc of calls) {
       const fn = tc.function || {}, nm = fn.name; let args = fn.arguments; try { args = typeof args === 'string' ? JSON.parse(args || '{}') : args || {}; } catch (e) { args = {}; }
       const step = { by: R.name, tool: nm, args, ok: true }; trace.push(step);
-      let out; try { if (!R.tools.includes(nm)) throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
+      let out; try { if (!R.tools.includes(nm)) throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace, role); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
       msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out) });
     }
   }
