@@ -10,6 +10,8 @@
 const fs = require('fs'), path = require('path'), os = require('os'), http = require('http'), crypto = require('crypto'), vm = require('vm'), cp = require('child_process');
 
 const VER = '1.0';
+// 執行器版號：App 要靠新版執行器的功能時（例如 AI 查資產總覽）用它判斷電腦上的執行器是不是舊版，改到 App 依賴的行為就加 1
+const BUILD = 164;
 const APP = 'https://ziyaoyan1229-debug.github.io/coin-app/';
 const SITE = (process.env.HEXBOT_SITE || APP).replace(/\/?$/, '/');     // 引擎來源（測試可改成本機網址）
 const RAW = 'https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/';
@@ -1416,7 +1418,7 @@ async function status() {
       equity: r2(stratEq(g)), base: r2(g.base || 0), position: g.pos ? { side: g.pos.side, qty: g.pos.qty, entry: g.pos.entry, stop: g.pos.stop || 0, tp: g.pos.tp || 0, upnl: r2(g.pos.side * g.pos.qty * (P - g.pos.entry)) } : null, target: g.tg || null, lastBar: g.lastBar || 0, review: rv };
   });
   const cnt = k => S.strategies.filter(g => g.state === k).length;
-  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), liveExs: Object.keys(LIVE_EX), mkts: { paper: Object.keys(MKT), live: LIVE_EX[C.exchange] && LIVE_EX[C.exchange].prototype.spotOk ? Object.keys(MKT) : ['fut'] }, hasPass: !!C.apiPass, allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
+  const out = { ver: VER, build: BUILD, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), liveExs: Object.keys(LIVE_EX), mkts: { paper: Object.keys(MKT), live: LIVE_EX[C.exchange] && LIVE_EX[C.exchange].prototype.spotOk ? Object.keys(MKT) : ['fut'] }, hasPass: !!C.apiPass, allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
     mode: L === 'paper' ? 'paper' : C.testnet ? 'testnet' : 'live', counts: { trial: cnt('trial'), running: cnt('running'), paused: cnt('paused') },
     now: nowS(), lastTick: S.lastTickAt || 0, lastBar: S.lastBar || 0, equity: r2(eq), startEquity: r2(A.start || eq), startT: A.startT || S.startT,
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
@@ -1576,7 +1578,7 @@ async function aiTool(name, a, depth, trace, from) {
   if (name === 'propose_risk_limits') { const o = {}; for (const k in LIMR) if (a[k] != null && a[k] !== '') { const v = +a[k]; if (!(v >= LIMR[k][0] && v <= LIMR[k][1])) throw new Error(`${k} 要在 ${LIMR[k][0]}～${LIMR[k][1]} 之間`); o[k] = v; } if (!Object.keys(o).length) throw new Error('至少要給一個要改的上限'); return { proposed: o, current: C.limits, reason: String(a.reason || '').slice(0, 200), note: '已跳確認框給使用者，按確認才會生效' }; }
   if (name === 'list_strategies') { const s = symOk(a.symbol), B = ENG.BEST[a.strategy]; if (B) return { strategy: a.strategy, name: ENG.NAME[a.strategy] || a.strategy, symbol: s, defaultParams: cleanP(B[s] || B.BTC || {}) }; return { strategies: Object.keys(ENG.BEST).map(k => ({ code: k, name: ENG.NAME[k] || k })) }; }
   if (name === 'get_system_info') { const s = await status(), A = APPCTX.app || {};
-    return { hexstack: s.ver, app: A.ver || '不知道（App 還沒回報）', engine: s.engine, data: s.data, exchange: s.exchange, testnet: s.testnet, liveReady: s.liveReady, allowLive: s.allowLive, paperOnly: s.paperOnly, mode: s.mode, sims: s.sims, live: s.live, ai: (() => { const c = aiCfg(); return { cloud: aiCloud(c), model: c.model }; })(), limits: s.limits, limitsOff: Object.keys(s.limitsOff || {}), halted: s.halted, counts: s.counts, strategiesRunning: s.strategies.filter(g => g.enabled).length, myStrategies: (APPCTX.mine || []).length, backtestRecords: (APPCTX.runs || []).length, appContextAt: APPCTX.at ? tpeHM(APPCTX.at) : null }; }
+    return { hexstack: s.ver + ' build ' + BUILD, app: A.ver || '不知道（App 還沒回報）', engine: s.engine, data: s.data, exchange: s.exchange, testnet: s.testnet, liveReady: s.liveReady, allowLive: s.allowLive, paperOnly: s.paperOnly, mode: s.mode, sims: s.sims, live: s.live, ai: (() => { const c = aiCfg(); return { cloud: aiCloud(c), model: c.model }; })(), limits: s.limits, limitsOff: Object.keys(s.limitsOff || {}), halted: s.halted, counts: s.counts, strategiesRunning: s.strategies.filter(g => g.enabled).length, myStrategies: (APPCTX.mine || []).length, backtestRecords: (APPCTX.runs || []).length, appContextAt: APPCTX.at ? tpeHM(APPCTX.at) : null }; }
   if (name === 'get_my_strategies') { const on = S.strategies.filter(g => g.enabled); const mine = APPCTX.mine || [];
     return { count: mine.length, strategies: mine.map(m => Object.assign({}, m, { running: on.filter(g => String(g.key || '').split('@')[0] === m.key).map(g => ({ symbol: g.sym, market: MKT_NAME[mktOf(g)], ledger: g.led, state: g.state })) })), note: mine.length ? undefined : 'App 的「我的策略」是空的，或 App 還沒回報（要從 App 開對話才會帶上）' }; }
   if (name === 'get_backtest_records') { let L = APPCTX.runs || []; if (a.strategy) L = L.filter(x => x.strategy === a.strategy); if (a.symbol) L = L.filter(x => x.symbol === String(a.symbol).toUpperCase().replace(/USDT$/, ''));
@@ -1673,7 +1675,7 @@ async function aiStart(role, text) {
     .then(r => { job.text = r.text; const lp = job.trace.filter(x => x.res).map(x => x.res).slice(-3); if (lp.length) job.props = lp; const hp = [...new Set(job.trace.filter(x => x.tool === 'ask_agent' && x.ok && x.args && x.args.role).map(x => x.args.role))]; if (r.choices && r.choices.length) job.choices = r.choices; h.push(Object.assign({ role: 'assistant', content: r.text, t: nowS(), steps: job.trace.length }, lp.length ? { props: lp } : {}, hp.length ? { helpers: hp } : {}, r.choices && r.choices.length ? { choices: r.choices } : {})); })
     .catch(e => { job.error = e.message; h.pop(); })
     .finally(() => { job.done = true; if (h.length > 40) h.splice(0, h.length - 40); try { writeJ(F_AI, AIH); } catch (e) {} for (const k in AIJ) if (nowS() - AIJ[k].t > 3600) delete AIJ[k]; });
-  return { id };
+  return { id, build: BUILD };
 }
 async function aiTest() {
   const c = aiCfg(), h = {}; if (c.key) h.authorization = 'Bearer ' + c.key;
