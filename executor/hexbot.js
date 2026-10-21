@@ -779,6 +779,7 @@ async function bybitFunds(a) {
     const r = await ex.req('GET', '/v5/position/list', { category: 'linear', settleCoin: 'USDT' });
     out.positions = (r.list || []).filter(x => +x.size > 0).map(x => ({ symbol: x.symbol, side: x.side === 'Buy' ? 'long' : 'short', contracts: +x.size, entry: +x.avgPrice, mark: +x.markPrice, liq: +x.liqPrice || null, leverage: +x.leverage || null, margin_mode: x.tradeMode === 1 ? 'isolated' : 'cross', upnl: +x.unrealisedPnl }));
   } catch (e) { out.notes.push('持倉讀取失敗：' + e.message); }
+  try { const r = await ex.req('GET', '/v5/position/list', { category: 'linear', settleCoin: 'USDC' }); for (const x of (r.list || []).filter(x => +x.size > 0)) out.positions.push({ symbol: x.symbol, side: x.side === 'Buy' ? 'long' : 'short', contracts: +x.size, entry: +x.avgPrice, mark: +x.markPrice, liq: +x.liqPrice || null, leverage: +x.leverage || null, margin_mode: x.tradeMode === 1 ? 'isolated' : 'cross', upnl: +x.unrealisedPnl }); } catch (e) {}
   // 幣本位（反向）合約持倉：未實現損益是幣計價，換成美元
   try {
     const r = await ex.req('GET', '/v5/position/list', { category: 'inverse' });
@@ -869,6 +870,10 @@ const FX_READ = {
       for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'COIN-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: '幣本位合約' }); }
       for (const x of await rq('/api/v2/mix/position/all-position', { productType: 'COIN-FUTURES' })) if (+x.total) out.positions.push({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: (+x.unrealizedPL || 0) * await price(x.marginCoin), coinM: true });
     } catch (e) { out.notes.push('幣本位合約讀取失敗：' + e.message); }
+    try {
+      for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'USDC-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n, acct: 'USDC 合約' }); }
+      for (const x of await rq('/api/v2/mix/position/all-position', { productType: 'USDC-FUTURES' })) if (+x.total) out.positions.push({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.unrealizedPL || 0 });
+    } catch (e) {}
     // 槓桿帳戶（全倉、逐倉）：用淨資產＝總額−借款−利息
     const mg = (x, nm) => { const t = +x.totalAmount || 0, n = x.net != null && x.net !== '' ? +x.net : t - (+x.borrow || 0) - (+x.interest || 0); return { t, n, nm }; };
     for (const [p, nm] of [['/api/v2/margin/crossed/account/assets', '全倉槓桿'], ['/api/v2/margin/isolated/account/assets', '逐倉槓桿']]) {
@@ -1491,7 +1496,7 @@ const AI_TOOLS = {
   read_webpage: { d: '讀一個網頁的文字內容（web_search 找到的網址）', p: { url: { type: 'string' } }, req: ['url'] },
   get_news: { d: 'HexStack 市場分析頁的最新盤勢摘要、行事曆和新聞標題', p: { limit: { type: 'integer', description: '新聞則數，預設 5' } } },
   get_account_balance: { d: 'HexBOT 的模擬盤（假資金）權益和實盤下單帳戶狀態。不是使用者的真實資產，真實資產用 get_portfolio', p: {} },
-  get_position: { d: '目前所有持倉和執行中的策略', p: {} },
+  get_position: { d: 'HexBOT 自動交易的持倉和執行中的策略（只有 HexBOT 開的倉）。使用者在交易所自己開的倉、真實資產，用 get_portfolio', p: {} },
   get_system_info: { d: 'HexStack 系統資訊：電腦版和 App 版本、引擎、各幣資料到哪一天、下單交易所（測試網／正式網、模擬盤開關）、模擬帳戶、AI 模型、風控上限與哪些關掉了、策略數量', p: {} },
   get_my_strategies: { d: '使用者 App「我的策略」裡存的策略和參數組（名稱、策略代號、幣種、參數），以及哪些正在 HexBOT 執行', p: {} },
   get_backtest_records: { d: '使用者在 App「策略分析」跑過的回測紀錄（最新在前）：策略、幣種、期間、報酬、最大回撤、勝率、交易次數、參數。沒有紀錄時回傳空清單', p: { strategy: { type: 'string', description: '只看這個策略代號，可不給' }, symbol: { type: 'string', description: '只看這個幣，可不給' }, limit: { type: 'integer', description: '幾筆，預設 10，最多 40' } } },
@@ -1615,6 +1620,12 @@ async function aiRun(role, hist, depth = 0, trace = []) {
   // 模型常常只用文字說「建議改成…」卻不呼叫 propose_，App 就不會跳確認框：使用者在談新增策略、改風控時，回答完再要求它用 propose_ 工具提出一次
   const PT = depth ? [] : R.tools.filter(n => /^propose_/.test(n)), want = PT.length && /存|新增|加入|建立|改|調整|設定|套用|上限|風控|槓桿|策略|參數/.test(String((hist.filter(x => x.role === 'user').pop() || {}).content || ''));
   let ask = !!want, only = false, keep = '';
+  // 問到資產、持倉：不等模型自己決定，先把資產總覽的最新內容放進對話（模型常沿用舊答案或用錯工具）
+  const lastU = String((hist.filter(x => x.role === 'user').pop() || {}).content || '');
+  if (!depth && R.tools.includes('get_portfolio') && /資產|配置|持倉|倉位|艙位|部位|餘額|幣本位|總額|資金|多少錢|賺|賠|虧/.test(lastU)) {
+    try { const pf = await aiTool('get_portfolio', {}, depth, trace, role); trace.push({ by: R.name, tool: 'get_portfolio', args: {}, ok: true });
+      const L = msgs[msgs.length - 1]; if (L && L.role === 'user') L.content = String(L.content) + '\n\n（以下是系統附上的資料，不是使用者打的）系統剛剛即時查到的使用者真實資產（資產總覽，' + tpeHM(nowS()) + '）。回答資產、配置、持倉一律以這份為準，忽略對話裡之前的數字；模擬盤是另外的假資金，不要混進來：\n' + clip(pf, 9000); } catch (e) {}
+  }
   for (let i = 0; i < 8; i++) {
     const T = only ? PT : [...R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), ...(depth ? [] : ['ask_user'])], m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
     if (!calls.length && nag && i < 6 && /做多|做空|開倉|下單|槓桿|停損|草案/.test(m.content || '') && !trace.some(x => x.by === R.name && x.tool === 'ask_agent' && x.args && x.args.role === 'vault')) { nag = false; msgs.push({ role: 'assistant', content: m.content || '' }, { role: 'user', content: '（系統）給下單草案前一定要先用 ask_agent 請 vault 審核，把 Vault 的結論附在草案裡。' }); continue; }
