@@ -1286,7 +1286,7 @@ const aiSign = body => { const ts = Date.now(); return { 'x-hs-host': C.hostId, 
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 // 一個資料來源只歸一個專家：行情、新聞只有 Scout 抓；回測只有 Echo 跑；Bridge 只派工、整合。out＝被別的 AI 呼叫時固定的回覆欄位
 const AI_ROLES = {
-  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（自己不抓資料），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）', tools: ['ask_agent'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
+  bridge: { name: 'AI.Bridge', job: '總管：聽懂使用者要什麼，派給對的專家（自己不抓資料），最後整合成一個答案，每個數字標明是哪位專家給的。問到開倉、下單時，先請 Echo 回測再請 Helm 寫草案（Helm 找 Vault 時 Vault 不能再找 Echo）。使用者要新增策略或調整風控上限時，整合專家意見後自己用 propose_strategy／propose_risk_limits 提出（App 會跳確認框，使用者按確認才會改）', tools: ['ask_agent', 'propose_strategy', 'propose_risk_limits'], calls: ['scout', 'echo', 'forge', 'vault', 'helm', 'guide'] },
   scout: { name: 'AI.Scout', job: '市場情報：唯一的行情與新聞來源，說明盤勢、關鍵價位和風險事件。App 裡沒有的消息就用 web_search 上網查、用 read_webpage 讀內文，回答時附上來源網站和日期', tools: ['get_market_data', 'get_news', 'web_search', 'read_webpage'], out: '趨勢、波動、關鍵價位、重大消息、資料時間' },
   echo: { name: 'AI.Echo', job: '回測與復盤：唯一跑回測的人，誠實報告報酬、回撤、交易次數，並說明回測期間是漲是跌。使用者想把某組參數存起來時，用 propose_strategy 提出（App 會跳確認框，使用者按確認才會新增）', tools: ['list_strategies', 'run_backtest', 'propose_strategy'], out: '策略與參數、期間（期間漲跌）、報酬、最大回撤、交易數、爆倉、手續費、可信度提醒' },
   forge: { name: 'AI.Forge', job: '策略研發：根據目標提出 1～3 個策略或參數組合，自己不算績效，每個方案都要請 Echo 回測後才說。使用者想採用某個方案時，用 propose_strategy 提出新增到「我的策略」（新策略，或某個策略底下的新參數組；App 會跳確認框，使用者按確認才會新增，不要說已經加好）', tools: ['ask_agent', 'list_strategies', 'propose_strategy'], calls: ['echo', 'scout'], out: '每個候選方案：策略、改了哪些參數、Echo 的回測數字' },
@@ -1309,7 +1309,7 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 設定：客服機器人、外觀（預設、深夜、白天，可以跟著日出日落自動切換）、通知設定、資料庫、資料狀態、語言、帳號同步（Google 登入後手機和電腦的我的策略、通知、外觀、資產紀錄會同步，交易所金鑰不會上傳）、更新到最新版（看不到新版時按這裡）。
 - 安全：交易所金鑰只存在使用者自己的電腦上，建金鑰時只開「交易」權限，絕對不要開「提幣」，建議用子帳戶。真金下單一律由使用者自己操作。
 - 常見問題：手機看不到新版 → 設定 › 更新到最新版；HexBOT 顯示離線 → 確認電腦上的 HexStack 有開著、電腦沒睡眠；電腦版會自動更新。`;
-const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、先講結論。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。任何重要決定（新增或修改策略、改風控上限、開始或停止交易、下單）都只能提出建議，由使用者本人確認。給投資建議（買賣方向、倉位、槓桿、策略選擇）時，最後加一行「⚠ 風險提示：加密貨幣波動大，可能虧損全部本金，僅供參考，請自行判斷。」；單純回答操作問題不用加。';
+const AI_RULES = '規則：一律用繁體中文（台灣用語）回答，簡潔、第一行用「結論：」開頭先講結論；用 **粗體** 標出 2～4 個重點（關鍵數字、決定、風險），不要整段都粗體。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。任何重要決定（新增或修改策略、改風控上限、開始或停止交易、下單）都只能提出建議，由使用者本人確認。給投資建議（買賣方向、倉位、槓桿、策略選擇）時，最後加一行「⚠ 風險提示：加密貨幣波動大，可能虧損全部本金，僅供參考，請自行判斷。」；單純回答操作問題不用加。';
 // 使用者給每隻 AI 的資料（規則、偏好、背景），每次對話都放進系統提示
 const aiNote = r => { const t = ((C.aiNotes || {})[r] || '').trim(); return t ? '\n使用者給你的資料（照這些規則和偏好做，跟上面的安全規則衝突時以安全規則為準）：\n' + t : ''; };
 const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}${aiNote(r)}${depth ? '' : '\n跟使用者互動：需要使用者決定或補資料時，用 ask_user 給 2～4 個選項讓他點（不要只用文字問）。' + (AI_ROLES[r].tools.some(t => /^propose_/.test(t)) ? '回答完如果有自然的下一步（存成策略、調整上限），主動用 propose_ 工具提出，App 會跳確認框問使用者；' : '') + '新增策略、改設定一定要經過確認框，不能說已經改好。'}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
@@ -1412,10 +1412,15 @@ const clip = o => { const s = JSON.stringify(o); return s.length > 2500 ? s.slic
 async function aiRun(role, hist, depth = 0, trace = []) {
   const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role, depth) }, ...hist];
   let nag = role === 'helm' && depth < AI_DEPTH;   // Helm 給下單草案前一定要問過 Vault
+  // 模型常常只用文字說「建議改成…」卻不呼叫 propose_，App 就不會跳確認框：使用者在談新增策略、改風控時，回答完再要求它用 propose_ 工具提出一次
+  const PT = depth ? [] : R.tools.filter(n => /^propose_/.test(n)), want = PT.length && /存|新增|加入|建立|改|調整|設定|套用|上限|風控|槓桿|策略|參數/.test(String((hist.filter(x => x.role === 'user').pop() || {}).content || ''));
+  let ask = !!want, only = false, keep = '';
   for (let i = 0; i < 8; i++) {
-    const T = [...R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), ...(depth ? [] : ['ask_user'])], m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
+    const T = only ? PT : [...R.tools.filter(n => n !== 'ask_agent' || depth < AI_DEPTH), ...(depth ? [] : ['ask_user'])], m = await aiCall(msgs, i < 7 ? T : [], role), calls = m.tool_calls || [];
     if (!calls.length && nag && i < 6 && /做多|做空|開倉|下單|槓桿|停損|草案/.test(m.content || '') && !trace.some(x => x.by === R.name && x.tool === 'ask_agent' && x.args && x.args.role === 'vault')) { nag = false; msgs.push({ role: 'assistant', content: m.content || '' }, { role: 'user', content: '（系統）給下單草案前一定要先用 ask_agent 請 vault 審核，把 Vault 的結論附在草案裡。' }); continue; }
-    if (!calls.length) return { text: String(m.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim() || '（模型沒有回答內容）', trace };
+    const clean = t => String(t || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+    if (!calls.length && ask && i < 7 && !trace.some(x => /^propose_/.test(x.tool) && x.ok)) { ask = false; only = true; keep = clean(m.content); msgs.push({ role: 'assistant', content: m.content || '' }, { role: 'user', content: '（系統）如果你上面的回答有具體要新增的策略或要調整的風控上限，現在就用 propose_ 工具提出（App 會跳確認框給使用者確認）；沒有具體可以提出的，只回「無」。' }); continue; }
+    if (!calls.length) return { text: (only && keep ? keep : clean(m.content)) || '（模型沒有回答內容）', trace };
     msgs.push({ role: 'assistant', content: m.content || '', tool_calls: calls });
     for (const tc of calls) {
       const fn = tc.function || {}, nm = fn.name; let args = fn.arguments; try { args = typeof args === 'string' ? JSON.parse(args || '{}') : args || {}; } catch (e) { args = {}; }

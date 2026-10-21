@@ -658,6 +658,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aiu{align-self:flex-end;max-width:72%;background:color-mix(in srgb,var(--c) 20%,var(--panel2,var(--panel)));border-radius:14px 14px 4px 14px;padding:8px 11px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
 .aia{display:flex;gap:6px;align-items:flex-start;max-width:100%}.aia>.aim{width:30px;height:35px;margin-top:2px}
 .aib{min-width:0;flex:0 1 auto;max-width:min(82%,560px);background:var(--chip);border-radius:4px 14px 14px 14px;padding:8px 11px;font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
+.aib b{font-weight:700;color:color-mix(in srgb,var(--c) 70%,var(--text));background:linear-gradient(transparent 58%,color-mix(in srgb,var(--c) 30%,transparent) 0);padding:0 1px;border-radius:2px}.aib .aikey{border-left:3px solid var(--c);padding-left:8px;margin:2px 0 4px;font-weight:600}
 .aib .aih{font-weight:800;margin-top:4px}.aib .aili{padding-left:2px}.aib .aisp{height:6px}.aib code{font-size:12.5px;background:var(--panel);padding:0 4px;border-radius:4px}
 .aist{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.aist .bad{color:var(--down)}
 .aity{display:flex;gap:4px;padding:4px 0}.aity i{width:6px;height:6px;border-radius:50%;background:var(--c);animation:aiTy 1.2s infinite}.aity i:nth-child(2){animation-delay:.2s}.aity i:nth-child(3){animation-delay:.4s}
@@ -668,7 +669,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aierr .lk,.aift .lk{all:unset;cursor:pointer;color:var(--acc);font-size:13px}
 .aiin{display:flex;gap:8px;align-items:flex-end}.aiin textarea{flex:1 1 0;width:0;min-height:42px;max-height:140px;resize:none;box-sizing:border-box;font:inherit;font-size:15px;line-height:1.45;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:12px;padding:9px 11px}
 .aiin textarea:focus{outline:none;border-color:var(--c)}#aiChat .aiin .bbtn{flex:none;width:46px;height:42px;padding:0;display:grid;place-items:center;margin:0}.aiin .bbtn svg{width:20px;height:20px}
-.aift{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.aift{display:flex;justify-content:flex-start;gap:6px 16px;flex-wrap:wrap}.aift #aiClr{margin-left:auto}
 .lgrisk{margin:8px 0 0;font-size:12px;line-height:1.55;color:var(--muted)}.lgrisk button{all:unset;cursor:pointer;color:var(--acc);font-size:12px;margin-left:4px}
 .lgset{display:flex;flex-direction:column;padding:0}.lgset button{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-top:1px solid var(--line);color:var(--text);font-size:15px}.lgset button:first-child{border-top:0}.lgset i{color:var(--muted);font-style:normal}
 #lgGate{position:fixed;inset:0;z-index:10000;background:rgba(10,6,24,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
@@ -4104,7 +4105,8 @@ const AiChat=(()=>{
   const A=k=>window.HexAI&&HexAI.AI.find(x=>x.k===k)||{n:k,c:'#999',r:''},nm=k=>A(k).n;
   const box=()=>document.getElementById('aiChat'),api=(p,b)=>BotTab.api(p,b);
   // 一點點 markdown：粗體、標題、條列
-  const md=t=>H_(t).split('\n').map(l=>{l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
+  const md=t=>H_(t).split('\n').map(l=>{l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/(<b>[\s\S]*?<\/b>)|([+\-−]?\d[\d,]*(?:\.\d+)?\s?%)/g,(m,b,n)=>b||'<b>'+n+'</b>');
+    if(/^\s*(結論|重點|建議|⚠)/.test(l))return '<div class="aikey">'+l+'</div>';
     if(/^#{1,4}\s/.test(l))return '<div class="aih">'+l.replace(/^#+\s/,'')+'</div>';if(/^\s*([-*•]|\d+\.)\s/.test(l))return '<div class="aili">'+l.replace(/^\s*([-*•])\s/,'• ')+'</div>';return l?'<div>'+l+'</div>':'<div class="aisp"></div>'}).join('');
   const steps=tr=>tr&&tr.length?`<div class="aist">${tr.map(s=>`<div class="${s.ok?'':'bad'}">${H_(s.by)}・${H_((TL[s.tool]||(()=>s.tool))(s.args||{}))}${s.ok?'':'（失敗：'+H_(s.err||'')+'）'}</div>`).join('')}</div>`:'';
   // 兩層：第一層 #aiHome 是六個機器人，點了才進這個 AI 的對話（#aiChat），左上返回
@@ -4169,8 +4171,15 @@ const AiChat=(()=>{
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
       <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?(cfg.cloud?'HexStack 雲端':cfg.model):'…')} ›</button><button type="button" class="lk" id="aiNoteO">給它的資料${(cfg&&cfg.notes||{})[role]?'（已寫）':''} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
       ${set?setup():''}${nset?notes():''}<p class="lgrisk">AI 回答僅供參考，不是投資建議；交易可能虧損全部本金，請自行判斷。<button type="button" class="lk" data-legal="risk">風險提示 ›</button></p></div>`;
-    const L=document.getElementById('aiLog');if(L)L.scrollTop=L.scrollHeight;
+    const L=document.getElementById('aiLog');if(L)L.scrollTop=L.scrollHeight;fit();requestAnimationFrame(fit);
     if(st!=null){const i=document.getElementById('aiIn');i.focus();i.setSelectionRange(st,st)}}
+  // 對話區高度跟著螢幕算：輸入框一定要露出來（手機底部選單、鍵盤、瀏覽器網址列都扣掉），內容在框裡捲動，不會把框撐長
+  function fit(){const L=document.getElementById('aiLog'),F=document.getElementById('aiForm');if(!L||!F||!L.offsetParent)return;
+    const nav=!solo&&document.querySelector('.bnav'),nr=nav&&nav.getBoundingClientRect(),vh=window.visualViewport?visualViewport.height:innerHeight;
+    const lim=Math.min(vh,nr&&nr.height&&nr.top>innerHeight/2?nr.top:innerHeight)-12,sc=solo?document.getElementById('aiSolo').scrollTop:scrollY;
+    const lr=L.getBoundingClientRect(),below=F.getBoundingClientRect().bottom-lr.bottom,h=Math.max(180,Math.round(lim-below-(lr.top+sc)));
+    if(Math.abs(L.offsetHeight-h)>2){L.style.height=h+'px';L.style.minHeight='0';L.scrollTop=L.scrollHeight}}
+  addEventListener('resize',fit);window.visualViewport&&visualViewport.addEventListener('resize',fit);
   async function hist(r){try{const j=await api('/api/ai/history?role='+r);H[r]=j.messages||[]}catch(e){err=e.message}render()}
   async function loadCfg(){try{cfg=await api('/api/ai/config')}catch(e){}render()}
   async function poll(){clearTimeout(jt);if(!job)return;try{const j=await api('/api/ai/job?id='+job.id);Object.assign(job,j)}catch(e){job.done=true;job.error=e.message}
