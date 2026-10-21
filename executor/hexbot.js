@@ -81,6 +81,10 @@ function log(type, o = {}) {
 // ───────── 狀態 ─────────
 const S = Object.assign({ v: 1, startT: nowS(), nextId: 1, strategies: [], paper: null, acct: {}, report: { day: '' }, lastTickAt: 0, lastBar: 0 }, readJ(F.st, {}));
 if (!S.paper) S.paper = { cash: C.startEquity, pos: {}, sl: {}, fees: 0, ev: [] };
+// 模擬交易所：App「模擬盤」畫面的各家虛擬帳戶（預設四大交易所各 10,000 USDT），帳本 key＝'sim:<交易所>'
+const SIM_EX = ['binance', 'okx', 'bybit', 'bitget', 'gate', 'kucoin', 'mexc', 'coinbase', 'kraken'];
+const simNew = start => ({ start, cash: start, pos: {}, sl: {}, fees: 0, ev: [] });
+if (!S.sims) S.sims = { binance: simNew(10000), okx: simNew(10000), bybit: simNew(10000), bitget: simNew(10000) };
 const acct = L => S.acct[L] || (S.acct[L] = { start: 0, startT: nowS(), peak: 0, mdd: 0, dayKey: '', dayStart: 0, halt: null, lastSet: {}, offset: {}, stops: {}, setAt: {}, curve: [] });
 let DIRTY = true; const save = () => { if (!DIRTY) return; DIRTY = false; try { writeJ(F.st, S); } catch (e) { console.log('存檔失敗', e.message); } };
 const dirty = () => { DIRTY = true; };
@@ -597,17 +601,23 @@ async function fundAdd(d) {
   return { ok: true, id: a.id, total_usd: r.total_usd };
 }
 const LED = { paper: new PaperExchange(S.paper), live: null };
+for (const k of Object.keys(S.sims)) LED['sim:' + k] = new PaperExchange(S.sims[k]);
+const LEDS = () => Object.keys(LED).filter(L => LED[L]);
+const isPaperL = L => LED[L] instanceof PaperExchange;
 const liveReady = () => C.exchange === 'bybit' && !!C.apiKey && !!C.apiSecret;
 function setupLive() { LED.live = liveReady() ? new BybitExchange(C) : null; }
 setupLive();
-// C.paperOnly＝App 上的「模擬盤」總開關：開著時全部策略都走模擬帳戶，不下真單
-const mainL = () => LED.live && !C.paperOnly ? 'live' : 'paper';
-const ledOf = g => g.mode === 'live' && LED.live && !C.paperOnly ? 'live' : 'paper';
+const mainL = () => LED.live ? 'live' : 'paper';
+// g.led：在哪個帳本跑（'sim:<交易所>' 或 'live'）；舊策略沒有 g.led，照 mode 走試跑帳本／實盤
+const ledOf = g => g.led ? (g.led === 'live' ? (LED.live ? 'live' : 'paper') : LED[g.led] ? g.led : 'paper') : g.mode === 'live' && LED.live ? 'live' : 'paper';
+// C.paperOnly＝App 上的「模擬盤」總開關（預設開）：開著時實盤帳本的策略一律不動作，不下真單
+if (C.paperOnly === undefined) { C.paperOnly = !S.strategies.some(g => g.mode === 'live' && g.pos); saveCfg(); }
+const blocked = g => g.led === 'live' && !LED.live || ledOf(g) === 'live' && C.paperOnly === true;
 const liveAllowed = () => liveReady() && (C.testnet || C.allowLive === true);   // 測試網不用 allowLive；正式網一定要 allowLive
 
 // ───────── 策略 ─────────
 const posQ = g => g.pos ? g.pos.side * g.pos.qty : 0;
-const activeSyms = () => [...new Set([...S.strategies.filter(g => g.enabled).map(g => g.sym), ...Object.keys(S.paper.pos)])];
+const activeSyms = () => [...new Set([...S.strategies.filter(g => g.enabled).map(g => g.sym), ...Object.keys(S.paper.pos), ...Object.values(S.sims).flatMap(x => Object.keys(x.pos))])];
 function cleanP(p) {
   const q = {};
   for (const [a, v] of Object.entries(p && typeof p === 'object' ? p : {}).slice(0, 100)) if (/^\w{1,20}$/.test(a) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || typeof v === 'string' && (v.length <= 40 || a === 'rules' && v.length <= 3000))) q[a] = v;
@@ -707,7 +717,7 @@ async function guard(L, sym, actual) {
     const e = ev[ev.length - 1], gone = Math.abs(last) - Math.abs(actual);
     let left = gone;
     for (const g of gs.filter(g => g.pos && g.pos.side === sgn(last))) { if (left <= 1e-12) break; const q = Math.min(left, g.pos.qty); left -= q; book(g, -g.pos.side * q, e.px, q * e.px * COST().fee, g.pos.stop || e.px, e.kind, '交易所' + (e.kind === 'stop' ? '停損' : '停利') + '單觸發'); }
-    if (L === 'paper') S.paper.ev = S.paper.ev.filter(x => x.sym !== sym);
+    if (isPaperL(L)) X.s.ev = X.s.ev.filter(x => x.sym !== sym);
     A.lastSet[sym] = actual; A.setAt[sym] = nowS(); A.stops[sym] = ''; dirty(); return true;
   }
   const paused = [];
@@ -730,11 +740,11 @@ async function hourTick(T) {
   setViews(T);
   const gs = S.strategies.filter(g => g.enabled && (g.lastBar || 0) < T);
   if (!gs.length) return;
-  const eqs = {}; for (const L of ['paper', 'live']) if (LED[L]) try { eqs[L] = await LED[L].getEquity(); } catch (e) { log('error', { led: L, text: '讀權益失敗：' + e.message }); }
+  const eqs = {}; for (const L of LEDS()) try { eqs[L] = await LED[L].getEquity(); } catch (e) { log('error', { led: L, text: '讀權益失敗：' + e.message }); }
   const plans = [];
   for (const g of gs) {
     const L = ledOf(g), eq = eqs[L]; if (!(eq > 0)) continue;
-    if (g.state === 'paused' && g.pauseKind === 'manual') { g.lastBar = T; continue; }
+    if (g.state === 'paused' && g.pauseKind === 'manual' || blocked(g)) { g.lastBar = T; continue; }
     let tg; try { tg = target(g, T); } catch (e) { lg('error', g, { text: '回測計算失敗：' + e.message }); continue; }
     const P = await LED[L].price(g.sym) || tg.c; if (!P) continue;
     const held = posQ(g), lim = C.limits, inc = g.state !== 'paused' && !acct(L).halt;
@@ -770,7 +780,7 @@ async function hourTick(T) {
     plans.push({ g, L, P, want, held, kind, text, ref: tg.c, tg });
   }
   // 帳戶總槓桿 ≤ maxLev：只縮加倉的部分
-  for (const L of ['paper', 'live']) {
+  for (const L of LEDS()) {
     const ps = plans.filter(x => x.L === L), eq = eqs[L]; if (!ps.length || !(eq > 0)) continue;
     const other = S.strategies.filter(g => ledOf(g) === L && !ps.some(x => x.g === g)).reduce((a, g) => a + Math.abs(posQ(g)) * px(g.sym), 0);
     const gross = other + ps.reduce((a, x) => a + Math.abs(x.want) * x.P, 0), cap = C.limits.maxLev * eq;
@@ -789,7 +799,7 @@ async function hourTick(T) {
     if (ok) for (const x of xs) if (x.g.pos) { x.g.pos.stop = x.tg.stop; x.g.pos.tp = x.tg.tp; }
     if (ok) await protect(L, sym);
   }
-  for (const L of ['paper', 'live']) if (LED[L]) for (const sym of new Set(S.strategies.filter(g => ledOf(g) === L && g.pos).map(g => g.sym))) await protect(L, sym);
+  for (const L of LEDS()) for (const sym of new Set(S.strategies.filter(g => ledOf(g) === L && g.pos).map(g => g.sym))) await protect(L, sym);
   // 策略權益曲線
   for (const g of S.strategies.filter(g => g.enabled)) { const e = stratEq(g); (g.curve || (g.curve = [])).push([T, r2(e)]); thin(g.curve); }
   S.lastBar = Math.max(S.lastBar, T); S.lastTickAt = nowS(); dirty();
@@ -808,14 +818,14 @@ async function stopChecks() {
   }
 }
 async function watch() {
-  for (const L of ['paper', 'live']) { const X = LED[L]; if (!X) continue; const A = acct(L);
+  for (const L of LEDS()) { const X = LED[L]; const A = acct(L);
     const syms = new Set([...Object.keys(A.lastSet), ...S.strategies.filter(g => ledOf(g) === L && g.pos).map(g => g.sym)]);
     for (const sym of syms) { try { await guard(L, sym, await X.position(sym)); } catch (e) {} }
   }
 }
 async function account() {
-  for (const L of ['paper', 'live']) {
-    const X = LED[L]; if (!X) continue; const A = acct(L);
+  for (const L of LEDS()) {
+    const X = LED[L]; const A = acct(L);
     let eq; try { eq = await X.getEquity(); } catch (e) { continue; }
     if (!A.start) { A.start = eq; A.startT = nowS(); A.peak = eq; }
     const dk = tpeDay(nowS()); if (A.dayKey !== dk) { A.prevDay = { key: A.dayKey, start: A.dayStart, end: eq }; A.dayKey = dk; A.dayStart = eq; }
@@ -990,10 +1000,10 @@ const pairLink = () => APP + '#pair=' + Buffer.from(JSON.stringify({ u: PUB.url 
 async function status() {
   const L = mainL(), A = acct(L), eq = A.eq != null ? A.eq : await LED[L].getEquity().catch(() => 0);
   const positions = [];
-  for (const l of ['paper', 'live']) if (LED[l]) try { for (const p of await LED[l].getPositions()) positions.push({ sym: p.sym, side: p.side, qty: p.qty, entry: p.entry, stop: p.stop, tp: p.tp, upnl: r2(p.upnl), mark: p.mark, led: l }); } catch (e) {}
+  for (const l of LEDS()) try { for (const p of await LED[l].getPositions()) positions.push({ sym: p.sym, side: p.side, qty: p.qty, entry: p.entry, stop: p.stop, tp: p.tp, upnl: r2(p.upnl), mark: p.mark, led: l }); } catch (e) {}
   const strategies = S.strategies.map(g => { const rv = (() => { try { const r = review(g, 0); return { status: r.status, reasons: r.reasons }; } catch (e) { return { status: 'ok', reasons: [] }; } })();
     const P = px(g.sym), cp_ = canPromote(g);
-    return { id: g.id, key: g.key || '', name: stName(g), st: g.st, sym: g.sym, p: g.p, alloc: g.alloc, enabled: g.enabled, mode: g.mode, state: g.state, pauseReason: g.pauseReason || '', trialStart: g.trialStart, trialDays: g.trialDays, trialLeft: r2(trialLeft(g), 2), canPromote: cp_.ok, promoteWhy: cp_.why, led: ledOf(g),
+    return { id: g.id, key: g.key || '', name: stName(g), st: g.st, sym: g.sym, p: g.p, alloc: g.alloc, enabled: g.enabled, mode: g.mode, state: g.state, pauseReason: g.pauseReason || '', trialStart: g.trialStart, trialDays: g.trialDays, ledger: g.led || '', trialLeft: r2(trialLeft(g), 2), canPromote: cp_.ok, promoteWhy: cp_.why, led: ledOf(g),
       equity: r2(stratEq(g)), base: r2(g.base || 0), position: g.pos ? { side: g.pos.side, qty: g.pos.qty, entry: g.pos.entry, stop: g.pos.stop || 0, tp: g.pos.tp || 0, upnl: r2(g.pos.side * g.pos.qty * (P - g.pos.entry)) } : null, target: g.tg || null, lastBar: g.lastBar || 0, review: rv };
   });
   const cnt = k => S.strategies.filter(g => g.state === k).length;
@@ -1003,6 +1013,8 @@ async function status() {
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
     limits: C.limits, catchupPct: C.catchupPct, halted: A.halt || null, strategies, positions, publicUrl: PUB.url || '', relay: { ok: RELAY.ok, last: RELAY.last, err: RELAY.err },
     engine: { ok: ENG.ok, src: ENG.src, ver: ENG.hash, at: ENG.at }, data: Object.fromEntries(Object.keys(MK).map(s => [s, { end: mEnd(s), src: DSRC[s] || 'builtin' }])) };
+  out.sims = Object.entries(S.sims).map(([k, x]) => { const A = acct('sim:' + k), eq_ = A.eq != null ? A.eq : x.cash; return { k, led: 'sim:' + k, start: r2(x.start), equity: r2(eq_), dayStart: r2(A.dayStart || eq_), halted: A.halt || null }; });
+  { const A = acct('live'); out.live = LED.live ? { equity: r2(A.eq || 0), start: r2(A.start || 0), dayStart: r2(A.dayStart || 0), halted: A.halt || null } : null; }
   if (L === 'live') { const P = acct('paper'); out.paper = { equity: r2(P.eq || 0), startEquity: r2(P.start || 0), mdd: r2((P.mdd || 0) * 100), halted: P.halt || null }; }
   return out;
 }
@@ -1065,25 +1077,57 @@ async function api(req, res, p) {
   if (p === '/api/paperonly') {
     const on = d.on === true; if (!!C.paperOnly === on) return { ok: true, paperOnly: on };
     if (on) {
-      // 交易所上還有策略的持倉就不切：切過去之後執行器不會再管那些倉位
+      // 交易所上還有策略的持倉就不切：開著時執行器不會再管實盤的倉位
       const held = S.strategies.filter(g => ledOf(g) === 'live' && g.pos);
-      if (held.length) throw new HErr(409, `交易所上還有 ${held.length} 個策略的持倉，先按「全部停止」平倉，再打開模擬盤`);
-      C.paperOnly = true; saveCfg(); log('info', { text: '打開模擬盤：全部策略只在模擬帳戶跑，不下真單' });
+      if (held.length) throw new HErr(409, `交易所上還有 ${held.length} 個策略的持倉，先把它們關掉（會平倉），再打開模擬盤`);
+      C.paperOnly = true; saveCfg(); log('info', { text: '打開模擬盤：實盤的策略全部停止下單' });
     } else {
-      // 已轉正的策略在模擬盤期間的模擬倉先平掉，再回到交易所，下一根 K 線照策略重新進場
-      for (const g of S.strategies.filter(g => g.mode === 'live' && g.pos)) await closeStrat(g, '關閉模擬盤，模擬倉平掉');
       C.paperOnly = false; saveCfg();
-      if (LED.live) { const eq = await LED.live.getEquity().catch(() => 0); for (const g of S.strategies.filter(g => g.mode === 'live')) { if (eq > 0) g.base = g.alloc * eq; g.lastBar = 0; } }
-      log('info', { text: LED.live ? `關閉模擬盤：已轉正的策略回到 ${C.testnet ? 'Bybit 測試網' : 'Bybit 正式帳戶'} 執行` : '關閉模擬盤（沒有設定交易所，繼續用模擬盤）' });
+      for (const g of S.strategies.filter(g => ledOf(g) === 'live' && g.enabled)) g.lastBar = 0;
+      log('info', { text: LED.live ? `關閉模擬盤：實盤的策略開始在 ${C.testnet ? 'Bybit 測試網' : 'Bybit 正式帳戶'} 執行` : '關閉模擬盤（還沒設定下單金鑰，不會下真單）' });
     }
     dirty(); save(); return { ok: true, paperOnly: C.paperOnly === true };
   }
+  // 新版 HexBOT：在某個帳本（模擬交易所或實盤）開／關一組「我的策略」參數；資金平均分給這個帳本裡開著的策略
+  if (p === '/api/run') {
+    const L = String(d.led || ''), key = String(d.key || '').slice(0, 80);
+    if (!(L === 'live' || /^sim:\w+$/.test(L) && LED[L])) throw new HErr(400, '沒有這個帳戶');
+    if (!key) throw new HErr(400, '缺少策略');
+    let g = S.strategies.find(x => x.led === L && x.key === key);
+    if (d.on) {
+      if (L === 'live') { if (!liveAllowed()) throw new HErr(409, liveReady() ? '正式網要先允許實盤（allowLive）' : '還沒設定下單金鑰'); if (C.paperOnly) throw new HErr(409, '模擬盤開著，實盤策略不會下單；先關掉模擬盤'); }
+      if (!g) {
+        const a = d.strat || {}; if (!ENG.BEST[a.st]) throw new HErr(400, '不認得的策略：' + a.st);
+        const sym = String(a.sym || '').toUpperCase(); if (!isCoin(sym)) throw new HErr(400, '幣種格式不對：' + a.sym);
+        if (a.st === 'cus' && !(a.p && a.p.rules)) throw new HErr(400, '自訂策略要帶規則（p.rules）');
+        g = { id: 's' + (S.nextId++), key, led: L, name: String(a.name || '').slice(0, 40) || (ENG.NAME[a.st] || a.st) + ' ' + sym, st: a.st, sym, p: cleanP(a.p), alloc: 0, enabled: false, mode: L === 'live' ? 'live' : 'paper', promoted: true, state: 'running', pauseReason: '', trialStart: nowS(), trialDays: 0, start: nowS(), base: 0, real: 0, fills: [], trades: [], curve: [], skips: [] };
+        S.strategies.push(g);
+      } else if (d.strat && d.strat.p) g.p = cleanP(d.strat.p);
+      if (!g.enabled) { g.enabled = true; g.state = 'running'; g.pauseKind = ''; g.pauseReason = ''; g.lastBar = 0; g.start = nowS(); g.driftFrom = nowS(); }
+    } else if (g && g.enabled) { await closeStrat(g, '手動關閉'); g.enabled = false; }
+    // 重新平均分配資金比例
+    const on = S.strategies.filter(x => x.led === L && x.enabled), eq = await LED[ledOf(on[0] || { led: L })].getEquity().catch(() => 0);
+    for (const x of on) { const a = 1 / on.length; if (Math.abs(a - x.alloc) > 1e-9) { if (!x.alloc) x.base = a * eq; x.alloc = a; x.lastBar = Math.min(x.lastBar || 0, (S.lastBar || 0) - H1); } }
+    if (g) lg(d.on ? 'resume' : 'pause', g, { text: d.on ? `開始執行，資金比例 ${Math.round(g.alloc * 100)}%` : '關閉' });
+    dirty(); save(); return { ok: true };
+  }
+  // 模擬交易所：新增／改起始金額（會平掉這個帳戶的模擬倉、重新計算）／移除
+  if (p === '/api/sim') {
+    const k = String(d.k || '').toLowerCase(); if (!SIM_EX.includes(k)) throw new HErr(400, '不支援的交易所');
+    const L = 'sim:' + k, gs = S.strategies.filter(x => x.led === L);
+    if (d.remove) { if (gs.some(x => x.enabled)) throw new HErr(409, '這個模擬帳戶還有策略在跑，先關掉'); delete S.sims[k]; delete LED[L]; delete S.acct[L]; S.strategies = S.strategies.filter(x => x.led !== L); dirty(); save(); return { ok: true }; }
+    const st = +d.start; if (!(st >= 10 && st <= 1e9)) throw new HErr(400, '金額要在 10～1,000,000,000 之間');
+    if (LED[L]) for (const g of gs) await closeStrat(g, '改模擬起始金額');
+    S.sims[k] = simNew(st); LED[L] = new PaperExchange(S.sims[k]); delete S.acct[L];
+    for (const g of gs) { g.pos = null; g.real = 0; g.base = g.alloc * st; g.curve = []; g.trades = []; g.fills = []; g.start = nowS(); if (g.enabled) g.lastBar = 0; }
+    log('info', { text: `模擬帳戶 ${k}：起始金額 ${fmt(st)} USDT` }); dirty(); save(); return { ok: true };
+  }
   if (p === '/api/stopall') {
-    for (const L of ['paper', 'live']) if (LED[L]) { for (const g of S.strategies.filter(g => ledOf(g) === L && g.enabled)) { g.state = 'paused'; g.pauseKind = 'halt'; g.pauseReason = '手動全部停止'; } await closeLedger(L, '全部停止'); acct(L).halt = { reason: '手動全部停止', t: nowS() }; }
+    for (const L of LEDS()) { for (const g of S.strategies.filter(g => ledOf(g) === L && g.enabled)) { g.state = 'paused'; g.pauseKind = 'halt'; g.pauseReason = '手動全部停止'; } await closeLedger(L, '全部停止'); acct(L).halt = { reason: '手動全部停止', t: nowS() }; }
     log('halt', { text: '手動全部停止：平倉並暫停所有策略' }); notify('🛑 全部停止', '已平倉並暫停所有策略'); dirty(); save(); return { ok: true };
   }
   if (p === '/api/resume') {
-    for (const L of ['paper', 'live']) if (LED[L]) { const A = acct(L); if (A.halt) { A.halt = null; A.peak = A.eq || A.peak; A.dayStart = A.eq || A.dayStart; } }
+    for (const L of LEDS()) { const A = acct(L); if (A.halt) { A.halt = null; A.peak = A.eq || A.peak; A.dayStart = A.eq || A.dayStart; } }
     for (const g of S.strategies.filter(g => g.state === 'paused' && g.pauseKind === 'halt')) await resumeStrat(g, '解除煞車');
     log('resume', { text: '解除帳戶煞車（回撤高點、今日起點重設為現在權益）' }); dirty(); save(); return { ok: true };
   }
@@ -1211,7 +1255,7 @@ async function minute() {
     if (!REPLAY && nowS() - lastEngCheck > H1) { lastEngCheck = nowS(); try { const f = await engineFiles(); if (sha256(f.html).slice(0, 12) !== ENG.hash) { loadEngine(f); log('info', { text: '引擎已更新到 ' + ENG.hash }); } } catch (e) { log('error', { text: '更新引擎失敗：' + e.message }); } }
     if (!REPLAY) await refreshPrices(activeSyms());
     await stopChecks();
-    await LED.paper.checkStops();
+    for (const L of LEDS()) if (isPaperL(L)) await LED[L].checkStops();
     await watch();
     await account();
     const T = Math.floor(nowS() / H1) * H1;
