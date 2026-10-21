@@ -1,13 +1,15 @@
 # 電腦版 App（desktop/，Electron）打包發佈：目前只做 Windows 安裝檔（Mac dmg、Linux AppImage 設定已在 package.json，之後打開下面的 matrix 就好），內建執行器 executor/hexbot.js。
-# 觸發：改到 desktop/ 推上分支、或在 Actions 手動執行＝自動編版號 1.0.<執行編號>，發佈成 desktop-v1.0.<編號>；
-#       推 desktop-v* 標籤＝用標籤上的版號（要比已發佈的都大）。
-# 每一版都是「最新版」：網站的 Windows 下載按鈕指到它，已安裝的電腦版會在開場畫面／系統匣提示，按一下就自己下載安裝。
+# 觸發與版本（版號一律 1.0.<執行編號>，推 desktop-v* 標籤則用標籤上的版號）：
+#   - 合併進 main 且改到 desktop/ 或這個檔＝正式版 desktop-v1.0.<編號>（最新版）：網站的 Windows 下載按鈕指到它，
+#     已安裝的電腦版會在開場畫面提示，按一下就自己下載安裝整包。
+#   - main 上只改了執行器（executor/hexbot.js）＝不打包：電腦版會自己從 main 下載新的執行器換上（約 120 KB），不用重裝。
+#   - 推到其他分支、或在 Actions 手動執行＝測試版 desktop-dev-<編號>（預先發佈），已安裝的電腦版不會收到。
 # 不簽章（沒有付費憑證）：Windows 第一次會跳「Windows 已保護您的電腦」，Mac 只做 ad-hoc 簽章，第一次要到「隱私權與安全性」按「強制打開」。
 name: desktop
 on:
   push:
     tags: ['desktop-v*']
-    branches-ignore: [main, gh-pages, data]
+    branches-ignore: [gh-pages, data]
     paths: ['desktop/**', 'executor/hexbot.js', '.github/workflows/desktop.yml']
   workflow_dispatch:
 permissions:
@@ -16,7 +18,31 @@ concurrency:
   group: desktop-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # 決定這次是正式版、測試版，還是不用打包
+  kind:
+    runs-on: ubuntu-latest
+    outputs:
+      kind: ${{ steps.k.outputs.kind }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: k
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF: ${{ github.ref_name }}
+          EV: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then K=official
+          elif [ "$EV" != push ] || [ "$REF" != main ]; then K=dev
+          elif git diff --name-only "$BEFORE" "$GITHUB_SHA" 2>/dev/null | grep -qE '^(desktop/|\.github/workflows/desktop\.yml$)'; then K=official
+          elif ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then K=official
+          else K=skip; fi
+          echo "kind=$K" >> "$GITHUB_OUTPUT"; echo "這次：$K"
   build:
+    needs: kind
+    if: needs.kind.outputs.kind != 'skip'
     strategy:
       fail-fast: false
       matrix:
@@ -63,7 +89,7 @@ jobs:
             desktop/dist/*.AppImage
           if-no-files-found: error
   release:
-    needs: build
+    needs: [kind, build]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -79,13 +105,15 @@ jobs:
           REF_TYPE: ${{ github.ref_type }}
           REF: ${{ github.ref_name }}
           RUN: ${{ github.run_number }}
+          KIND: ${{ needs.kind.outputs.kind }}
         run: |
           set -e
           # 執行器單獨的 js 版（Android Termux、自己裝 Node 的人用），維持 releases/latest/download/hexbot.js 這個網址能下載
           cp executor/hexbot.js pkg/hexbot.js
           ls -la pkg
-          if [ "$REF_TYPE" = tag ]; then TAG="$REF"; else TAG="desktop-v1.0.$RUN"; fi
-          FLAGS="--latest"
+          if [ "$REF_TYPE" = tag ]; then TAG="$REF"; FLAGS="--latest"
+          elif [ "$KIND" = official ]; then TAG="desktop-v1.0.$RUN"; FLAGS="--latest"
+          else TAG="desktop-dev-$RUN"; FLAGS="--prerelease"; fi
           NOTES="HexStack 電腦版 $TAG
 
           - 已經裝過的電腦：打開 HexStack 會提示新版，按「立即更新」就好，不用再下載。

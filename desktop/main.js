@@ -9,7 +9,11 @@ const REL = 'https://github.com/ziyaoyan1229-debug/coin-app/releases';
 const DATA = path.join(app.getPath('userData'), 'hexbot-data');
 const PREF = path.join(app.getPath('userData'), 'prefs.json');
 const ICON = path.join(__dirname, 'icon.png');
-const HEXBOT = app.isPackaged ? path.join(process.resourcesPath, 'hexbot.js') : path.join(__dirname, 'hexbot.js');
+const HEXBOT0 = app.isPackaged ? path.join(process.resourcesPath, 'hexbot.js') : path.join(__dirname, 'hexbot.js');
+// 執行器小更新：只換 hexbot.js 這一支（約 120 KB），放在 userData/hexbot-update/。整包更新（裝新版 App）後就改回用內建的
+const XDIR = path.join(app.getPath('userData'), 'hexbot-update'), XFILE = path.join(XDIR, 'hexbot.js'), XMETA = path.join(XDIR, 'meta.json');
+const XSRC = process.env.HEXSTACK_XSRC || 'https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/main/executor/hexbot.js';   // HEXSTACK_XSRC：開發時指到本機測試
+const hexbot = () => { const m = readJ(XMETA, null); return m && m.app === app.getVersion() && fs.existsSync(XFILE) ? XFILE : HEXBOT0; };
 
 const readJ = (f, d) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { return d; } };
 let prefs = Object.assign({ awake: true, botOn: true }, readJ(PREF, {}));
@@ -26,6 +30,7 @@ let win = null, tray = null, bot = null, botLog = [], quitting = false, blocker 
 // ── 執行器 ──
 function startBot() {
   if (bot || !prefs.botOn) return;
+  const HEXBOT = hexbot();
   if (!fs.existsSync(HEXBOT)) { botLog.push('找不到執行器檔案'); return; }
   fs.mkdirSync(DATA, { recursive: true });
   bot = utilityProcess.fork(HEXBOT, ['--no-open', '--dir', DATA], { stdio: 'pipe', serviceName: 'HexStack 執行器' });
@@ -219,6 +224,29 @@ async function installUpdate(asset) {
   quitting = true; stopBot(); setTimeout(() => app.quit(), 300);
 }
 
+// 看 GitHub 上已發布（main）的執行器跟現在跑的是不是同一份；不同就下載、檢查語法、換上去，重開執行器（設定和狀態都在 hexbot-data，不受影響）
+const sha = b => require('crypto').createHash('sha256').update(b).digest('hex');
+let xBusy = false;
+async function checkExec() {
+  if (xBusy) return; xBusy = true;
+  try {
+    const r = await fetch(XSRC + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const code = Buffer.from(await r.arrayBuffer());
+    if (code.length < 20000 || !/HexStack 執行器/.test(code.toString('utf8', 0, 400))) return;
+    let cur = null; try { cur = sha(fs.readFileSync(hexbot())); } catch (e) {}
+    if (cur === sha(code)) return;
+    new (require('vm').Script)(code.toString('utf8').replace(/^#!.*\n/, ''), { filename: 'hexbot.js' });   // 語法錯就丟出，不換
+    fs.mkdirSync(XDIR, { recursive: true });
+    fs.writeFileSync(XFILE + '.tmp', code); fs.renameSync(XFILE + '.tmp', XFILE);
+    fs.writeFileSync(XMETA, JSON.stringify({ app: app.getVersion(), sha: sha(code), at: Date.now() }));
+    botLog.push('執行器已更新到最新版，重新啟動中');
+    if (bot) { restarts = 0; bot.kill(); }   // 結束後上面的自動重開會用新的那份
+    if (tray) tray.setToolTip('HexStack（執行器已更新）');
+  } catch (e) { botLog.push('執行器更新失敗：' + e.message); }
+  finally { xBusy = false; }
+}
+
 app.whenReady().then(async () => {
   // 網站有離線暫存（service worker）：電腦版每次打開先清掉，保證是最新版的網頁（登入資料、設定不受影響）
   try { await require('electron').session.defaultSession.clearStorageData({ storages: ['serviceworkers', 'cachestorage'] }); } catch (e) {}
@@ -230,6 +258,8 @@ app.whenReady().then(async () => {
   if (!process.argv.includes('--hidden')) { const t0 = Date.now(); const go = () => (pairInfo() || !bot || Date.now() - t0 > 8000) ? createWin() : setTimeout(go, 300); go(); }
   setTimeout(() => checkUpdate(false), 8000);
   setInterval(() => checkUpdate(false), 6 * 3600e3);
+  setTimeout(checkExec, 5000);
+  setInterval(checkExec, 3600e3);
 });
 app.on('activate', showWin);
 app.on('window-all-closed', e => { /* 留在系統匣，執行器繼續跑 */ });
