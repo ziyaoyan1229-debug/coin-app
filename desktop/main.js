@@ -58,6 +58,8 @@ ipcMain.on('hs:info', e => { e.returnValue = { ver: app.getVersion(), platform: 
 // 網頁連不上執行器時拿來顯示原因：有沒有開、有沒有在跑、最後幾行輸出
 ipcMain.on('hs:status', e => { e.returnValue = { botOn: !!prefs.botOn, running: !!bot, cfg: !!pairInfo(), log: botLog.slice(-8) }; });
 ipcMain.on('hs:console', () => openConsole());
+// 網頁發現連到的執行器是舊版時叫這個：馬上去 main 抓新的執行器換上
+ipcMain.handle('hs:xcheck', () => checkExec());
 
 // ── Google 登入：Google 不讓 App 內嵌視窗登入，改開系統瀏覽器到網站的 desktop-login.html，
 //    登入完那頁把結果導回 http://127.0.0.1:<臨時埠>/done，這裡收到再交給網頁 ──
@@ -259,7 +261,7 @@ app.whenReady().then(async () => {
   setTimeout(() => checkUpdate(false), 8000);
   setInterval(() => checkUpdate(false), 6 * 3600e3);
   setTimeout(checkExec, 5000);
-  setInterval(checkExec, 3600e3);
+  setInterval(checkExec, 600e3);
 });
 app.on('activate', showWin);
 app.on('window-all-closed', e => { /* 留在系統匣，執行器繼續跑 */ });

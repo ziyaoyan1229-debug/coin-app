@@ -20,6 +20,7 @@ function pair() {
 
 contextBridge.exposeInMainWorld('hexDesktop', Object.assign({}, info, {
   openConsole: () => ipcRenderer.send('hs:console'),
+  checkExec: () => ipcRenderer.invoke('hs:xcheck'),
   // 執行器比網頁晚好：網頁沒配對時會再呼叫 pair() 重試；status() 給畫面顯示沒連上的原因
   pair,
   status: () => ipcRenderer.sendSync('hs:status'),
