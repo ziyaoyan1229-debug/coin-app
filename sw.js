@@ -1,6 +1,6 @@
 // 離線快取：主程式先用快取、背景更新；news.json 與 portfolio.enc.json 先抓網路
 // assets/ 裡是內建資料與圖表程式庫，檔名帶內容雜湊，放在獨立的 coin-assets 快取，發新版不必重下載
-const C='coin-app-v157',A='coin-assets',FILES=['./','index.html','manifest.json','icon-192.png','icon-512.png','icon-180.png','favicon.svg'],
+const C='coin-app-v158',A='coin-assets',FILES=['./','index.html','manifest.json','icon-192.png','icon-512.png','icon-180.png','favicon.svg'],
   ASSETS=['assets/lwc-30895550.js','assets/data-9d38fe23.js','assets/ign-d73dc36d.js','assets/stk-f42bd546.js'];
 self.addEventListener('install',e=>{e.waitUntil(Promise.all([
   caches.open(C).then(c=>c.addAll(FILES.map(f=>new Request(f,{cache:'reload'})))),

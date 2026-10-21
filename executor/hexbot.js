@@ -50,6 +50,8 @@ fs.mkdirSync(F.cache, { recursive: true });
 if (REPLAY && !ARG.keep) { for (const f of ['state.json', 'log.jsonl', 'config.json']) try { fs.unlinkSync(path.join(DIR, f)); } catch (e) {} }
 
 // ───────── 設定 ─────────
+// C.limOff[k]＝true：使用者在 App 關掉這條上限（預設全部開著）
+const limOn = k => !(C.limOff && C.limOff[k]), effLev = () => limOn('maxLev') ? C.limits.maxLev : 20;
 const LIM0 = { maxPosPct: 30, maxLev: 3, dayLossPct: 5, maxDDPct: 20 }, LIMR = { maxPosPct: [1, 1000], maxLev: [0.1, 20], dayLossPct: [0.1, 100], maxDDPct: [0.1, 100] };
 function loadCfg() {
   const old = readJ(F.cfg, null);
@@ -970,7 +972,7 @@ const LEDS = () => Object.keys(LED).filter(L => LED[L]);
 const isPaperL = L => LED[L] instanceof PaperExchange;
 const liveReady = () => !!LIVE_EX[C.exchange] && !!C.apiKey && !!C.apiSecret && (!LIVE_PASS[C.exchange] || !!C.apiPass);
 const liveName = () => (LIVE_NAME[C.exchange] || C.exchange) + (C.testnet ? (C.exchange === 'bybit' ? ' 測試網' : ' 模擬交易') : ' 正式帳戶');
-function setupLive() { LED.live = liveReady() ? new LIVE_EX[C.exchange](C) : null; }
+function setupLive() { LED.live = liveReady() ? new LIVE_EX[C.exchange](C) : null; if (LED.live) LED.live.maxLev = effLev(); }
 setupLive();
 const mainL = () => LED.live ? 'live' : 'paper';
 // g.led：在哪個帳本跑（'sim:<交易所>' 或 'live'）；舊策略沒有 g.led，照 mode 走試跑帳本／實盤
@@ -1129,7 +1131,7 @@ async function hourTick(T) {
     const P = await LED[L].price(xk(g)) || tg.c; if (!P) continue;
     const held = posQ(g), lim = C.limits, inc = g.state !== 'paused' && !acct(L).halt;
     let wAbs = Math.abs(tg.ratio) * g.alloc * eq / P;
-    wAbs = Math.min(wAbs, lim.maxPosPct / 100 * eq / P);                         // 單一策略名目 ≤ 權益 × maxPosPct%
+    if (limOn('maxPosPct')) wAbs = Math.min(wAbs, lim.maxPosPct / 100 * eq / P);                       // 單一策略名目 ≤ 權益 × maxPosPct%
     if (M !== 'fut') wAbs = Math.min(wAbs, g.alloc * eq / P * (M === 'spot' ? 1 : MRG_LEV));   // 現貨 1 倍、槓桿最多 MRG_LEV 倍
     g.tg = { side: tg.side, ratio: r2(tg.ratio, 3), stop: tg.stop, tp: tg.tp, sigT: tg.sigT, sigPx: tg.sigPx, at: T };
     const newMark = tg.lastMark && tg.lastMark.t > (g.lastBar || 0) - H1 && tg.lastMark.t > (g.markT || 0);
@@ -1165,7 +1167,7 @@ async function hourTick(T) {
     const ps = plans.filter(x => x.L === L), eq = eqs[L]; if (!ps.length || !(eq > 0)) continue;
     const other = S.strategies.filter(g => ledOf(g) === L && !ps.some(x => x.g === g)).reduce((a, g) => a + Math.abs(posQ(g)) * px(g.sym), 0);
     const gross = other + ps.reduce((a, x) => a + Math.abs(x.want) * x.P, 0), cap = C.limits.maxLev * eq;
-    if (gross > cap) { const incs = ps.filter(x => Math.abs(x.want) > Math.abs(x.held) && sgn(x.want) === sgn(x.held || x.want)), extra = incs.reduce((a, x) => a + (Math.abs(x.want) - (sgn(x.held) === sgn(x.want) ? Math.abs(x.held) : 0)) * x.P, 0), over = gross - cap;
+    if (limOn('maxLev') && gross > cap) { const incs = ps.filter(x => Math.abs(x.want) > Math.abs(x.held) && sgn(x.want) === sgn(x.held || x.want)), extra = incs.reduce((a, x) => a + (Math.abs(x.want) - (sgn(x.held) === sgn(x.want) ? Math.abs(x.held) : 0)) * x.P, 0), over = gross - cap;
       const f = extra > 0 ? Math.max(0, 1 - over / extra) : 1;
       for (const x of incs) { const base = sgn(x.held) === sgn(x.want) ? Math.abs(x.held) : 0; x.want = sgn(x.want) * (base + (Math.abs(x.want) - base) * f); x.text += `（總槓桿上限 ${C.limits.maxLev} 倍，縮到 ${Math.round(f * 100)}%）`; }
     }
@@ -1214,14 +1216,14 @@ async function account() {
     const t = nowS(); if (!A.curve.length || t - A.curve[A.curve.length - 1][0] >= H1) { A.curve.push([t, r2(eq)]); thin(A.curve); }
     // 防爆倉：總槓桿超過上限 1.5 倍就按比例降倉
     const gs = S.strategies.filter(g => ledOf(g) === L && g.pos), gross = gs.reduce((a, g) => a + g.pos.qty * px(g.sym), 0);
-    if (eq > 0 && gross > C.limits.maxLev * 1.5 * eq) {
+    if (limOn('maxLev') && eq > 0 && gross > C.limits.maxLev * 1.5 * eq) {
       const f = C.limits.maxLev / (gross / eq);
       for (const sym of new Set(gs.map(xk))) await execute(L, sym, gs.filter(g => xk(g) === sym).map(g => ({ g, dq: -posQ(g) * (1 - f), kind: 'close', text: `總槓桿 ${(gross / eq).toFixed(1)} 倍超過上限，自動降倉` })));
     }
     if (A.halt) continue;
     const dayPct = A.dayStart > 0 ? (eq / A.dayStart - 1) * 100 : 0;
-    if (dd * 100 >= C.limits.maxDDPct) { await halt(L, `回撤 ${(dd * 100).toFixed(1)}% 達上限 ${C.limits.maxDDPct}%，全部平倉並暫停`, true, '回撤上限'); }
-    else if (-dayPct >= C.limits.dayLossPct) { await halt(L, `今日虧損 ${(-dayPct).toFixed(1)}% 達上限 ${C.limits.dayLossPct}%，暫停所有策略`, false, '單日虧損上限'); }
+    if (limOn('maxDDPct') && dd * 100 >= C.limits.maxDDPct) { await halt(L, `回撤 ${(dd * 100).toFixed(1)}% 達上限 ${C.limits.maxDDPct}%，全部平倉並暫停`, true, '回撤上限'); }
+    else if (limOn('dayLossPct') && -dayPct >= C.limits.dayLossPct) { await halt(L, `今日虧損 ${(-dayPct).toFixed(1)}% 達上限 ${C.limits.dayLossPct}%，暫停所有策略`, false, '單日虧損上限'); }
   }
 }
 async function halt(L, reason, close, short) {
@@ -1392,7 +1394,7 @@ async function status() {
     mode: L === 'paper' ? 'paper' : C.testnet ? 'testnet' : 'live', counts: { trial: cnt('trial'), running: cnt('running'), paused: cnt('paused') },
     now: nowS(), lastTick: S.lastTickAt || 0, lastBar: S.lastBar || 0, equity: r2(eq), startEquity: r2(A.start || eq), startT: A.startT || S.startT,
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
-    limits: C.limits, catchupPct: C.catchupPct, halted: A.halt || null, strategies, positions, publicUrl: PUB.url || '', relay: { ok: RELAY.ok, last: RELAY.last, err: RELAY.err },
+    limits: C.limits, limitsOff: C.limOff || {}, catchupPct: C.catchupPct, halted: A.halt || null, strategies, positions, publicUrl: PUB.url || '', relay: { ok: RELAY.ok, last: RELAY.last, err: RELAY.err },
     engine: { ok: ENG.ok, src: ENG.src, ver: ENG.hash, at: ENG.at }, data: Object.fromEntries(Object.keys(MK).map(s => [s, { end: mEnd(s), src: DSRC[s] || 'builtin' }])) };
   out.sims = Object.entries(S.sims).map(([k, x]) => { const A = acct('sim:' + k), eq_ = A.eq != null ? A.eq : x.cash; return { k, led: 'sim:' + k, start: r2(x.start), equity: r2(eq_), dayStart: r2(A.dayStart || eq_), halted: A.halt || null }; });
   { const A = acct('live'); out.live = LED.live ? { equity: r2(A.eq || 0), start: r2(A.start || 0), dayStart: r2(A.dayStart || 0), halted: A.halt || null } : null; }
@@ -1519,7 +1521,7 @@ async function aiTool(name, a, depth, trace, from) {
     return { paperOnly: s.paperOnly, sims: s.sims.map(x => ({ exchange: x.k, start: x.start, equity: x.equity })), live: s.live, totalAssetsUsd: f && f.total_usd != null ? r2(f.total_usd) : null };
   }
   if (name === 'get_position') { const s = await status(); return { positions: s.positions, strategies: s.strategies.filter(g => g.enabled).map(g => ({ name: g.name, strategy: g.st, symbol: g.sym, ledger: g.led, state: g.state, alloc: g.alloc, equity: g.equity, position: g.position })) }; }
-  if (name === 'get_risk_rules') { const s = await status(); return { limits: s.limits, halted: s.halted, mdd: s.mdd, dd: s.dd, paperOnly: s.paperOnly }; }
+  if (name === 'get_risk_rules') { const s = await status(); return { limits: s.limits, off: Object.keys(s.limitsOff || {}), halted: s.halted, mdd: s.mdd, dd: s.dd, paperOnly: s.paperOnly }; }
   if (name === 'propose_strategy') { const st = String(a.strategy || ''), sy = symOk(a.symbol), B = ENG.BEST[st]; if (!B) throw new Error('沒有策略 ' + st + '，先用 list_strategies 查代號'); if (!B[sy]) throw new Error((ENG.NAME[st] || st) + ' 沒有 ' + sy + ' 的版本，可用：' + Object.keys(B).join('、'));
     const d = B[sy], ch = {}, cp = cleanP(a.params); for (const k in cp) if (k in d) ch[k] = cp[k];
     return { proposed: { strategy: st, stName: ENG.NAME[st] || st, symbol: sy, params: ch, name: String(a.name || '').slice(0, 30), group: String(a.group || '').slice(0, 40) }, reason: String(a.reason || '').slice(0, 200), note: '已跳確認框給使用者，按確認才會新增' }; }
@@ -1649,9 +1651,10 @@ async function api(req, res, p) {
   }
   if (p === '/api/limits') {
     const R = LIMR;
-    for (const k in d) { if (k === 'catchupPct') { const v = +d[k]; if (!(v >= 0 && v <= 10)) throw new HErr(400, 'catchupPct 要在 0～10'); C.catchupPct = v; continue; }
+    for (const k in d) { if (k === 'off') { const o = d.off && typeof d.off === 'object' ? d.off : {}; C.limOff = C.limOff || {}; for (const [a, v] of Object.entries(o)) { if (!R[a]) throw new HErr(400, '不認得的設定：' + a); if (v) C.limOff[a] = true; else delete C.limOff[a]; } continue; }
+      if (k === 'catchupPct') { const v = +d[k]; if (!(v >= 0 && v <= 10)) throw new HErr(400, 'catchupPct 要在 0～10'); C.catchupPct = v; continue; }
       if (!R[k]) throw new HErr(400, '不認得的設定：' + k); const v = +d[k]; if (!(v >= R[k][0] && v <= R[k][1])) throw new HErr(400, `${k} 要在 ${R[k][0]}～${R[k][1]} 之間`); C.limits[k] = v; }
-    saveCfg(); if (LED.live) LED.live.maxLev = C.limits.maxLev; log('info', { text: '風控上限：' + JSON.stringify(C.limits) }); return { ok: true, limits: C.limits, catchupPct: C.catchupPct };
+    saveCfg(); if (LED.live) LED.live.maxLev = effLev(); log('info', { text: '風控上限：' + JSON.stringify(C.limits) + (Object.keys(C.limOff || {}).length ? '，關閉：' + Object.keys(C.limOff).join('、') : '') }); return { ok: true, limits: C.limits, limitsOff: C.limOff || {}, catchupPct: C.catchupPct };
   }
   if (p === '/api/paperonly') {
     const on = d.on === true; if (!!C.paperOnly === on) return { ok: true, paperOnly: on };
