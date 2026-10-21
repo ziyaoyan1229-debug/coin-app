@@ -827,7 +827,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 :is(#tmBot,.fdbot,#aiChat) .bbtn:disabled{opacity:.45;cursor:default}
 :is(#tmBot,.fdbot,#aiChat) .warnbox{background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--warn);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55;margin-bottom:10px}
 :is(#tmBot,.fdbot,#aiChat) input[type=text],:is(#tmBot,.fdbot,#aiChat) input[type=number]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
-:is(#tmBot,.fdbot,#aiChat) .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .lim{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}:is(#tmBot,.fdbot,#aiChat) .lim.off>span:first-child{color:var(--muted)}:is(#tmBot,.fdbot,#aiChat) .lim.off input{opacity:.45}:is(#tmBot,.fdbot,#aiChat) .lim .sw{flex:none;margin-left:4px}
 :is(#tmBot,.fdbot,#aiChat) .lim input{width:84px;text-align:right}
 :is(#tmBot,.fdbot,#aiChat) .lim small{color:var(--muted)}
 :is(#tmBot,.fdbot,#aiChat) .cmp{display:grid;grid-template-columns:1fr auto auto;gap:5px 14px;font-size:13px;font-variant-numeric:tabular-nums;margin-top:6px}
@@ -4017,12 +4017,12 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
   // 下單紀錄、策略回顧的卡片：資產總覽的帳號明細也用
   const TY={open:'開倉',close:'平倉',stop:'止損',tp:'止盈',skip:'略過',pause:'暫停',resume:'恢復',halt:'安全上限',error:'錯誤',info:'訊息',report:'每日報告'};
   const logCard=R=>`<div class="card lg"><div class="bh">下單紀錄<span>${R?'最近 '+R.length+' 筆':''}</span></div>${!R?'<p class="sub">讀取中…</p>':R.length?R.slice(0,60).map(x=>`<div class="br"><div>${md(x.t)} ${TY[x.type]||H_(x.type)}${x.side?(x.side>0?'多':'空'):''} ${H_(x.sym||'')}<div class="sub">${H_(x.name||'')}${x.px?'・'+fm(x.px,x.px<10?4:1):''}${x.text?'・'+H_(x.text):''}</div></div>${x.pnl!=null&&x.pnl!==0?`<b class="${cl(x.pnl)}">${sg(x.pnl)}</b>`:''}</div>`).join(''):'<p class="sub">還沒有紀錄</p>'}</div>`;
-  function risk(){const lm=S.limits||{};
+  function risk(){const lm=S.limits||{},lo=S.limitsOff||{},hasOff='limitsOff' in S;
     const lims=[['maxPosPct','單一策略最大倉位','% 帳戶'],['maxLev','最大槓桿','倍'],['dayLossPct','每日最大虧損','% → 全部暫停'],['maxDDPct','總回撤上限','% → 全部平倉']];
     return `<div class="bcols"><div><div class="card"><div class="bh"><span>風險控管</span><button class="lk" id="botSug" type="button">依回測建議</button></div>
-      ${lims.map(([k,n,u])=>`<div class="lim"><span>${n}${sug&&sug[k]!=null?`<br><small>建議 ${sug[k]}</small>`:''}</span><span style="display:flex;align-items:center;gap:6px"><input type="number" inputmode="decimal" id="lim_${k}" value="${(draft&&draft[k]!=null?draft[k]:lm[k])??''}" min="0" step="any"><small>${u}</small></span></div>`).join('')}
+      ${lims.map(([k,n,u])=>`<div class="lim${lo[k]?' off':''}"><span>${n}${lo[k]?'<br><small>已關閉，不會觸發</small>':sug&&sug[k]!=null?`<br><small>建議 ${sug[k]}</small>`:''}</span><span style="display:flex;align-items:center;gap:6px"><input type="number" inputmode="decimal" id="lim_${k}" value="${(draft&&draft[k]!=null?draft[k]:lm[k])??''}" min="0" step="any"${lo[k]?' disabled':''}><small>${u}</small>${hasOff?`<button class="sw${lo[k]?'':' on'}" type="button" data-limsw="${k}" role="switch" aria-checked="${!lo[k]}" aria-label="${n} 開關"></button>`:''}</span></div>`).join('')}
       <button class="bbtn pri" id="botLimGo" type="button" style="margin-top:8px">儲存上限</button>
-      <p class="sub" style="margin:8px 0 0">這是帳戶層級的緊急煞車，跟策略自己的止損、槓桿分開。建議值＝你加入的策略近兩年回測最壞情況再放寬一點，正常波動不會誤停。</p></div></div><div>
+      <p class="sub" style="margin:8px 0 0">右邊的開關可以自己決定每一條上限要不要用，關掉的那條不會觸發。這是帳戶層級的緊急煞車，跟策略自己的止損、槓桿分開。建議值＝你加入的策略近兩年回測最壞情況再放寬一點，正常波動不會誤停。</p></div></div><div>
     <button class="card aimc" type="button" data-ai="vault" style="--c:#6f7cf0;width:100%">${window.HexAI?HexAI.mini('vault'):''}<span style="min-width:0"><b>跟 AI.Vault 討論</b><small>聊完它會提出新的上限，跳確認框，你按確認才會改</small></span></button></div></div>`}
   function lg(){const s=S,R=LOG;
     return `<div class="bcols"><div>`+logCard(R)+`</div><div>
@@ -4064,6 +4064,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     if(t.dataset.bv){bv=t.dataset.bv;bg=null;render();return scrollTo(0,0)}
     if(t.dataset.bg){bg=t.dataset.bg;bk=null;return render()}
     if(t.dataset.bk){bk=t.dataset.bk;bd=bs=bm=null;render();return scrollTo(0,0)}
+    if(t.dataset.limsw){const k=t.dataset.limsw,off=!(S.limitsOff||{})[k],nm={maxPosPct:'單一策略最大倉位',maxLev:'最大槓桿',dayLossPct:'每日最大虧損',maxDDPct:'總回撤上限'}[k];window.Audit&&Audit.log('bot.limsw',{k,off});return act('/api/limits',{off:{[k]:off}},(off?'已關閉「':'已開啟「')+nm+'」')}
     if(t.dataset.bm){bm=t.dataset.bm;return render()}
     if(t.dataset.bd){bd=t.dataset.bd;return render()}
     if(t.dataset.bs){bs=t.dataset.bs;return render()}
@@ -4093,7 +4094,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botFw':return addKeys(fwKeys().filter(k=>!(S.strategies||[]).some(x=>x.key===k)),1.5);
       case 'botStop':if(arm<Date.now()){arm=Date.now()+5000;render();setTimeout(()=>{if(arm&&arm<Date.now()){arm=0;render()}},5200);return}arm=0;return act('/api/stopall',{},'已全部平倉並暫停');
       case 'botSug':return suggest();
-      case 'botLimGo':{const o={};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
+      case 'botLimGo':{const o={},lo=S.limitsOff||{};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){if(lo[k])continue;const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
       case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
   function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';if(m==='ai'){setTimeout(()=>HexAI.start(),0);window.AiChat&&AiChat.open()}
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
