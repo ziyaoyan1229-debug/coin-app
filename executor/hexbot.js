@@ -600,8 +600,9 @@ const LED = { paper: new PaperExchange(S.paper), live: null };
 const liveReady = () => C.exchange === 'bybit' && !!C.apiKey && !!C.apiSecret;
 function setupLive() { LED.live = liveReady() ? new BybitExchange(C) : null; }
 setupLive();
-const mainL = () => LED.live ? 'live' : 'paper';
-const ledOf = g => g.mode === 'live' && LED.live ? 'live' : 'paper';
+// C.paperOnly＝App 上的「模擬盤」總開關：開著時全部策略都走模擬帳戶，不下真單
+const mainL = () => LED.live && !C.paperOnly ? 'live' : 'paper';
+const ledOf = g => g.mode === 'live' && LED.live && !C.paperOnly ? 'live' : 'paper';
 const liveAllowed = () => liveReady() && (C.testnet || C.allowLive === true);   // 測試網不用 allowLive；正式網一定要 allowLive
 
 // ───────── 策略 ─────────
@@ -996,7 +997,7 @@ async function status() {
       equity: r2(stratEq(g)), base: r2(g.base || 0), position: g.pos ? { side: g.pos.side, qty: g.pos.qty, entry: g.pos.entry, stop: g.pos.stop || 0, tp: g.pos.tp || 0, upnl: r2(g.pos.side * g.pos.qty * (P - g.pos.entry)) } : null, target: g.tg || null, lastBar: g.lastBar || 0, review: rv };
   });
   const cnt = k => S.strategies.filter(g => g.state === k).length;
-  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, funds: fundList(), fundEx: Object.keys(FUND_EX),
+  const out = { ver: VER, hostId: C.hostId, hostName: C.hostName, exchange: C.exchange, testnet: !!C.testnet, liveTested: false, liveReady: liveReady(), allowLive: C.allowLive === true, tradeInTotal: C.tradeInTotal !== false, paperOnly: C.paperOnly === true, funds: fundList(), fundEx: Object.keys(FUND_EX),
     mode: L === 'paper' ? 'paper' : C.testnet ? 'testnet' : 'live', counts: { trial: cnt('trial'), running: cnt('running'), paused: cnt('paused') },
     now: nowS(), lastTick: S.lastTickAt || 0, lastBar: S.lastBar || 0, equity: r2(eq), startEquity: r2(A.start || eq), startT: A.startT || S.startT,
     dayPnl: r2(eq - (A.dayStart || eq)), dayPct: r2(A.dayStart ? (eq / A.dayStart - 1) * 100 : 0), peak: r2(A.peak || eq), mdd: r2((A.mdd || 0) * 100), dd: r2((A.dd || 0) * 100),
@@ -1060,6 +1061,22 @@ async function api(req, res, p) {
     for (const k in d) { if (k === 'catchupPct') { const v = +d[k]; if (!(v >= 0 && v <= 10)) throw new HErr(400, 'catchupPct 要在 0～10'); C.catchupPct = v; continue; }
       if (!R[k]) throw new HErr(400, '不認得的設定：' + k); const v = +d[k]; if (!(v >= R[k][0] && v <= R[k][1])) throw new HErr(400, `${k} 要在 ${R[k][0]}～${R[k][1]} 之間`); C.limits[k] = v; }
     saveCfg(); if (LED.live) LED.live.maxLev = C.limits.maxLev; log('info', { text: '風控上限：' + JSON.stringify(C.limits) }); return { ok: true, limits: C.limits, catchupPct: C.catchupPct };
+  }
+  if (p === '/api/paperonly') {
+    const on = d.on === true; if (!!C.paperOnly === on) return { ok: true, paperOnly: on };
+    if (on) {
+      // 交易所上還有策略的持倉就不切：切過去之後執行器不會再管那些倉位
+      const held = S.strategies.filter(g => ledOf(g) === 'live' && g.pos);
+      if (held.length) throw new HErr(409, `交易所上還有 ${held.length} 個策略的持倉，先按「全部停止」平倉，再打開模擬盤`);
+      C.paperOnly = true; saveCfg(); log('info', { text: '打開模擬盤：全部策略只在模擬帳戶跑，不下真單' });
+    } else {
+      // 已轉正的策略在模擬盤期間的模擬倉先平掉，再回到交易所，下一根 K 線照策略重新進場
+      for (const g of S.strategies.filter(g => g.mode === 'live' && g.pos)) await closeStrat(g, '關閉模擬盤，模擬倉平掉');
+      C.paperOnly = false; saveCfg();
+      if (LED.live) { const eq = await LED.live.getEquity().catch(() => 0); for (const g of S.strategies.filter(g => g.mode === 'live')) { if (eq > 0) g.base = g.alloc * eq; g.lastBar = 0; } }
+      log('info', { text: LED.live ? `關閉模擬盤：已轉正的策略回到 ${C.testnet ? 'Bybit 測試網' : 'Bybit 正式帳戶'} 執行` : '關閉模擬盤（沒有設定交易所，繼續用模擬盤）' });
+    }
+    dirty(); save(); return { ok: true, paperOnly: C.paperOnly === true };
   }
   if (p === '/api/stopall') {
     for (const L of ['paper', 'live']) if (LED[L]) { for (const g of S.strategies.filter(g => ledOf(g) === L && g.enabled)) { g.state = 'paused'; g.pauseKind = 'halt'; g.pauseReason = '手動全部停止'; } await closeLedger(L, '全部停止'); acct(L).halt = { reason: '手動全部停止', t: nowS() }; }
