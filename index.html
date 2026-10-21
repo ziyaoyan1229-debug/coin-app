@@ -435,10 +435,19 @@ body,body[class]{background:var(--page);background-attachment:fixed}
 .bnav button svg{width:24px;height:24px}
 .bnav button.on{color:var(--acc)}.bnav button.on::before{display:none}
 .bnav button:active{transform:scale(.92)}
+/* 可左右滑：一格固定寬，一次約 5 格，兩端淡出提示還有；選中標示＝圖示外圍一顆小膠囊、字變主題色 */
+.bnav{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;scroll-behavior:smooth;box-shadow:0 120px 0 var(--navbg)}
+.bnav::-webkit-scrollbar{display:none}.bnav::after{display:none}
+.bnav button{flex:0 0 max(72px,19vw);justify-content:flex-start;padding-top:10px;gap:7px}
+.bnav.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px);mask-image:linear-gradient(90deg,transparent,#000 28px)}
+.bnav.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.bnav.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+.bnav .tpill{top:7px;height:32px;border-radius:16px;background:color-mix(in srgb,var(--acc) 22%,transparent)}
+@media (prefers-reduced-motion:reduce){.bnav{scroll-behavior:auto}.bnav .tpill{transition:none}}
 .view.vfade{animation:vfade .16s ease-out}
 @keyframes vfade{from{opacity:.35}to{opacity:1}}
 }
-@media (min-width:960px){.bnav::after{display:none}.bnav button.on{color:var(--acc)}.bnav button.on::before{background:var(--acc);box-shadow:0 0 10px var(--acc)}}
+@media (min-width:960px){.bnav::after{display:none}.bnav{gap:2px;align-items:center}.bnav button{height:34px;border-radius:17px;transition:background .2s,color .2s}.bnav button:hover{color:var(--text)}.bnav button.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,transparent)}.bnav button.on::before{display:none}}
 /* 切換模式時的小提示 */
 #themeToast{position:fixed;left:50%;top:calc(var(--top-h) + var(--safe-t) + 10px);transform:translateX(-50%);z-index:60;padding:6px 14px;border-radius:999px;background:var(--accbg);color:var(--on-acc);font-size:13px;font-weight:700;opacity:0;pointer-events:none}
 #themeToast.on{animation:tToast 1.4s ease-out}
@@ -4811,12 +4820,16 @@ if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|clau
   const tabs=[...nav.querySelectorAll('button')].filter(b=>!b.hidden);
   const pill=Object.assign(document.createElement('i'),{className:'tpill'});nav.prepend(pill);
   const cur=()=>tabs.findIndex(b=>b.classList.contains('on'));
-  const place=i=>{const b=tabs[Math.max(0,i)];if(!b)return;nav.style.setProperty('--tw',(b.offsetWidth-10)+'px');nav.style.setProperty('--tx',(b.offsetLeft+5)+'px')};
+  // 膠囊只包住圖示（寬 56px、置中）；選到的那格捲到中間；兩端還有東西時淡出
+  const edge=()=>{const m=nav.scrollWidth-nav.clientWidth;nav.classList.toggle('fl',nav.scrollLeft>2);nav.classList.toggle('fr',nav.scrollLeft<m-2)};
+  const place=(i,go)=>{const b=tabs[Math.max(0,i)];if(!b)return;const w=Math.min(56,b.offsetWidth-10);nav.style.setProperty('--tw',w+'px');nav.style.setProperty('--tx',(b.offsetLeft+(b.offsetWidth-w)/2)+'px');
+    if(go!==false){const x=b.offsetLeft-(nav.clientWidth-b.offsetWidth)/2;if(go==='now'){nav.style.scrollBehavior='auto';nav.scrollLeft=x;nav.style.scrollBehavior=''}else nav.scrollTo({left:x})}edge()};
+  nav.addEventListener('scroll',edge,{passive:true});
   let last=cur();
   new MutationObserver(()=>{const i=cur();if(i<0||i===last)return;place(i);
     if(last>=0){const v=document.querySelector('.view.on');if(v){v.classList.remove('vfade');void v.offsetWidth;v.classList.add('vfade');setTimeout(()=>v.classList.remove('vfade'),200)}}
     last=i}).observe(nav,{subtree:true,attributes:true,attributeFilter:['class']});
-  const init=()=>place(cur());init();addEventListener('resize',init);setTimeout(init,300);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(init)})();
+  const init=()=>place(cur(),'now');init();addEventListener('resize',init);setTimeout(init,300);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(init)})();
 // 手機上的下拉：Safari 會把可拖曳(draggable)的項目當成拖曳開始，點了沒反應。
 // 觸控裝置一律關掉拖曳排序，並用 touchend 直接判定「點一下」來選取，不依賴 click。
 (function(){if(!matchMedia('(pointer:coarse)').matches)return;
