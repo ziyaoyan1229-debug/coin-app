@@ -1044,8 +1044,11 @@ async function resumeStrat(g, why) {
 // ── HexAI：策略顧問（第一版只讀、只建議，不下單、不改風控）──
 // 模型走 OpenAI 相容介面（/chat/completions + tools）：預設 Groq 免費的 Qwen3.8-27B；本機 Ollama、Gemini、DeepSeek 也能接，設定在 config.json 的 ai
 // Groq 免費額度每分鐘只有 8K token：工具結果、歷史都裁短，遇到 429 照 retry-after 等一下再試
-const AI_DEF = { base: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.8-27b', key: '' };
+const AI_DEF = { base: 'hexstack', model: 'auto', key: '' };
 const aiLocal = b => /^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(b);
+// 雲端（預設）：沒設自己的金鑰、也不是本機模型，就走 HexStack 雲端 AI（推播後端代轉，金鑰在後端，用戶不用填）；用執行器的金鑰簽章
+const aiCloud = c => c.base === 'hexstack' || (!c.key && !aiLocal(c.base));
+const aiSign = body => { const ts = Date.now(); return { 'x-hs-host': C.hostId, 'x-hs-ts': String(ts), 'x-hs-sig': hmac(kHash(), ['ai', C.hostId, ts, sha256(body)].join('\n')) }; };
 const aiCfg = () => Object.assign({}, AI_DEF, C.ai || {});
 // 一個資料來源只歸一個專家：行情、新聞只有 Scout 抓；回測只有 Echo 跑；Bridge 只派工、整合。out＝被別的 AI 呼叫時固定的回覆欄位
 const AI_ROLES = {
@@ -1066,9 +1069,9 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 策略分析：選內建策略和幣種跑回測（含手續費、滑價、資金費率），可以調參數；滿意的參數存成「我的策略」，同一個策略可以有好幾組參數（參數1、參數2…）。
 - 查看價格：K 線圖，可以畫量尺、斜線、水平線、方框，點圖形可以刪除。
 - 開始交易 › 訊號交易：「我的策略」出現進出場訊號時推播通知，自己決定要不要下單。
-- 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（做多／做空／雙向，永續合約）② 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定 Bybit 下單金鑰，可以先用測試網。「紀錄與上限」可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
-- 開始交易 › HexAI：AI 顧問。Bridge 是總管，Scout 看行情新聞、Echo 回測、Forge 想策略、Vault 風控、Helm 寫下單草案、Guide 是客服。AI 只給建議，不會下單。模型和 API 金鑰只能在電腦版的 HexAI 設定裡填。
-- 資產總覽：把各交易所帳戶的資產加總，看報酬率。在 HexBOT 的「交易所帳戶 › ＋ 加入」用「只看資產」的唯讀金鑰加入。
+- 開始交易 › HexBOT：自動交易，由使用者自己電腦上的 HexStack 電腦版下單，手機掃 QR 碼配對後只負責看和控制。上方「模擬盤」開關：開著只跑模擬交易所（預設各 10,000 USDT，可自己改金額、新增或移除），關掉是實盤。首頁點交易所方塊 → 選策略 → 點參數 → ① 選交易方式（做多／做空／雙向，永續合約）② 選幣種（打勾的是回測過的幣）→ 開始執行，開關前都會先確認。實盤要先在電腦上按「＋ 新增交易所」設定 Bybit 下單金鑰，可以先用測試網。「風險控管」分頁可以設安全上限（單筆部位、槓桿、日虧損、最大回撤），觸發會全部暫停；「全部停止並平倉」按兩次確認。
+- 開始交易 › HexAI：AI 顧問。Bridge 是總管，Scout 看行情新聞（會上網查）、Echo 回測、Forge 想策略、Vault 風控、Helm 寫下單草案、Guide 是客服。AI 只給建議，不會下單；它要新增策略或改風控上限時會跳確認框，按確認才會改。每隻 AI 下面的「給它的資料」可以寫你的規則和偏好。預設用 HexStack 雲端 AI，不用設定金鑰；想用自己的金鑰或本機模型，到電腦版 HexAI 的模型設定改。
+- 資產總覽：把各交易所帳戶的資產加總，看報酬率。在資產總覽按「＋ 加入」，用只勾「讀取」的唯讀金鑰加入。
 - 設定：客服機器人、外觀（預設、深夜、白天，可以跟著日出日落自動切換）、通知設定、資料庫、資料狀態、語言、帳號同步（Google 登入後手機和電腦的我的策略、通知、外觀、資產紀錄會同步，交易所金鑰不會上傳）、更新到最新版（看不到新版時按這裡）。
 - 安全：交易所金鑰只存在使用者自己的電腦上，建金鑰時只開「交易」權限，絕對不要開「提幣」，建議用子帳戶。真金下單一律由使用者自己操作。
 - 常見問題：手機看不到新版 → 設定 › 更新到最新版；HexBOT 顯示離線 → 確認電腦上的 HexStack 有開著、電腦沒睡眠；電腦版會自動更新。`;
@@ -1151,19 +1154,21 @@ async function aiTool(name, a, depth, trace, from) {
   throw new Error('沒有這個工具：' + name);
 }
 async function aiCall(msgs, tools, role) {
-  const c = aiCfg(), h = { 'content-type': 'application/json' }; if (c.key) h.authorization = 'Bearer ' + c.key;
-  if (!c.key && !aiLocal(c.base)) throw new Error('還沒設定模型金鑰：' + (/groq/.test(c.base) ? '到 console.groq.com 免費申請 API 金鑰，在電腦版 HexAI 的模型設定貼上' : '請在電腦版 HexAI 的模型設定貼上 API 金鑰'));
+  const c = aiCfg(), cl = aiCloud(c), h = { 'content-type': 'application/json' }; if (c.key && !cl) h.authorization = 'Bearer ' + c.key;
+  const url = cl ? (await relayBase()) + '/ai/chat/completions' : c.base.replace(/\/+$/, '') + '/chat/completions', where = cl ? 'HexStack 雲端 AI' : c.base;
   const b = { model: c.model, messages: msgs, temperature: 0.3, stream: false }; if (tools.length) b.tools = tools.map(n => ({ type: 'function', function: { name: n, description: AI_TOOLS[n].d, parameters: { type: 'object', properties: n === 'ask_agent' ? Object.assign({}, AI_TOOLS[n].p, { role: { type: 'string', enum: AI_ROLES[role].calls } }) : AI_TOOLS[n].p, required: AI_TOOLS[n].req || [] } } }));
   let r, t, j = null;
   for (let k = 0; ; k++) {
-    try { r = await fetchT(c.base.replace(/\/+$/, '') + '/chat/completions', { method: 'POST', headers: h, body: JSON.stringify(b) }, 300000); }
-    catch (e) { throw new Error('連不到模型（' + c.base + '）：' + (e.name === 'AbortError' ? '逾時' : e.message) + (aiLocal(c.base) ? '。本機模型請先開 Ollama' : '')); }
+    const bs = JSON.stringify(b);
+    try { r = await fetchT(url, { method: 'POST', headers: cl ? Object.assign({}, h, aiSign(bs)) : h, body: bs }, 300000); }
+    catch (e) { throw new Error('連不到模型（' + where + '）：' + (e.name === 'AbortError' ? '逾時' : e.message) + (aiLocal(c.base) ? '。本機模型請先開 Ollama' : '')); }
     t = await r.text(); j = null; try { j = JSON.parse(t); } catch (e) {}
-    if (![429, 503].includes(r.status) || k >= 4) break;
+    if (![429, 503].includes(r.status) || k >= 4 || cl && (r.status === 503 || /今天/.test(t))) break;
     // 免費額度每分鐘用完：照伺服器說的秒數等（最多 60 秒）再試
     const m = /try again in ([\d.]+)(m?s)/i.exec(t), w = +r.headers.get('retry-after') || (m ? +m[1] / (m[2] === 'ms' ? 1000 : 1) : 10);
     await sleep(Math.min(60, Math.max(1, w)) * 1000 + 300);
   }
+  if (cl && [403, 503].includes(r.status) || cl && r.status === 429 && /今天/.test(t)) throw new Error((j && j.error) === '執行器驗證失敗' ? '雲端 AI 還認不得這台電腦：執行器剛啟動要先登記，等一分鐘再問' : String(j && j.error || 'HTTP ' + r.status) + (r.status === 503 ? '。也可以在模型設定改用自己的金鑰或本機模型' : ''));
   if (r.status === 429) throw new Error('免費額度暫時用完了（每分鐘或每天的上限），請稍後再問');
   if (!r.ok) throw new Error('模型回應錯誤 HTTP ' + r.status + '：' + String(j && j.error && (j.error.message || j.error) || t).slice(0, 200));
   const m = j && j.choices && j.choices[0] && j.choices[0].message; if (!m) throw new Error('模型沒有回答');
@@ -1205,11 +1210,12 @@ async function aiStart(role, text) {
 }
 async function aiTest() {
   const c = aiCfg(), h = {}; if (c.key) h.authorization = 'Bearer ' + c.key;
+  if (aiCloud(c)) { try { const j = await getJ((await relayBase()) + '/ai/models', {}, 10000); return j.ready ? { ok: true, cloud: true, models: [], hasModel: true } : { ok: false, cloud: true, error: 'HexStack 雲端 AI 還沒開通，暫時請改用自己的金鑰或本機模型' }; } catch (e) { return { ok: false, cloud: true, error: '連不到 HexStack 雲端：' + e.message }; } }
   let models = []; try { const j = await getJ(c.base.replace(/\/+$/, '') + '/models', { headers: h }, 10000); models = (j.data || []).map(x => x.id).slice(0, 50); } catch (e) { return { ok: false, error: '連不到 ' + c.base + '：' + e.message }; }
   return { ok: true, models, hasModel: models.includes(c.model) };
 }
 async function aiApi(req, p, M, q) {
-  if (p === '/api/ai/config' && M === 'GET') { const c = aiCfg(); return { base: c.base, model: c.model, hasKey: !!c.key, notes: C.aiNotes || {}, roles: Object.fromEntries(Object.entries(AI_ROLES).map(([k, r]) => [k, { name: r.name, job: r.job }])) }; }
+  if (p === '/api/ai/config' && M === 'GET') { const c = aiCfg(); return { base: c.base, model: c.model, hasKey: !!c.key, cloud: aiCloud(c), notes: C.aiNotes || {}, roles: Object.fromEntries(Object.entries(AI_ROLES).map(([k, r]) => [k, { name: r.name, job: r.job }])) }; }
   if (p === '/api/ai/history' && M === 'GET') { const r = q.get('role') || 'bridge'; return { role: r, messages: (AIH[r] || []).slice(-40) }; }
   if (p === '/api/ai/job' && M === 'GET') { const j = AIJ[q.get('id')]; if (!j) throw new HErr(404, '找不到這個問題'); return j; }
   if (p === '/api/ai/test' && M === 'GET') return aiTest();
@@ -1217,7 +1223,7 @@ async function aiApi(req, p, M, q) {
   const d = await body(req).catch(e => { throw new HErr(400, e.message); });
   if (p === '/api/ai/config') {
     const a = C.ai || (C.ai = {});
-    if (typeof d.base === 'string') { const b = d.base.trim(); if (!/^https?:\/\/[^\s]{3,200}$/.test(b)) throw new HErr(400, '模型網址要是 http(s):// 開頭'); a.base = b; }
+    if (typeof d.base === 'string') { const b = d.base.trim(); if (b !== 'hexstack' && !/^https?:\/\/[^\s]{3,200}$/.test(b)) throw new HErr(400, '模型網址要是 http(s):// 開頭'); a.base = b; }
     if (typeof d.model === 'string' && d.model.trim()) a.model = d.model.trim().slice(0, 100);
     if (typeof d.key === 'string' && d.key !== '••••') { if (d.key && !isLocal(req)) throw new HErr(403, 'API 金鑰只能在執行器這台電腦上設定'); a.key = d.key.trim().slice(0, 300); }
     saveCfg(); return Object.assign({ ok: true }, await aiTest());

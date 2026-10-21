@@ -4127,13 +4127,13 @@ const AiChat=(()=>{
   function show(){const h=document.getElementById('aiHome'),c=box();if(h)h.hidden=inChat;if(c)c.hidden=!inChat;if(!inChat&&window.HexAI)setTimeout(()=>HexAI.start(),0)}
   function setup(){const D=!!window.hexDesktop,c=cfg||{};
     return `<div class="aiset"><div class="bh">模型設定</div>
-      <div class="aipre"><button type="button" class="bbtn" data-pre="groq">Groq 免費</button><button type="button" class="bbtn" data-pre="gemini">Gemini 免費</button><button type="button" class="bbtn" data-pre="ollama">本機 Ollama</button><button type="button" class="bbtn" data-pre="deepseek">DeepSeek</button></div>
-      <label>模型網址<input id="aiBase" type="url" value="${H_(c.base||'')}" placeholder="http://127.0.0.1:11434/v1"></label>
+      <div class="aipre"><button type="button" class="bbtn" data-pre="cloud">HexStack 雲端（免設定）</button><button type="button" class="bbtn" data-pre="groq">Groq 免費</button><button type="button" class="bbtn" data-pre="gemini">Gemini 免費</button><button type="button" class="bbtn" data-pre="ollama">本機 Ollama</button><button type="button" class="bbtn" data-pre="deepseek">DeepSeek</button></div>
+      <label>模型網址<input id="aiBase" value="${H_(c.base||'')}" placeholder="http://127.0.0.1:11434/v1"></label>
       <label>模型名稱<input id="aiModel" value="${H_(c.model||'')}" placeholder="qwen3:8b"></label>
       ${D?`<label>API 金鑰（雲端才要，本機留空）<input id="aiKey" type="password" value="${c.hasKey?'••••':''}" placeholder="sk-…" autocomplete="off"></label>`:`<p class="sub">API 金鑰只能在電腦版設定。</p>`}
       <div class="row2"><button type="button" class="bbtn pri" id="aiSave">儲存並測試</button><button type="button" class="bbtn" id="aiSetX">收起</button></div>
       ${tmsg?`<p class="sub aitm">${tmsg}</p>`:''}
-      <p class="sub">預設用 Groq 免費的 Qwen3.8-27B（開源、不用綁卡）：到 console.groq.com 申請金鑰。Gemini 免費金鑰在 aistudio.google.com。</p><p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
+      <p class="sub">預設用 HexStack 雲端 AI，不用申請金鑰。想用自己的額度：Groq 免費的 Qwen3.8-27B 到 console.groq.com 申請金鑰。Gemini 免費金鑰在 aistudio.google.com。</p><p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
   // 給它的資料：使用者寫給這隻 AI 的規則、偏好、背景，存在電腦上的執行器，每次對話都會放進它的提示
   const NEX={bridge:'例如：我是上班族，只能晚上看盤；回答先講結論，三行以內。',scout:'例如：我最在意 BTC 和 ETH；新聞先看美國利率和 ETF 資金流。',echo:'例如：回測一律用 2 年資料，手續費用 0.05%。',
     forge:'例如：我不要回撤超過 25% 的策略；偏好低頻、一天交易不超過 3 次。',vault:'例如：我能承受的單日虧損是 3%；槓桿最多 2 倍；總資金 5,000 USDT。',helm:'例如：持倉離停損不到 2% 要特別提醒我。',guide:'例如：我是新手，講解時少用術語。'};
@@ -4151,10 +4151,10 @@ const AiChat=(()=>{
       +(err?`<div class="aierr">${H_(err)}${/連不到模型|模型/.test(err)?'<br><button type="button" class="lk" data-open-set>打開模型設定 ›</button>':''}</div>`:'');
     const st=document.activeElement&&document.activeElement.id==='aiIn'?document.activeElement.selectionStart:null;
     b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd">${window.HexAI?HexAI.mini(role):''}<div><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div></div>
-      ${cfg&&!cfg.hasKey&&!/127\.0\.0\.1|localhost/.test(cfg.base)&&!set?`<div class="aikey"><b>第一次使用要先設定免費金鑰</b><div>1. 到 console.groq.com 用 Google 帳號登入</div><div>2. 左邊 API Keys → Create API Key，複製金鑰</div><div>3. ${window.hexDesktop?'按下面「設定金鑰」貼上，按儲存並測試':'在電腦版 HexStack 的這一頁貼上（金鑰只能在電腦上設定）'}</div>${window.hexDesktop?'<button type="button" class="bbtn pri" data-open-set>設定金鑰</button>':''}</div>`:''}
+      ${cfg&&!cfg.cloud&&!cfg.hasKey&&!/127\.0\.0\.1|localhost/.test(cfg.base)&&!set?`<div class="aikey"><b>第一次使用要先設定免費金鑰</b><div>1. 到 console.groq.com 用 Google 帳號登入</div><div>2. 左邊 API Keys → Create API Key，複製金鑰</div><div>3. ${window.hexDesktop?'按下面「設定金鑰」貼上，按儲存並測試':'在電腦版 HexStack 的這一頁貼上（金鑰只能在電腦上設定）'}</div>${window.hexDesktop?'<button type="button" class="bbtn pri" data-open-set>設定金鑰</button>':''}</div>`:''}
       <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
-      <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?cfg.model:'…')} ›</button><button type="button" class="lk" id="aiNoteO">給它的資料${(cfg&&cfg.notes||{})[role]?'（已寫）':''} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
+      <div class="aift"><button type="button" class="lk" data-open-set>模型：${H_(cfg?(cfg.cloud?'HexStack 雲端':cfg.model):'…')} ›</button><button type="button" class="lk" id="aiNoteO">給它的資料${(cfg&&cfg.notes||{})[role]?'（已寫）':''} ›</button>${ms.length?'<button type="button" class="lk" id="aiClr">清除對話</button>':''}</div>
       ${set?setup():''}${nset?notes():''}</div>`;
     const L=document.getElementById('aiLog');if(L)L.scrollTop=L.scrollHeight;
     if(st!=null){const i=document.getElementById('aiIn');i.focus();i.setSelectionRange(st,st)}}
@@ -4181,9 +4181,9 @@ const AiChat=(()=>{
     if(t.id==='aiNoteO'){nset=!nset;nmsg='';set=false;render();return}
     if(t.id==='aiNoteX'){nset=false;render();return}
     if(t.id==='aiNoteSave'){const v=document.getElementById('aiNote').value;try{const r=await api('/api/ai/notes',{role,text:v});cfg=Object.assign(cfg||{},{notes:r.notes});nmsg=v.trim()?'已儲存，下次對話開始照這些做。':'已清空。'}catch(x){nmsg=/沒有這個功能|404/.test(x.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內）再試。':'⚠ '+x.message}render();return}
-    if(t.dataset.pre){const P={groq:['https://api.groq.com/openai/v1','qwen/qwen3.8-27b'],gemini:['https://generativelanguage.googleapis.com/v1beta/openai','gemini-flash-latest'],ollama:['http://127.0.0.1:11434/v1','qwen3:8b'],deepseek:['https://api.deepseek.com/v1','deepseek-chat']}[t.dataset.pre];document.getElementById('aiBase').value=P[0];document.getElementById('aiModel').value=P[1];return}
+    if(t.dataset.pre){const P={cloud:['hexstack','auto'],groq:['https://api.groq.com/openai/v1','qwen/qwen3.8-27b'],gemini:['https://generativelanguage.googleapis.com/v1beta/openai','gemini-flash-latest'],ollama:['http://127.0.0.1:11434/v1','qwen3:8b'],deepseek:['https://api.deepseek.com/v1','deepseek-chat']}[t.dataset.pre];document.getElementById('aiBase').value=P[0];document.getElementById('aiModel').value=P[1];return}
     if(t.id==='aiSave'){const k=document.getElementById('aiKey'),body={base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim()};if(k)body.key=k.value;
-      tmsg='測試中…';render();try{const r=await api('/api/ai/config',body);cfg=await api('/api/ai/config');tmsg=r.ok?(r.hasModel||!r.models.length?'連線成功，可以開始問了。':'連得上，但找不到模型「'+H_(cfg.model)+'」。這台有：'+H_(r.models.slice(0,8).join('、'))+(/11434/.test(cfg.base)?'。請先在電腦上執行 ollama pull '+H_(cfg.model):'')):'⚠ '+H_(r.error)}catch(x){tmsg='⚠ '+H_(x.message)}render();return}
+      tmsg='測試中…';render();try{const r=await api('/api/ai/config',body);cfg=await api('/api/ai/config');tmsg=r.ok?(r.cloud?'HexStack 雲端 AI 可以用，不用金鑰。':r.hasModel||!r.models.length?'連線成功，可以開始問了。':'連得上，但找不到模型「'+H_(cfg.model)+'」。這台有：'+H_(r.models.slice(0,8).join('、'))+(/11434/.test(cfg.base)?'。請先在電腦上執行 ollama pull '+H_(cfg.model):'')):'⚠ '+H_(r.error)}catch(x){tmsg='⚠ '+H_(x.message)}render();return}
     if(t.id==='aiClr'){try{await api('/api/ai/clear',{role})}catch(x){}H[role]=[];err='';render();return}});
   document.addEventListener('input',e=>{if(e.target.id==='aiIn'){draft=e.target.value;e.target.style.height='auto';e.target.style.height=Math.min(140,e.target.scrollHeight)+'px'}});
   document.addEventListener('keydown',e=>{if(e.target.id==='aiIn'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&matchMedia('(pointer:fine)').matches){e.preventDefault();send(e.target.value)}});

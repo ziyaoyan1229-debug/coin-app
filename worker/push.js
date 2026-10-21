@@ -182,6 +182,31 @@ async function sUser(req, env) {
     const d = JSON.parse(new TextDecoder().decode(ub64(b))); return d.x > Date.now() ? d : null;
   } catch (e) { return null; }
 }
+// 雲端 AI：執行器沒自己設模型金鑰時走這裡，金鑰放在 Worker 的 secret AI_KEY（用戶不用填，也不會傳到任何裝置）
+// 用執行器登記時的 th 驗證簽章（主機要先心跳登記過）；每台主機每天有次數上限，計數放 D1（KV 免費寫入太少）
+const AI_UP = 'https://api.groq.com/openai/v1', AI_M = 'qwen/qwen3.8-27b';
+let AIOK = false;
+async function aiRoute(p, req, env) {
+  const model = env.AI_MODEL || AI_M;
+  if (p === '/ai/models') return json({ data: [{ id: model }], ready: !!env.AI_KEY });
+  if (p !== '/ai/chat/completions' || req.method !== 'POST') return json({ error: 'not found' }, 404);
+  if (!env.AI_KEY) return json({ error: '雲端 AI 還沒開通' }, 503);
+  const id = req.headers.get('x-hs-host') || '', ts = +req.headers.get('x-hs-ts') || 0, raw = await req.text();
+  if (raw.length > 300000) return json({ error: '對話太長' }, 413);
+  const h = HID.test(id) && await env.SUBS.get(hostKey(id), 'json');
+  if (!h || !KH.test(h.th) || Math.abs(Date.now() - ts) > 300000 || !same(req.headers.get('x-hs-sig'), await hmacHex(h.th, ['ai', id, ts, hexOf(await S.digest('SHA-256', enc.encode(raw)))].join('\n')))) return json({ error: '執行器驗證失敗' }, 403);
+  if (env.DB) {
+    if (!AIOK) { await env.DB.exec('CREATE TABLE IF NOT EXISTS ai_use (h TEXT NOT NULL, d TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (h, d))'); AIOK = true; }
+    const d = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    const r = await env.DB.prepare('INSERT INTO ai_use (h, d, n) VALUES (?, ?, 1) ON CONFLICT (h, d) DO UPDATE SET n = n + 1 RETURNING n').bind(id, d).first();
+    if (r && r.n > (+env.AI_DAY || 300)) return json({ error: '今天的雲端 AI 次數用完了，明天再問' }, 429);
+  }
+  let b; try { b = JSON.parse(raw); } catch (e) { return json({ error: 'bad json' }, 400); }
+  b.model = model; b.stream = false; if (!(b.max_tokens <= 4000)) b.max_tokens = 4000;
+  const r = await fetch((env.AI_BASE || AI_UP).replace(/\/+$/, '') + '/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + env.AI_KEY }, body: JSON.stringify(b) });
+  const hd = { 'content-type': 'application/json; charset=utf-8' }, ra = r.headers.get('retry-after'); if (ra) hd['retry-after'] = ra;
+  return new Response(await r.text(), { status: r.status, headers: hd });
+}
 async function syncRoute(p, req, env, u) {
   if (!env.DB) return json({ error: '同步服務還沒開通' }, 503);
   if (!DBOK) { await env.DB.exec('CREATE TABLE IF NOT EXISTS sync (u TEXT NOT NULL, k TEXT NOT NULL, v TEXT, t INTEGER NOT NULL, PRIMARY KEY (u, k))'); DBOK = true; }
@@ -218,6 +243,7 @@ export default {
     try {
       if (p === '/x' && (req.method === 'GET' || req.method === 'POST')) return xproxy(req, u);
       if (p === '/auth/google' || p.startsWith('/sync')) return await syncRoute(p, req, env, u);
+      if (p.startsWith('/ai/')) return await aiRoute(p, req, env);
       if (p === '/vapid') return json({ key: (await vapid(env)).pub });
       if (p === '/sub' && req.method === 'POST') {
         const d = await req.json(), s = d && d.sub;
