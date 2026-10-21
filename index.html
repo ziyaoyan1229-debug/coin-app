@@ -661,7 +661,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aift{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .aiset{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}.aiset label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .aiset input{font:inherit;font-size:14.5px;color:var(--text);background:var(--panel2,var(--panel));border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
-.aiset .sub{margin:0;font-size:12.5px}.aiset .aitm{color:var(--text)}.aipre{display:flex;gap:8px}.aipre .bbtn{flex:1}
+.aiset .sub{margin:0;font-size:12.5px}.aiset .aitm{color:var(--text)}#aiChat .aipre{display:grid;grid-template-columns:1fr 1fr;gap:8px}#aiChat .aipre .bbtn{margin:0;padding:9px}
 .aiempty{display:flex;flex-direction:column;gap:8px;padding:14px}.aiempty .sub{margin:0}
 .aibots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .aibot{all:unset;box-sizing:border-box;cursor:pointer;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:6px 10px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;-webkit-tap-highlight-color:transparent}
@@ -3989,13 +3989,13 @@ const AiChat=(()=>{
   function chips(){return `<div class="airoles">${ROLES.map(k=>`<button type="button" class="${k===role?'on':''}" data-ar="${k}" style="--c:${A(k).c}">${window.HexAI?HexAI.mini(k):''}<span>${H_(nm(k).replace('AI.',''))}</span></button>`).join('')}</div>`}
   function setup(){const D=!!window.hexDesktop,c=cfg||{};
     return `<div class="aiset"><div class="bh">模型設定</div>
-      <div class="aipre"><button type="button" class="bbtn" data-pre="ollama">本機 Ollama</button><button type="button" class="bbtn" data-pre="deepseek">DeepSeek 雲端</button></div>
+      <div class="aipre"><button type="button" class="bbtn" data-pre="groq">Groq 免費</button><button type="button" class="bbtn" data-pre="gemini">Gemini 免費</button><button type="button" class="bbtn" data-pre="ollama">本機 Ollama</button><button type="button" class="bbtn" data-pre="deepseek">DeepSeek</button></div>
       <label>模型網址<input id="aiBase" type="url" value="${H_(c.base||'')}" placeholder="http://127.0.0.1:11434/v1"></label>
       <label>模型名稱<input id="aiModel" value="${H_(c.model||'')}" placeholder="qwen3:8b"></label>
       ${D?`<label>API 金鑰（雲端才要，本機留空）<input id="aiKey" type="password" value="${c.hasKey?'••••':''}" placeholder="sk-…" autocomplete="off"></label>`:`<p class="sub">API 金鑰只能在電腦版設定。</p>`}
       <div class="row2"><button type="button" class="bbtn pri" id="aiSave">儲存並測試</button><button type="button" class="bbtn" id="aiSetX">收起</button></div>
       ${tmsg?`<p class="sub aitm">${tmsg}</p>`:''}
-      <p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
+      <p class="sub">免費雲端：Groq 到 console.groq.com、Gemini 到 aistudio.google.com 申請金鑰，不用綁卡。</p><p class="sub">本機：到 ollama.com 下載安裝 Ollama，在命令列打 <code>ollama pull qwen3:8b</code>（約 5 GB，顯卡記憶體 16 GB 以上可以改用更大的模型）。雲端：DeepSeek 要先在 platform.deepseek.com 申請金鑰並儲值。</p></div>`}
   function render(){const b=box();if(!b)return;
     if(!window.BotTab||!BotTab.paired()){b.innerHTML=chips()+`<div class="card aiempty"><div class="bh">先連接電腦</div><p class="sub">HexAI 跑在你電腦上的 HexStack 電腦版（模型和你的資料都在那台電腦）。先到 HexBOT 連接電腦，就能在這裡問。</p><button type="button" class="bbtn pri" id="aiToBot">到 HexBOT 連接 ›</button></div>`;return}
     const ms=H[role]||[],a=A(role),pend=job&&job.role===role&&!job.done;
@@ -4024,7 +4024,7 @@ const AiChat=(()=>{
     if(t.id==='aiToBot'){BotTab.mode('bot');return}
     if('openSet' in t.dataset){set=!set;tmsg='';render();return}
     if(t.id==='aiSetX'){set=false;render();return}
-    if(t.dataset.pre){const P={ollama:['http://127.0.0.1:11434/v1','qwen3:8b'],deepseek:['https://api.deepseek.com/v1','deepseek-chat']}[t.dataset.pre];document.getElementById('aiBase').value=P[0];document.getElementById('aiModel').value=P[1];return}
+    if(t.dataset.pre){const P={groq:['https://api.groq.com/openai/v1','qwen/qwen3.8-27b'],gemini:['https://generativelanguage.googleapis.com/v1beta/openai','gemini-flash-latest'],ollama:['http://127.0.0.1:11434/v1','qwen3:8b'],deepseek:['https://api.deepseek.com/v1','deepseek-chat']}[t.dataset.pre];document.getElementById('aiBase').value=P[0];document.getElementById('aiModel').value=P[1];return}
     if(t.id==='aiSave'){const k=document.getElementById('aiKey'),body={base:document.getElementById('aiBase').value.trim(),model:document.getElementById('aiModel').value.trim()};if(k)body.key=k.value;
       tmsg='測試中…';render();try{const r=await api('/api/ai/config',body);cfg=await api('/api/ai/config');tmsg=r.ok?(r.hasModel||!r.models.length?'連線成功，可以開始問了。':'連得上，但找不到模型「'+H_(cfg.model)+'」。這台有：'+H_(r.models.slice(0,8).join('、'))+(/11434/.test(cfg.base)?'。請先在電腦上執行 ollama pull '+H_(cfg.model):'')):'⚠ '+H_(r.error)}catch(x){tmsg='⚠ '+H_(x.message)}render();return}
     if(t.id==='aiClr'){try{await api('/api/ai/clear',{role})}catch(x){}H[role]=[];err='';render();return}});
