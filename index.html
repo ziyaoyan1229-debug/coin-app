@@ -2602,6 +2602,10 @@ const FX_READ = {
       for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'COIN-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n * await price(x.marginCoin), acct: '幣本位合約' }); }
       for (const x of await rq('/api/v2/mix/position/all-position', { productType: 'COIN-FUTURES' })) if (+x.total) out.positions.push({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: (+x.unrealizedPL || 0) * await price(x.marginCoin), coinM: true });
     } catch (e) { out.notes.push('幣本位合約讀取失敗：' + e.message); }
+    try {
+      for (const x of await rq('/api/v2/mix/account/accounts', { productType: 'USDC-FUTURES' })) { const n = +x.accountEquity; if (n > 0) out.assets.push({ coin: x.marginCoin, amount: n, usd: +x.usdtEquity || n, acct: 'USDC 合約' }); }
+      for (const x of await rq('/api/v2/mix/position/all-position', { productType: 'USDC-FUTURES' })) if (+x.total) out.positions.push({ symbol: x.symbol, side: x.holdSide === 'short' ? 'short' : 'long', contracts: +x.total, entry: +x.openPriceAvg, mark: +x.markPrice, liq: +x.liquidationPrice > 0 ? +x.liquidationPrice : null, leverage: +x.leverage || null, margin_mode: x.marginMode === 'isolated' ? 'isolated' : 'cross', upnl: +x.unrealizedPL || 0 });
+    } catch (e) {}
     // 槓桿帳戶（全倉、逐倉）：用淨資產＝總額−借款−利息
     const mg = (x, nm) => { const t = +x.totalAmount || 0, n = x.net != null && x.net !== '' ? +x.net : t - (+x.borrow || 0) - (+x.interest || 0); return { t, n, nm }; };
     for (const [p, nm] of [['/api/v2/margin/crossed/account/assets', '全倉槓桿'], ['/api/v2/margin/isolated/account/assets', '逐倉槓桿']]) {
@@ -2714,6 +2718,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if(!got)throw new Error('讀不到 Bybit 餘額：'+out.notes.join('；'));
     try{const r=await bybitReq(a,'/v5/position/list',{category:'linear',settleCoin:'USDT'});out.positions=(r.list||[]).filter(x=>+x.size>0).map(x=>({symbol:x.symbol,side:x.side==='Buy'?'long':'short',contracts:+x.size,entry:+x.avgPrice,mark:+x.markPrice,liq:+x.liqPrice||null,leverage:+x.leverage||null,margin_mode:x.tradeMode===1?'isolated':'cross',upnl:+x.unrealisedPnl}))}
     catch(e){out.notes.push('持倉讀取失敗：'+e.message)}
+    try{const r=await bybitReq(a,'/v5/position/list',{category:'linear',settleCoin:'USDC'});for(const x of (r.list||[]).filter(x=>+x.size>0))out.positions.push({symbol:x.symbol,side:x.side==='Buy'?'long':'short',contracts:+x.size,entry:+x.avgPrice,mark:+x.markPrice,liq:+x.liqPrice||null,leverage:+x.leverage||null,margin_mode:x.tradeMode===1?'isolated':'cross',upnl:+x.unrealisedPnl})}catch(e){}
     try{const r=await bybitReq(a,'/v5/position/list',{category:'inverse'});for(const x of (r.list||[]).filter(x=>+x.size>0))out.positions.push({symbol:x.symbol,side:x.side==='Buy'?'long':'short',contracts:+x.size,entry:+x.avgPrice,mark:+x.markPrice,liq:+x.liqPrice||null,leverage:+x.leverage||null,margin_mode:x.tradeMode===1?'isolated':'cross',upnl:(+x.unrealisedPnl||0)*await price(String(x.symbol).replace(/USD.*$/,'')),coinM:true})}
     catch(e){out.notes.push('幣本位持倉讀取失敗：'+e.message)}
     out.total_usd=out.assets.reduce((t,x)=>t+(x.usd||0),0);return out}
