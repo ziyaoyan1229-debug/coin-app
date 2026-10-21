@@ -1480,7 +1480,7 @@ const AI_GUIDE = `HexStack 幣策略 App 說明：
 - 設定：客服機器人、外觀（預設、深夜、白天，可以跟著日出日落自動切換）、通知設定、資料庫、資料狀態、語言、帳號同步（Google 登入後手機和電腦的我的策略、通知、外觀、資產紀錄會同步，交易所金鑰不會上傳）、更新到最新版（看不到新版時按這裡）。
 - 安全：交易所金鑰只存在使用者自己的電腦上，建金鑰時只開「交易」權限，絕對不要開「提幣」，建議用子帳戶。真金下單一律由使用者自己操作。
 - 常見問題：手機看不到新版 → 設定 › 更新到最新版；HexBOT 顯示離線 → 確認電腦上的 HexStack 有開著、電腦沒睡眠；電腦版會自動更新。`;
-const AI_RULES = '規則：查不到需要的資料（例如沒有回測紀錄、沒有交易紀錄）時，不要猜，用 ask_user 問使用者要不要現在去跑（例如「要不要我現在回測？」選項：要／不要）。一律用繁體中文（台灣用語）回答，簡潔、第一行用「結論：」開頭先講結論；用 **粗體** 標出 2～4 個重點（關鍵數字、決定、風險），不要整段都粗體。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。任何重要決定（新增或修改策略、改風控上限、開始或停止交易、下單）都只能提出建議，由使用者本人確認。給投資建議（買賣方向、倉位、槓桿、策略選擇）時，最後加一行「⚠ 風險提示：加密貨幣波動大，可能虧損全部本金，僅供參考，請自行判斷。」；單純回答操作問題不用加。';
+const AI_RULES = '規則：問到資產、餘額、配置、持倉時，每次都要重新呼叫工具（get_portfolio）查最新數字，不要沿用對話裡之前的數字；資產總覽是真實資產，模擬盤是假資金，兩者分開講，不可以混在一起。查不到需要的資料（例如沒有回測紀錄、沒有交易紀錄）時，不要猜，用 ask_user 問使用者要不要現在去跑（例如「要不要我現在回測？」選項：要／不要）。一律用繁體中文（台灣用語）回答，簡潔、第一行用「結論：」開頭先講結論；用 **粗體** 標出 2～4 個重點（關鍵數字、決定、風險），不要整段都粗體。數字一定要來自工具結果，不可以編造；工具沒給的資料就說不知道。你只能提供分析和建議，不能下單、不能改設定；涉及真金下單一律請使用者自己在 App 操作。任何重要決定（新增或修改策略、改風控上限、開始或停止交易、下單）都只能提出建議，由使用者本人確認。給投資建議（買賣方向、倉位、槓桿、策略選擇）時，最後加一行「⚠ 風險提示：加密貨幣波動大，可能虧損全部本金，僅供參考，請自行判斷。」；單純回答操作問題不用加。';
 // 使用者給每隻 AI 的資料（規則、偏好、背景），每次對話都放進系統提示
 const aiNote = r => { const t = ((C.aiNotes || {})[r] || '').trim(); return t ? '\n使用者給你的資料（照這些規則和偏好做，跟上面的安全規則衝突時以安全規則為準）：\n' + t : ''; };
 const aiSys = (r, depth = 0) => `你是 HexStack 幣策略 App 裡的 ${AI_ROLES[r].name}。職責：${AI_ROLES[r].job}。${AI_ROLES[r].calls && depth < AI_DEPTH ? '需要時用 ask_agent 請 ' + AI_ROLES[r].calls.map(k => AI_ROLES[k].name).join('、') + ' 幫忙；你沒有的資料一定要問他們。' : ''}${r === 'guide' ? '\n' + AI_GUIDE : ''}${depth && AI_ROLES[r].out ? '\n你是被其他 AI 呼叫的，回覆照這些欄位逐項列出：' + AI_ROLES[r].out + '。' : ''}${aiNote(r)}${depth ? '' : '\n跟使用者互動：需要使用者決定或補資料時，用 ask_user 給 2～4 個選項讓他點（不要只用文字問）。' + (AI_ROLES[r].tools.some(t => /^propose_/.test(t)) ? '回答完如果有自然的下一步（存成策略、調整上限），主動用 propose_ 工具提出，App 會跳確認框問使用者；' : '') + '新增策略、改設定一定要經過確認框，不能說已經改好。'}\n${AI_RULES}\n現在時間（台北）：${tpeHM(nowS())}。`;
@@ -1490,7 +1490,7 @@ const AI_TOOLS = {
   web_search: { d: '用使用者電腦的網路上網搜尋（DuckDuckGo），回傳標題、網址、摘要', p: { query: { type: 'string', description: '搜尋關鍵字，英文通常結果比較多' }, limit: { type: 'integer', description: '幾筆，預設 6，最多 10' } }, req: ['query'] },
   read_webpage: { d: '讀一個網頁的文字內容（web_search 找到的網址）', p: { url: { type: 'string' } }, req: ['url'] },
   get_news: { d: 'HexStack 市場分析頁的最新盤勢摘要、行事曆和新聞標題', p: { limit: { type: 'integer', description: '新聞則數，預設 5' } } },
-  get_account_balance: { d: '帳戶權益：模擬盤各交易所、實盤，和資產總覽的總資產', p: {} },
+  get_account_balance: { d: 'HexBOT 的模擬盤（假資金）權益和實盤下單帳戶狀態。不是使用者的真實資產，真實資產用 get_portfolio', p: {} },
   get_position: { d: '目前所有持倉和執行中的策略', p: {} },
   get_system_info: { d: 'HexStack 系統資訊：電腦版和 App 版本、引擎、各幣資料到哪一天、下單交易所（測試網／正式網、模擬盤開關）、模擬帳戶、AI 模型、風控上限與哪些關掉了、策略數量', p: {} },
   get_my_strategies: { d: '使用者 App「我的策略」裡存的策略和參數組（名稱、策略代號、幣種、參數），以及哪些正在 HexBOT 執行', p: {} },
@@ -1550,13 +1550,13 @@ async function aiTool(name, a, depth, trace, from) {
     for (const a of acc) for (const x of a.assets || []) { const k = String(x.coin).replace(/（.*/, ''), o = by[k] || (by[k] = { coin: k, amount: 0, usd: 0, where: new Set() }); o.amount += +x.amount || 0; o.usd += +x.usd || 0; o.where.add(a.name + (x.acct ? '・' + x.acct : '')); }
     const pct = v => tot > 0 ? r2(v / tot * 100) : null;
     if (!acc.length) return { accounts: [], note: '資產總覽還沒有加入任何交易所帳戶（或 App 還沒回報手機上的帳戶）。可以請使用者到「資產總覽」加入唯讀金鑰' + (pc.err ? '；電腦讀取錯誤：' + pc.err : '') };
-    return { totalUsd: r2(tot), phoneDataAt: ph.length && APPCTX.fundsAt ? tpeHM(APPCTX.fundsAt) : null,
+    return { note: '這是使用者真實交易所的資產（不是模擬盤），剛剛即時讀取', totalUsd: r2(tot), phoneDataAt: ph.length && APPCTX.fundsAt ? tpeHM(APPCTX.fundsAt) : null,
       allocation: Object.values(by).filter(o => o.usd > 0.5).sort((p, q) => q.usd - p.usd).slice(0, 30).map(o => ({ coin: o.coin, amount: +o.amount.toPrecision(8), usd: r2(o.usd), pct: pct(o.usd), in: [...o.where].slice(0, 6) })),
-      accounts: acc.map(a => ({ name: a.name, exchange: a.exchange, storedOn: a.where, ok: a.ok !== false, totalUsd: r2(a.total_usd || 0), pct: pct(a.total_usd || 0), assets: (a.assets || []).filter(x => (+x.usd || 0) > 0.5).sort((p, q) => (q.usd || 0) - (p.usd || 0)).slice(0, 25).map(x => ({ coin: x.coin, amount: x.amount, usd: r2(x.usd || 0), account: x.acct })), positions: (a.positions || []).map(p => ({ symbol: p.symbol, side: p.side, contracts: p.contracts, entry: p.entry, mark: p.mark, liq: p.liq, leverage: p.leverage, upnlUsd: p.upnl != null ? r2(p.upnl) : null, coinMargined: !!p.coinM })), notes: (a.notes || []).slice(0, 3) })) };
+      accounts: acc.map(a => ({ name: a.name, exchange: a.exchange, storedOn: a.where, ok: a.ok !== false, totalUsd: r2(a.total_usd || 0), pct: pct(a.total_usd || 0), assets: (a.assets || []).filter(x => (+x.usd || 0) > 0.5).sort((p, q) => (q.usd || 0) - (p.usd || 0)).slice(0, 12).map(x => ({ coin: x.coin, amount: x.amount, usd: r2(x.usd || 0), account: x.acct })), positions: (a.positions || []).map(p => ({ symbol: p.symbol, side: p.side, contracts: p.contracts, entry: p.entry, mark: p.mark, liq: p.liq, leverage: p.leverage, upnlUsd: p.upnl != null ? r2(p.upnl) : null, coinMargined: !!p.coinM })), notes: (a.notes || []).slice(0, 3) })) };
   }
   if (name === 'get_account_balance') {
-    const s = await status(), f = await fundsAll(false).catch(() => null);
-    return { paperOnly: s.paperOnly, sims: s.sims.map(x => ({ exchange: x.k, start: x.start, equity: x.equity })), live: s.live, totalAssetsUsd: f && f.total_usd != null ? r2(f.total_usd) : null };
+    const s = await status();
+    return { note: '這裡只有 HexBOT 的模擬盤（假資金）和實盤下單帳戶。使用者在資產總覽掛的真實交易所資產、配置，一律用 get_portfolio 查，不要把這裡的數字當成真實資產', paperSimsFakeMoney: s.sims.map(x => ({ exchange: x.k, start: x.start, equity: x.equity })), live: s.live, paperOnly: s.paperOnly };
   }
   if (name === 'get_position') { const s = await status(); return { positions: s.positions, strategies: s.strategies.filter(g => g.enabled).map(g => ({ name: g.name, strategy: g.st, symbol: g.sym, ledger: g.led, state: g.state, alloc: g.alloc, equity: g.equity, position: g.position })) }; }
   if (name === 'get_risk_rules') { const s = await status(); return { limits: s.limits, off: Object.keys(s.limitsOff || {}), halted: s.halted, mdd: s.mdd, dd: s.dd, paperOnly: s.paperOnly }; }
@@ -1607,7 +1607,8 @@ async function aiCall(msgs, tools, role) {
   const m = j && j.choices && j.choices[0] && j.choices[0].message; if (!m) throw new Error('模型沒有回答');
   return m;
 }
-const clip = o => { const s = JSON.stringify(o); return s.length > 2500 ? s.slice(0, 2500) + '…' : s; };
+// 資產總覽的內容比較長，截太短 AI 會以為沒有資產
+const clip = (o, n) => { const s = JSON.stringify(o); n = n || 2500; return s.length > n ? s.slice(0, n) + '…' : s; };
 async function aiRun(role, hist, depth = 0, trace = []) {
   const R = AI_ROLES[role], msgs = [{ role: 'system', content: aiSys(role, depth) }, ...hist];
   let nag = role === 'helm' && depth < AI_DEPTH;   // Helm 給下單草案前一定要問過 Vault
@@ -1627,7 +1628,7 @@ async function aiRun(role, hist, depth = 0, trace = []) {
       const step = { by: R.name, tool: nm, args, ok: true }; trace.push(step);
       let out; try { if (!R.tools.includes(nm) || nm === 'ask_user') throw new Error(R.name + ' 不能用 ' + nm); out = await aiTool(nm, args, depth, trace, role); } catch (e) { out = { error: e.message }; step.ok = false; step.err = e.message; }
       if (/^propose_/.test(nm) && step.ok) step.res = { kind: nm === 'propose_strategy' ? 'strat' : 'lim', by: R.name, proposed: out.proposed, reason: out.reason };
-      msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out) });
+      msgs.push({ role: 'tool', tool_call_id: tc.id || nm, name: nm, content: clip(out, nm === 'get_portfolio' ? 9000 : 0) });
     }
   }
   return { text: '（查了太多次還沒結論，請把問題問得更具體一點）', trace };
