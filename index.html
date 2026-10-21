@@ -2627,11 +2627,15 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   const upnl=x=>(x.positions||[]).reduce((t,p)=>t+(+p.upnl||0),0);
   const sgn=v=>(v>0?'+':v<0?'−':'')+'US$ '+fm(Math.abs(v));
   // 報酬：每次讀到餘額就記一筆（每家帳號 30 分鐘最多一筆、留 35 天），拿約 24 小時前那筆當基準；還不到一天就用第一筆（加入以來）。入金、出金、子帳號互轉也會算進去
-  const SNK='fdSnap',SJ=()=>{try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {}}};
-  function snap(acc){const S=SJ(),now=Date.now();for(const x of acc){if(!x.ok||!(x.total_usd>0))continue;const a=(S[x.id]||[]).filter(r=>now-r[0]<35*864e5);if(!a.length||now-a[a.length-1][0]>18e5)a.push([now,+x.total_usd.toFixed(2)]);S[x.id]=a.slice(-1700)}
+  // 有子帳戶讀取失敗（金額不完整）的那次不記；多個帳號一起算時，基準時間要一致：有帳號滿一天就只算滿一天的（24h），都不滿才用各自第一筆（加入以來）
+  // fdSnap2：舊的 fdSnap 可能記到讀取不完整的金額，換新的重新開始記
+  try{localStorage.removeItem('fdSnap')}catch(e){}
+  const SNK='fdSnap2',SJ=()=>{try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {}}};
+  function snap(acc){const S=SJ(),now=Date.now();for(const x of acc){if(!x.ok||!(x.total_usd>0)||(x.notes||[]).some(n=>/失敗|fail/i.test(n)))continue;const a=(S[x.id]||[]).filter(r=>now-r[0]<35*864e5);if(!a.length||now-a[a.length-1][0]>18e5)a.push([now,+x.total_usd.toFixed(2)]);S[x.id]=a.slice(-1700)}
     for(const id of Object.keys(S))if(!acc.some(x=>x.id===id))delete S[id];try{localStorage.setItem(SNK,JSON.stringify(S))}catch(e){}}
-  function ret(list){const S=SJ(),now=Date.now();let b=0,v=0,day=true,n=0;for(const x of list){if(!x.ok)continue;const a=S[x.id]||[];if(!a.length)continue;let r=null;for(const q of a)if(now-q[0]>=864e5)r=q;if(!r){r=a[0];day=false}b+=r[1];v+=x.total_usd||0;n++}
-    return n&&b>0?{d:v-b,p:(v-b)/b*100,lab:day?'24h':'加入以來'}:null}
+  function ret(list){const S=SJ(),now=Date.now(),R=[];for(const x of list){if(!x.ok||!(x.total_usd>0))continue;const a=S[x.id]||[];if(!a.length)continue;let r=null;for(const q of a)if(now-q[0]>=864e5)r=q;R.push({v:x.total_usd,r,f:a[0]})}
+    const day=R.some(o=>o.r),U=day?R.filter(o=>o.r):R;let b=0,v=0;for(const o of U){b+=(day?o.r:o.f)[1];v+=o.v}
+    return U.length&&b>0?{d:v-b,p:(v-b)/b*100,lab:day?'24h':'加入以來'}:null}
   const retTx=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+r.lab+' '+(hide?'••••':(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%')+'</span>':'<span class="fdmu">報酬計算中</span>';
   const retAmt=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+money(sgn(r.d))+'（'+(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%）</span>':'—';
   // 主帳號／子帳號：Bybit、OKX 從金鑰查得到；其他家看名稱有沒有「主」「子」
