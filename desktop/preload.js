@@ -25,7 +25,10 @@ contextBridge.exposeInMainWorld('hexDesktop', Object.assign({}, info, {
   status: () => ipcRenderer.sendSync('hs:status'),
   // Google 登入改在系統瀏覽器做，結果由 onLogin 交回：{ token, email } 或 { error }
   login: () => ipcRenderer.send('hs:login'),
-  onLogin: cb => { ipcRenderer.removeAllListeners('hs:login-done'); ipcRenderer.on('hs:login-done', (e, j) => cb(j)); }
+  onLogin: cb => { ipcRenderer.removeAllListeners('hs:login-done'); ipcRenderer.on('hs:login-done', (e, j) => cb(j)); },
+  // 新版：update() → { cur, v, auto }（v 空的＝已是最新）；installUpdate(onProg) 下載並安裝，onProg 收 0～1 的進度，失敗回 { error }
+  update: () => ipcRenderer.invoke('hs:upd'),
+  installUpdate: onProg => { ipcRenderer.removeAllListeners('hs:upd-prog'); if (onProg) ipcRenderer.on('hs:upd-prog', (e, p) => onProg(p)); return ipcRenderer.invoke('hs:upd-go'); }
 }));
 
 pair();
