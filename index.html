@@ -756,7 +756,7 @@ try{var t=localStorage.getItem('theme3'),h=new Date().getHours();if(localStorage
 // 進度條：tv＝實際載入進度，畫面上的 dv 從進度條出現（1.1 秒）起最快 0.9 秒跑完 0→100，不會一出現就是 100%；跑到 100 才關掉開場畫面
 var tv=0,dv=-1,T1=t0+1100,DUR=900;function tick(){var cap=Math.max(0,Math.min(100,(Date.now()-T1)/DUR*100)),v=Math.floor(Math.min(tv,cap));
 if(v!==dv){dv=v;var b=document.getElementById('spBar'),t=document.getElementById('spPct');if(b)b.style.width=v+'%';if(t)t.textContent=v+'%'}
-if(want&&dv>=100){var el=document.getElementById('splash');if(el){if(window.__hsNeedLogin&&__hsNeedLogin()){__hsSplashLogin(el);return}el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+if(want&&dv>=100){var el=document.getElementById('splash');if(el){if(window.__hsUpdGate&&__hsUpdGate(el))return;if(window.__hsNeedLogin&&__hsNeedLogin()){__hsSplashLogin(el);return}el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
 function hide(){if(done)return;done=1;tv=100;want=1}
 window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 <script>
@@ -3557,7 +3557,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     $('#botPair').onclick=()=>{if(fromHash($('#botLink').value.trim())){render();refresh();loop()}else{toast('連結不對，請複製 HexStack 上完整的配對連結');$('#botLink').focus()}}}
   function setup(){if(window.hexDesktop)return deskSetup();box().innerHTML=`<div class="card"><div class="bh">三步驟連接電腦上的 HexStack</div>
     <div class="stp"><i>1</i><div>在一台不關機的電腦下載 HexStack<br><span class="sub">免費。Windows 跳「Windows 已保護您的電腦」時按「其他資訊 → 仍要執行」；Mac 按右鍵「打開」。</span></div></div>
-    <div class="row2"><a class="bbtn" href="${RL}/download/HexStack.exe" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
+    <div class="row2"><a class="bbtn" href="${RL}/download/HexStack-Setup.exe" target="_blank" rel="noopener">Windows 版</a><a class="bbtn" href="${RL}" target="_blank" rel="noopener">Mac 版</a></div>
     <div class="stp"><i>2</i><div>打開 HexStack，電腦畫面會顯示配對 QR code<br><span class="sub">電腦設成「不進入睡眠」，螢幕可以關，程式要一直開著。</span></div></div>
     <div class="stp"><i>3</i><div>按下面的掃描，對準電腦上的 QR code 就完成配對</div></div>
     <button class="bbtn pri scanbtn" id="botScan" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg>掃描 QR code</button>
@@ -4891,6 +4891,20 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
     const d=document.createElement('div');d.id='spLogin';d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:10px;min-height:96px;animation:slFade .3s forwards;opacity:0';
     d.innerHTML='<div id="spG" style="min-height:44px;display:flex;justify-content:center"></div><div id="spM" style="color:#ffb4c0;font:13px -apple-system,system-ui,sans-serif;max-width:280px;text-align:center"></div><button type="button" id="spSkip" style="all:unset;cursor:pointer;color:#d8b6ff;font:14px -apple-system,\'PingFang TC\',system-ui,sans-serif;padding:6px 12px">稍後再說</button>';
     el.appendChild(d);d.querySelector('#spSkip').onclick=()=>{try{sessionStorage.setItem('hsGateSkip','1')}catch(e){}closeSplash()};gBtn('spG')};
+  // 電腦版：開場時順便問有沒有新版，有就停在開場畫面給「立即更新」（按了 App 自己下載、安裝、重開）；「稍後再說」這次不再問
+  let upd=null;if(window.hexDesktop&&hexDesktop.update)(window.__boot||[]).push(hexDesktop.update().then(u=>{upd=u}).catch(()=>{}));
+  window.__hsUpdGate=el=>{if(el.querySelector('#spUpd'))return true;if(!upd||!upd.v)return false;try{if(sessionStorage.getItem('hsUpdSkip')===upd.v)return false}catch(e){}
+    for(const q of el.querySelectorAll('.bar,.pct'))q.style.display='none';
+    const f='-apple-system,\'PingFang TC\',\'Microsoft JhengHei\',system-ui,sans-serif',d=document.createElement('div');d.id='spUpd';d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:10px;min-height:96px;animation:slFade .3s forwards;opacity:0';
+    d.innerHTML='<div style="color:#f3ecff;font:600 15px '+f+'">有新版 '+upd.v+'</div><div style="color:#d8b6ff;font:13px '+f+'">目前 '+upd.cur+'</div>'
+      +'<button type="button" id="spUpdGo" style="all:unset;cursor:pointer;padding:10px 26px;border-radius:999px;background:#f6cf6a;color:#2a1660;font:700 15px '+f+'">'+(upd.auto?'立即更新':'下載新版')+'</button>'
+      +'<div id="spUpdM" style="color:#d8b6ff;font:13px '+f+';max-width:280px;text-align:center;min-height:18px"></div><button type="button" id="spUpdSkip" style="all:unset;cursor:pointer;color:#d8b6ff;font:14px '+f+';padding:6px 12px">稍後再說</button>';
+    el.appendChild(d);const go=d.querySelector('#spUpdGo'),m=d.querySelector('#spUpdM'),sk=d.querySelector('#spUpdSkip');
+    go.onclick=()=>{go.style.opacity='.5';go.style.pointerEvents='none';sk.style.display='none';m.style.color='#d8b6ff';m.textContent=upd.auto?'下載中…':'';
+      hexDesktop.installUpdate(p=>{m.textContent=p>=1?'安裝中，HexStack 會自己重新打開…':'下載中 '+Math.round(p*100)+'%'}).then(r=>{
+        if(r&&r.error){m.style.color='#ffb4c0';m.textContent='更新失敗：'+r.error;go.style.opacity='';go.style.pointerEvents='';sk.style.display=''}
+        else if(r&&r.opened){m.textContent='已在瀏覽器打開下載頁';sk.style.display=''}else m.textContent='安裝中，HexStack 會自己重新打開…'})};
+    sk.onclick=()=>{try{sessionStorage.setItem('hsUpdSkip',upd.v)}catch(e){}d.remove();if(window.__hsNeedLogin())window.__hsSplashLogin(el);else closeSplash()};return true};
   function gate(){if(st().tok)return closeSplash();const m=document.getElementById('spM');if(m)m.textContent=msg&&msg!=='登入中…'?msg:''}
   render();if(st().tok)(window.__boot||[]).push(run(false));   // 開場畫面等雲端同步完才進去
   try{const m=sessionStorage.getItem('hsSyncMsg');if(m){sessionStorage.removeItem('hsSyncMsg');setTimeout(()=>{const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;font-size:13px;z-index:70';document.body.appendChild(t);setTimeout(()=>t.remove(),3000)},300)}}catch(e){}

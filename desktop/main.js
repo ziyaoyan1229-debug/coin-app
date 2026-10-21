@@ -155,28 +155,51 @@ function appMenu() {
   ]));
 }
 
-// ── 檢查新版：看 GitHub 上最新的正式版 desktop-v*，有新版就跳通知；Windows 按「立即更新」會自己下載、安靜安裝、裝完自動重開 ──
+// ── 檢查新版：看 GitHub 上最新的 desktop-v*（每次打包都會發一版），有新版就跳通知；Windows 按「立即更新」會自己下載、安靜安裝、裝完自動重開。
+//    網頁的開場畫面也會問（hs:upd），在那裡就能按更新；網頁問過就不再另外跳視窗 ──
 const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
-let updating = false;
+let updating = false, webAsked = 0, updProg = null;
+async function findUpdate() {
+  const r = await fetch('https://api.github.com/repos/ziyaoyan1229-debug/coin-app/releases?per_page=30', { headers: { accept: 'application/vnd.github+json' } });
+  if (!r.ok) throw new Error('查不到新版（HTTP ' + r.status + '）');
+  const list = await r.json();
+  const rel = list.filter(x => !x.prerelease && !x.draft && /^desktop-v\d+\.\d+\.\d+$/.test(x.tag_name)).map(x => Object.assign(x, { v: x.tag_name.replace(/^desktop-v/, '') }))
+    .sort((a, b) => newer(a.v, b.v) ? -1 : newer(b.v, a.v) ? 1 : 0)[0];
+  if (!rel || !newer(rel.v, app.getVersion())) return null;
+  const exe = process.platform === 'win32' && (rel.assets || []).find(x => x.name === 'HexStack-Setup.exe');
+  const notes = String(rel.body || '').split('\n').filter(l => /^\s*[-•]/.test(l) && !/Windows 已保護|簽章/.test(l)).slice(0, 6).join('\n');
+  return { v: rel.v, exe, notes, url: rel.html_url };
+}
 async function checkUpdate(manual) {
-  if (updating) return;
+  if (updating || (!manual && Date.now() - webAsked < 3600e3)) return;
   try {
-    const r = await fetch('https://api.github.com/repos/ziyaoyan1229-debug/coin-app/releases?per_page=30', { headers: { accept: 'application/vnd.github+json' } });
-    const list = r.ok ? await r.json() : [];
-    const rel = list.find(x => !x.prerelease && !x.draft && /^desktop-v\d/.test(x.tag_name));
-    const v = rel && rel.tag_name.replace(/^desktop-v/, '');
-    if (!v || !newer(v, app.getVersion())) { if (manual) dialog.showMessageBox({ type: 'info', buttons: ['好'], title: 'HexStack', message: '已經是最新版 ' + app.getVersion() }); return; }
-    const exe = process.platform === 'win32' && (rel.assets || []).find(x => x.name === 'HexStack-Setup.exe');
-    const notes = String(rel.body || '').split('\n').filter(l => /^\s*[-•]/.test(l) && !/Windows 已保護|簽章/.test(l)).slice(0, 6).join('\n');
+    const u = await findUpdate();
+    if (!u) { if (manual) dialog.showMessageBox({ type: 'info', buttons: ['好'], title: 'HexStack', message: '已經是最新版 ' + app.getVersion() }); return; }
     const { response } = await dialog.showMessageBox(win && win.isVisible() ? win : null, {
-      type: 'info', buttons: exe ? ['立即更新', '稍後'] : ['下載新版', '稍後'], defaultId: 0, cancelId: 1, title: 'HexStack 有新版',
-      message: 'HexStack 有新版 ' + v, detail: '目前 ' + app.getVersion() + '。' + (exe ? '按「立即更新」會自動下載並安裝，裝完自己重開，設定和執行器資料都會保留。' : '') + (notes ? '\n\n' + notes : '')
+      type: 'info', buttons: u.exe ? ['立即更新', '稍後'] : ['下載新版', '稍後'], defaultId: 0, cancelId: 1, title: 'HexStack 有新版',
+      message: 'HexStack 有新版 ' + u.v, detail: '目前 ' + app.getVersion() + '。' + (u.exe ? '按「立即更新」會自動下載並安裝，裝完自己重開，設定和執行器資料都會保留。' : '') + (u.notes ? '\n\n' + u.notes : '')
     });
     if (response !== 0) return;
-    if (!exe) return shell.openExternal(rel.html_url);
-    await installUpdate(exe);
+    if (!u.exe) return shell.openExternal(u.url);
+    await installUpdate(u.exe);
   } catch (e) { updating = false; if (win) win.setProgressBar(-1); if (manual) dialog.showMessageBox({ type: 'warning', buttons: ['好'], title: 'HexStack', message: '更新失敗', detail: e.message }); }
 }
+// 網頁問有沒有新版：{ cur, v, auto }（auto＝能在 App 裡直接裝）；沒新版 v 是空的
+ipcMain.handle('hs:upd', async () => {
+  webAsked = Date.now();
+  try { const u = await findUpdate(); return { cur: app.getVersion(), v: u ? u.v : '', auto: !!(u && u.exe) }; } catch (e) { return { cur: app.getVersion(), v: '', error: e.message }; }
+});
+// 網頁按「立即更新」：下載進度用 hs:upd-prog 回報（0～1），裝的時候 App 會關掉再自己打開；失敗回 { error }
+ipcMain.handle('hs:upd-go', async e => {
+  if (updating) return { ok: true };
+  try {
+    const u = await findUpdate();
+    if (!u) return { error: '已經是最新版' };
+    if (!u.exe) { shell.openExternal(u.url); return { ok: true, opened: true }; }
+    const wc = e.sender; updProg = p => { if (!wc.isDestroyed()) wc.send('hs:upd-prog', p); };
+    await installUpdate(u.exe); return { ok: true };
+  } catch (x) { updating = false; updProg = null; if (win) win.setProgressBar(-1); return { error: x.message }; }
+});
 async function installUpdate(asset) {
   updating = true;
   const f = path.join(app.getPath('temp'), 'HexStack-Setup-' + Date.now() + '.exe');
@@ -186,7 +209,7 @@ async function installUpdate(asset) {
   let got = 0;
   for await (const chunk of r.body) {
     got += chunk.length; out.write(Buffer.from(chunk));
-    if (total) { const p = got / total; if (win) win.setProgressBar(p); if (tray) tray.setToolTip('HexStack 下載更新中 ' + Math.round(p * 100) + '%'); }
+    if (total) { const p = got / total; if (win) win.setProgressBar(p); if (updProg) updProg(p); if (tray) tray.setToolTip('HexStack 下載更新中 ' + Math.round(p * 100) + '%'); }
   }
   await new Promise((ok, no) => { out.on('error', no); out.end(ok); });
   if (total && got < total) throw new Error('下載不完整，請再試一次');
