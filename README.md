@@ -10,4 +10,4 @@ BTC／ETH 策略回測與市場消息的手機網頁版（可加到主畫面）�
 - `news.json`：重大消息與市場分析，由財務部・投資組每 4 小時更新，改程式時不要動。
 - `manifest.json`、`sw.js`、`icon-*.png`：加到主畫面與離線使用。**每次發版 `sw.js` 的 `coin-app-vNN` 要加 1**，手機才會換新版。
 - 發布：main 推到 gh-pages 就上線。
-- `.github/workflows/klines.yml`：每 15 分鐘把 BTC／ETH 的 15 分、5 分 K、模擬盤結果 `paper.json`（`scripts/paper.py`，規則是投資組 `s03_live.py` 的複本）、市場分析歷史 `news_history.json`（`scripts/news_history.py`）寫到 `data` 分支。網站的模擬盤、過去分析分頁讀這裡。
+- `.github/workflows/klines.yml`：每 15 分鐘把 BTC／ETH 的 15 分、5 分 K、模擬盤結果 `paper.json`（`scripts/paper.py`，規則在 `scripts/s03_live.py`：10/24 起規則 5 S-04＋S-07，S-03、S-01b 只記訊號）、市場分析歷史 `news_history.json`（`scripts/news_history.py`）寫到 `data` 分支。網站的模擬盤、過去分析分頁讀這裡。
