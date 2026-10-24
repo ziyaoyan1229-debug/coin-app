@@ -3,10 +3,10 @@
 用法：python3 s03_live.py <data 目錄>（含 BTCUSDT_15m.csv 等四檔，來自 coin-app 的 data 分支）
 
 算部位：S-04、S-07（BTC、ETH，4h K 由 15 分 K 合成，只用已收完的 4h K）
-  - 每張卡各自開單：同幣同一張卡同時只持一張，S-04、S-07 可疊單；帳戶同時開著的總風險 ≤15%，超過就不開。
+  - 每張卡各自開單：同幣同一張卡同時只持一張，S-04、S-07 可疊單；帳戶同時開著的總風險 ≤10%（10/24 18:22 前 15%），超過就不開。
   - 出場三段式 X5：到 1R 出 1/2；第 3 根起 4h 收破 EMA20 出 1/4（1R 還沒到時那 1/2 也一起出）；
     最後 1/4 在第 3 根起、每天最後一根 4h 收盤跌破日線 EMA50 出，最長 360 根（60 天）。碰停損全出。
-  - 每筆風險 3%；回撤 >15% 減半、>30% 剩 1/5（回撤含持倉浮動）。
+  - 每筆風險 2%；回撤 >25% 減半、>40% 剩 1/5（回撤含持倉浮動）；總風險上限 10%。10/24 18:22 台北前進場的單用舊版 3%／>15%、>30%／15%。
   - 成本照回測實盤化版（backtest/l5_audit.py）：手續費每邊 0.075%、進場與停損各多 0.05% 滑價、跳空停損按開盤價、資金費每 8 小時 0.01%。
   - 損益在每一段實際成交的那根 K 記進權益（不是進場時就把整筆最後損益記進去）。
 只記訊號、不算部位（10/24 起降為觀察）：S-03（15 分 K 突破確認）、S-01b（4h 急殺回收）。"""
@@ -14,7 +14,12 @@ import sys, os, numpy as np, pandas as pd
 D = sys.argv[1]
 PAPER_START = pd.Timestamp(os.environ.get("PAPER_START", "2026-10-23 16:00"))  # UTC＝10/24 00:00 台北；4h K 收盤時間 ≥ 這個才開單
 FEE, SLIP, FUND = 0.00075, 0.0005, 0.0001
-RISK = {"S-04": 0.03, "S-07": 0.03}; RISK_CAP = 0.15; HOLD = 360; CONF_MULT = 14.7
+RISK_KEYS = ("S-04", "S-07"); HOLD = 360; CONF_MULT = 14.7
+# 倉位規則：老闆 10/24 18:22 台北改版，之後的新單才套新版，已開的單不改（見投資研究計畫.md 規則 5、backtest/線5_實盤前補測_2026-10-24.md）
+SIZE_V2 = pd.Timestamp("2026-10-24 10:22")  # UTC
+def sizing(ts):
+    """回傳（每筆風險、總風險上限、回撤減半門檻、回撤剩 1/5 門檻）"""
+    return (0.02, 0.10, 0.25, 0.40) if ts >= SIZE_V2 else (0.03, 0.15, 0.15, 0.30)
 TW = lambda x: (x + pd.Timedelta(hours=8)).strftime("%Y-%m-%d %H:%M")
 
 def load(f):
@@ -96,7 +101,7 @@ for s in H:
         if last[i]: e = c[i] if e is None else c[i]*2/51 + e*(1-2/51)
         d50.append(e)
     pre[s] = dict(o=list(x.o.values), h=list(x.h.values), l=list(x.l.values), c=c, e20=ema(c, 20), last=last, d50=d50,
-                  at={i: [(k, sl) for k in RISK for j, sl in CARDS[s][k] if j == i] for i in range(m)})
+                  at={i: [(k, sl) for k in RISK_KEYS for j, sl in CARDS[s][k] if j == i] for i in range(m)})
 closet = lambda i: h4i[i] + pd.Timedelta(hours=4)
 eq = peak = 1.0; mdd = 0.0; units = []; closed = []; skipped = []; curve = []
 for j in range(m):
@@ -129,19 +134,20 @@ for j in range(m):
             e = p["c"][j]*(1+SLIP); stop = sl*0.997; R = e-stop
             if R <= 0: continue
             mtm = eq + sum(u["q"]*u["w"]*(pre[u["s"]]["c"][j]-u["e"]) for u in units); peak = max(peak, mtm)
-            ddv = (peak-mtm)/peak; kk = 0.2 if ddv > 0.30 else 0.5 if ddv > 0.15 else 1
-            stake = eq*RISK[k]*kk
-            if sum(u["stake"] for u in units) + stake > RISK_CAP*eq + 1e-12:
-                skipped.append(dict(幣=s, 卡=k, 時間=TW(closet(j)), 原因="帳戶總風險會超過 15%")); continue
+            rk, cap, dd1, dd2 = sizing(closet(j))
+            ddv = (peak-mtm)/peak; kk = 0.2 if ddv > dd2 else 0.5 if ddv > dd1 else 1
+            stake = eq*rk*kk
+            if sum(u["stake"] for u in units) + stake > cap*eq + 1e-12:
+                skipped.append(dict(幣=s, 卡=k, 時間=TW(closet(j)), 原因=f"帳戶總風險會超過 {cap:.0%}")); continue
             q = stake/R; f0 = q*e*FEE; eq -= f0
             units.append(dict(s=s, card=k, i=j, e=e, stop=stop, R=R, q=q, stake=stake, w=1.0, parts=[(.5, "r1"), (.25, "e20"), (.25, "d50")],
-                              pnl=-f0, fills=[], kk=kk))
+                              pnl=-f0, fills=[], kk=kk, eq0=eq+f0))
     mtm = eq + sum(u["q"]*u["w"]*(pre[u["s"]]["c"][j]-u["e"]) for u in units); peak = max(peak, mtm); mdd = max(mdd, (peak-mtm)/peak)
     if closet(j) >= PAPER_START: curve.append((TW(closet(j)), round(eq, 6), round(mtm, 6)))
 
 def rec(u):
     p = pre[u["s"]]; r = dict(幣=u["s"], 卡=u["card"], 進場時間=TW(closet(u["i"])), 進場價=round(float(u["e"]), 2), 停損=round(float(u["stop"]), 2),
-                             一R=round(float(u["R"]), 2), 風險=f"{u['stake']:.2%}", 部位價值佔權益=f"{u['q']*u['e']:.0%}",
+                             一R=round(float(u["R"]), 2), 風險=f"{u['stake']/u['eq0']:.2%}", 部位價值佔權益=f"{u['q']*u['e']/u['eq0']:.0%}",
                              分批=[{k: v for k, v in f.items() if k != "_g"} for f in u["fills"]])
     if "j" in u: r["出場時間"] = TW(closet(u["j"])); r["損益佔起始權益"] = f"{u['pnl']:+.2%}"
     else:

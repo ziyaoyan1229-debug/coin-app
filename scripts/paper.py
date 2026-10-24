@@ -15,7 +15,7 @@ for s, d in P.items():
     market[s] = dict(price=round(float(d['c'][-1]), 2), h4_ema200=round(float(d['h4e200']), 2), above_h4=bool(d['h4c'] > d['h4e200']),
                      d1_ema50=round(float(d['d1e50']), 2), above_d1=bool(d['d1c'] > d['d1e50']), high24=round(float(d['hh'][-1]), 2))
 out = dict(
-    strategy='規則 5：S-04＋S-07 可疊單、三段式出場 X5（10/24 起）',
+    strategy='規則 5：S-04＋S-07 可疊單、三段式出場 X5、每筆 2%、總風險 ≤10%（10/24 起；18:22 改倉位規則）',
     start=tw(g['PAPER_START']),
     updated=time.strftime('%Y-%m-%d %H:%M', time.gmtime(time.time() + 8 * 3600)),
     last_bar=tw(t[-1]),
