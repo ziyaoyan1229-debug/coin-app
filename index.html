@@ -916,7 +916,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
         <label><input type="checkbox" data-ind="MA200"> MA200</label>
         <label><input type="checkbox" data-ind="BOLL"> 布林通道（20, 2）</label>
         <label><input type="checkbox" data-ind="CH"> 10 天高低通道</label>
-        <label><input type="checkbox" data-ind="WPIV"> 週樞紐 7 線（多空分水嶺）</label>
+        <label><input type="checkbox" data-ind="WPIV"> 多空分水嶺 9 線 <select id="pivTf" title="用哪一期的高低收算線。自動：15 分以下用日、1h～8h 用週、日線用月、週線用年"><option value="auto">自動</option><option value="M">月</option><option value="W">週</option><option value="D">日</option><option value="240">4h</option></select></label>
         <label><input type="checkbox" data-ind="VOL"> 成交量</label>
         <label><input type="checkbox" data-ind="FUND"> 資金費率</label>
         <label><input type="checkbox" data-ind="FIB"> 斐波那契（依畫面高低點）</label>
@@ -3105,7 +3105,7 @@ function initChart(){
   xs.MNAV=X('#a371f7','mnav',1);xs.MNAVEV=X('#d63cff','mnav',2);xs.DEBT=X('#ef5350','debt',1);xs.PREF=X('#f2a0a0','debt',1,2);xs.SHARES=X('#26a69a','shr',1);
   chart.priceScale('mnav').applyOptions({scaleMargins:{top:0.03,bottom:0.72}});chart.priceScale('debt').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});chart.priceScale('shr').applyOptions({scaleMargins:{top:0.75,bottom:0.03}});
   xs.MNAVEV.createPriceLine({price:1,color:'#8b95a7',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'mNAV 1'});
-  ind.MA20=L('#f5a524');ind.MA50=L('#a371f7');ind.MA200=L('#4c8dff');ind.BU=L('#8b95a7',1,2);ind.BM=L('#8b95a7',1,0);ind.BL=L('#8b95a7',1,2);ind.CHH=L('#4c8dff',1,2);ind.CHL=L('#f5a524',1,2);PIVK.forEach((k,j)=>ind[k]=chart.addLineSeries({color:PIVC[j],lineWidth:j===3?2:1,lineStyle:j===3?2:0,priceLineVisible:false,lastValueVisible:true,title:PIVN[j],crosshairMarkerVisible:false}));
+  ind.MA20=L('#f5a524');ind.MA50=L('#a371f7');ind.MA200=L('#4c8dff');ind.BU=L('#8b95a7',1,2);ind.BM=L('#8b95a7',1,0);ind.BL=L('#8b95a7',1,2);ind.CHH=L('#4c8dff',1,2);ind.CHL=L('#f5a524',1,2);PIVK.forEach((k,j)=>ind[k]=chart.addLineSeries({color:PIVC[j],lineWidth:k==='PP'?2:1,lineStyle:0,priceLineVisible:false,lastValueVisible:true,title:PIVN[j],crosshairMarkerVisible:false}));
   chart.subscribeCrosshairMove(p=>{const d=p.seriesData&&p.seriesData.get(cs);if(!d)return showOhlc(null);showOhlc(d,p)});
   chart.timeScale().subscribeVisibleLogicalRangeChange(()=>{clearTimeout(fibT);fibT=setTimeout(drawFib,120)});
   $('#cvMonth').innerHTML=monthList().reverse().map(m=>`<option>${m}</option>`).join('');
@@ -3118,7 +3118,7 @@ function legendVals(p){const o=IND(),v=(s)=>{if(!p)return null;const x=p.seriesD
   const one=(lab,col,val,d=1)=>`<span><i style="background:${col}"></i>${lab} <b>${val==null?'—':fmt(val,d)}</b></span>`;
   R.MA20=()=>one('MA20','#f5a524',v(ind.MA20));R.MA50=()=>one('MA50','#a371f7',v(ind.MA50));R.MA200=()=>one('MA200','#4c8dff',v(ind.MA200));
   R.BOLL=()=>`<span><i style="background:#8b95a7"></i>布林 <b>${fmt(v(ind.BU),1)} / ${fmt(v(ind.BM),1)} / ${fmt(v(ind.BL),1)}</b></span>`;
-  R.WPIV=()=>{const g=k=>p?v(ind[k]):PIVLAST[PIVK.indexOf(k)],P=g('PP');return P==null?'<span>週樞紐：上週資料不足</span>':`<span><i style="background:#9E9E9E"></i>分水嶺 <b>${fmt(P,1)}</b>　<i style="background:#2962FF"></i>阻力 <b>${fmt(g('PR1'),1)}</b>　<i style="background:#2962FF"></i>支撐 <b>${fmt(g('PS1'),1)}</b></span>`};
+  R.WPIV=()=>{const g=k=>PIVLAST[PIVK.indexOf(k)],P=g('PP'),nm=PIVNM[PIVTF]||'';return P==null?`<span>多空分水嶺：上一${nm}資料不足</span>`:`<span><i style="background:${css('--text')}"></i>多空分水嶺（${nm}） <b>${fmt(P,1)}</b>　<i style="background:#42A5F5"></i>阻力 <b>${fmt(g('PR1'),1)}</b>　<i style="background:#42A5F5"></i>支撐 <b>${fmt(g('PS1'),1)}</b></span>`};
   R.CH=()=>`<span><i style="background:#4c8dff"></i>10 天高低 <b>${fmt(v(ind.CHH),1)} / ${fmt(v(ind.CHL),1)}</b></span>`;
   R.VOL=()=>stk?'':`<span>成交量 <b>${p&&p.seriesData.get(vs)?fmt(p.seriesData.get(vs).value):'—'}</b></span>`;
   R.FUND=()=>stk?'':`<span><i style="background:#f5a524"></i>資金費率 <b>${p&&p.seriesData.get(fs)?p.seriesData.get(fs).value.toFixed(4)+'%':'—'}</b></span>`;
@@ -3204,20 +3204,29 @@ async function drawChart(fit){
   if(fit){if(cvIntra)chart.timeScale().setVisibleLogicalRange({from:n-(cvTf===3600?210:120),to:n+3});else if(cvSym==='MSTU'||cvSym==='MSTR_MSTU'){const k=lowerB(B.T,STK.MSTU.d[STK.MSTU.sim]*86400);chart.timeScale().setVisibleLogicalRange({from:Math.max(0,k-(cvSym==='MSTU'?60:8)),to:n+3})}else if(minute||stk)chart.timeScale().fitContent();else chart.timeScale().setVisibleLogicalRange({from:n-300,to:n+5})}
   showOhlc(null);drawFib();drawer1&&drawer1.reload();document.dispatchEvent(new Event('chartdrawn'));
 }
-// 週樞紐：每週一 00:00 UTC 起，用上一週的高、低、收算 P=(H+L+C)/3、R=H-L，畫 P、P±0.236R、P±0.618R、P±R
-const PIVK=['PR1','PR2','PR3','PP','PS3','PS2','PS1'],PIVF=[1,.618,.236,0,-.236,-.618,-1],
-  PIVC=['#2962FF','#F23645','#FF9800','#9E9E9E','#FF9800','#F23645','#2962FF'],PIVN=['阻力位','反轉區','順勢線','多空分水嶺','順勢線','反轉區','支撐位'];
-let PIVLAST=[];
-function weekPivot(B,tf){const n=B.T.length,out=PIVK.map(()=>new Array(n).fill(null)),gap=new Array(n).fill(false);let wk=null,h=0,l=0,c=0,prev=null;
-  for(let i=0;i<n;i++){const w=Math.floor((B.T[i]/86400+3)/7);
-    if(w!==wk){prev=wk!==null&&w===wk+1?{h,l,c}:null;wk=w;h=-Infinity;l=Infinity;gap[i]=tf<604800}
-    h=Math.max(h,B.H[i]);l=Math.min(l,B.L[i]);c=B.C[i];
-    if(prev){const P=(prev.h+prev.l+prev.c)/3,R=prev.h-prev.l;PIVF.forEach((f,j)=>out[j][i]=P+f*R)}}
-  return{out,gap}}
-function drawPivot(B,on,tf){if(!on||!B){PIVK.forEach(k=>ind[k].setData([]));return}
-  const{out,gap}=weekPivot(B,tf),n=B.T.length;   // 每週第一根用透明色，週與週之間不畫斜線
-  PIVLAST=PIVK.map((k,j)=>out[j][n-1]);
-  PIVK.forEach((k,j)=>ind[k].setData(B.T.map((t,i)=>out[j][i]==null?{time:t+TZ}:gap[i+1]||(i<n-1&&out[j][i+1]==null)?{time:t+TZ,value:out[j][i],color:'rgba(0,0,0,0)'}:{time:t+TZ,value:out[j][i]})))}
+// 多空分水嶺 9 線：用上一期的高、低、收算 P=(H+L+C)/3、R=H-L，畫 P、P±0.236R／0.618R／1.0R／1.618R。
+// 只畫這一期（期初畫到期末，往右延伸到空白處；P 從上一期開頭畫起），整期固定不重繪。期的切點都用 UTC（同 Binance）。
+const PIVK=['PX1','PR1','PR2','PR3','PP','PS3','PS2','PS1','PX2'],PIVF=[1.618,1,.618,.236,0,-.236,-.618,-1,-1.618],
+  PIVC=['#00E676','#42A5F5','#FF5252','#FFD600','#9E9E9E','#FFD600','#FF5252','#42A5F5','#00E676'],PIVN=['強阻力位','阻力位','反轉區','順勢線','多空分水嶺','順勢線','反轉區','支撐位','強支撐位'],
+  PIVNM={D:'日',W:'週',M:'月',Y:'年','240':'4h'},PIVSEC={D:86400,W:604800,M:2628000,'240':14400};
+let PIVLAST=[],PIVTF='W';
+try{const v=localStorage.getItem('pivTf');if(v&&$('#pivTf').querySelector(`option[value="${v}"]`))$('#pivTf').value=v}catch(e){}
+$('#pivTf').onchange=()=>{try{localStorage.setItem('pivTf',$('#pivTf').value)}catch(e){}const c=$('#indPanel [data-ind=WPIV]');if(!c.checked){c.checked=true;c.dispatchEvent(new Event('change'))}else drawChart(false)};
+// 自動（同 TradingView 內建樞軸點）：15 分以下用日、1h～8h 用週、日線用月、週線用年；手動選的不比圖表大就改回自動
+function pivTfOf(tf){const auto=tf<=900?'D':tf<86400?'W':tf<604800?'M':'Y',m=$('#pivTf').value;return m==='auto'||!(PIVSEC[m]>tf)?auto:m}
+function pivPeriod(t,u){   // t 所在那一期的開始、結束時間，和上一期的開始時間（秒）
+  if(u==='M'||u==='Y'){const d=new Date(t*1000),y=d.getUTCFullYear(),m=u==='M'?d.getUTCMonth():0,st=u==='M'?1:12;
+    return{s:Date.UTC(y,m,1)/1000,e:Date.UTC(y,m+st,1)/1000,p:Date.UTC(y,m-st,1)/1000}}
+  const len=u==='D'?86400:u==='W'?604800:14400,off=u==='W'?3*86400:0,s=Math.floor((t+off)/len)*len-off;return{s,e:s+len,p:s-len}}
+function drawPivot(B,on,tf){PIVLAST=[];if(!on||!B||!B.T.length){PIVK.forEach(k=>ind[k].setData([]));return}
+  PIVTF=pivTfOf(tf);const n=B.T.length,last=B.T[n-1],q=pivPeriod(last,PIVTF);
+  // 週線圖用年的時候，週 K 會跨年，改用日 K 算上一年的高低收
+  let S=B;if(tf>=604800&&!B.x&&!cvIntra&&cvSym!=='MSTR_MSTU')try{S=STKSYM(cvSym)?stockBars(cvSym==='MSTU'?'MSTU':'MSTR',86400):hourBars(cvSym,86400)}catch(e){S=B}
+  let h=-Infinity,l=Infinity,c=null;for(let i=0;i<S.T.length;i++){const t=S.T[i];if(t<q.p)continue;if(t>=q.s)break;h=Math.max(h,S.H[i]);l=Math.min(l,S.L[i]);c=S.C[i]}
+  if(c==null){PIVK.forEach(k=>ind[k].setData([]));return}
+  const P=(h+l+c)/3,R=h-l,fut=[];for(let t=last+tf;t<=q.e;t+=tf)fut.push(t);   // 期末還沒到：往右空白處補點，線才畫得到期末
+  PIVLAST=PIVF.map(f=>P+f*R);ind.PP.applyOptions({color:css('--text')});
+  PIVK.forEach((k,j)=>{const x0=k==='PP'?q.p:q.s,v=PIVLAST[j],d=[];for(let i=0;i<n;i++)if(B.T[i]>=x0)d.push({time:B.T[i]+TZ,value:v});fut.forEach(t=>d.push({time:t+TZ,value:v}));ind[k].setData(d)})}
 function drawFib(){fibLines.forEach(l=>cs.removePriceLine(l));fibLines=[];if(!IND().FIB||!cvBars)return;
   const r=chart.timeScale().getVisibleLogicalRange();if(!r)return;const a=Math.max(0,Math.floor(r.from)),z=Math.min(cvBars.T.length-1,Math.ceil(r.to));if(z<=a)return;
   let hi=-Infinity,lo=Infinity,ih=a,il=a;for(let i=a;i<=z;i++){if(cvBars.H[i]>hi){hi=cvBars.H[i];ih=i}if(cvBars.L[i]<lo){lo=cvBars.L[i];il=i}}
