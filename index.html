@@ -693,7 +693,11 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aim{flex:none;display:block}.aim svg{width:100%;height:100%;overflow:visible}
 .sumc .t.aitile{display:flex;align-items:center;gap:8px}.sumc .aitile .aim{width:40px;height:46px}.sumc .aitile .v{color:var(--c);font-family:inherit}
 .ailk{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}.ailk svg{width:10px;height:10px}
-.aipair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
+.aipair{display:grid;grid-template-columns:1fr;gap:8px;margin:0 0 10px}.aipair .aimc{width:100%}.aimc .aim+.aim{margin-left:-14px}.aimc b i{font-style:normal;color:var(--muted);font-weight:400;margin:0 4px}
+/* Forge、Echo 同一個視窗：上面兩個分頁切換要跟誰講，兩邊的對話都留著 */
+.aiduo{display:grid;grid-template-columns:1fr 1fr;gap:6px}.aiduo button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:6px;min-width:0;padding:4px 8px;border:1px solid var(--line);border-radius:10px;-webkit-tap-highlight-color:transparent}
+.aiduo button.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}.aiduo button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aiduo .aim{width:34px;height:40px;flex:none}
+.aiduo b{display:block;color:var(--c);font-size:14.5px}.aiduo small{display:block;color:var(--muted);font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.aiduo em{font-style:normal;color:var(--c);font-size:11px;margin-left:4px}
 .aimc{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);padding:8px 10px;min-width:0;-webkit-tap-highlight-color:transparent}
 .aimc:active{opacity:.8}.aimc:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.aimc .aim{width:42px;height:48px}
 .aimc b{display:block;font-size:14.5px;color:var(--c)}.aimc small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
@@ -2487,8 +2491,8 @@ ${ring('F')}
     let i=0;h=h.replace(/<g class="ly">/g,()=>`<g class="ly" transform="translate(0 ${(1-i++)*9})">`);
     return `<span class="aim" aria-hidden="true">${h}</span>`}
   // 各頁的小圖示：開那個 AI 的獨立對話頁（不跳到 開始交易 › HexAI）
-  const tap=k=>{const a=AI.find(x=>x.k===k);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
-    if(window.AiChat)AiChat.solo(k)};
+  const tap=k=>{const ks=String(k).split(','),a=AI.find(x=>x.k===ks[0]);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
+    if(window.AiChat)AiChat.solo(ks[0],ks)};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(b){e.stopPropagation();tap(b.dataset.ai)}},true);
   return {start,mini,tap,AI,LOCK}})();window.HexAI=HexAI;
 {const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault');const g=document.getElementById('setAiG');if(g)g.innerHTML=HexAI.mini('guide')}
@@ -4139,7 +4143,7 @@ const AiChat=(()=>{
     forge:['幫我找回撤小於 20% 的 BTC 策略','把突破策略的參數調得保守一點'],vault:['檢查我的帳戶風險','我的風控上限設得合理嗎？'],helm:['現在執行中的策略要注意什麼？','我的持倉離停損多遠？'],guide:['HexBOT 要怎麼開始自動交易？','手機和電腦要怎麼同步？']};
   const TL={get_market_data:a=>'看 '+(a.symbol||'')+' 行情',get_news:()=>'讀市場分析和新聞',get_account_balance:()=>'看帳戶權益',get_position:()=>'看持倉和策略',get_risk_rules:()=>'看風控上限',
     list_strategies:()=>'查策略清單',run_backtest:a=>'回測 '+(a.strategy||'')+' '+(a.symbol||'')+(a.days?' '+a.days+' 天':''),ask_agent:a=>'請 '+nm(a.role)+' 幫忙',ask_user:()=>'問你問題',web_search:a=>'上網搜尋「'+(a.query||'')+'」',read_webpage:a=>'讀網頁 '+String(a.url||'').replace(/^https?:\/\/(www\.)?/,'').split('/')[0],propose_risk_limits:()=>'提出新的風控上限',propose_strategy:a=>'提出新增策略 '+(a.strategy||'')+' '+(a.symbol||'')};
-  let nset=false,nmsg='',inChat=false,solo=null,prop=null,okm='',role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
+  let nset=false,nmsg='',inChat=false,solo=null,duo=null,prop=null,okm='',role=J('aiRole','bridge'),H={},job=null,jt=0,cfg=null,set=false,err='',draft='',tmsg='',busy=false;if(!ROLES.includes(role))role='bridge';
   const A=k=>window.HexAI&&HexAI.AI.find(x=>x.k===k)||{n:k,c:'#999',r:''},nm=k=>A(k).n;
   const box=()=>document.getElementById('aiChat'),api=(p,b)=>BotTab.api(p,b);
   // 一點點 markdown：粗體、標題、條列
@@ -4203,7 +4207,9 @@ const AiChat=(()=>{
       +(pend?pending(a):'')
       +(err?`<div class="aierr">${H_(err)}${/連不到模型|模型/.test(err)?'<br><button type="button" class="lk" data-open-set>打開模型設定 ›</button>':''}</div>`:'');
     const st=document.activeElement&&document.activeElement.id==='aiIn'?document.activeElement.selectionStart:null;
-    b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}"><div class="aihd">${window.HexAI?HexAI.mini(role):''}<div><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div></div>
+    const hd=duo?`<div class="aiduo" role="tablist">${duo.map(k=>{const x=A(k),bz=job&&job.role===k&&!job.done&&k!==role;return `<button type="button" role="tab" aria-selected="${k===role}" class="${k===role?'on':''}" data-duo="${k}" style="--c:${x.c}">${window.HexAI?HexAI.mini(k):''}<span style="min-width:0"><b>${H_(x.n)}${bz?'<em>回答中…</em>':''}</b><small>${H_({forge:'幫你想策略',echo:'回測、交叉比對'}[k]||x.r)}</small></span></button>`}).join('')}</div>`
+      :`<div class="aihd">${window.HexAI?HexAI.mini(role):''}<div><b>${H_(a.n)}</b><span>${H_(a.r)}</span></div></div>`;
+    b.innerHTML=chips()+`<div class="card aicard" style="--c:${a.c}">${hd}
       ${cfg&&!cfg.cloud&&!cfg.hasKey&&!/127\.0\.0\.1|localhost/.test(cfg.base)&&!set?`<div class="aikey"><b>第一次使用要先設定免費金鑰</b><div>1. 到 console.groq.com 用 Google 帳號登入</div><div>2. 左邊 API Keys → Create API Key，複製金鑰</div><div>3. ${window.hexDesktop?'按下面「設定金鑰」貼上，按儲存並測試':'在電腦版 HexStack 的這一頁貼上（金鑰只能在電腦上設定）'}</div>${window.hexDesktop?'<button type="button" class="bbtn pri" data-open-set>設定金鑰</button>':''}</div>`:''}
       <div class="ailog" id="aiLog">${log||`<div class="aihi">${md('問 '+a.n+' 任何問題，例如：')}<div class="aisug">${ASK[role].map(q=>`<button type="button" data-q="${H_(q)}">${H_(q)}</button>`).join('')}</div></div>`}</div>
       <form class="aiin" id="aiForm"><textarea id="aiIn" rows="1" placeholder="問 ${H_(a.n)}…" ${pend?'disabled':''}>${H_(draft)}</textarea><button type="submit" class="bbtn pri" ${pend?'disabled':''} aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
@@ -4232,12 +4238,13 @@ const AiChat=(()=>{
     try{const ctx=aiCtx();try{if(window.FundTab)Object.assign(ctx,await FundTab.ai())}catch(e){}const r=await api('/api/ai/chat',{role,text:t,ctx});job.id=r.id;job.old=!(r.build>=AI_BUILD);if(job.old){const D=window.hexDesktop;try{D&&D.checkExec&&D.checkExec().catch(()=>{})}catch(e){}}poll()}catch(e){busy=false;job=null;H[role].pop();draft=t;err=/沒有這個功能|404/.test(e.message)?'電腦上的執行器還是舊版，等它自動更新（約 10 分鐘內），或把 HexStack 結束再打開。':e.message;render()}}
   function openProp(p){prop=Object.assign({},p);if(p.kind==='strat'){const G=sameG(p),pre=p.proposed.group&&G.find(x=>SigLock.gname(x.g)===p.proposed.group);prop._g=pre?pre.g:''}syncProp()}
   // 從各頁的小圖示點進來：開一個獨立的對話頁蓋在上面，返回就回到原本那頁
-  function soloOpen(k){const c=box();if(!c)return;if(!solo){solo={home:c.parentNode,next:c.nextSibling};let L=document.getElementById('aiSolo');if(!L){L=document.createElement('div');L.id='aiSolo';document.body.appendChild(L)}L.hidden=false;L.appendChild(c);document.documentElement.style.overflow='hidden'}pick(k);L_top()}
+  function soloOpen(k,ks){const c=box();if(!c)return;ks=(ks||[]).filter(x=>ROLES.includes(x));duo=ks.length>1?ks:null;if(!solo){solo={home:c.parentNode,next:c.nextSibling};let L=document.getElementById('aiSolo');if(!L){L=document.createElement('div');L.id='aiSolo';document.body.appendChild(L)}L.hidden=false;L.appendChild(c);document.documentElement.style.overflow='hidden'}pick(k);L_top()}
   const L_top=()=>{const L=document.getElementById('aiSolo');if(L)L.scrollTop=0};
-  function soloClose(){if(!solo)return;const c=box(),L=document.getElementById('aiSolo');solo.home.insertBefore(c,solo.next);solo=null;if(L)L.hidden=true;document.documentElement.style.overflow='';inChat=false;show()}
+  function soloClose(){if(!solo)return;const c=box(),L=document.getElementById('aiSolo');solo.home.insertBefore(c,solo.next);solo=null;duo=null;if(L)L.hidden=true;document.documentElement.style.overflow='';inChat=false;show()}
   function pick(k){if(!ROLES.includes(k))return;if(k!==role){err='';draft='';okm='';nset=false}role=k;W('aiRole',k);inChat=true;show();render();if(!solo)window.scrollTo(0,0);if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[k])hist(k)}}
   function open(){show();if(!inChat)return;render();if(window.BotTab&&BotTab.paired()){if(!cfg)loadCfg();if(!H[role])hist(role)}}
   document.addEventListener('click',async e=>{const b=box();if(!b||!b.contains(e.target))return;const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.duo){if(t.dataset.duo!==role)pick(t.dataset.duo);return}
     if('back' in t.dataset){if(solo)return soloClose();inChat=false;show();window.scrollTo(0,0);return}
     if(t.dataset.prop){const[i,j]=t.dataset.prop.split('.').map(Number),m=(H[role]||[])[i],p=m&&m.props&&m.props[j];if(p)openProp(p);return}
     if(t.dataset.q)return send(t.dataset.q);
@@ -4507,7 +4514,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(ok)})).filter(x=>x.keys.length);
     if(openG&&!G.find(x=>x.g===openG))openG=null;
     if(openG)return renderGroup(G.find(x=>x.g===openG),L);
-    const AIP=`<div class="aipair">${['forge','echo'].map(k=>{const a=HexAI.AI.find(x=>x.k===k);return `<button class="aimc" type="button" data-ai="${k}" style="--c:${a.c}">${HexAI.mini(k)}<span style="min-width:0"><b>${a.n}</b><small>${k==='forge'?'幫你想策略':'回測、交叉比對'}</small></span></button>`}).join('')}</div>`;
+    const AIP=(()=>{const f=HexAI.AI.find(x=>x.k==='forge'),e=HexAI.AI.find(x=>x.k==='echo');return `<div class="aipair"><button class="aimc" type="button" data-ai="forge,echo">${HexAI.mini('forge')}${HexAI.mini('echo')}<span style="min-width:0"><b><span style="color:${f.c}">${f.n}</span><i>＋</i><span style="color:${e.c}">${e.n}</span></b><small>幫你想策略、回測、交叉比對，同一個視窗</small></span></button></div>`})();
     const top=(adding?'':AIP)+`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(!G.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     const ON=window.BotTab?BotTab.onKeys():new Set(),led=on=>`<i class="bled${on?' on':''}" title="${on?'HexBOT 執行中':'沒在跑'}" style="display:inline-block;margin-right:6px;vertical-align:2px"></i>`;
