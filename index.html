@@ -712,7 +712,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 @media (prefers-reduced-motion:reduce){#themeToast.on{animation:none}:root[data-theme="light"] *{transition:none!important}}
 </style>
 <script>// 帳號同步：記下哪些設定被改過（登入且第一次同步完才開始記）。快取、交易所金鑰、電腦配對不同步
-(function(){try{var P=Storage.prototype,S=P.setItem,R=P.removeItem,X=/^(fdLocal|botHost|sig|hist|fng.*|mstrMeta|tglog|runlog|langBoot|hsSync|bnLast|bnPush|sigLockH|hsAudit|hsDev)$/;window.__hs={set:S,rem:R,X:X,dirty:{},on:false,kick:null};
+(function(){try{var P=Storage.prototype,S=P.setItem,R=P.removeItem,X=/^(fdLocal|fdLast|botHost|sig|hist|fng.*|mstrMeta|tglog|runlog|langBoot|hsSync|bnLast|bnPush|sigLockH|hsAudit|hsDev)$/;window.__hs={set:S,rem:R,X:X,dirty:{},on:false,kick:null};
 function mark(k){var h=window.__hs;if(h.on&&!X.test(k)){h.dirty[k]=1;h.kick&&h.kick()}}
 P.setItem=function(k,v){k=String(k);v=String(v);if(this===localStorage){if(this.getItem(k)===v)return;S.call(this,k,v);mark(k)}else S.call(this,k,v)};
 P.removeItem=function(k){k=String(k);if(this===localStorage){if(this.getItem(k)===null)return;R.call(this,k);mark(k)}else R.call(this,k)}}catch(e){}})();
@@ -2736,9 +2736,20 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   // fdSnap2：舊的 fdSnap 可能記到讀取不完整的金額，換新的重新開始記
   try{localStorage.removeItem('fdSnap')}catch(e){}
   const SNK='fdSnap2',SJ=()=>{try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {}}};
-  function snap(acc){const S=SJ(),now=Date.now();for(const x of acc){if(!x.ok||!(x.total_usd>0)||(x.notes||[]).some(n=>/失敗|fail/i.test(n)))continue;const a=(S[x.id]||[]).filter(r=>now-r[0]<35*864e5);if(!a.length||now-a[a.length-1][0]>18e5)a.push([now,+x.total_usd.toFixed(2)]);S[x.id]=a.slice(-1700)}
+  function snap(acc){const S=SJ(),now=Date.now();for(const x of acc){if(!x.ok||x.stale||!(x.total_usd>0)||(x.notes||[]).some(n=>/失敗|fail/i.test(n)))continue;const a=(S[x.id]||[]).filter(r=>now-r[0]<35*864e5);if(!a.length||now-a[a.length-1][0]>18e5)a.push([now,+x.total_usd.toFixed(2)]);S[x.id]=a.slice(-1700)}
     for(const id of Object.keys(S))if(!acc.some(x=>x.id===id))delete S[id];try{localStorage.setItem(SNK,JSON.stringify(S))}catch(e){}}
-  function ret(list){const S=SJ(),now=Date.now(),R=[];for(const x of list){if(!x.ok||!(x.total_usd>0))continue;const a=S[x.id]||[];if(!a.length)continue;let r=null;for(const q of a)if(now-q[0]>=864e5)r=q;R.push({v:x.total_usd,r,f:a[0]})}
+  // 上次紀錄：每個帳號最後一次讀成功的完整資料存在這支手機（fdLast，不同步到雲端）；連不到電腦或交易所時改顯示這份，標上記錄時間
+  const LK='fdLast',LCJ=()=>{try{return JSON.parse(localStorage.getItem(LK)||'{}')}catch(e){return {}}};
+  const tmTx=t=>new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+  const staleOf=(c,why)=>Object.assign({},c,{ok:true,stale:c.at,notes:['連不到'+(why?'（'+why+'）':'')+'，這是 '+tmTx(c.at)+' 的上次紀錄'].concat(c.notes||[])});
+  // 讀成功的存起來；讀失敗、或電腦連不到時，有上次紀錄就換成它。known＝還在的帳號 id（null＝電腦連不到，電腦上的帳號不清）
+  function lastMerge(acc,pcDown){const C=LCJ(),now=Date.now(),out=acc.map(x=>{const c=C[x.id];
+      if(x.ok&&!(x.notes||[]).some(n=>/失敗|fail/i.test(n))){C[x.id]=Object.assign({},x,{at:now});return x}
+      return !x.ok&&c?Object.assign(staleOf(c,(x.notes||[])[0]),{name:x.name}):x});
+    if(pcDown)for(const id of Object.keys(C))if(C[id].where==='pc'&&!out.some(x=>x.id===id))out.push(staleOf(C[id],'HexStack 電腦版'));
+    for(const id of Object.keys(C))if(!out.some(x=>x.id===id))delete C[id];
+    try{localStorage.setItem(LK,JSON.stringify(C))}catch(e){}return out}
+  function ret(list){const S=SJ(),now=Date.now(),R=[];for(const x of list){if(!x.ok||x.stale||!(x.total_usd>0))continue;const a=S[x.id]||[];if(!a.length)continue;let r=null;for(const q of a)if(now-q[0]>=864e5)r=q;R.push({v:x.total_usd,r,f:a[0]})}
     const day=R.some(o=>o.r),U=day?R.filter(o=>o.r):R;let b=0,v=0;for(const o of U){b+=(day?o.r:o.f)[1];v+=o.v}
     return U.length&&b>0?{d:v-b,p:(v-b)/b*100,lab:day?'24h':'加入以來'}:null}
   const retTx=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+r.lab+' '+(hide?'••••':(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%')+'</span>':'<span class="fdmu">報酬計算中</span>';
@@ -2752,7 +2763,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     let h='<div class="fdhead">'+lg(k)+'<div><b>'+es(exName(k))+'</b><br><span class="fdchip">'+A.length+' 個帳號</span></div></div>';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+money('US$ '+fm(tot))+'</div><small class="fdmu">'+(r?r.lab+' 報酬 ':'報酬 ')+retAmt(r)+'</small>'+(A.some(x=>x.positions&&x.positions.length)?'<small class="fdmu">未實現損益 <span class="'+(u>=0?'fdup':'fddn')+'">'+money(sgn(u))+'</span></small>':'')+'</div>';
     h+='<div class="fdrow"><b>主帳號與子帳號</b><small class="fdmu">點帳號看詳細</small></div><div class="fdaccs">'+A.map((x,i)=>{const rr=ret([x]),np=(x.positions||[]).length;
-      return '<button class="fdacc" type="button" data-fid="'+es(x.id)+'" style="box-shadow:inset 3px 0 0 '+exCol(k,i,A.length)+'"><span style="min-width:0"><span class="fdchip">'+role(x)+'</span> <span class="nm">'+es(x.name||exName(k))+'</span><br><small class="fdmu">'+(x.ok?(np?'持倉 '+np+' 筆':'沒有持倉'):'讀取失敗')+'</small></span><span class="r"><b>'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</b><br><small>'+(x.ok?retTx(rr):'<span class="fdchip fddn">讀取失敗</span>')+'</small></span></button>'}).join('')+'</div>';
+      return '<button class="fdacc" type="button" data-fid="'+es(x.id)+'" style="box-shadow:inset 3px 0 0 '+exCol(k,i,A.length)+'"><span style="min-width:0"><span class="fdchip">'+role(x)+'</span> <span class="nm">'+es(x.name||exName(k))+'</span><br><small class="fdmu">'+(x.stale?'上次紀錄 '+tmTx(x.stale):x.ok?(np?'持倉 '+np+' 筆':'沒有持倉'):'讀取失敗')+'</small></span><span class="r"><b>'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</b><br><small>'+(x.ok?retTx(rr):'<span class="fdchip fddn">讀取失敗</span>')+'</small></span></button>'}).join('')+'</div>';
     h+='<button class="fdghost" type="button" data-fex="'+k+'" style="width:100%;color:inherit;margin-top:4px">＋ 加入 '+es(exName(k))+' 子帳號</button>';
     $('#fdExB').innerHTML=h;go('ex')}
   function go(s){['home','pick','setup','ex','detail'].forEach(k=>$('#fd'+k[0].toUpperCase()+k.slice(1)).hidden=k!==s);if(s==='pick')pick();$('#fundView').scrollTop=0}
@@ -2768,12 +2779,12 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     $('#fdSplit').innerHTML=tot>0?grp.map((g,j)=>g.L.map((x,i)=>'<i style="width:'+(x.total_usd/tot*100).toFixed(2)+'%;background:'+exCol(g.k,i,g.L.length)+(j&&!i?';margin-left:3px':'')+'"></i>').join('')).join(''):'';
     $('#fdLeg').innerHTML=tot>0?grp.map(g=>'<div class="fdlgg"><span class="fdlgh"><b style="background:'+exCol(g.k)+'"></b>'+es(exName(g.k))+' '+pc(g.t)+'</span>'+(g.L.length>1?g.L.map((x,i)=>'<span class="fdlga"><b style="background:'+exCol(g.k,i,g.L.length)+'"></b>'+es(x.name||exName(g.k))+' '+pc(x.total_usd)+'</span>').join(''):'')+'</div>').join(''):'';
     $('#fdCnt').textContent=D?exKeys().length+' 個交易所・'+A.length+' 個帳號':'';
-    $('#fdAge').textContent=D?'更新：'+new Date(D.updated_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'';
+    const st=A.filter(x=>x.stale);$('#fdAge').textContent=!D?'':D.pre?'上次紀錄：'+tmTx(D.updated_at)+'・讀取中…':'更新：'+new Date(D.updated_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+(st.length?'・'+st.length+' 個用上次紀錄':'');
     const w=$('#fdWarn');
     if(!paired&&!A.length){w.hidden=false;w.innerHTML='<div class="fdcard">按下面「加入交易所」，貼上唯讀金鑰就能直接在這支手機看資金。<br><small class="fdmu">有一台常開的電腦？也可以連接 HexStack 電腦版，讓金鑰只存在電腦。</small><button class="fdghost" type="button" id="fdToBot" style="margin-top:8px;width:100%;color:inherit">連接 HexStack 電腦版</button></div>'}
     else if(err){w.hidden=false;w.innerHTML='<div class="fdcard fddn">'+es(err)+'</div>'}else w.hidden=true;
     const tk=k=>exAcc(k).reduce((a,x)=>a+(x.total_usd||0),0);$('#fdGrid').innerHTML=exKeys().sort((p,q)=>tk(q)-tk(p)).map(k=>{const G=exAcc(k),t=G.reduce((a,x)=>a+(x.total_usd||0),0),bad=G.filter(x=>!x.ok).length;
-      return '<button class="fdtile" type="button" data-fexv="'+k+'" style="box-shadow:inset 3px 0 0 '+exCol(k)+'"><span class="tp">'+lg(k)+'<span class="nm">'+es(exName(k))+'</span></span><span><span class="v">'+(G.some(x=>x.ok)?money('US$ '+fm(t)):'—')+'</span><br><span class="d">'+(bad===G.length?'<span class="fdchip fddn">讀取失敗</span>':retTx(ret(G)))+'</span><br><small class="fdmu">'+G.length+' 個帳號'+(bad&&bad<G.length?'・'+bad+' 個讀取失敗':'')+'</small></span></button>'}).join('')
+      return '<button class="fdtile" type="button" data-fexv="'+k+'" style="box-shadow:inset 3px 0 0 '+exCol(k)+'"><span class="tp">'+lg(k)+'<span class="nm">'+es(exName(k))+'</span></span><span><span class="v">'+(G.some(x=>x.ok)?money('US$ '+fm(t)):'—')+'</span><br><span class="d">'+(bad===G.length?'<span class="fdchip fddn">讀取失敗</span>':retTx(ret(G)))+'</span><br><small class="fdmu">'+G.length+' 個帳號'+(bad&&bad<G.length?'・'+bad+' 個讀取失敗':'')+(G.some(x=>x.stale)?'・上次紀錄':'')+'</small></span></button>'}).join('')
       +'<button class="fdtile add" type="button" data-fgo="pick"><span class="fdplus" aria-hidden="true">+</span>加入交易所</button>';
   }
   function pick(){const sup=SUP();
@@ -2804,7 +2815,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
       return}
     let h='<div class="fdbot">'+detHead(x)+tabs+'</div>';
     $('#fdDet').innerHTML=h+detOv(x);go('detail')}
-  const detHead=x=>'<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+role(x)+'</span> <span class="fdchip">'+es(x.name)+'</span> <button class="fdghost fdren" type="button" data-fren="'+es(x.id)+'">改名</button> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
+  const detHead=x=>'<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+role(x)+'</span> <span class="fdchip">'+es(x.name)+'</span> <button class="fdghost fdren" type="button" data-fren="'+es(x.id)+'">改名</button> <span class="fdchip '+(x.stale?'fdw':x.ok?'fdup':'fddn')+'">'+(x.stale?'上次紀錄 '+tmTx(x.stale):x.ok?'已連線':'讀取失敗')+'</span></div></div>';
   function detOv(x){const id=x.id;let h='';
     h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
     if(x.notes&&x.notes.length)h+='<div class="fdcard fdmu">'+x.notes.map(es).join('<br>')+'</div>';
@@ -2820,9 +2831,13 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     const paired=window.BotTab&&BotTab.paired(),L=LJ();
     if(!paired&&!L.length){D=null;err='';return home()}
     if(busy)return;busy=true;
+    // 第一次打開：先把上次紀錄放上去，讀到新的再換掉
+    if(!D){const C=LCJ(),A=Object.values(C).filter(c=>c.where==='pc'?paired:L.some(a=>a.id===c.id)).map(c=>Object.assign(staleOf(c),{notes:c.notes||[]}));
+      if(A.length){D={updated_at:new Date(Math.min(...A.map(x=>x.at))).toISOString(),accounts:A,total_usd:A.reduce((t,x)=>t+(x.total_usd||0),0),list:L.map(a=>({id:a.id,keyTail:a.key.slice(-4),testnet:!!a.testnet})),supported:LOCAL_EX.slice(),pre:1};home()}}
     let H=null;err='';
     const [hr,lr]=await Promise.all([paired?BotTab.api('/api/funds'+(force?'?force=1':'')).catch(e=>{err='連不到 HexStack 電腦版：'+e.message+'。請確認電腦上的程式有開著。';return null}):null,Promise.all(L.map(readLocal))]);
-    H=hr;const acc=(H?H.accounts.map(x=>Object.assign({where:'pc'},x)):[]).concat(lr);
+    H=hr;const acc=lastMerge((H?H.accounts.map(x=>Object.assign({where:'pc'},x)):[]).concat(lr),paired&&!H);
+    if(!H&&paired&&acc.some(x=>x.where==='pc'))err='連不到 HexStack 電腦版，電腦上的帳號先顯示上次紀錄的金額。請確認電腦上的程式有開著。';
     D={updated_at:new Date().toISOString(),accounts:acc,total_usd:acc.reduce((t,x)=>t+(x.total_usd||0),0),list:(H&&H.list||[]).concat(L.map(a=>({id:a.id,keyTail:a.key.slice(-4),testnet:!!a.testnet}))),supported:[...new Set((H&&H.supported||[]).concat(LOCAL_EX))]};
     snap(acc);busy=false;home();if(!$('#fdDetail').hidden&&cur)detail(cur);else if(!$('#fdEx').hidden&&curEx)exView(curEx);
   }
@@ -5455,11 +5470,11 @@ const DbTab=(()=>{const LS=localStorage,box=()=>document.getElementById('dbBox')
   const NM={theme3:'外觀模式',autoNight:'日出日落自動切換',lang:'語言',langBoot:'語言（開場用）',cvGrp:'查看價格的分組',split_strat:'策略頁圖表高度',
     sigLock:'我的策略',sigLockName:'我的策略名稱',sigLockOff:'我的策略暫停通知',mySeed:'範例策略',
     bnCats:'通知類別開關',bnSigOff:'策略信號通知開關',bnLast:'最後看到的通知',bnPush:'背景推播登記',
-    fdLocal:'交易所金鑰',fdHide:'隱藏金額',fdSnap:'資產報酬紀錄',fdBot:'HexBOT 下單帳號',botHost:'電腦配對',botShare:'同帳號連電腦',hsSync:'Google 登入資訊',
+    fdLocal:'交易所金鑰',fdHide:'隱藏金額',fdSnap:'資產報酬紀錄',fdLast:'資產上次紀錄',fdBot:'HexBOT 下單帳號',botHost:'電腦配對',botShare:'同帳號連電腦',hsSync:'Google 登入資訊',
     tglog:'最近的通知',sig:'策略訊號',hist:'過去分析',mstrMeta:'MSTR 資料',runlog:'執行紀錄',fngHist:'恐懼貪婪歷史'};
   // 分組：設定、策略、通知、資產、帳號、暫存（刪了會自己重抓）
   const GRP={theme3:'設定',autoNight:'設定',lang:'設定',langBoot:'設定',cvGrp:'設定',split_strat:'設定',sigLock:'策略',sigLockName:'策略',sigLockOff:'策略',mySeed:'策略',
-    bnCats:'通知',bnSigOff:'通知',bnLast:'通知',bnPush:'通知',fdLocal:'資產',fdHide:'資產',fdSnap:'資產',fdBot:'資產',botHost:'交易',botShare:'交易',hsSync:'帳號',
+    bnCats:'通知',bnSigOff:'通知',bnLast:'通知',bnPush:'通知',fdLocal:'資產',fdHide:'資產',fdSnap:'資產',fdLast:'資產',fdBot:'資產',botHost:'交易',botShare:'交易',hsSync:'帳號',
     tglog:'暫存',sig:'暫存',hist:'暫存',mstrMeta:'暫存',runlog:'暫存'};
   const ORD=['策略','資產','交易','通知','設定','帳號','暫存','其他'];
   const SECRET={fdLocal:1,botHost:1,botShare:1,hsSync:1};
