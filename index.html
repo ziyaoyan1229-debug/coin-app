@@ -328,7 +328,7 @@ body.ddopen #ddMask{display:block}
 #chartView .toolbar .ddbtn{height:40px;padding:0 11px;font-size:14px;border-radius:10px}
 #indDD{order:1}#rangeWrap,#monthWrap,#stratWrap{order:2}
 #chartView .toolbar .pen{width:44px;padding:0;font-size:17px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}#chartView .toolbar .pen.on{color:var(--on-acc)}
-#cvQuick{order:5;display:inline-flex;gap:4px;margin-left:auto;position:sticky;right:0;z-index:1;background:var(--panel);box-shadow:-8px 0 8px var(--panel)}#chartView .seg button{min-width:30px}#chartView #indDD .ddbtn{padding:0 8px}#chartView #cvQuick .ddbtn{width:36px!important;padding:0!important;display:inline-flex;align-items:center;justify-content:center;font-size:17px}#cvTools [data-act=auto],#cvTools [data-tool=del]{display:none!important}
+#cvQuick{order:5;display:inline-flex;gap:4px;margin-left:auto;position:sticky;right:0;z-index:1;background:var(--panel);box-shadow:-8px 0 8px var(--panel)}#chartView .seg button{min-width:30px}#chartView #indDD .ddbtn{padding:0 8px}@media (max-width:959px){#chartView .toolbar>#indDD{flex:1 1 auto;min-width:0}#chartView #indDD .ddbtn{width:100%!important}}#chartView #cvQuick .ddbtn{width:36px!important;padding:0!important;display:inline-flex;align-items:center;justify-content:center;font-size:17px}#cvTools [data-act=auto],#cvTools [data-tool=del]{display:none!important}
 /* 畫線工具：按筆圖示從底部滑出（不加遮罩，開著也能直接在圖上畫） */
 #cvSheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;z-index:50;background:var(--panel);border:1px solid var(--line);border-bottom:0;
   border-radius:18px 18px 0 0;padding:0 12px calc(12px + var(--safe-b));box-shadow:0 -10px 30px rgba(0,0,0,.35);animation:sheetUp .18s ease-out}
