@@ -801,6 +801,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
   #tmBot .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:0 16px;align-items:start}}
 .tmode button{flex:1;padding:10px 4px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
 .tmode button.on{background:color-mix(in srgb,var(--acc) 14%,transparent);border-color:var(--acc);color:var(--acc)}
+.tmode button.lk{opacity:.5}
 :is(#tmBot,.fdbot,#aiChat) .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
 :is(#tmBot,.fdbot,#aiChat) .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
 :is(#tmBot,.fdbot,#aiChat) .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
@@ -1075,7 +1076,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
-  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="ai">HexAI<small>Beta</small></button></div>
+  <div class="tmode" id="tMode"><button type="button" data-m="sig" class="on">訊號交易</button><button type="button" data-m="bot" class="lk" title="暫時鎖住">HexBOT<small>🔒</small></button><button type="button" data-m="ai">HexAI<small>Beta</small></button></div>
   <div id="tmSig">
   <div class="sect"><h2>我的策略訊號<span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
   <div class="foot">內容僅供參考，非投資建議</div>
@@ -3769,6 +3770,8 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
 window.SigTab=SigTab;
 // ── 開始交易：1. 訊號交易（原今日訊號）／2. 自動交易 ──
 // 自動交易：App 只當遙控器，下單由使用者自己電腦上的「執行器」做（金鑰只在執行器上）。配對資料 botHost＝{u 通道網址, k 配對密鑰, h 主機 id, n 主機名}
+// HexBOT 暫時鎖住：分頁按鈕留著但點不進去（跳提示、停在訊號交易），程式都還在；改成 false 就恢復
+const BOT_LOCK=true;
 const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/releases/latest',
     PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',PURL='https://hexstack-push.hexstack-df20e2.workers.dev';
   const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -4124,10 +4127,10 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botSug':return suggest();
       case 'botLimGo':{const o={},lo=S.limitsOff||{};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){if(lo[k])continue;const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
       case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
-  function mode(m){W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';if(m==='ai'){setTimeout(()=>HexAI.start(),0);window.AiChat&&AiChat.open()}
+  function mode(m,quiet){if(m==='bot'&&BOT_LOCK){if(!quiet)toast('HexBOT 自動交易暫時鎖住，之後再開放');m='sig'}W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';if(m==='ai'){setTimeout(()=>HexAI.start(),0);window.AiChat&&AiChat.open()}
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
-  return {onKeys:()=>new Set(S?(S.strategies||[]).filter(x=>isOn(x)&&x.key).map(x=>String(x.key).split('@')[0]):[]),reset(){bv=bg=bk=bd=bs=ask=null;xf=null;pick=false;if(tab!=='ov'){tab='ov';W('botTab','ov')}vis&&S&&render()},lims:()=>S&&S.limits,refresh:()=>host()&&refresh(),open(){mode(J('tMode','bot'))},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
+  return {onKeys:()=>new Set(S?(S.strategies||[]).filter(x=>isOn(x)&&x.key).map(x=>String(x.key).split('@')[0]):[]),reset(){bv=bg=bk=bd=bs=ask=null;xf=null;pick=false;if(tab!=='ov'){tab='ov';W('botTab','ov')}vis&&S&&render()},lims:()=>S&&S.limits,refresh:()=>host()&&refresh(),open(){mode(J('tMode','bot'),1)},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
 // ───────── HexAI 對話（策略顧問）：問題送到配對的執行器（/api/ai/*），執行器呼叫模型和工具；這裡只顯示對話、工具步驟和模型設定 ─────────
 const AI_BUILD=164;   // 需要的執行器版號（executor/hexbot.js BUILD），比這個舊就提醒
