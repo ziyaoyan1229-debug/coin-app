@@ -781,6 +781,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 <style>
 /* 開始交易：1. 訊號交易／2. 自動交易（連接使用者自己的執行器主機） */
 .tmode{display:flex;gap:8px;margin:12px 12px 4px}
+/* #sigView 是 flex 容器，.wrap 不給寬度會縮成內容寬、整塊靠左（手機版看得出來） */#sigView>.wrap{width:100%;min-width:0}
 #tmBot{padding:8px 12px 0}
 #tmBot .xl{font-size:12.5px;color:var(--muted);margin:10px 0 4px}
 #tmBot input[type=password]{width:100%;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px}
@@ -796,7 +797,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 #tmBot .xgrid button.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}#tmBot .xgrid button:disabled{opacity:.4;cursor:default}
 #tmBot .xgrid .fdlg{flex:none;width:22px;height:22px;border-radius:6px;font-size:10px}
 #tmBot .seg button:disabled{opacity:.4;cursor:default}
-@media (min-width:960px){#sigView>.wrap{max-width:1180px;margin:0 auto;width:100%}#tmBot{padding:8px 20px 0}
+@media (min-width:960px){#sigView>.wrap{max-width:1180px;margin:0 auto}#tmBot{padding:8px 20px 0}
   #tmBot .bcols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0 16px;align-items:start}
   #tmBot .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:0 16px;align-items:start}}
 .tmode button{flex:1;padding:10px 4px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
