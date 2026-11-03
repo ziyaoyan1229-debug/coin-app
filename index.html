@@ -386,7 +386,8 @@ body.ddopen #ddMask{display:block}
 #cvSheet .shd button{margin-left:auto;background:none;border:0;color:var(--muted);font-size:18px;width:36px;height:36px;cursor:pointer}
 #cvSheet #rangeWrap,#cvSheet #stratWrap{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:0 0 12px;color:var(--muted);font-size:12px}
 #cvSheet #rangeWrap select,#cvSheet #stratWrap select{height:44px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font:inherit;font-size:15px;padding:0 10px}
-#cvSheet #rangeWrap .sdd,#cvSheet #rangeWrap .ddbtn,#cvSheet #stratWrap .sdd,#cvSheet #stratWrap .ddbtn{width:100%;text-align:left;height:44px;border-radius:10px;font-size:15px}
+#cvSheet #rangeWrap .sdd,#cvSheet #rangeWrap .ddbtn,#cvSheet #stratWrap .sdd[hidden]{display:none}
+#stratWrap .sdd,#cvSheet #stratWrap .ddbtn{width:100%;text-align:left;height:44px;border-radius:10px;font-size:15px}
 #cvSheet .sl{color:var(--muted);font-size:12px;margin:0 0 6px}
 #cvTools{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
 #cvTools .ddbtn{height:44px;font-size:14px;border-radius:10px}
@@ -992,7 +993,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
       <option value="2022-11-21|2025-10-07">2022-11 → 2025-10 牛市</option>
       <option value="2025-10-07|2026-06-30">2025-10 → 2026-06 熊市</option>
       <option value="2026-06-30|2026-10-01">2026-06 → 至今 牛市</option></select></label>
-    <label id="stratWrap"><select id="cvStrat"><option value="">策略買賣點</option></select></label>
+    <label id="stratWrap"><select id="cvStratG"><option value="">不顯示</option></select><span id="cvStratPL" hidden>參數</span><select id="cvStrat"><option value="" hidden>—</option></select></label>
     <span id="cvQuick"><button class="ddbtn" type="button" data-q="auto" title="恢復自動縮放（也可以在圖上點兩下）" aria-label="自動縮放">⤢</button><button class="ddbtn" type="button" data-q="del" title="刪除選取的線（先點一下線）" aria-label="刪除選取的線" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></span>
     <label id="monthWrap" style="display:none">月份 <select id="cvMonth"></select></label>
     <span class="tools" id="cvTools"><button class="ddbtn" data-act="auto" title="自動縮放：上下拖動後，按這裡恢復（也可以在圖上點兩下）" aria-label="自動縮放">⤢</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span>
@@ -3299,9 +3300,15 @@ const SOC={};
   const sync=()=>{const o=src('del');q.querySelector('[data-q=del]').disabled=!o||o.disabled};
   new MutationObserver(sync).observe(T,{subtree:true,attributes:true,attributeFilter:['disabled']});sync()})();
 // 下拉清單＝「我的策略」：每個用自己存的參數
-window.syncCvStrat=syncCvStrat;function syncCvStrat(){const sel=$('#cvStrat');if(!sel||!window.SigLock)return;const v=sel.value,L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
-  const h='<option value="">策略買賣點</option>'+ks.map(k=>`<option value="${k.replace(/"/g,'')}">${SigLock.name(k).replace(/[&<>]/g,'')}（${SigLock.part(k)[1]}）</option>`).join('');
-  if(sel.innerHTML!==h){sel.innerHTML=h;sel.value=ks.includes(v)?v:''}}
+// 先選策略（#cvStratG），再選這個策略底下的參數組（#cvStrat，值＝lock key）
+window.syncCvStrat=syncCvStrat;function syncCvStrat(){const sel=$('#cvStrat'),gs=$('#cvStratG');if(!sel||!gs||!window.SigLock)return;const v=sel.value,L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+  const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(k=>ks.includes(k))})).filter(x=>x.keys.length),e=t=>String(t).replace(/[&<>"]/g,'');
+  let g=ks.includes(v)?SigLock.gid(v):gs.value;if(!G.some(x=>x.g===g))g='';
+  const gh='<option value="">不顯示</option>'+G.map(x=>`<option value="${e(x.g)}">${e(SigLock.gname(x.g))}（${SigLock.part(x.keys[0])[1]}）</option>`).join('');
+  if(gs.innerHTML!==gh)gs.innerHTML=gh;gs.value=g;
+  const cur=G.find(x=>x.g===g),h='<option value="" hidden>—</option>'+(cur?cur.keys.map(k=>`<option value="${e(k)}">${e(SigLock.setName(k))}</option>`).join(''):'');
+  if(sel.innerHTML!==h)sel.innerHTML=h;sel.value=cur&&cur.keys.includes(v)?v:'';
+  const show=!!cur;$('#cvStratPL').hidden=!show;if(sel._dd)sel._dd.hidden=!show;gs.dispatchEvent(new Event('sync'));sel.dispatchEvent(new Event('sync'))}
 function stratOnChart(B){const lk=$('#cvStrat').value;$('#stratWrap').classList.toggle('on',!!lk);if(!lk)return;
   const P=SigLock.get()[lk];if(!P)return;const[st,sym]=SigLock.part(lk);
   if(cvSym!==sym||!(BEST[st]&&BEST[st][sym])){msg(`「${SigLock.name(lk)}」是 ${sym} 的策略，切到 ${sym} 才看得到買賣點。`);setTimeout(()=>msg(''),2500);return}
@@ -3401,8 +3408,12 @@ $('#indBtn').onclick=e=>{e.stopPropagation();$('#indDD').classList.toggle('open'
 document.addEventListener('click',e=>{if(!$('#indDD').contains(e.target)&&!$('#indPanel').contains(e.target))$('#indDD').classList.remove('open')});
 document.querySelectorAll('#indPanel [data-ind]').forEach(x=>x.onchange=()=>drawChart(false));
 sortList($('#indPanel'),'ord_ind',()=>legendVals(null));
-syncCvStrat();['#cvSym','#cvTf','#cvRange','#cvStrat'].forEach(s=>sortSel($(s)));
+syncCvStrat();['#cvSym','#cvTf','#cvRange','#cvStratG','#cvStrat'].forEach(s=>sortSel($(s)));syncCvStrat();
 $('#cvStrat').onchange=()=>drawChart(false);
+// 換策略：先套用它的第一組參數畫上去，面板不關，讓你接著選參數
+$('#cvStratG').onchange=()=>{const gs=$('#cvStratG'),sel=$('#cvStrat'),x=SigLock.groups().find(y=>y.g===gs.value),L=SigLock.get();
+  const k=x?x.keys.find(k=>{const[st,sym]=SigLock.part(k);return L[k]&&BEST[st]&&BEST[st][sym]}):'';sel.value='';syncCvStrat();sel.value=k||'';sel.dispatchEvent(new Event('sync'));
+  window.__cvKeep=1;try{sel.dispatchEvent(new Event('change'))}finally{window.__cvKeep=0}};
 
 // ───────── 策略模擬 ─────────
 // 預設＝回測最佳參數（依標的）
@@ -5538,7 +5549,7 @@ renderCoins();
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastSync>25000)syncAll()});
 // 選項面板：加標題、遮罩；點遮罩就關閉
-(function(){const T={cvStrat:'在 K 線上標我的策略買賣點（最近兩年，用各自的參數）',cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
+(function(){const T={cvStratG:'在 K 線上標我的策略買賣點（最近兩年）：先選策略',cvStrat:'再選這個策略的參數',cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
   const mask=document.createElement('div');mask.id='ddMask';document.querySelector('main').appendChild(mask);
   const title=()=>{document.querySelectorAll('select').forEach(s=>{if(s._dd&&T[s.id])(s._dd._pan||s._dd.querySelector('.ddpanel')).dataset.title=T[s.id]});const ip=document.querySelector('#indPanel');if(ip)ip.dataset.title='指標（開關）'};
   title();setTimeout(title,500);
@@ -5558,7 +5569,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   sh.insertAdjacentHTML('beforeend','<div class="sl">畫線工具</div>');sh.appendChild(T);document.body.appendChild(sh);
   // 筆亮著＝面板開著或正在用某個畫線工具；選了畫線工具或策略就收起面板，讓出圖
   const syncPen=()=>pen.classList.toggle('on',!sh.hidden||!!T.querySelector('[data-tool].on')),open=v=>{sh.hidden=!v;syncPen()};
-  pen.onclick=e=>{e.stopPropagation();open(sh.hidden)};['#cvStrat','#cvRange'].forEach(k=>$(k).addEventListener('change',()=>open(false)));sh.querySelector('.shd button').onclick=()=>open(false);
+  pen.onclick=e=>{e.stopPropagation();open(sh.hidden)};['#cvStrat','#cvRange'].forEach(k=>$(k).addEventListener('change',()=>{if(!window.__cvKeep)open(false)}));sh.querySelector('.shd button').onclick=()=>open(false);
   T.addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b&&!/^(del|clear)$/.test(b.dataset.tool))setTimeout(()=>open(false),0)},true);
   new MutationObserver(syncPen).observe(T,{subtree:true,attributes:true,attributeFilter:['class']});
   new MutationObserver(()=>{if(!$('#chartView').classList.contains('on'))open(false)}).observe($('#chartView'),{attributes:true,attributeFilter:['class']});
