@@ -144,6 +144,33 @@ main{position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:calc(var(--nav
 #grpMenu{position:absolute;left:0;top:calc(100% + 6px);z-index:60;min-width:168px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}#grpMenu.on{display:block}
 #grpMenu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:10px 12px;border-radius:8px;cursor:pointer}#grpMenu button.cur{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc);font-weight:700}
 .coin.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+/* 自訂群組、商品選擇窗格 */
+#grpMenu{max-height:min(70vh,520px);overflow-y:auto}
+#grpMenu .gi{display:flex;align-items:center;gap:4px}#grpMenu .gi>[data-g]{flex:1;min-width:0;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+#grpMenu .gi .gdel{display:none;flex:none;width:auto;background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down);font-size:13px;font-weight:700;padding:7px 10px}
+#grpMenu.edit .gi .gdel{display:block}
+#grpMenu .gsep{height:1px;background:var(--line);margin:6px 4px}
+#grpMenu button.gadd{color:var(--acc);font-weight:700}
+#grpMenu .ghint{font-size:11.5px;color:var(--muted);padding:2px 12px 6px}
+.cvArrow{background:none;border:0;color:var(--muted);padding:2px 6px;margin-left:-4px;cursor:pointer;display:inline-flex;align-items:center;border-radius:6px}.cvArrow svg{width:14px;height:14px;transition:transform .15s}.cvArrow.on{color:var(--acc)}.cvArrow.on svg{transform:rotate(180deg)}
+.coin.addc{min-width:64px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:300;color:var(--acc);border-style:dashed}
+.coin.addc .small{font-size:11px;margin-left:4px;color:var(--muted)}
+#cvPick{position:absolute;left:10px;right:10px;top:34px;z-index:45;max-width:440px;max-height:min(70%,560px);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.5);overflow:hidden}#cvPick[hidden]{display:none}
+#cvPick .pkh{display:flex;gap:6px;padding:10px;border-bottom:1px solid var(--line);flex:none}
+#cvPick .pkh input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font:inherit;font-size:16px}
+#cvPick .pkh button{flex:none;background:none;border:0;color:var(--muted);font-size:18px;padding:0 8px;cursor:pointer}
+#cvPick .pkg{font-size:12px;color:var(--muted);padding:6px 12px 0;flex:none}
+#cvPick .pkl{overflow-y:auto;flex:1 1 auto;padding:4px 6px 8px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#cvPick .pkc{font-size:11.5px;color:var(--muted);font-weight:700;padding:10px 8px 4px}
+#cvPick .pkr{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer}#cvPick .pkr:active,#cvPick .pkr:hover{background:var(--panel2)}#cvPick .pkr.cur{background:color-mix(in srgb,var(--acc) 16%,transparent)}
+#cvPick .pkr .ic{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;overflow:hidden}#cvPick .pkr .ic img{width:100%;height:100%;object-fit:cover}
+#cvPick .pkn{flex:1;min-width:0;display:flex;flex-direction:column}#cvPick .pkn b{font-size:14px}#cvPick .pkn small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cvPick .pkp{text-align:right;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;white-space:nowrap}#cvPick .pkp small{display:block;font-size:11px;font-weight:400}
+#cvPick .pka{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--acc);background:none;color:var(--acc);font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}#cvPick .pka.in{background:var(--acc);color:var(--on-acc,#fff)}
+#cvPick .pke{padding:24px 10px;text-align:center;color:var(--muted);font-size:13px}
+#ugCf{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px}#ugCf[hidden]{display:none}
+#ugCf .ugb{width:100%;max-width:320px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}#ugCf h4{margin:0 0 8px;font-size:16px}#ugCf p{margin:0 0 16px;font-size:14px;color:var(--muted);line-height:1.5}
+#ugCf .ugr{display:flex;gap:8px}#ugCf .ugr button{flex:1;border-radius:10px;padding:10px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text)}#ugCf .ugr .ugdel{background:var(--down);border-color:var(--down);color:#fff}
 .coin .ic{grid-row:1/3;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
 .coin .nm{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .coin .ch{font-size:11.5px;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
@@ -934,7 +961,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 <main>
 <!-- ───────── 走勢圖 ───────── -->
 <section id="chartView" class="view">
-  <div class="sect"><h2>查看價格<span class="more" id="liveTag">價格：內建歷史資料</span></h2><div class="coins" id="coins"></div></div>
+  <div class="sect"><h2>查看價格<button type="button" class="cvArrow" id="cvPickBtn" aria-label="選擇商品" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><span class="more" id="liveTag">價格：內建歷史資料</span></h2><div class="coins" id="coins"></div></div>
   <div class="chartcard">
   <div class="toolbar">
     <label><select id="cvSym"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="MSTR">MSTR</option><option value="MSTU">MSTU</option><option value="MSTR_MSTU">MSTR＋MSTU 指數對比（日／週線）</option></select></label>
@@ -5009,18 +5036,34 @@ const XM=(()=>{const URL='https://raw.githubusercontent.com/ziyaoyan1229-debug/c
   const perpOf=s=>PERP?PERP[s]||null:null;
   return{list,ticks,quote,info,bars,intra,perps,perpOf,pick,pf,GROUPS,group,icon,icons}})();window.XM=XM;
 // 群組內部代號還是「系統」（存在手機裡的設定不用改），畫面上顯示成 HexStack
-const grpName=g=>g==='系統'?'HexStack':g;
-let cvGrp=(()=>{try{return localStorage.getItem('cvGrp')||'系統'}catch(e){return '系統'}})();
+// 自訂群組：存在 cvGroups（[{id,name,items}]），items 是商品代號：系統商品用 BTC／ETH／MSTR…，其他用 X:SOL
+const UG=(()=>{let G=null;const load=()=>{if(G)return G;try{G=JSON.parse(localStorage.getItem('cvGroups')||'[]')}catch(e){G=null}if(!Array.isArray(G))G=[];return G};
+  const save=()=>{try{localStorage.setItem('cvGroups',JSON.stringify(G))}catch(e){}};
+  const get=g=>load().find(x=>'U:'+x.id===g)||null;
+  function add(){const L=load();let n=1;while(L.some(x=>x.name==='群組'+n))n++;const x={id:Date.now().toString(36),name:'群組'+n,items:[]};L.push(x);save();return 'U:'+x.id}
+  function del(g){const L=load(),i=L.findIndex(x=>'U:'+x.id===g);if(i>=0){L.splice(i,1);save()}}
+  function toggle(g,it){const x=get(g);if(!x)return false;const i=x.items.indexOf(it);if(i>=0)x.items.splice(i,1);else x.items.push(it);save();return i<0}
+  return{all:load,get,add,del,toggle,save}})();window.UG=UG;
+const isU=g=>/^U:/.test(g);
+const grpName=g=>g==='系統'?'HexStack':isU(g)?(UG.get(g)||{name:'群組'}).name:g;
+// 群組內的商品：自訂群組回傳 BTC／X:SOL 這種代號；其他群組回傳 XM 的代號（SOL）
+const gSyms=g=>isU(g)?(UG.get(g)||{items:[]}).items.slice():XM.group(g);
+const pickId=id=>{if(/^X:/.test(id))return XM.pick(id.slice(2));const s=$('#cvSym');if(s.value!==id){s.value=id;s.dispatchEvent(new Event('change'))}};
+let cvGrp=(()=>{try{const g=localStorage.getItem('cvGrp')||'系統';return isU(g)&&!UG.get(g)?'系統':g}catch(e){return '系統'}})();
+function sysQ(c){const d=D(c.sym),L=LIVE[c.sym],last=d.C[d.C.length-1];return{px:L?L.px:last,ch:L?L.ch:last/ago(d,30)-1,live:!!L}}
+function xCard(s,curSym){const v=XM.quote(s)||{},i=XM.info(s);
+  return `<button class="coin${'X:'+s===curSym?' on':''}" data-x="${s}" title="${i?i.name:s}">${XM.icon(s)}<span class="nm">${s}</span><span class="ch ${cls(v.ch||0)}">${v.ch!=null?sg(v.ch):''}<span class="small"> 24h</span></span><span class="px">${v.px!=null?'$'+XM.pf(v.px):'—'}</span></button>`}
+function sysCard(c,curSym){if(!c)return '';const q=sysQ(c);
+  return `<button class="coin${c.k===curSym?' on':''}" data-k="${c.k}" title="${c.name}"><span class="ic" style="background:${c.col}">${c.ic}</span><span class="nm">${c.lab||c.k}</span><span class="ch ${cls(q.ch)}">${sg(q.ch)}<span class="small"> ${q.live?'24h':'30天'}</span></span><span class="px">$${fmt(q.px,q.px<1000?2:0)}</span></button>`}
 function renderCoins(){const box=$('#coins');if(!box)return;const curSym=$('#cvSym').value,gb=$('#grpBtn');if(gb)gb.firstChild.textContent=grpName(cvGrp);
-  if(cvGrp!=='系統'){const L=XM.group(cvGrp);
-    box.innerHTML=L.length?L.map(s=>{const v=XM.quote(s)||{},i=XM.info(s);
-      return `<button class="coin${'X:'+s===curSym?' on':''}" data-x="${s}" title="${i?i.name:s}">${XM.icon(s)}<span class="nm">${s}</span><span class="ch ${cls(v.ch||0)}">${v.ch!=null?sg(v.ch):''}<span class="small"> 24h</span></span><span class="px">${v.px!=null?'$'+XM.pf(v.px):'—'}</span></button>`}).join(''):'<div class="small" style="padding:10px 2px;display:flex;align-items:center;gap:8px"><span class="spin"></span>讀取中…</div>';
-    box.querySelectorAll('.coin[data-x]').forEach(el=>el.onclick=()=>{XM.pick(el.dataset.x);renderCoins()});return}
-  box.innerHTML=COINS.map(c=>{const d=D(c.sym),L=LIVE[c.sym];const last=d.C[d.C.length-1];
-    const px=L?L.px:last,ch=L?L.ch:last/ago(d,30)-1;
-    return `<button class="coin${c.k===curSym?' on':''}" data-k="${c.k}" title="${c.name}"><span class="ic" style="background:${c.col}">${c.ic}</span><span class="nm">${c.lab||c.k}</span><span class="ch ${cls(ch)}">${sg(ch)}<span class="small"> ${L?'24h':'30天'}</span></span><span class="px">$${fmt(px,px<1000?2:0)}</span></button>`}).join('');
-  box.querySelectorAll('.coin[data-k]').forEach((el,i)=>{const c=COINS[i];
-    el.onclick=()=>{const s=$('#cvSym');if(s.value!==c.k){s.value=c.k;s.dispatchEvent(new Event('change'))}renderCoins()}});}
+  if(isU(cvGrp)){const L=gSyms(cvGrp);
+    box.innerHTML=L.map(it=>/^X:/.test(it)?xCard(it.slice(2),curSym):sysCard(COINS.find(c=>c.k===it),curSym)).join('')+`<button class="coin addc" type="button" id="cvAdd" aria-label="加入商品">＋${L.length?'':'<span class="small">加入商品</span>'}</button>`}
+  else if(cvGrp!=='系統'){const L=XM.group(cvGrp);
+    box.innerHTML=L.length?L.map(s=>xCard(s,curSym)).join(''):'<div class="small" style="padding:10px 2px;display:flex;align-items:center;gap:8px"><span class="spin"></span>讀取中…</div>'}
+  else box.innerHTML=COINS.map(c=>sysCard(c,curSym)).join('');
+  box.querySelectorAll('.coin[data-x]').forEach(el=>el.onclick=()=>{XM.pick(el.dataset.x);renderCoins()});
+  box.querySelectorAll('.coin[data-k]').forEach(el=>el.onclick=()=>{pickId(el.dataset.k);renderCoins()});
+  const ad=$('#cvAdd');if(ad)ad.onclick=e=>{e.stopPropagation();window.CvPick&&CvPick.open()}}
 // ── 即時價格：手機直接連幣安 WebSocket，每 5 秒把最新價格寫到卡片和 K 線最後一根（只在「查看價格」、畫面開著時連線）──
 const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=','wss://stream.binance.com:9443/stream?streams='],FUT=['wss://fstream.binance.com/stream?streams='];
   const IV={3600:'1h',7200:'2h',14400:'4h',28800:'8h',86400:'1d',604800:'1w'};
@@ -5028,7 +5071,7 @@ const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=
   function want(){const on=document.visibilityState==='visible'&&$('#chartView')&&$('#chartView').classList.contains('on'),S=new Set(),F=new Set();kWant=null;if(!on)return{S,F};
     // 卡片：系統群組只接 BTC、ETH（MSTR、MSTU 是股票收盤價，照原本方式）；其他群組接整組
     if(cvGrp==='系統'){F.add('btcusdt@miniTicker');F.add('ethusdt@miniTicker')}
-    else for(const s of XM.group(cvGrp)){const i=XM.info(s);if(i&&i.src==='bn')S.add(s.toLowerCase()+'usdt@miniTicker');else{const p=XM.perpOf(s);if(p)F.add(p.toLowerCase()+'@miniTicker')}}
+    else for(let s of gSyms(cvGrp)){if(isU(cvGrp)){if(!/^X:/.test(s)){if(s==='BTC'||s==='ETH')F.add(s.toLowerCase()+'usdt@miniTicker');continue}s=s.slice(2)}const i=XM.info(s);if(i&&i.src==='bn')S.add(s.toLowerCase()+'usdt@miniTicker');else{const p=XM.perpOf(s);if(p)F.add(p.toLowerCase()+'@miniTicker')}}
     // K 線最後一根：目前這張圖
     const V=window.__cv?__cv():{},cvTf=V.tf,iv=IV[cvTf],cs_=$('#cvSym').value;
     if(iv&&(cs_==='BTC'||cs_==='ETH')){const st=cs_.toLowerCase()+'usdt@kline_'+iv;F.add(st);kWant=st}
@@ -5058,27 +5101,92 @@ const LiveWS=(()=>{const SPOT=['wss://data-stream.binance.vision/stream?streams=
       try{cs.update({time:k.t+TZ,open:k.o,high:k.h,low:k.l,close:k.c})}catch(e){}}
     else return;
     const b=$('#ohlc b');if(b&&/最新/.test($('#ohlc').textContent))b.textContent=fmt(k.c,V.dp)}
-  function tick(){if(cvGrp==='美股'||cvGrp==='原物料'||/^X:/.test($('#cvSym').value))XM.perps();const w=want();open('spot',w.S);open('fut',w.F);flush()}
+  function tick(){if(cvGrp==='美股'||cvGrp==='原物料'||isU(cvGrp)||/^X:/.test($('#cvSym').value))XM.perps();const w=want();open('spot',w.S);open('fut',w.F);flush()}
   setInterval(tick,5000);document.addEventListener('visibilitychange',tick);
   return{tick,Q}})();window.LiveWS=LiveWS;
 // 標題列：選群組（只在「查看價格」顯示；選單蓋在畫面上，不推動版面）
+// 最下面「＋ 新增群組」；長按自訂群組才出現「刪除」，按了先跳確認
 (function(){const sp=document.querySelector('.topbar .sp');if(!sp)return;const w=document.createElement('div');w.className='grpdd';
-  w.innerHTML=`<button type="button" id="grpBtn" aria-haspopup="listbox">${grpName(cvGrp)}<span aria-hidden="true"> ▾</span></button><div id="grpMenu" role="listbox">${XM.GROUPS.map((g,i)=>`<button type="button" data-g="${g}">${i+1}. ${grpName(g)}</button>`).join('')}</div>`;
+  w.innerHTML=`<button type="button" id="grpBtn" aria-haspopup="listbox">${grpName(cvGrp)}<span aria-hidden="true"> ▾</span></button><div id="grpMenu" role="listbox"></div>`;
   sp.before(w);const menu=$('#grpMenu');   // 放在 logo／標題旁邊，寬螢幕才不會蓋到右邊的導覽列
-  $('#grpBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('on');menu.querySelectorAll('button').forEach(b=>b.classList.toggle('cur',b.dataset.g===cvGrp))};
-  document.addEventListener('click',()=>menu.classList.remove('on'));
+  const es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function draw(){const U=UG.all(),n0=XM.GROUPS.length;
+    menu.innerHTML=XM.GROUPS.map((g,i)=>`<div class="gi"><button type="button" data-g="${g}">${i+1}. ${grpName(g)}</button></div>`).join('')
+      +(U.length?'<div class="gsep"></div>':'')+U.map((x,i)=>`<div class="gi"><button type="button" data-g="U:${x.id}">${n0+i+1}. ${es(x.name)}</button><button type="button" class="gdel" data-del="U:${x.id}">刪除</button></div>`).join('')
+      +'<div class="gsep"></div><button type="button" class="gadd">＋ 新增群組</button>'+(U.length?'<div class="ghint">長按自訂群組可以刪除</div>':'');
+    menu.querySelectorAll('[data-g]').forEach(b=>b.classList.toggle('cur',b.dataset.g===cvGrp))}
+  window.GrpMenu={draw};
+  $('#grpBtn').onclick=e=>{e.stopPropagation();const on=!menu.classList.contains('on');menu.classList.remove('edit');if(on)draw();menu.classList.toggle('on',on)};
+  document.addEventListener('click',()=>menu.classList.remove('on','edit'));
+  // 長按（約 0.5 秒）自訂群組 → 顯示刪除鍵
+  let lpT=0,lpDone=false,lpXY=null;
+  menu.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-g^="U:"]');lpDone=false;if(!b)return;lpXY=[e.clientX,e.clientY];clearTimeout(lpT);
+    lpT=setTimeout(()=>{lpDone=true;menu.classList.add('edit');try{navigator.vibrate&&navigator.vibrate(15)}catch(x){}},500)});
+  menu.addEventListener('pointermove',e=>{if(lpXY&&Math.hypot(e.clientX-lpXY[0],e.clientY-lpXY[1])>10)clearTimeout(lpT)});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>menu.addEventListener(t,()=>{clearTimeout(lpT);lpXY=null}));
+  menu.addEventListener('contextmenu',e=>{if(e.target.closest('[data-g^="U:"]'))e.preventDefault()});
+  // 刪除確認
+  const cf=document.createElement('div');cf.id='ugCf';cf.hidden=true;cf.innerHTML='<div class="ugb" role="alertdialog" aria-modal="true"><h4>刪除群組</h4><p></p><div class="ugr"><button type="button" class="ugno">取消</button><button type="button" class="ugdel">刪除</button></div></div>';document.body.appendChild(cf);
+  let cfG=null;cf.addEventListener('click',e=>{e.stopPropagation();if(e.target.closest('.ugdel')&&cfG){const g=cfG;UG.del(g);cfG=null;cf.hidden=true;if(g===cvGrp)go('系統');else{draw();menu.classList.add('edit')}}
+    else if(e.target.closest('.ugno')||e.target===cf){cfG=null;cf.hidden=true}});
   // 切換群組：先蓋上載入畫面，等新的價格和 K 線都到了才拿掉，避免看到上一組的舊價格
   const ld=document.createElement('div');ld.id='grpLoad';ld.innerHTML='<i class="hxs"><b></b><b></b><b></b></i><span class="tx"></span>';$('#chartView').appendChild(ld);
-  menu.onclick=async e=>{const b=e.target.closest('[data-g]');if(!b)return;cvGrp=b.dataset.g;try{localStorage.setItem('cvGrp',cvGrp)}catch(x){}menu.classList.remove('on');
+  async function go(g){cvGrp=g;try{localStorage.setItem('cvGrp',cvGrp)}catch(x){}menu.classList.remove('on','edit');window.CvPick&&CvPick.close();
+    if(isU(cvGrp)&&!gSyms(cvGrp).length){renderCoins();LiveWS.tick();return}   // 空的自訂群組：只顯示＋，不用等載入
     ld.querySelector('.tx').textContent='載入「'+grpName(cvGrp)+'」最新價格…';ld.classList.add('on');const t0=Date.now();
     let drawn=false;const dn=()=>{drawn=true};document.addEventListener('chartdrawn',dn,{once:true});renderCoins();$('#coins').scrollLeft=0;
     const lim=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
     try{if(cvGrp==='系統'){const s=$('#cvSym');if(/^X:/.test(s.value)){s.value='BTC';s.dispatchEvent(new Event('change'))}else drawn=true;await lim(fetchLive(),8000)}
+      else if(isU(cvGrp)){await XM.list();const L=gSyms(cvGrp);if(L.length&&!L.includes($('#cvSym').value))pickId(L[0]);else drawn=true;await lim(Promise.all([fetchLive(),XM.ticks(true)]),8000)}
       else{await XM.list();const L=XM.group(cvGrp);if(L.length&&!L.includes($('#cvSym').value.slice(2)))XM.pick(L[0]);else drawn=true;await lim(XM.ticks(true),8000)}}catch(x){}
     renderCoins();LiveWS.tick();
     while(!drawn&&Date.now()-t0<10000)await new Promise(r=>setTimeout(r,100));
-    document.removeEventListener('chartdrawn',dn);setTimeout(()=>ld.classList.remove('on'),Math.max(0,400-(Date.now()-t0)))};
+    document.removeEventListener('chartdrawn',dn);setTimeout(()=>ld.classList.remove('on'),Math.max(0,400-(Date.now()-t0)))}
+  menu.onclick=e=>{const d=e.target.closest('[data-del]');
+    if(d){e.stopPropagation();cfG=d.dataset.del;cf.querySelector('p').textContent=`確定要刪除「${grpName(cfG)}」嗎？裡面加入的商品清單會一起刪掉。`;cf.hidden=false;return}
+    if(e.target.closest('.gadd')){e.stopPropagation();go(UG.add());return}
+    const b=e.target.closest('[data-g]');if(!b){e.stopPropagation();return}
+    if(lpDone){e.stopPropagation();lpDone=false;return}   // 長按放開的那一下不算點選
+    go(b.dataset.g)};
   Promise.all([XM.list(),XM.icons()]).then(()=>{renderCoins();if(cvGrp!=='系統')XM.ticks().then(renderCoins).catch(()=>{})})})();
+// 商品選擇窗格：標題「查看價格」右邊的小箭頭打開；上面查詢框，下面商品列（可上下滑）
+// 點商品 → 看那個商品的 K 線；目前在自訂群組時，右邊的 ＋ 可以把商品加進群組（再按一次拿掉）
+const CvPick=(()=>{const btn=$('#cvPickBtn'),cv=$('#chartView');if(!btn||!cv)return null;
+  const P=document.createElement('div');P.id='cvPick';P.hidden=true;P.setAttribute('role','dialog');P.setAttribute('aria-label','選擇商品');
+  P.innerHTML='<div class="pkh"><input type="search" id="cvPickQ" placeholder="搜尋代號或名稱，例如 SOL、黃金" autocomplete="off" enterkeyhint="search"><button type="button" class="pkx" aria-label="關閉">✕</button></div><div class="pkg" hidden></div><div class="pkl" id="cvPickL"></div>';
+  cv.appendChild(P);const q=P.querySelector('input'),L=P.querySelector('.pkl'),hint=P.querySelector('.pkg');
+  const es=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const CN={XAU:'黃金',XAG:'白銀',WTI:'原油 WTI',BRENT:'布蘭特原油'};
+  function items(){const skip=new Set(COINS.map(c=>c.k)),I=[];
+    COINS.forEach(c=>I.push({id:c.k,s:c.lab||c.k,n:c.name,cat:'HexStack',c}));
+    const IDX=(()=>{try{return JSON.parse(localStorage.getItem('xmIdx')||'[]')}catch(e){return []}})();
+    const src=(PL||IDX).filter(x=>!skip.has(x.s));
+    const cr=src.filter(x=>x.src==='bn').sort((a,b)=>(b.v||0)-(a.v||0)),us=src.filter(x=>x.cat==='美股'),cm=src.filter(x=>x.cat==='原物料'),ot=src.filter(x=>x.src!=='bn'&&x.cat!=='美股'&&x.cat!=='原物料');
+    [[cr,'加密貨幣'],[us,'美股'],[cm,'原物料'],[ot,'其他']].forEach(([a,cat])=>a.forEach(x=>I.push({id:'X:'+x.s,s:x.s,n:[CN[x.s],x.name].filter(Boolean).join(' · '),cat})));return I}
+  let PL=null;
+  function row(it,cur,U){const inG=U&&U.items.includes(it.id);let px='—',ch=null;
+    if(it.c){const v=sysQ(it.c);px='$'+fmt(v.px,v.px<1000?2:0);ch=v.ch}else{const v=XM.quote(it.s);if(v&&v.px!=null){px='$'+XM.pf(v.px);ch=v.ch}}
+    const ic=it.c?`<span class="ic" style="background:${it.c.col}">${it.c.ic}</span>`:XM.icon(it.s);
+    return `<div class="pkr${it.id===cur?' cur':''}" data-id="${es(it.id)}">${ic}<span class="pkn"><b>${es(it.s)}</b><small>${es(it.n)}</small></span><span class="pkp">${px}${ch!=null?`<small class="${cls(ch)}">${sg(ch)}</small>`:''}</span>${U?`<button type="button" class="pka${inG?' in':''}" aria-label="${inG?'從群組拿掉':'加入群組'}">${inG?'✓':'＋'}</button>`:''}</div>`}
+  function draw(){const k=q.value.trim().toLowerCase(),cur=$('#cvSym').value,U=isU(cvGrp)?UG.get(cvGrp):null;
+    hint.hidden=!U;if(U)hint.textContent=`按右邊 ＋ 加入「${U.name}」，再按一次拿掉`;
+    const A=items().filter(it=>!k||it.s.toLowerCase().includes(k)||String(it.n).toLowerCase().includes(k)||it.cat.toLowerCase().includes(k));
+    if(!A.length){L.innerHTML='<div class="pke">找不到符合的商品</div>';return}
+    let last='',h='';for(const it of A){if(it.cat!==last){last=it.cat;h+=`<div class="pkc">${es(it.cat)}</div>`}h+=row(it,cur,U)}L.innerHTML=h}
+  function open(){P.hidden=false;btn.classList.add('on');q.value='';draw();L.scrollTop=0;
+    if(matchMedia('(pointer:fine)').matches)setTimeout(()=>q.focus(),30);
+    XM.list().then(x=>{PL=x;if(!P.hidden)draw();return XM.ticks()}).then(()=>{if(!P.hidden)draw()}).catch(()=>{})}
+  function close(){P.hidden=true;btn.classList.remove('on')}
+  btn.onclick=e=>{e.stopPropagation();P.hidden?open():close()};
+  P.querySelector('.pkx').onclick=close;
+  q.addEventListener('input',draw);
+  P.addEventListener('click',e=>{e.stopPropagation();const r=e.target.closest('.pkr');if(!r)return;const id=r.dataset.id;
+    if(e.target.closest('.pka')){const on=UG.toggle(cvGrp,id);const b=e.target.closest('.pka');b.classList.toggle('in',on);b.textContent=on?'✓':'＋';b.setAttribute('aria-label',on?'從群組拿掉':'加入群組');
+      renderCoins();LiveWS.tick();if(on&&gSyms(cvGrp).length===1)pickId(id);return}
+    pickId(id);close();setTimeout(renderCoins,0)});
+  document.addEventListener('click',e=>{if(!P.hidden&&!e.target.closest('#cvPick'))close()});
+  new MutationObserver(()=>{if(!cv.classList.contains('on'))close()}).observe(cv,{attributes:true,attributeFilter:['class']});
+  return{open,close,draw}})();window.CvPick=CvPick;
 $('#cvSym').addEventListener('change',()=>setTimeout(renderCoins,0));
 // ── 策略分析：先列策略，點了才進回測畫面 ──
 (function(){const SV=$('#stratView'),sel=$('#sStrat'),list=$('#sList');if(!SV||!sel||!list)return;
@@ -5613,13 +5721,13 @@ const HsSync=(()=>{const GCID='191032419379-be7bgivr1u5o8ob8cn0hgnpl1hone268.app
 // 列出這台裝置（localStorage、IndexedDB）和雲端（登入後）存的資料，可以查看內容或刪除。
 // 已登入時刪掉會同步的項目，雲端和其他登入的裝置也會一起刪掉。金鑰、配對、登入資訊只顯示摘要，不顯示內容。
 const DbTab=(()=>{const LS=localStorage,box=()=>document.getElementById('dbBox'),es=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const NM={theme3:'外觀模式',autoNight:'日出日落自動切換',lang:'語言',langBoot:'語言（開場用）',cvGrp:'查看價格的分組',split_strat:'策略頁圖表高度',
+  const NM={theme3:'外觀模式',autoNight:'日出日落自動切換',lang:'語言',langBoot:'語言（開場用）',cvGrp:'查看價格的分組',cvGroups:'查看價格的自訂群組',split_strat:'策略頁圖表高度',
     sigLock:'我的策略',sigLockName:'我的策略名稱',sigLockOff:'我的策略暫停通知',mySeed:'範例策略',
     bnCats:'通知類別開關',bnSigOff:'策略信號通知開關',bnLast:'最後看到的通知',bnPush:'背景推播登記',
     fdLocal:'交易所金鑰',fdHide:'隱藏金額',fdSnap:'資產報酬紀錄',fdLast:'資產上次紀錄',fdBot:'HexBOT 下單帳號',botHost:'電腦配對',botShare:'同帳號連電腦',hsSync:'Google 登入資訊',
     tglog:'最近的通知',sig:'策略訊號',hist:'過去分析',mstrMeta:'MSTR 資料',runlog:'執行紀錄',fngHist:'恐懼貪婪歷史'};
   // 分組：設定、策略、通知、資產、帳號、暫存（刪了會自己重抓）
-  const GRP={theme3:'設定',autoNight:'設定',lang:'設定',langBoot:'設定',cvGrp:'設定',split_strat:'設定',sigLock:'策略',sigLockName:'策略',sigLockOff:'策略',mySeed:'策略',
+  const GRP={theme3:'設定',autoNight:'設定',lang:'設定',langBoot:'設定',cvGrp:'設定',cvGroups:'設定',split_strat:'設定',sigLock:'策略',sigLockName:'策略',sigLockOff:'策略',mySeed:'策略',
     bnCats:'通知',bnSigOff:'通知',bnLast:'通知',bnPush:'通知',fdLocal:'資產',fdHide:'資產',fdSnap:'資產',fdLast:'資產',fdBot:'資產',botHost:'交易',botShare:'交易',hsSync:'帳號',
     tglog:'暫存',sig:'暫存',hist:'暫存',mstrMeta:'暫存',runlog:'暫存'};
   const ORD=['策略','資產','交易','通知','設定','帳號','暫存','其他'];
