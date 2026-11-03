@@ -694,8 +694,8 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .sumc .t.aitile{display:flex;align-items:center;gap:8px}.sumc .aitile .aim{width:40px;height:46px}.sumc .aitile .v{color:var(--c);font-family:inherit}
 .ailk{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}.ailk svg{width:10px;height:10px}
 .aipair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
-/* Forge、Echo 綁在一起：一個橫條外框，中間一條分隔線，點哪一邊都開同一個視窗 */
-.aibar{gap:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--cardsh);overflow:hidden}.aibar .aimc{border:0;border-radius:0;box-shadow:none;background:none}.aibar .aimc+.aimc{border-left:1px solid var(--line)}
+/* Forge、Echo 綁在一起：一個橫條，左邊兩個機器人＋名字，右邊說明，點了開同一個視窗 */
+.aimc.aibar{width:100%;margin:0 0 10px;gap:10px}.aibar .aibm{display:flex;flex:none}.aibar .aibm .aim+.aim{margin-left:-10px}.aibar b{flex:none;color:var(--muted);font-size:14.5px;white-space:nowrap}.aibar small{flex:1;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 打開 Forge＋Echo 視窗：先跑開場那種三層六角形一層層掉下來疊好，再淡出露出對話 */
 #aiStk{position:fixed;inset:0;z-index:201;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .25s}#aiStk.out{opacity:0;pointer-events:none}#aiStk svg{width:110px;height:110px;overflow:visible}
 #aiStk .sl{opacity:0;transform:translateY(-34px);animation:aiDrop .42s cubic-bezier(.2,.9,.3,1.25) forwards}@keyframes aiDrop{to{opacity:1;transform:none}}
@@ -4502,7 +4502,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(ok)})).filter(x=>x.keys.length);
     if(openG&&!G.find(x=>x.g===openG))openG=null;
     if(openG)return renderGroup(G.find(x=>x.g===openG),L);
-    const AIP=`<div class="aipair aibar">${['forge','echo'].map(k=>{const a=HexAI.AI.find(x=>x.k===k);return `<button class="aimc" type="button" data-ai="${k}|forge,echo" style="--c:${a.c}">${HexAI.mini(k)}<span style="min-width:0"><b>${a.n}</b><small>${k==='forge'?'幫你想策略':'回測、交叉比對'}</small></span></button>`}).join('')}</div>`;
+    const AIP=(()=>{const f=HexAI.AI.find(x=>x.k==='forge'),e=HexAI.AI.find(x=>x.k==='echo');return `<button class="aimc aibar" type="button" data-ai="forge|forge,echo"><span class="aibm">${HexAI.mini('forge')}${HexAI.mini('echo')}</span><b><span style="color:${f.c}">${f.n}</span> &amp; <span style="color:${e.c}">${e.n}</span></b><small>想策略、跑回測</small></button>`})();
     const top=(adding?'':AIP)+`<button class="btn" id="myAdd" style="width:100%;margin:0 0 10px"${adding?' hidden':''}>＋ 新增我的策略</button>`+(adding?addForm():'');
     if(!G.length){box().innerHTML=top+(adding?'':`<div class="card empty" style="line-height:1.8">還沒有自己的策略。<br>按上面「＋ 新增我的策略」：選策略、取名字、調參數、看回測，滿意就儲存。<br>存好之後，進出場通知會照你的參數推播。</div>`);syncSym();window.Opt&&Opt.paint();return}
     const ON=window.BotTab?BotTab.onKeys():new Set(),led=on=>`<i class="bled${on?' on':''}" title="${on?'HexBOT 執行中':'沒在跑'}" style="display:inline-block;margin-right:6px;vertical-align:2px"></i>`;
