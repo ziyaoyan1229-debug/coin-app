@@ -2731,16 +2731,26 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   const EYE_O='<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',EYE_C='<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4"/><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1"/>';
   const upnl=x=>(x.positions||[]).reduce((t,p)=>t+(+p.upnl||0),0);
   const sgn=v=>(v>0?'+':v<0?'−':'')+'US$ '+fm(Math.abs(v));
-  // 報酬：每次讀到餘額就記一筆（每家帳號 30 分鐘最多一筆、留 35 天），拿約 24 小時前那筆當基準；還不到一天就用第一筆（加入以來）。入金、出金、子帳號互轉也會算進去
-  // 有子帳戶讀取失敗（金額不完整）的那次不記；多個帳號一起算時，基準時間要一致：有帳號滿一天就只算滿一天的（24h），都不滿才用各自第一筆（加入以來）
+  // 報酬：每次讀到餘額就記一筆（每家帳號 30 分鐘最多一筆、留 35 天），拿約 24 小時前那筆當基準；還不到一天就用起算點（加入以來，存在 fdBase）。入金、出金、子帳號互轉也會算進去
+  // 有子帳戶讀取失敗（金額不完整）的那次不記；多個帳號一起算時，基準時間要一致：有帳號滿一天就只算滿一天的（24h），都不滿才用各自的起算點（加入以來）
   // fdSnap2：舊的 fdSnap 可能記到讀取不完整的金額，換新的重新開始記
   try{localStorage.removeItem('fdSnap')}catch(e){}
   const SNK='fdSnap2',SJ=()=>{try{return JSON.parse(localStorage.getItem(SNK)||'{}')}catch(e){return {}}};
   function snap(acc){const S=SJ(),now=Date.now();for(const x of acc){if(!x.ok||!(x.total_usd>0)||(x.notes||[]).some(n=>/失敗|fail/i.test(n)))continue;const a=(S[x.id]||[]).filter(r=>now-r[0]<35*864e5);if(!a.length||now-a[a.length-1][0]>18e5)a.push([now,+x.total_usd.toFixed(2)]);S[x.id]=a.slice(-1700)}
-    for(const id of Object.keys(S))if(!acc.some(x=>x.id===id))delete S[id];try{localStorage.setItem(SNK,JSON.stringify(S))}catch(e){}}
+    try{localStorage.setItem(SNK,JSON.stringify(S))}catch(e){}
+    // 起算點：每個帳號第一次讀到完整餘額（＝API 綁好那一刻）就記下時間和金額，之後不再改、也不因為超過 35 天被清掉；只有按「移除這個交易所」才刪
+    // 以前這裡會把這次沒讀到的帳號（例如開 App 時電腦版還沒連上）的紀錄整個刪掉，所以每次開啟「加入以來」都從頭算
+    const B=BJ();let ch=0;for(const x of acc){if(B[x.id]||!x.ok||!(x.total_usd>0)||(x.notes||[]).some(n=>/失敗|fail/i.test(n)))continue;const a=S[x.id]||[];B[x.id]=a.length?a[0]:[now,+x.total_usd.toFixed(2)];ch=1}
+    if(ch)try{localStorage.setItem(BSK,JSON.stringify(B))}catch(e){}}
+  const BSK='fdBase',BJ=()=>{try{return JSON.parse(localStorage.getItem(BSK)||'{}')}catch(e){return {}}};
+  function forget(id){const S=SJ(),B=BJ();delete S[id];delete B[id];try{localStorage.setItem(SNK,JSON.stringify(S));localStorage.setItem(BSK,JSON.stringify(B))}catch(e){}}
+  // 加入以來：用起算點當基準，幾個帳號一起算就把各自的起算金額加總
+  function since(list){const B=BJ();let b=0,v=0,t=0;for(const x of list){if(!x.ok||!(x.total_usd>0)||!B[x.id])continue;b+=B[x.id][1];v+=x.total_usd;t=t?Math.min(t,B[x.id][0]):B[x.id][0]}
+    return b>0?{d:v-b,p:(v-b)/b*100,lab:'加入以來',t}:null}
   function ret(list){const S=SJ(),now=Date.now(),R=[];for(const x of list){if(!x.ok||!(x.total_usd>0))continue;const a=S[x.id]||[];if(!a.length)continue;let r=null;for(const q of a)if(now-q[0]>=864e5)r=q;R.push({v:x.total_usd,r,f:a[0]})}
-    const day=R.some(o=>o.r),U=day?R.filter(o=>o.r):R;let b=0,v=0;for(const o of U){b+=(day?o.r:o.f)[1];v+=o.v}
-    return U.length&&b>0?{d:v-b,p:(v-b)/b*100,lab:day?'24h':'加入以來'}:null}
+    const day=R.some(o=>o.r);if(!day)return since(list);const U=R.filter(o=>o.r);let b=0,v=0;for(const o of U){b+=o.r[1];v+=o.v}
+    return U.length&&b>0?{d:v-b,p:(v-b)/b*100,lab:'24h'}:null}
+  const sinceLine=L=>{const s=since(L);return s?'<small class="fdmu">加入以來（'+new Date(s.t).toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})+' 起）'+retAmt(s)+'</small>':''};
   const retTx=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+r.lab+' '+(hide?'••••':(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%')+'</span>':'<span class="fdmu">報酬計算中</span>';
   const retAmt=r=>r?'<span class="'+(r.d>=0?'fdup':'fddn')+'">'+money(sgn(r.d))+'（'+(r.p>=0?'+':'−')+fm(Math.abs(r.p),2)+'%）</span>':'—';
   // 主帳號／子帳號：Bybit、OKX 從金鑰查得到；其他家看名稱有沒有「主」「子」
@@ -2750,7 +2760,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
   let curEx='';
   function exView(k){curEx=k;const A=exAcc(k);if(!A.length)return go('home');const tot=A.reduce((t,x)=>t+(x.total_usd||0),0),u=A.reduce((t,x)=>t+upnl(x),0),r=ret(A);
     let h='<div class="fdhead">'+lg(k)+'<div><b>'+es(exName(k))+'</b><br><span class="fdchip">'+A.length+' 個帳號</span></div></div>';
-    h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+money('US$ '+fm(tot))+'</div><small class="fdmu">'+(r?r.lab+' 報酬 ':'報酬 ')+retAmt(r)+'</small>'+(A.some(x=>x.positions&&x.positions.length)?'<small class="fdmu">未實現損益 <span class="'+(u>=0?'fdup':'fddn')+'">'+money(sgn(u))+'</span></small>':'')+'</div>';
+    h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+money('US$ '+fm(tot))+'</div><small class="fdmu">'+(r?r.lab+' 報酬 ':'報酬 ')+retAmt(r)+'</small>'+(r&&r.lab==='24h'?sinceLine(A):'')+(A.some(x=>x.positions&&x.positions.length)?'<small class="fdmu">未實現損益 <span class="'+(u>=0?'fdup':'fddn')+'">'+money(sgn(u))+'</span></small>':'')+'</div>';
     h+='<div class="fdrow"><b>主帳號與子帳號</b><small class="fdmu">點帳號看詳細</small></div><div class="fdaccs">'+A.map((x,i)=>{const rr=ret([x]),np=(x.positions||[]).length;
       return '<button class="fdacc" type="button" data-fid="'+es(x.id)+'" style="box-shadow:inset 3px 0 0 '+exCol(k,i,A.length)+'"><span style="min-width:0"><span class="fdchip">'+role(x)+'</span> <span class="nm">'+es(x.name||exName(k))+'</span><br><small class="fdmu">'+(x.ok?(np?'持倉 '+np+' 筆':'沒有持倉'):'讀取失敗')+'</small></span><span class="r"><b>'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</b><br><small>'+(x.ok?retTx(rr):'<span class="fdchip fddn">讀取失敗</span>')+'</small></span></button>'}).join('')+'</div>';
     h+='<button class="fdghost" type="button" data-fex="'+k+'" style="width:100%;color:inherit;margin-top:4px">＋ 加入 '+es(exName(k))+' 子帳號</button>';
@@ -2806,7 +2816,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     $('#fdDet').innerHTML=h+detOv(x);go('detail')}
   const detHead=x=>'<div class="fdhead">'+lg(x.exchange)+'<div><b>'+es(exName(x.exchange))+'</b><br><span class="fdchip">'+role(x)+'</span> <span class="fdchip">'+es(x.name)+'</span> <button class="fdghost fdren" type="button" data-fren="'+es(x.id)+'">改名</button> <span class="fdchip '+(x.ok?'fdup':'fddn')+'">'+(x.ok?'已連線':'讀取失敗')+'</span></div></div>';
   function detOv(x){const id=x.id;let h='';
-    h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
+    h+='<div class="fdpanel"><small class="fdmu">總額（約）</small><div class="fdtot" style="font-size:26px">'+(x.ok?money('US$ '+fm(x.total_usd)):'—')+'</div>'+(x.ok?sinceLine([x]):'')+(x.positions&&x.positions.length?'<small class="fdmu">未實現損益 <span class="'+(upnl(x)>=0?'fdup':'fddn')+'">'+money(sgn(upnl(x)))+'</span></small>':'')+'</div>';
     if(x.notes&&x.notes.length)h+='<div class="fdcard fdmu">'+x.notes.map(es).join('<br>')+'</div>';
     if(x.assets&&x.assets.length)h+='<div class="fdpanel"><b>幣種</b><div class="fdscroll"><table><tr><th>幣種</th><th>數量</th><th>約 US$</th></tr>'+x.assets.slice().sort((p,q)=>(q.usd||0)-(p.usd||0)).map(a=>'<tr><td>'+es(a.coin)+(a.acct?' <span class="fdchip">'+es(a.acct)+'</span>':'')+'</td><td>'+(hide?'••••':am(a.amount))+'</td><td>'+(hide?'••••':fm(a.usd))+'</td></tr>').join('')+'</table></div></div>';
     if(x.positions&&x.positions.length)h+='<div class="fdpanel"><b>持倉</b>'+x.positions.map(p=>{const dist=p.liq&&p.mark?Math.abs(p.mark-p.liq)/p.mark*100:null,c=dist==null?'':dist<10?'fdw':'fdup';
@@ -2848,7 +2858,7 @@ async function fxRead(ex, a, send, H, rw) { const out = await FX_READ[ex]((p, q,
     if((b=t.closest('[data-fid]'))){detail(b.dataset.fid);return}
     if((b=t.closest('[data-frm]'))){const id=b.dataset.frm;$('#fdRmAsk').innerHTML='<div class="fdcard">確定從電腦移除這個交易所的金鑰？<div class="fdrow" style="margin-top:8px"><button class="fdghost" type="button" data-frmy="'+es(id)+'">移除</button><button class="fdghost" style="color:inherit" type="button" data-frmn>取消</button></div></div>';return}
     if(t.closest('[data-frmn]')){$('#fdRmAsk').innerHTML='';return}
-    if((b=t.closest('[data-frmy]'))){const id=b.dataset.frmy;if(LJ().some(a=>a.id===id)){LW(LJ().filter(a=>a.id!==id));cur='';go('home');await load(true);return}try{await BotTab.api('/api/funds/remove',{id});cur='';go('home');await load(true)}catch(err2){$('#fdRmAsk').innerHTML='<div class="fdcard fddn">'+es(err2.message)+'</div>'}}
+    if((b=t.closest('[data-frmy]'))){const id=b.dataset.frmy;if(LJ().some(a=>a.id===id)){LW(LJ().filter(a=>a.id!==id));forget(id);cur='';go('home');await load(true);return}try{await BotTab.api('/api/funds/remove',{id});forget(id);cur='';go('home');await load(true)}catch(err2){$('#fdRmAsk').innerHTML='<div class="fdcard fddn">'+es(err2.message)+'</div>'}}
   });
   $('#fdK').addEventListener('input',()=>{const k=$('#fdK').value.trim(),d=detect(k);if(!d||d===pickEx||askKey===k||(pickEx==='coinbase'&&d==='okx'))return;askKey=k;
     $('#fdAskT').textContent='這像是 '+exName(d)+' 的金鑰，要改成 '+exName(d)+' 嗎？';$('#fdAskYes').textContent='改成 '+exName(d);$('#fdAskYes').dataset.ex=d;$('#fdAsk').hidden=false;$('#fdAskYes').focus()});
