@@ -253,6 +253,25 @@ details.fold>.in{padding:0 14px 12px}
 @media (min-width:960px){#fngModal{inset:60px 12% 40px;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}}
 .fng .c0{color:var(--down)}.fng .c1{color:color-mix(in srgb,var(--down) 55%,var(--warn))}.fng .c2{color:var(--warn)}.fng .c3{color:color-mix(in srgb,var(--up) 60%,var(--warn))}.fng .c4{color:var(--up)}
 /* ── 市場分析分頁 ── */
+/* 市場分析三大類：只顯示目前那一類的區塊 */
+#newsView[data-mk="news"] .sect[data-mk]:not([data-mk="news"]),#newsView[data-mk="flow"] .sect[data-mk]:not([data-mk="flow"]),#newsView[data-mk="deriv"] .sect[data-mk]:not([data-mk="deriv"]){display:none!important}
+.mk .mkh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.mk .mkv{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}.mk .mks{font-size:12px;color:var(--muted)}
+.mk .mkc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}.mk .mkc>div{background:var(--panel2);border-radius:10px;padding:8px 6px;text-align:center;min-width:0}
+.mk .mkc small{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}.mk .mkc b{font-size:13.5px;font-variant-numeric:tabular-nums;white-space:nowrap}.mk .mkc b i{display:block;font-style:normal;font-size:11px;font-weight:500;opacity:.85}
+.mk .spk{width:100%;height:56px;display:block;margin-top:12px}.mk .mkx{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
+.mk .mkr{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;font-variant-numeric:tabular-nums}
+.mk .mkr>span{min-width:0}.mk .mkr>span:not(:first-child){text-align:right}.mk .mkr>span:first-child{overflow:hidden;text-overflow:ellipsis}.mk .mkr small{display:block;font-size:10.5px;color:var(--muted)}
+.mk .mkr.h{font-size:11px;color:var(--muted);padding:2px 0;margin-top:12px}
+.mk .mkb{display:block;height:3px;border-radius:2px;margin-top:4px;max-width:100%}.mk .mkb.up{background:var(--up)}.mk .mkb.dn{background:var(--down)}
+.mk .mkn{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.55}.mk .mkn b{color:var(--text);font-weight:600}.mk .mku{font-size:11px;color:var(--muted);margin-top:8px;text-align:right}
+.mk .chips{padding-bottom:10px}
+.mk .mkg{display:grid;gap:12px;margin-top:12px}.mk .mklh{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px}.mk .mklh b{font-size:15px;font-variant-numeric:tabular-nums}.mk .mklh small{font-size:11px}
+.mk .mkbar{height:8px;border-radius:99px;background:var(--down);overflow:hidden;margin:5px 0 3px}.mk .mkbar i{display:block;height:100%;background:var(--up)}
+.mk .lqbar{margin-top:10px}
+.lq-sts{display:inline-flex;gap:8px}.lq-st{font-size:10.5px;color:var(--muted);display:inline-flex;align-items:center;gap:3px}.lq-st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.5}.lq-st.on::before{background:var(--up);opacity:1}
+.mk .lq-f{max-height:420px;overflow-y:auto}.mk .lqi{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px;font-variant-numeric:tabular-nums}
+.mk .lqi .lqt{color:var(--muted);font-size:11.5px}.mk .lqi em{font-style:normal;font-size:12px}.mk .lqi small{color:var(--muted);font-size:10.5px;margin-left:6px}.mk .lqi.big{font-weight:700;background:color-mix(in srgb,var(--warn) 8%,transparent)}
+@media (min-width:960px){#newsView .mkg{grid-template-columns:repeat(3,minmax(0,1fr))}}
 #newsView{flex-direction:column}
 .snap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .fr{padding:10px 12px}.fr .small{font-size:11.5px;color:var(--muted)}
@@ -848,7 +867,8 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 </script>
 <style>
 /* 開始交易：1. 訊號交易／2. 自動交易（連接使用者自己的執行器主機） */
-.tmode{display:flex;gap:8px;margin:12px 12px 4px}
+/* 分頁上方的主題切換格（開始交易、市場分析）：跟策略分析的 #sTab 同一套 .seg 樣式 */
+#tMode,#mkTab{margin:12px 12px 4px}#tMode button,#mkTab button{flex:1}#tMode button.lk{opacity:.5}
 /* #sigView 是 flex 容器，.wrap 不給寬度會縮成內容寬、整塊靠左（手機版看得出來） */#sigView>.wrap{width:100%;min-width:0}
 #tmBot{padding:8px 12px 0}
 #tmBot .xl{font-size:12.5px;color:var(--muted);margin:10px 0 4px}
@@ -868,7 +888,6 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 @media (min-width:960px){#sigView>.wrap{max-width:1180px;margin:0 auto}#tmBot{padding:8px 20px 0}
   #tmBot .bcols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0 16px;align-items:start}
   #tmBot .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:0 16px;align-items:start}}
-.tmode button{flex:1;padding:10px 4px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line);color:var(--muted);cursor:pointer}
 .aibtn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;border:1px solid var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent);color:var(--acc);font:inherit;font-size:12.5px;font-weight:700;letter-spacing:0;cursor:pointer;line-height:1.4}
 .bttl{display:flex;align-items:center;gap:8px}.bttl .aibtn{font-size:12.5px}
 .cpsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.cpsum b,.cpst b{display:block;font-size:17px;margin-top:2px}
@@ -877,8 +896,6 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 .cpst{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);text-align:center}.cpst b{font-size:15px}
 .cpset .br{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.cpset .br:last-child{border:0}
 @media (min-width:960px){.cplist{grid-template-columns:1fr 1fr}#tmCopy{padding:0 8px}}
-.tmode button.on{background:color-mix(in srgb,var(--acc) 14%,transparent);border-color:var(--acc);color:var(--acc)}
-.tmode button.lk{opacity:.5}
 :is(#tmBot,.fdbot,#aiChat) .subt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:0 2px 12px;font-size:14px}
 :is(#tmBot,.fdbot,#aiChat) .subt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}
 :is(#tmBot,.fdbot,#aiChat) .subt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
@@ -1119,22 +1136,29 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   </div>
   <div class="col" id="right"><details class="fold" id="expFold"><summary>📖 策略說明</summary><div class="in"><div id="explain"></div></div></details></div>
 </section>
-<section id="newsView" class="view"><div class="wrap">
-  <div class="sect"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
-  <div class="sect" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">整理中…</div></div></div></div>
-  <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox" data-noi18n></div></div>
-  <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
-  <div class="sect" id="frSect"><h2>資金費率比較<span class="more" id="frAt">6 家交易所・即時</span></h2><div class="card fr" id="frBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
-  <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div>
+<section id="newsView" class="view" data-mk="news"><div class="wrap">
+  <div class="seg" id="mkTab"><button type="button" data-m="news" class="on">市場快訊</button><button type="button" data-m="flow">資金流向</button><button type="button" data-m="deriv">合約數據</button></div>
+  <div class="sect" data-mk="news"><h2>恐懼貪婪指數<span class="more">alternative.me</span></h2><div class="card fng" id="fngBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="news" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">整理中…</div></div></div></div>
+  <div class="sect" data-mk="news" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox" data-noi18n></div></div>
+  <div class="sect" data-mk="news"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
+  <div class="sect" data-mk="news"><h2>市場分析</h2><div class="card ana"><div id="anaBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
-  <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox" data-noi18n></div></div>
-  <div class="sect"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
-  <div class="sect"><h2>重大消息</h2><div class="chips" id="newsChips"></div><div class="card" id="newsBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="news"><h2>接下來的重要日程</h2><div class="card" id="calBox" data-noi18n></div></div>
+  <div class="sect" data-mk="news"><h2>過去分析<span class="more" id="histAcc"></span></h2><div class="card plist" id="histBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="news"><h2>重大消息</h2><div class="chips" id="newsChips"></div><div class="card" id="newsBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="flow" id="scSect"><h2>穩定幣市值<span class="more" id="scAt">DefiLlama</span></h2><div class="card mk" id="scBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="flow" id="cbSect"><h2>Coinbase 溢價<span class="more" id="cbAt">Coinbase − Binance・BTC</span></h2><div class="card mk" id="cbBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="flow" id="tkSect"><h2>現貨主動買賣淨額<span class="more" id="tkAt">Binance 現貨</span></h2><div class="card mk" id="tkBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="flow" id="secSect"><h2>板塊資金<span class="more" id="secAt">CoinGecko・24 小時市值變化</span></h2><div class="card mk" id="secBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="deriv" id="frSect"><h2>資金費率比較<span class="more" id="frAt">6 家交易所・即時</span></h2><div class="card fr" id="frBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="deriv" id="oiSect"><h2>持倉量與多空比<span class="more" id="oiAt">Binance 永續</span></h2><div class="card mk" id="oiBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
+  <div class="sect" data-mk="deriv" id="lqSect"><h2>爆倉強平<span class="more" id="lqAt">Binance・Bybit・OKX 即時</span></h2><div class="card mk" id="lqBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
   <div class="foot">回測資料：Binance 永續 2020-01 ～ 2026-09・時間為台灣時間<br>內容僅供參考，非投資建議</div>
 </div></section>
 <!-- ───────── 今日訊號 ───────── -->
 <section id="sigView" class="view"><div class="wrap">
-  <div class="tmode" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="copy">跟單機器人</button></div>
+  <div class="seg" id="tMode"><button type="button" data-m="sig">訊號交易</button><button type="button" data-m="bot" class="on">HexBOT</button><button type="button" data-m="copy">跟單機器人</button></div>
   <div id="tmSig">
   <div class="sect"><h2>我的策略訊號<button type="button" class="aibtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>HexAI</button><span class="more" id="sigAsOf"></span></h2><div id="sigBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">計算中…</div></div></div></div>
   <div class="foot">內容僅供參考，非投資建議</div>
@@ -5850,6 +5874,195 @@ const Legal=(()=>{const ok=()=>{try{return localStorage.getItem('hsLegal')===LEG
   document.addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();read(b.dataset.legal)}});
   return {read,gate,ok}})();window.Legal=Legal;
 </script>
+<script>// ───────── 市場分析三大類（市場快訊／資金流向／合約數據）─────────
+// 資金流向、合約數據全部由使用者的裝置直接向公開資料源抓（跟查看價格一樣）；直連不通時改走 HexStack 轉送（worker/push.js 的 /x，白名單路徑）。
+// 只在看那一類時才抓、才連即時爆倉；換到別類、別的分頁或 App 縮到背景就停。
+(function(){
+const $=s=>document.querySelector(s),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DEF_PX='https://hexstack-push.hexstack-df20e2.workers.dev';
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+async function pxBase(){try{if(window.BotTab&&BotTab.pBase)return (await BotTab.pBase()||DEF_PX).replace(/\/$/,'')}catch(e){}return DEF_PX}
+const tmo=ms=>{try{return AbortSignal.timeout(ms)}catch(e){return undefined}};
+// 抓 JSON：直連 → 轉送（px＝[交易所, 網路, host, 路徑, 參數]）
+async function getJ(host,path,q,px){
+  try{const r=await fetch(host+path+(q?'?'+q:''),{cache:'no-store',signal:tmo(12000)});if(r.ok)return await r.json()}catch(e){}
+  if(!px)throw new Error('連不到');
+  const r=await fetch((await pxBase())+'/x?ex='+px[0]+'&net='+px[1]+'&path='+encodeURIComponent(path)+'&q='+encodeURIComponent(q||''),{cache:'no-store',signal:tmo(15000)});
+  if(!r.ok)throw new Error(px[0]+' '+r.status);return r.json()}
+const BNF=(path,q)=>getJ('https://fapi.binance.com',path,q,['binance','fut']);
+const BNS=(path,q)=>getJ('https://data-api.binance.vision',path,q,['binance','main']);
+// 存在這台裝置一段時間，重開 App 先秀上次的，過期才重抓；抓失敗就沿用舊的
+async function cached(key,ttl,fn){const c=lsGet('mkc_'+key,null);if(c&&Date.now()-c.t<ttl)return c;try{const v=await fn(),o={t:Date.now(),v};lsSet('mkc_'+key,o);return o}catch(e){if(c)return c;throw e}}
+
+const nf=x=>x>=100?x.toFixed(0):x>=10?x.toFixed(1):x.toFixed(2);
+const usd=v=>{const a=Math.abs(v),s=v<0?'-':'';if(!isFinite(a))return '—';return a>=1e12?s+'$'+nf(a/1e12)+' 兆':a>=1e8?s+'$'+nf(a/1e8)+' 億':a>=1e4?s+'$'+nf(a/1e4)+' 萬':s+'$'+a.toFixed(0)};
+const susd=v=>(v>0?'+':'')+usd(v);
+const sg=(v,d)=>isFinite(v)?(v>0?'+':'')+v.toFixed(d==null?2:d)+'%':'—';
+const cl=v=>v>0?'pos':v<0?'neg':'';
+const hm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+const hms=t=>hm(t)+':'+String(new Date(t).getSeconds()).padStart(2,'0');
+const LOAD='<div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div>';
+const FAIL='<div class="small mkn">暫時連不到資料來源，稍後會自動再試。</div>';
+const upd=t=>t?`<div class="mku">更新 ${hm(t)}</div>`:'';
+// 走勢小圖：zero＝畫 0 軸（溢價這種正負都有的）
+function spark(vals,zero){const v=vals.filter(isFinite);if(v.length<2)return '';let mn=Math.min(...v),mx=Math.max(...v);if(zero){mn=Math.min(mn,0);mx=Math.max(mx,0)}if(mx===mn){mx+=1;mn-=1}
+  const W=300,H=56,n=vals.length-1,x=i=>(i/n*W).toFixed(1),y=t=>(H-3-(t-mn)/(mx-mn)*(H-6)).toFixed(1);
+  const pts=vals.map((t,i)=>isFinite(t)?x(i)+','+y(t):null).filter(Boolean).join(' '),c=v[v.length-1]>=(zero?0:v[0])?'var(--up)':'var(--down)';
+  return `<svg class="spk" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${zero?`<line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)" stroke-opacity=".5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`:''}<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
+const cells=a=>`<div class="mkc">${a.map(([k,v,c])=>`<div><small>${k}</small><b class="${c||''}">${v}</b></div>`).join('')}</div>`;
+const chips=(cls,list,cur)=>`<div class="chips ${cls}">${list.map(([k,n])=>`<button type="button" data-k="${esc(k)}" class="${k===cur?'on':''}">${esc(n)}</button>`).join('')}</div>`;
+
+// 每一塊：tab＝在哪一類、ttl＝多久重抓、load()、html()
+function block(o){return Object.assign({at:0,busy:false,err:null,d:null,
+  tick(){if(this.busy)return;const due=this.err?60000:this.ttl;if(Date.now()-this.at<due){if(!this.drawn)this.draw();return}
+    this.busy=true;if(!this.d)this.draw();
+    this.load().then(()=>{this.err=null}).catch(e=>{this.err=e}).finally(()=>{this.at=this.stale?0:Date.now();this.stale=false;this.busy=false;this.draw()})},
+  draw(){const b=$('#'+this.box);if(!b)return;this.drawn=true;b.innerHTML=this.d?this.html():this.err?FAIL:LOAD},
+  again(){this.at=0;this.tick()}},o)}
+
+// ── 資金流向 ① 穩定幣市值（DefiLlama）：增加＝有新資金換成穩定幣準備進場 ──
+const SC=block({tab:'flow',box:'scBox',ttl:30*60e3,async load(){
+  const c=await cached('sc',30*60e3,async()=>{
+    const j=await getJ('https://stablecoins.llama.fi','/stablecoins','includePrices=false',['llama','main']);
+    const A=(j.peggedAssets||[]).filter(x=>x.pegType==='peggedUSD'&&x.circulating&&x.circulating.peggedUSD>0).map(x=>{const c=x.circulating.peggedUSD,f=k=>(x[k]&&x[k].peggedUSD)||c;return {n:x.symbol,c,d:f('circulatingPrevDay'),w:f('circulatingPrevWeek'),m:f('circulatingPrevMonth')}});
+    const T={c:0,d:0,w:0,m:0};for(const a of A)for(const k in T)T[k]+=a[k];A.sort((a,b)=>b.c-a.c);
+    let h=[];try{const ch=await getJ('https://stablecoins.llama.fi','/stablecoincharts/all','',['llama','main']);h=ch.slice(-91).map(x=>Math.round(((x.totalCirculatingUSD||x.totalCirculating||{}).peggedUSD||NaN)/1e6))}catch(e){}
+    return {T,A:A.slice(0,6),h}});
+  this.d=c.v;this.t=c.t},
+ html(){const {T,A,h}=this.d,ch=(a,b)=>(a/b-1)*100;
+  return `<div class="mkh"><span class="mkv">${usd(T.c)}</span><span class="mks">美元穩定幣總市值</span></div>`+
+   cells([['24 小時',susd(T.c-T.d),cl(T.c-T.d)],['7 天',susd(T.c-T.w)+`<i>${sg(ch(T.c,T.w))}</i>`,cl(T.c-T.w)],['30 天',susd(T.c-T.m)+`<i>${sg(ch(T.c,T.m))}</i>`,cl(T.c-T.m)]])+
+   (h.length>2?spark(h)+'<div class="mkx"><span>90 天前</span><span>今天</span></div>':'')+
+   `<div class="mkr h"><span>穩定幣</span><span>市值</span><span>7 天變化</span></div>`+
+   A.map(a=>`<div class="mkr"><span><b>${esc(a.n)}</b></span><span>${usd(a.c)}</span><span class="${cl(a.c-a.w)}">${susd(a.c-a.w)}</span></div>`).join('')+
+   `<div class="mkn">穩定幣變多，代表有新資金換成 USDT、USDC 等著買幣（買盤彈藥）；持續變少，代表資金在撤出幣圈。</div>`+upd(this.t)}});
+
+// ── 資金流向 ② Coinbase 溢價：美國買家（Coinbase BTC-USD）出價比全球（Binance BTCUSDT）高多少 ──
+const CB=block({tab:'flow',box:'cbBox',ttl:5*60e3,async load(){
+  const [cb,bk]=await Promise.all([getJ('https://api.exchange.coinbase.com','/products/BTC-USD/candles','granularity=3600',['cbx','main']),BNS('/api/v3/klines','symbol=BTCUSDT&interval=1h&limit=168')]);
+  const M=new Map(bk.map(k=>[+k[0],+k[4]]));
+  const P=cb.map(c=>[c[0]*1000,+c[4]]).filter(([t])=>M.has(t)).sort((a,b)=>a[0]-b[0]).map(([t,c])=>(c-M.get(t))/M.get(t)*100);
+  let now=NaN;try{const [a,b]=await Promise.all([getJ('https://api.exchange.coinbase.com','/products/BTC-USD/ticker','',['cbx','main']),BNS('/api/v3/ticker/price','symbol=BTCUSDT')]);now=(+a.price-+b.price)/+b.price*100}catch(e){}
+  if(!P.length&&!isFinite(now))throw new Error('沒有資料');
+  this.d={P,now:isFinite(now)?now:P[P.length-1]};this.t=Date.now()},
+ html(){const {P,now}=this.d,avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:NaN,d1=avg(P.slice(-24)),d7=avg(P);
+  const say=now>0.05?'美國買盤比全球強':now<-0.05?'美國賣壓比全球重':'美國與全球差不多';
+  return `<div class="mkh"><span class="mkv ${cl(now)}">${sg(now,3)}</span><span class="mks">現在・${say}</span></div>`+
+   cells([['24 小時平均',sg(d1,3),cl(d1)],['7 天平均',sg(d7,3),cl(d7)],['7 天正溢價時數',P.filter(x=>x>0).length+' / '+P.length]])+
+   (P.length>2?spark(P,true)+'<div class="mkx"><span>7 天前</span><span>現在</span></div>':'')+
+   `<div class="mkn">正溢價＝Coinbase 的 BTC 比 Binance 貴，通常代表美國機構、ETF 在買；持續負溢價代表美國那邊在賣。Binance 用 USDT 計價，USDT 本身偏離 1 美元時會有一點誤差。</div>`+upd(this.t)}});
+
+// ── 資金流向 ③ 現貨主動買賣淨額：主動買（吃賣單）金額 − 主動賣金額（Binance 現貨 1 小時 K 的 taker buy） ──
+const TKC=['BTC','ETH','SOL','XRP','BNB','DOGE'];
+const TK=block({tab:'flow',box:'tkBox',ttl:5*60e3,async load(){
+  const R=await Promise.all(TKC.map(b=>BNS('/api/v3/klines','symbol='+b+'USDT&interval=1h&limit=168').then(k=>{const n=k.map(x=>2*+x[10]-+x[7]),sum=a=>a.reduce((s,x)=>s+x,0);
+    return {b,d1:sum(n.slice(-24)),d7:sum(n),v1:sum(k.slice(-24).map(x=>+x[7])),cum:n.reduce((a,x)=>(a.push((a.length?a[a.length-1]:0)+x),a),[])}}).catch(()=>null)));
+  const ok=R.filter(Boolean);if(!ok.length)throw new Error('沒有資料');this.d=ok;this.t=Date.now()},
+ html(){const R=this.d,btc=R.find(r=>r.b==='BTC'),tot=k=>R.reduce((s,r)=>s+r[k],0);
+  return `<div class="mkh"><span class="mkv ${cl(tot('d1'))}">${susd(tot('d1'))}</span><span class="mks">${R.length} 個主流幣・24 小時合計</span></div>`+
+   (btc?spark(btc.cum.slice(-72))+'<div class="mkx"><span>BTC 3 天累計</span><span>現在</span></div>':'')+
+   `<div class="mkr h"><span>幣</span><span>24 小時</span><span>7 天</span></div>`+
+   R.map(r=>`<div class="mkr"><span><b>${r.b}</b><small>成交 ${usd(r.v1)}</small></span><span class="${cl(r.d1)}">${susd(r.d1)}</span><span class="${cl(r.d7)}">${susd(r.d7)}</span></div>`).join('')+
+   `<div class="mkn">正值＝主動掛市價買的比賣的多，買方比較積極；負值＝賣方比較積極。只算 Binance 現貨 USDT 交易對。</div>`+upd(this.t)}});
+
+// ── 資金流向 ④ 板塊資金（CoinGecko 分類的 24 小時市值變化）──
+const SEC_ZH={'Layer 1 (L1)':'Layer 1 公鏈','Layer 2 (L2)':'Layer 2','Meme':'迷因幣','Artificial Intelligence (AI)':'AI','AI Agents':'AI 代理','Decentralized Finance (DeFi)':'DeFi','Real World Assets (RWA)':'RWA 實體資產','Gaming (GameFi)':'GameFi 遊戲','Stablecoins':'穩定幣','Decentralized Exchange (DEX)':'DEX 去中心化交易所','Exchange-based Tokens':'交易所平台幣','Liquid Staking':'流動性質押','Lending/Borrowing Protocols':'借貸協議','Oracle':'預言機','Privacy':'隱私幣','Smart Contract Platform':'智能合約平台','Proof of Work (PoW)':'PoW 挖礦幣','Proof of Stake (PoS)':'PoS 質押幣','Zero Knowledge (ZK)':'零知識 ZK','Metaverse':'元宇宙','NFT':'NFT','Infrastructure':'基礎設施','Storage':'儲存','Payment Solutions':'支付','Tokenized Gold':'代幣化黃金','Restaking':'再質押','Bitcoin Ecosystem':'比特幣生態','Solana Meme':'Solana 迷因','DePIN':'DePIN','Perpetuals':'永續合約 DEX','Prediction Markets':'預測市場','SocialFi':'SocialFi 社交'};
+let secK=lsGet('mk_sec','up');
+const SEC=block({tab:'flow',box:'secBox',ttl:15*60e3,async load(){
+  const c=await cached('sec',15*60e3,async()=>{const j=await getJ('https://api.coingecko.com','/api/v3/coins/categories','',['gecko','main']);
+    return j.filter(x=>x.market_cap>=5e8&&isFinite(x.market_cap_change_24h)&&!/Portfolio|Ecosystem$|Holdings|Alleged|Launchpad|Bridged|Wrapped|Index/i.test(x.name)).map(x=>({n:x.name,c:x.market_cap,ch:x.market_cap_change_24h,v:x.volume_24h||0}))});
+  if(!c.v.length)throw new Error('沒有資料');this.d=c.v;this.t=c.t},
+ html(){const L=this.d.slice().sort(secK==='up'?(a,b)=>b.ch-a.ch:secK==='dn'?(a,b)=>a.ch-b.ch:(a,b)=>b.c-a.c).slice(0,8),mx=Math.max(...L.map(x=>Math.abs(x.ch)),1);
+  return chips('mk-sec',[['up','漲最多'],['dn','跌最多'],['cap','市值最大']],secK)+
+   `<div class="mkr h"><span>板塊</span><span>市值</span><span>24 小時</span></div>`+
+   L.map(x=>`<div class="mkr"><span><b>${esc(SEC_ZH[x.n]||x.n)}</b><em class="mkb ${x.ch>=0?'up':'dn'}" style="width:${(Math.abs(x.ch)/mx*100).toFixed(0)}%"></em></span><span>${usd(x.c)}</span><span class="${cl(x.ch)}">${sg(x.ch,1)}</span></div>`).join('')+
+   `<div class="mkn">看資金這一天往哪個題材跑：市值變化含幣價漲跌，只列市值 5 億美元以上的板塊。</div>`+upd(this.t)}});
+
+// ── 合約數據 ① 持倉量與多空比（Binance 永續公開數據，1 小時一筆）──
+const OIC=['BTC','ETH','SOL','XRP','DOGE','BNB'];let oiS=lsGet('mk_oi','BTC');if(!OIC.includes(oiS))oiS='BTC';
+const OI=block({tab:'deriv',box:'oiBox',ttl:5*60e3,async load(){
+  const s=oiS,q='symbol='+s+'USDT&period=1h&limit=49';
+  const [oi,ga,tp,tk]=await Promise.all([BNF('/futures/data/openInterestHist',q),BNF('/futures/data/globalLongShortAccountRatio',q).catch(()=>[]),BNF('/futures/data/topLongShortPositionRatio',q).catch(()=>[]),BNF('/futures/data/takerlongshortRatio',q).catch(()=>[])]);
+  if(!oi||!oi.length)throw new Error('沒有資料');if(s!==oiS)return;this.d={s,oi,ga,tp,tk};this.t=Date.now()},
+ html(){const {s,oi,ga,tp,tk}=this.d,V=oi.map(x=>+x.sumOpenInterestValue),Q=oi.map(x=>+x.sumOpenInterest),n=V.length-1;
+  const ago=k=>n-k>=0?n-k:0,ch=k=>(V[n]/V[ago(k)]-1)*100,px=i=>V[i]/Q[i],pch=(px(n)/px(ago(24))-1)*100,o24=ch(24);
+  const F=1,read=o24>F&&pch>F?'持倉增加、價格上漲：新多單進場，上漲有量能。':o24>F&&pch<-F?'持倉增加、價格下跌：新空單進場，看空的人變多。':o24<-F&&pch>F?'持倉減少、價格上漲：主要是空單回補推上去，不是新買盤。':o24<-F&&pch<-F?'持倉減少、價格下跌：多單在平倉或被爆倉出場。':'持倉量變化不大，多空都還在觀望。';
+  const ratio=(arr,k1,k2,t)=>{const x=arr&&arr[arr.length-1];if(!x)return '';const L=+x[k1]*100,S=+x[k2]*100,r=+x.longShortRatio;
+    return `<div class="mkl"><div class="mklh"><span>${t}</span><b>${r.toFixed(2)}</b></div><div class="mkbar"><i style="width:${L.toFixed(1)}%"></i></div><div class="mklh"><small class="pos">多 ${L.toFixed(1)}%</small><small class="neg">空 ${S.toFixed(1)}%</small></div></div>`};
+  const tb=tk.slice(-24).reduce((a,x)=>[a[0]+ +x.buyVol,a[1]+ +x.sellVol],[0,0]),tr=tb[1]?tb[0]/tb[1]:NaN;
+  return chips('mk-oi',OIC.map(b=>[b,b]),s)+
+   `<div class="mkh"><span class="mkv">${usd(V[n])}</span><span class="mks">${s} 未平倉合約價值</span></div>`+
+   cells([['4 小時',sg(ch(4)),cl(ch(4))],['24 小時',sg(o24),cl(o24)],['同期幣價',sg(pch),cl(pch)]])+
+   spark(V)+'<div class="mkx"><span>48 小時前</span><span>現在</span></div>'+
+   `<div class="mkn" style="margin-top:6px"><b>${read}</b></div>`+
+   `<div class="mkg">${ratio(ga,'longAccount','shortAccount','全部帳戶多空人數比')}${ratio(tp,'longAccount','shortAccount','大戶持倉多空比')}`+
+   (isFinite(tr)?`<div class="mkl"><div class="mklh"><span>24 小時主動買賣比</span><b class="${tr>=1?'pos':'neg'}">${tr.toFixed(2)}</b></div><div class="mkbar"><i style="width:${(tb[0]/(tb[0]+tb[1])*100).toFixed(1)}%"></i></div><div class="mklh"><small class="pos">買 ${(tb[0]/(tb[0]+tb[1])*100).toFixed(1)}%</small><small class="neg">賣 ${(tb[1]/(tb[0]+tb[1])*100).toFixed(1)}%</small></div></div>`:'')+`</div>`+
+   `<div class="mkn">人數比偏多常是散戶在追多，反而容易被反向洗；大戶持倉比比較看得出大資金方向。主動買賣比大於 1＝合約市場市價買單比較多。只看 Binance。</div>`+upd(this.t)}});
+
+// ── 合約數據 ② 爆倉強平：三家交易所的即時爆倉推播（WebSocket），統計存在這台裝置最多 24 小時 ──
+const LQ={ev:lsGet('mk_lq',[]),seg:lsGet('mk_lqseg',[]),ws:{},ok:{},want:false,dirty:true,win:lsGet('mk_lqw','1h'),min:lsGet('mk_lqm',0),saveAt:0,ct:null};
+const WIN={'1h':36e5,'4h':144e5,'24h':864e5},EXN={BN:'Binance',BY:'Bybit',OK:'OKX'};
+const BYS=['BTC','ETH','SOL','XRP','DOGE','BNB','ADA','SUI','LINK','AVAX','LTC','TON','TRX','DOT','BCH','NEAR','APT','ARB','OP','1000PEPE','WIF','ENA','TIA','SEI','FIL','ATOM','INJ','WLD','AAVE','UNI','ETC','HYPE'];
+const bse=s=>s.replace(/^(1000000|100000|10000|1000|1M)(?=[A-Z])/,'');
+function addEv(x,b,side,u,p,t){if(!(u>0)||!b)return;LQ.ev.push({x,b:bse(b),s:side,u:Math.round(u),p:+p,t:+t||Date.now()});LQ.dirty=true}
+function prune(){const c=Date.now()-864e5;if(LQ.ev.length>5000||(LQ.ev[0]&&LQ.ev[0].t<c))LQ.ev=LQ.ev.filter(e=>e.t>=c).slice(-5000);LQ.seg=LQ.seg.filter(s=>s[1]>=c)}
+function save(force){if(!force&&Date.now()-LQ.saveAt<5000)return;LQ.saveAt=Date.now();prune();lsSet('mk_lq',LQ.ev);lsSet('mk_lqseg',LQ.seg)}
+// 有連上的時間段（給「這段時間有多少分鐘有在收」用）
+function mark(){const now=Date.now(),on=Object.values(LQ.ok).some(Boolean);if(!on)return;const l=LQ.seg[LQ.seg.length-1];if(l&&now-l[1]<15000)l[1]=now;else LQ.seg.push([now,now])}
+function cover(ms){const a=Date.now()-ms;return LQ.seg.reduce((s,[x,y])=>s+Math.max(0,y-Math.max(x,a)),0)}
+function conn(k,url,open,msg,ping){if(LQ.ws[k])return;let w;try{w=new WebSocket(url)}catch(e){return}LQ.ws[k]=w;
+  w.onopen=()=>{LQ.ok[k]=1;LQ.dirty=true;try{open&&open(w)}catch(e){}if(ping)w._p=setInterval(()=>{try{w.send(ping)}catch(e){}},20000)};
+  w.onmessage=e=>{try{msg(e.data)}catch(x){}};
+  const end=()=>{clearInterval(w._p);if(LQ.ws[k]!==w)return;delete LQ.ws[k];LQ.ok[k]=0;LQ.dirty=true;if(LQ.want)setTimeout(()=>{if(LQ.want)startLQ()},5000)};
+  w.onclose=end;w.onerror=()=>{try{w.close()}catch(e){}end()}}
+async function okxCt(){if(LQ.ct)return LQ.ct;const c=await cached('okct',864e5,async()=>{const j=await getJ('https://www.okx.com','/api/v5/public/instruments','instType=SWAP',['okx','main']);
+  const m={};for(const x of j.data||[])m[x.instId]=[+x.ctVal,x.ctValCcy];return m});LQ.ct=c.v;return LQ.ct}
+function startLQ(){LQ.want=true;
+  conn('BN','wss://fstream.binance.com/ws/!forceOrder@arr',null,d=>{const j=JSON.parse(d),o=j.o||(j.data&&j.data.o);if(!o||!/USD[TC]$/.test(o.s))return;
+    const p=+o.ap||+o.p,q=+o.z||+o.q;addEv('BN',o.s.replace(/USD[TC]$/,''),o.S==='SELL'?'L':'S',p*q,p,o.T)});
+  conn('BY','wss://stream.bybit.com/v5/public/linear',w=>{for(let i=0;i<BYS.length;i+=10)w.send(JSON.stringify({op:'subscribe',args:BYS.slice(i,i+10).map(b=>'allLiquidation.'+b+'USDT')}))},d=>{const j=JSON.parse(d);if(!j.topic||!/^allLiquidation/.test(j.topic))return;
+    for(const x of [].concat(j.data||[]))addEv('BY',String(x.s).replace(/USDT$/,''),x.S==='Buy'?'L':'S',+x.v*+x.p,x.p,x.T)},'{"op":"ping"}');
+  okxCt().catch(()=>{});
+  conn('OK','wss://ws.okx.com:8443/ws/v5/public',w=>w.send(JSON.stringify({op:'subscribe',args:[{channel:'liquidation-orders',instType:'SWAP'}]})),d=>{if(d==='pong')return;const j=JSON.parse(d);if(!j.data||!j.arg||j.arg.channel!=='liquidation-orders')return;
+    for(const r of j.data){const ct=LQ.ct&&LQ.ct[r.instId];if(!ct)continue;const b=String(r.instId).split('-')[0];
+      for(const x of r.details||[]){const p=+x.bkPx,u=ct[1]==='USD'?+x.sz*ct[0]:+x.sz*ct[0]*p,side=x.posSide==='long'||x.posSide==='short'?(x.posSide==='long'?'L':'S'):(x.side==='sell'?'L':'S');addEv('OK',b,side,u,p,x.ts)}}},'ping')}
+function stopLQ(){LQ.want=false;for(const k in LQ.ws){const w=LQ.ws[k];delete LQ.ws[k];LQ.ok[k]=0;clearInterval(w._p);try{w.close()}catch(e){}}save(true)}
+function renderLQ(){const b=$('#lqBox');if(!b)return;LQ.dirty=false;mark();
+  const ms=WIN[LQ.win],a=Date.now()-ms,E=LQ.ev.filter(e=>e.t>=a),sum=s=>E.reduce((t,e)=>t+(e.s===s?e.u:0),0),Ls=sum('L'),Ss=sum('S'),all=Ls+Ss;
+  const big=E.reduce((m,e)=>!m||e.u>m.u?e:m,null),cov=cover(ms),mins=Math.round(cov/6e4);
+  const by={};for(const e of E){const o=by[e.b]||(by[e.b]={b:e.b,L:0,S:0});o[e.s]+=e.u}const rk=Object.values(by).sort((x,y)=>(y.L+y.S)-(x.L+x.S)).slice(0,6);
+  const feed=LQ.ev.filter(e=>e.u>=LQ.min).slice(-40).reverse();
+  const st=Object.keys(EXN).map(k=>`<span class="lq-st ${LQ.ok[k]?'on':''}">${EXN[k]}</span>`).join('');
+  const at=$('#lqAt');if(at)at.innerHTML=`<span class="lq-sts">${st}</span>`;
+  b.innerHTML=chips('mk-lqw',[['1h','1 小時'],['4h','4 小時'],['24h','24 小時']],LQ.win)+
+   cells([['多單爆倉',usd(Ls),'neg'],['空單爆倉',usd(Ss),'pos'],['合計',usd(all)]])+
+   (all?`<div class="mkbar lqbar"><i style="width:${(Ss/all*100).toFixed(1)}%"></i></div><div class="mklh"><small class="pos">空單 ${(Ss/all*100).toFixed(0)}%</small><small class="neg">多單 ${(Ls/all*100).toFixed(0)}%</small></div>`:'')+
+   (big?`<div class="mkn" style="margin-top:8px">最大一筆：<b>${esc(EXN[big.x])} ${esc(big.b)} ${big.s==='L'?'多單':'空單'} ${usd(big.u)}</b>（${hm(big.t)}，價格 ${big.p.toLocaleString('en-US',{maximumSignificantDigits:6})}）</div>`:'')+
+   `<div class="mkn">${cov<ms*0.95?`這 ${LQ.win.replace('h',' 小時')}裡有 <b>${mins<1?'不到 1':mins} 分鐘</b>停在這頁收資料，統計只算這段時間。`:'整段時間都有收到資料。'}</div>`+
+   (rk.length?`<div class="mkr h" style="margin-top:8px"><span>幣種排行</span><span>多單爆倉</span><span>空單爆倉</span></div>`+rk.map(o=>`<div class="mkr"><span><b>${esc(o.b)}</b></span><span class="neg">${o.L?usd(o.L):'—'}</span><span class="pos">${o.S?usd(o.S):'—'}</span></div>`).join(''):'')+
+   `<div class="fr-dh" style="margin-top:14px"><b>即時爆倉</b><span>最新在上</span></div>`+chips('mk-lqm',[[0,'全部'],[1e4,'≥ 1 萬'],[1e5,'≥ 10 萬'],[1e6,'≥ 100 萬']].map(([k,n])=>[String(k),n]),String(LQ.min))+
+   `<div class="lq-f">${feed.length?feed.map(e=>`<div class="lqi${e.u>=1e6?' big':''}"><span class="lqt">${hms(e.t)}</span><span><b>${esc(e.b)}</b> <em class="${e.s==='L'?'neg':'pos'}">${e.s==='L'?'多單爆倉':'空單爆倉'}</em><small>${esc(EXN[e.x])}</small></span><span class="${e.s==='L'?'neg':'pos'}">${usd(e.u)}</span></div>`).join(''):`<div class="small mkn">${Object.values(LQ.ok).some(Boolean)?'連上了，等交易所推爆倉單過來…':'連線中…'}</div>`}</div>`+
+   `<div class="mkn">多單爆倉＝看多的人被強制平倉（被迫賣出），空單爆倉＝看空的人被強制平倉（被迫買回）。Binance 每個幣每秒只推最大的一筆，實際爆倉量會比這裡多；Bybit 只收主要 ${BYS.length} 個幣。</div>`;
+  save()}
+
+// ── 切換三大類 ──
+const BLK=[SC,CB,TK,SEC,OI];let tab=lsGet('mk_tab','news');if(!['news','flow','deriv'].includes(tab))tab='news';
+function setTab(t){tab=t;const v=$('#newsView');if(!v)return;v.dataset.mk=t;$('#mkTab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===t));lsSet('mk_tab',t);v.scrollTop=0;dispatchEvent(new Event('resize'));loop()}
+function loop(){const v=$('#newsView'),on=v&&v.classList.contains('on')&&document.visibilityState==='visible';
+  if(on)for(const b of BLK)if(b.tab===tab)b.tick();
+  if(on&&tab==='deriv'){if(!LQ.want){LQ.dirty=true}startLQ();if(LQ.dirty||Date.now()%10000<1000)renderLQ()}else if(LQ.want)stopLQ()}
+(function wire(){const v=$('#newsView'),t=$('#mkTab');if(!v||!t)return;v.dataset.mk=tab;t.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===tab));
+  t.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&b.dataset.m!==tab)setTab(b.dataset.m)});
+  v.addEventListener('click',e=>{const c=e.target.closest('.chips button');if(!c)return;const g=c.parentElement,k=c.dataset.k;
+    if(g.classList.contains('mk-sec')){secK=k;lsSet('mk_sec',k);SEC.draw()}
+    else if(g.classList.contains('mk-oi')){if(k===oiS)return;oiS=k;lsSet('mk_oi',k);OI.d=null;OI.stale=OI.busy;OI.again()}
+    else if(g.classList.contains('mk-lqw')){LQ.win=k;lsSet('mk_lqw',k);renderLQ()}
+    else if(g.classList.contains('mk-lqm')){LQ.min=+k;lsSet('mk_lqm',+k);renderLQ()}})})();
+setInterval(loop,1000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&LQ.want)stopLQ();loop()});
+addEventListener('pagehide',()=>save(true));
+window.MktTabs={setTab,get tab(){return tab},LQ};
+})();
+</script>
 <script>// ───────── 各交易所即時資金費率（市場分析頁）─────────
 // 只用免費公開介面：先從瀏覽器直連，交易所沒開跨網域（CORS）時改走 HexStack 轉送伺服器（worker/push.js 的 /x，白名單路徑）。
 // 每家整理成 { 幣: { r: 每期費率（小數）, h: 幾小時一期, nt: 下次結算毫秒, mp: 標記價 } }；頁面開著時每 30 秒更新，倒數每秒跳。
@@ -5971,7 +6184,7 @@ function wire(){
   box.addEventListener('submit',ev=>{ev.preventDefault();const i=ev.target.querySelector('input'),b=base(i.value.trim().toUpperCase().replace(/[-_\/]?(USDT|USD|PERP|SWAP)$/,'').replace(/[^A-Z0-9]/g,''));
     if(!b)return;if(!watch.includes(b)){watch.push(b);lsSet(LS,watch)}sel=b;render();refresh()})}
 
-const vis=()=>{const v=$('#newsView');return v&&v.classList.contains('on')&&document.visibilityState==='visible'};
+const vis=()=>{const v=$('#newsView');return v&&v.classList.contains('on')&&v.dataset.mk==='deriv'&&document.visibilityState==='visible'};
 function loop(){
   if(vis()){wire();if(!started){started=true;render()}if(Date.now()-at>30000)refresh()}
   if(vis())document.querySelectorAll('#frBox .fr-cd').forEach(b=>b.textContent=cd(+b.dataset.t))}
