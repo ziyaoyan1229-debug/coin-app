@@ -125,9 +125,9 @@ const XEX = {
   bybit: { hosts: { main: 'https://api.bybit.com', test: 'https://api-testnet.bybit.com' }, hdr: ['x-bapi-api-key', 'x-bapi-timestamp', 'x-bapi-recv-window', 'x-bapi-sign'],
     paths: ['/v5/market/time', '/v5/market/tickers', '/v5/market/instruments-info', '/v5/user/query-api', '/v5/account/wallet-balance', '/v5/asset/transfer/query-account-coins-balance', '/v5/position/list'] },
   okx: { hosts: { main: 'https://www.okx.com' }, hdr: ['ok-access-key', 'ok-access-sign', 'ok-access-timestamp', 'ok-access-passphrase'],
-    paths: ['/api/v5/public/time', '/api/v5/market/ticker', '/api/v5/public/funding-rate', '/api/v5/account/config', '/api/v5/account/balance', '/api/v5/asset/balances', '/api/v5/account/positions'] },
+    paths: ['/api/v5/public/time', '/api/v5/market/ticker', '/api/v5/public/funding-rate', '/api/v5/public/instruments', '/api/v5/account/config', '/api/v5/account/balance', '/api/v5/asset/balances', '/api/v5/account/positions'] },
   binance: { hosts: { main: 'https://api.binance.com', fut: 'https://fapi.binance.com', dfut: 'https://dapi.binance.com' }, hdr: ['x-mbx-apikey'],
-    paths: ['/api/v3/time', '/api/v3/ticker/price', '/fapi/v1/premiumIndex', '/fapi/v1/fundingInfo', '/sapi/v1/account/apiRestrictions', '/api/v3/account', '/sapi/v1/asset/wallet/balance', '/fapi/v2/balance', '/fapi/v2/positionRisk', '/dapi/v1/balance', '/dapi/v1/positionRisk'] },
+    paths: ['/api/v3/time', '/api/v3/ticker/price', '/fapi/v1/premiumIndex', '/fapi/v1/fundingInfo', '/api/v3/klines', '/futures/data/openInterestHist', '/futures/data/globalLongShortAccountRatio', '/futures/data/topLongShortPositionRatio', '/futures/data/takerlongshortRatio', '/sapi/v1/account/apiRestrictions', '/api/v3/account', '/sapi/v1/asset/wallet/balance', '/fapi/v2/balance', '/fapi/v2/positionRisk', '/dapi/v1/balance', '/dapi/v1/positionRisk'] },
   bitget: { hosts: { main: 'https://api.bitget.com' }, hdr: ['access-key', 'access-sign', 'access-timestamp', 'access-passphrase', 'locale'],
     paths: ['/api/v2/public/time', '/api/v2/spot/market/tickers', '/api/v2/mix/market/current-fund-rate', '/api/v2/mix/market/tickers', '/api/v2/spot/account/info', '/api/v2/spot/account/assets', '/api/v2/mix/account/accounts', '/api/v2/mix/position/all-position'] },
   gate: { hosts: { main: 'https://api.gateio.ws' }, hdr: ['key', 'timestamp', 'sign'],
@@ -141,6 +141,10 @@ const XEX = {
   // Kraken 私有介面只收 POST，body 只允許 nonce
   kraken: { hosts: { main: 'https://api.kraken.com' }, hdr: ['api-key', 'api-sign'], post: ['/0/private/Balance'],
     paths: ['/0/public/Time', '/0/public/Ticker', '/0/private/Balance'] },
+  // 市場分析「資金流向」的公開資料（手機直連不通時才走這裡）
+  cbx: { hosts: { main: 'https://api.exchange.coinbase.com' }, hdr: [], paths: ['/products/BTC-USD/candles', '/products/BTC-USD/ticker'] },
+  llama: { hosts: { main: 'https://stablecoins.llama.fi' }, hdr: [], paths: ['/stablecoins', '/stablecoincharts/all'] },
+  gecko: { hosts: { main: 'https://api.coingecko.com' }, hdr: [], paths: ['/api/v3/coins/categories'] },
 };
 const XHDR = [...new Set(Object.values(XEX).flatMap(x => x.hdr).filter(h => h !== 'authorization'))].join(',');
 async function xproxy(req, u) {
