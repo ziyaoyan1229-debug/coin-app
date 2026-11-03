@@ -416,7 +416,8 @@ body.ddopen #ddMask{display:block}
 #cvSheet .shd button{margin-left:auto;background:none;border:0;color:var(--muted);font-size:18px;width:36px;height:36px;cursor:pointer}
 #cvSheet #rangeWrap,#cvSheet #stratWrap{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:0 0 12px;color:var(--muted);font-size:12px}
 #cvSheet #rangeWrap select,#cvSheet #stratWrap select{height:44px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font:inherit;font-size:15px;padding:0 10px}
-#cvSheet #rangeWrap .sdd,#cvSheet #rangeWrap .ddbtn,#cvSheet #stratWrap .sdd,#cvSheet #stratWrap .ddbtn{width:100%;text-align:left;height:44px;border-radius:10px;font-size:15px}
+#cvSheet #rangeWrap .sdd,#cvSheet #rangeWrap .ddbtn,#cvSheet #stratWrap .sdd[hidden]{display:none}
+#stratWrap .sdd,#cvSheet #stratWrap .ddbtn{width:100%;text-align:left;height:44px;border-radius:10px;font-size:15px}
 #cvSheet .sl{color:var(--muted);font-size:12px;margin:0 0 6px}
 #cvTools{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
 #cvTools .ddbtn{height:44px;font-size:14px;border-radius:10px}
@@ -946,6 +947,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 :is(#tmBot,.fdbot,#aiChat) code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
 :is(#tmBot,.fdbot,#aiChat) .pick{max-height:260px;overflow:auto;margin:6px 0}
 :is(#tmBot,.fdbot,#aiChat) .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .pick .pps{padding-left:24px}:is(#tmBot,.fdbot,#aiChat) .pick .pps label{font-size:13.5px}
 :is(#tmBot,.fdbot,#aiChat) .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
 :is(#tmBot,.fdbot,#aiChat) .lg{font-size:13.5px}
 :is(#tmBot,.fdbot,#aiChat) .lg .br{font-size:13.5px}
@@ -1020,7 +1022,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
       <option value="2022-11-21|2025-10-07">2022-11 → 2025-10 牛市</option>
       <option value="2025-10-07|2026-06-30">2025-10 → 2026-06 熊市</option>
       <option value="2026-06-30|2026-10-01">2026-06 → 至今 牛市</option></select></label>
-    <label id="stratWrap"><select id="cvStrat"><option value="">策略買賣點</option></select></label>
+    <label id="stratWrap"><select id="cvStratG"><option value="">不顯示</option></select><span id="cvStratPL" hidden>參數</span><select id="cvStrat"><option value="" hidden>—</option></select></label>
     <span id="cvQuick"><button class="ddbtn" type="button" data-q="auto" title="恢復自動縮放（也可以在圖上點兩下）" aria-label="自動縮放">⤢</button><button class="ddbtn" type="button" data-q="del" title="刪除選取的線（先點一下線）" aria-label="刪除選取的線" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></span>
     <label id="monthWrap" style="display:none">月份 <select id="cvMonth"></select></label>
     <span class="tools" id="cvTools"><button class="ddbtn" data-act="auto" title="自動縮放：上下拖動後，按這裡恢復（也可以在圖上點兩下）" aria-label="自動縮放">⤢</button><button class="ddbtn" data-tool="ruler" title="在圖上拖曳量測漲跌幅與時間；也可以按住 Shift 直接拖">📏 量尺</button><button class="ddbtn" data-tool="del" title="刪除選取的線（也可以按 Delete 鍵）" disabled>✕ 刪除</button><button class="ddbtn" data-tool="clear" title="刪除這個標的上全部畫的線">🗑 全部刪除</button><button class="ddbtn" data-tool="trend" title="拖曳畫斜線">╱ 斜線</button><button class="ddbtn" data-tool="hline" title="點一下畫水平線">― 水平線</button><button class="ddbtn" data-tool="fib" title="從起點拖到終點畫斐波那契回撤；選取後可拖兩端的圓點調整">𝐅 斐波那契</button><button class="ddbtn" data-tool="rect" title="拖曳畫支撐／壓力方框">▭ 方框</button></span>
@@ -1046,12 +1048,13 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 #myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#cmpPane .ccchips{display:flex;flex-wrap:wrap;gap:6px}#cmpPane .ccchips button{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}#cmpPane .ccchips button.on{background:var(--acc);border-color:var(--acc);color:#fff}#cmpSeg{display:flex}#cmpSeg button{flex:1}
 #cmpPane .ccrow{display:flex;align-items:center;justify-content:space-between;gap:10px}#cmpPane .ccrow label{margin:0}
 #cmpPane .ccdd{position:relative;flex:1;max-width:72%;display:flex;justify-content:flex-end}
-:is(#ccDdBtn,#stDdBtn,#stCBtn,#pfDdBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu).on{display:block}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
+:is(#ccDdBtn,#stDdBtn,#stCBtn,#pfDdBtn,#stPBtn,#pfGBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu).on{display:block}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccgh{font-size:12px;color:var(--muted);padding:8px 10px 2px;font-weight:700}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
 
 #myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
@@ -3333,9 +3336,15 @@ const SOC={};
   const sync=()=>{const o=src('del');q.querySelector('[data-q=del]').disabled=!o||o.disabled};
   new MutationObserver(sync).observe(T,{subtree:true,attributes:true,attributeFilter:['disabled']});sync()})();
 // 下拉清單＝「我的策略」：每個用自己存的參數
-window.syncCvStrat=syncCvStrat;function syncCvStrat(){const sel=$('#cvStrat');if(!sel||!window.SigLock)return;const v=sel.value,L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
-  const h='<option value="">策略買賣點</option>'+ks.map(k=>`<option value="${k.replace(/"/g,'')}">${SigLock.name(k).replace(/[&<>]/g,'')}（${SigLock.part(k)[1]}）</option>`).join('');
-  if(sel.innerHTML!==h){sel.innerHTML=h;sel.value=ks.includes(v)?v:''}}
+// 先選策略（#cvStratG），再選這個策略底下的參數組（#cvStrat，值＝lock key）
+window.syncCvStrat=syncCvStrat;function syncCvStrat(){const sel=$('#cvStrat'),gs=$('#cvStratG');if(!sel||!gs||!window.SigLock)return;const v=sel.value,L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
+  const G=SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(k=>ks.includes(k))})).filter(x=>x.keys.length),e=t=>String(t).replace(/[&<>"]/g,'');
+  let g=ks.includes(v)?SigLock.gid(v):gs.value;if(!G.some(x=>x.g===g))g='';
+  const gh='<option value="">不顯示</option>'+G.map(x=>`<option value="${e(x.g)}">${e(SigLock.gname(x.g))}（${SigLock.part(x.keys[0])[1]}）</option>`).join('');
+  if(gs.innerHTML!==gh)gs.innerHTML=gh;gs.value=g;
+  const cur=G.find(x=>x.g===g),h='<option value="" hidden>—</option>'+(cur?cur.keys.map(k=>`<option value="${e(k)}">${e(SigLock.setName(k))}</option>`).join(''):'');
+  if(sel.innerHTML!==h)sel.innerHTML=h;sel.value=cur&&cur.keys.includes(v)?v:'';
+  const show=!!cur;$('#cvStratPL').hidden=!show;if(sel._dd)sel._dd.hidden=!show;gs.dispatchEvent(new Event('sync'));sel.dispatchEvent(new Event('sync'))}
 function stratOnChart(B){const lk=$('#cvStrat').value;$('#stratWrap').classList.toggle('on',!!lk);if(!lk)return;
   const P=SigLock.get()[lk];if(!P)return;const[st,sym]=SigLock.part(lk);
   if(cvSym!==sym||!(BEST[st]&&BEST[st][sym])){msg(`「${SigLock.name(lk)}」是 ${sym} 的策略，切到 ${sym} 才看得到買賣點。`);setTimeout(()=>msg(''),2500);return}
@@ -3435,8 +3444,12 @@ $('#indBtn').onclick=e=>{e.stopPropagation();$('#indDD').classList.toggle('open'
 document.addEventListener('click',e=>{if(!$('#indDD').contains(e.target)&&!$('#indPanel').contains(e.target))$('#indDD').classList.remove('open')});
 document.querySelectorAll('#indPanel [data-ind]').forEach(x=>x.onchange=()=>drawChart(false));
 sortList($('#indPanel'),'ord_ind',()=>legendVals(null));
-syncCvStrat();['#cvSym','#cvTf','#cvRange','#cvStrat'].forEach(s=>sortSel($(s)));
+syncCvStrat();['#cvSym','#cvTf','#cvRange','#cvStratG','#cvStrat'].forEach(s=>sortSel($(s)));syncCvStrat();
 $('#cvStrat').onchange=()=>drawChart(false);
+// 換策略：先套用它的第一組參數畫上去，面板不關，讓你接著選參數
+$('#cvStratG').onchange=()=>{const gs=$('#cvStratG'),sel=$('#cvStrat'),x=SigLock.groups().find(y=>y.g===gs.value),L=SigLock.get();
+  const k=x?x.keys.find(k=>{const[st,sym]=SigLock.part(k);return L[k]&&BEST[st]&&BEST[st][sym]}):'';sel.value='';syncCvStrat();sel.value=k||'';sel.dispatchEvent(new Event('sync'));
+  window.__cvKeep=1;try{sel.dispatchEvent(new Event('change'))}finally{window.__cvKeep=0}};
 
 // ───────── 策略模擬 ─────────
 // 預設＝回測最佳參數（依標的）
@@ -4234,9 +4247,13 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     g.disabled=true;m.textContent='儲存中，測試連線…';
     try{const r=await api('/local/config',o),bad=/^連線失敗/.test(r.test||'');xmsg=r.test||'已儲存';if(bad){if(xf.ex==='bybit')xmsg=netHint(xmsg,xf.tn);m.textContent=xmsg;g.disabled=false;xf.s='';$('#botXs').value='';return}xf=null;toast(xmsg)}
     catch(e){m.textContent=e.message;g.disabled=false;return}refresh()}
+  document.addEventListener('change',e=>{const c=e.target;if(!c.matches||!c.matches('.pick input[data-pg]'))return;const P=c.closest('label').nextElementSibling;if(!P||!P.classList.contains('pps'))return;
+    P.hidden=!c.checked;P.querySelectorAll('input[data-k]:not(:disabled)').forEach(i=>i.checked=c.checked)});
   // 加入策略：從我的策略挑（資金比例平均分），或一鍵帶入策略框架 v1 的 7 個子帳戶（整體 ×1.5，跟組合回測一致）
   function picker(){const L=SigLock.get(),ks=Object.keys(L),have=new Set((S.strategies||[]).map(x=>x.key));
-    return `<div class="pick">${ks.length?ks.map(k=>`<label><input type="checkbox" value="${H_(k)}"${have.has(k)?' disabled checked':''}> <span>${H_(SigLock.name(k))} <small class="sub">${SigLock.part(k)[1]}</small></span></label>`).join(''):'<p class="sub">「我的策略」還沒有策略，到「策略分析 › 我的策略」新增。</p>'}</div>
+    // 先勾策略，底下才展開它的參數組給你勾
+    const G=SigLock.groups();
+    return `<div class="pick">${ks.length?G.map(x=>{const all=x.keys.every(k=>have.has(k));return `<label class="pkg"><input type="checkbox" data-pg${all?' disabled checked':''}> <span>${H_(SigLock.gname(x.g))} <small class="sub">${SigLock.part(x.keys[0])[1]}・${x.keys.length} 組參數</small></span></label><div class="pps"${all?'':' hidden'}>${x.keys.map(k=>`<label><input type="checkbox" data-k value="${H_(k)}"${have.has(k)?' disabled checked':''}> <span>${H_(SigLock.setName(k))}</span></label>`).join('')}</div>`}).join(''):'<p class="sub">「我的策略」還沒有策略，到「策略分析 › 我的策略」新增。</p>'}</div>
       <div class="row2"><button class="bbtn pri" id="botAddGo" type="button">加入勾選的策略</button><button class="bbtn" id="botFw" type="button">一鍵帶入策略框架 v1</button></div>
       <p class="sub" style="margin:2px 0 8px">資金平均分給所有策略；加入後先跑 7 天模擬盤。</p>`}
   function payload(k,alloc){const[st,sym]=SigLock.part(k);return {key:k,name:SigLock.name(k),st,sym,p:Object.assign({},BEST[st]&&BEST[st][sym],SigLock.get()[k]),alloc}}
@@ -4323,7 +4340,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botSimSave':{const v=parseFloat($('#botSimSt').value),r=rows().find(x=>x.led===bv);if(!(v>=10))return toast('金額至少 10 USDT');ask={t:'sim',k:r.k,v};return render()}
       case 'botSimDel':{const r=rows().find(x=>x.led===bv);ask={t:'simdel',k:r.k};return render()}
       case 'botAdd':pick=!pick;return render();
-      case 'botAddGo':return addKeys([...b.querySelectorAll('.pick input:checked:not(:disabled)')].map(i=>i.value));
+      case 'botAddGo':return addKeys([...b.querySelectorAll('.pick input[data-k]:checked:not(:disabled)')].map(i=>i.value));
       case 'botFw':return addKeys(fwKeys().filter(k=>!(S.strategies||[]).some(x=>x.key===k)),1.5);
       case 'botStop':if(arm<Date.now()){arm=Date.now()+5000;render();setTimeout(()=>{if(arm&&arm<Date.now()){arm=0;render()}},5200);return}arm=0;return act('/api/stopall',{},'已全部平倉並暫停');
       case 'botSug':return suggest();
@@ -4536,13 +4553,16 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
   function ccForm(){const L=SigLock.get(),ks=Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]});
     if(!ks.length){$('#ccForm').innerHTML='<div class="card" style="padding:12px 14px">先在「我的策略」新增一個策略。</div>';$('#myCmpBox').innerHTML='';return}
     if(!ks.includes(ccK))ccK=ks[0];
+    // 先選策略、再選這個策略底下的參數組
+    const CG=stGroups(ks),ccOpts=()=>{const x=CG.find(y=>y.g===SigLock.gid(ccK));return (x?x.keys:[ccK]).map(k=>`<option value="${esc(k)}"${k===ccK?' selected':''}>${esc(SigLock.setName(k))}</option>`).join('')};
     // 幣種清單和圖示要先全部載好才能選（用開機的載入方塊）
     if(window.XM&&!ccListed){$('#myCmpBox').innerHTML='';$('#ccForm').innerHTML=HX('載入幣種清單…');const gen=ccGen;
       Promise.all([XM.list(),XM.icons()]).catch(()=>{}).then(()=>{ccListed=true;if(gen===ccGen&&cmpMode==='coin'&&$('#ccForm'))ccForm()});return}
     const all=ccAll();if(!ccSel)ccSel=all.slice(0,6);
     $('#myCmpBox').innerHTML='';$('#ccForm').hidden=false;
     $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
-      <div class="field"><label>策略</label><select id="ccK">${ks.map(k=>`<option value="${esc(k)}"${k===ccK?' selected':''}>${esc(SigLock.name(k))}（${SigLock.part(k)[1]}）</option>`).join('')}</select></div>
+      <div class="field"><label>策略</label><select id="ccG">${CG.map(x=>`<option value="${esc(x.g)}"${x.g===SigLock.gid(ccK)?' selected':''}>${esc(SigLock.gname(x.g))}（${SigLock.part(x.keys[0])[1]}）</option>`).join('')}</select></div>
+      <div class="field"><label>參數</label><select id="ccK">${ccOpts()}</select></div>
       <div class="field"><label>期間</label><div class="seg" id="ccPer">${[[365,'近一年'],[730,'近兩年'],[0,'2020 至今']].map(([v,t])=>`<button type="button" data-v="${v}"${ccPer===v?' class="on"':''}>${t}</button>`).join('')}</div></div>
       <div class="field ccrow"><label>幣種</label><div class="ccdd"><button type="button" id="ccDdBtn">${esc(ccBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="ccMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
@@ -4550,6 +4570,7 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
       <p class="small" style="margin:4px 0 8px">用這個策略存的參數，原封不動放到每個幣上回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；第一次下載後存在手機，之後只補最新的部分。</p>
       <button class="btn" id="ccGo" type="button" style="width:100%">開始比較</button></div>`;
     $('#ccK').onchange=e=>ccK=e.target.value;
+    $('#ccG').onchange=e=>{const x=CG.find(y=>y.g===e.target.value);if(x){ccK=x.keys[0];$('#ccK').innerHTML=ccOpts()}};
     $('#ccPer').onclick=e=>{const b=e.target.closest('button');if(!b)return;ccPer=+b.dataset.v;$('#ccPer').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
     const M=$('#ccMenu'),sync=()=>{M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',ccSel.includes(b.dataset.s)));$('#ccDdBtn').firstChild.textContent=ccBtnTxt()};
     $('#ccDdBtn').onclick=e=>{e.stopPropagation();M.classList.toggle('on')};
@@ -4559,64 +4580,91 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     document.addEventListener('click',()=>M.classList.remove('on'));
     $('#ccGo').onclick=coinRun}
   // 策略差異：選一個幣種、期間，再從下拉多選我的策略（預設全選）；按開始比較換到結果畫面，用載入方塊算完再顯示
-  let stCoins=['BTC'],stSel=null;
+  let stCoins=['BTC'],stSel=null,stG=null;
+  // 我的策略分組（策略 → 底下的參數組），只留回測得了的
+  const stGroups=ks=>SigLock.groups().map(x=>({g:x.g,keys:x.keys.filter(k=>ks.includes(k))})).filter(x=>x.keys.length);
   const stKeys=()=>{const L=SigLock.get();return Object.keys(L).filter(k=>{const[st,sym]=SigLock.part(k);return BEST[st]&&BEST[st][sym]})};
-  const stBtnTxt=()=>stSel.length?(stSel.length===1?SigLock.name(stSel[0]):`已選 ${stSel.length} 個策略`):'請選擇';
+  const stBtnTxt=()=>stSel.length?(stSel.length===1?SigLock.setName(stSel[0]):`已選 ${stSel.length} 組參數`):'請選擇';
+  const stGTxt=()=>stG.length?(stG.length===1?SigLock.gname(stG[0]):`已選 ${stG.length} 個策略`):'請選擇';
   function stForm(){const ks=stKeys();
     if(ks.length<2){$('#ccForm').innerHTML='<div class="card" style="padding:12px 14px">至少要有 2 個我的策略才能比較。</div>';$('#myCmpBox').innerHTML='';return}
     if(window.XM&&!ccListed){$('#myCmpBox').innerHTML='';$('#ccForm').innerHTML=HX('載入幣種清單…');const gen=ccGen;
       Promise.all([XM.list(),XM.icons()]).catch(()=>{}).then(()=>{ccListed=true;if(gen===ccGen&&cmpMode==='st'&&$('#ccForm'))stForm()});return}
     const all=ccAll();stCoins=stCoins.filter(x=>all.includes(x));if(!stCoins.length)stCoins=[all[0]||'BTC'];
     const cTxt=()=>stCoins.length?(stCoins.length<=3?stCoins.join('、'):stCoins.slice(0,3).join('、')+` 等 ${stCoins.length} 個`):'請選擇';
-    stSel=(stSel||ks).filter(k=>ks.includes(k));if(!stSel.length)stSel=ks.slice();
+    const G=stGroups(ks),gk=g=>(G.find(x=>x.g===g)||{keys:[]}).keys;
+    stG=(stG||G.map(x=>x.g)).filter(g=>G.some(x=>x.g===g));if(!stG.length)stG=G.map(x=>x.g);
+    stSel=(stSel||ks).filter(k=>ks.includes(k)&&stG.includes(SigLock.gid(k)));if(!stSel.length)stSel=stG.flatMap(gk);
+    // 參數選單：只列已選策略底下的參數組；選了不只一個策略就加上策略名當小標
+    const pHTML=()=>`<div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>`+(stG.length?G.filter(x=>stG.includes(x.g)).map(x=>(stG.length>1?`<div class="ccgh">${esc(SigLock.gname(x.g))}</div>`:'')+x.keys.map(k=>`<button type="button" class="ccit${stSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.setName(k))}</span><i></i></button>`).join('')).join(''):'<div class="small" style="padding:10px">先選策略</div>');
     $('#myCmpBox').innerHTML='';$('#ccForm').hidden=false;
     $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
       <div class="field ccrow"><label>幣種</label><div class="ccdd"><button type="button" id="stCBtn">${esc(cTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="stCMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
         ${all.map(x=>`<button type="button" class="ccit${stCoins.includes(x)?' on':''}" data-s="${x}">${ccIc(x)}<span>${x}</span><i></i></button>`).join('')}</div></div></div>
       <div class="field"><label>期間</label><div class="seg" id="ccPer">${[[365,'近一年'],[730,'近兩年'],[0,'2020 至今']].map(([v,t])=>`<button type="button" data-v="${v}"${ccPer===v?' class="on"':''}>${t}</button>`).join('')}</div></div>
-      <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="stDdBtn">${esc(stBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="stDdBtn">${esc(stGTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
         <div id="stMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
-        ${ks.map(k=>`<button type="button" class="ccit${stSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))}</span><i></i></button>`).join('')}</div></div></div>
+        ${G.map(x=>`<button type="button" class="ccit${stG.includes(x.g)?' on':''}" data-g="${esc(x.g)}"><span>${esc(SigLock.gname(x.g))} <small style="color:var(--muted)">${x.keys.length} 組</small></span><i></i></button>`).join('')}</div></div></div>
+      <div class="field ccrow"><label>參數</label><div class="ccdd"><button type="button" id="stPBtn">${esc(stBtnTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="stPMenu">${pHTML()}</div></div></div>
       <p class="small" style="margin:4px 0 8px">每個策略用自己存的參數，放到同一個幣、同一段期間回測。BTC、ETH 以外的幣，手機會先向幣安下載 1 小時 K（期間越長越久），優先用永續合約並計入資金費率，滑價以 BTC 的 2.5 倍估；第一次下載後存在手機，之後只補最新的部分。</p>
       <button class="btn" id="stGo" type="button" style="width:100%">開始比較</button></div>`;
     const CM=$('#stCMenu'),csync=()=>{CM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stCoins.includes(b.dataset.s)));$('#stCBtn').firstChild.textContent=cTxt()};
-    $('#stCBtn').onclick=e=>{e.stopPropagation();$('#stMenu').classList.remove('on');CM.classList.toggle('on')};
+    $('#stCBtn').onclick=e=>{e.stopPropagation();$('#stMenu').classList.remove('on');$('#stPMenu').classList.remove('on');CM.classList.toggle('on')};
     CM.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;
       if(b.dataset.a==='all')stCoins=all.slice();else if(b.dataset.a==='none')stCoins=[];
       else{const x=b.dataset.s;stCoins=stCoins.includes(x)?stCoins.filter(y=>y!==x):[...stCoins,x]}csync()};
     document.addEventListener('click',()=>CM.classList.remove('on'));
     $('#ccPer').onclick=e=>{const b=e.target.closest('button');if(!b)return;ccPer=+b.dataset.v;$('#ccPer').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
-    const M=$('#stMenu'),sync=()=>{M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stSel.includes(b.dataset.k)));$('#stDdBtn').firstChild.textContent=stBtnTxt()};
-    $('#stDdBtn').onclick=e=>{e.stopPropagation();$('#stCMenu').classList.remove('on');M.classList.toggle('on')};
+    // 先選策略：勾一個策略就把它底下的參數組全部帶進來，取消就一起拿掉
+    const M=$('#stMenu'),PM=$('#stPMenu'),sync=()=>{M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stG.includes(b.dataset.g)));$('#stDdBtn').firstChild.textContent=stGTxt();PM.innerHTML=pHTML();$('#stPBtn').firstChild.textContent=stBtnTxt()};
+    $('#stDdBtn').onclick=e=>{e.stopPropagation();CM.classList.remove('on');PM.classList.remove('on');M.classList.toggle('on')};
     M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;
-      if(b.dataset.a==='all')stSel=ks.slice();else if(b.dataset.a==='none')stSel=[];
-      else{const k=b.dataset.k;stSel=stSel.includes(k)?stSel.filter(y=>y!==k):[...stSel,k]}sync()};
-    document.addEventListener('click',()=>M.classList.remove('on'));
+      if(b.dataset.a==='all'){stG=G.map(x=>x.g);stSel=ks.slice()}else if(b.dataset.a==='none'){stG=[];stSel=[]}
+      else{const g=b.dataset.g;if(stG.includes(g)){stG=stG.filter(y=>y!==g);stSel=stSel.filter(k=>SigLock.gid(k)!==g)}else{stG=[...stG,g];stSel=[...stSel,...gk(g).filter(k=>!stSel.includes(k))]}}sync()};
+    // 再選參數：只在已選策略的參數組裡勾
+    const psync=()=>{PM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',stSel.includes(b.dataset.k)));$('#stPBtn').firstChild.textContent=stBtnTxt()};
+    $('#stPBtn').onclick=e=>{e.stopPropagation();CM.classList.remove('on');M.classList.remove('on');PM.classList.toggle('on')};
+    PM.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b||!b.dataset.a&&!b.dataset.k)return;const vis=stG.flatMap(gk);
+      if(b.dataset.a==='all')stSel=vis.slice();else if(b.dataset.a==='none')stSel=[];
+      else{const k=b.dataset.k;stSel=stSel.includes(k)?stSel.filter(y=>y!==k):[...stSel,k]}psync()};
+    document.addEventListener('click',()=>{M.classList.remove('on');PM.classList.remove('on')});
     $('#stGo').onclick=stRun}
   // 組合回測（策略框架 v1）：勾幾個我的策略當子帳戶，資金平均分、不再平衡；整體放大＝每個子帳戶的倉位倍數再乘上去
   const FW1=[['my','BTC',1.25,'off','我的系統'],['my','ETH',1,'off','我的系統'],['tur','BTC',0.5,'T1','海龜'],['dense','ETH',0.75,'lin','均線密集'],['dense','BTC',0.35,'off','均線密集'],['poc','ETH',0.35,'off','POC 堆倉'],['poc','BTC',0.35,'off','POC 堆倉']];window.FW1=FW1;
-  let pfSel=null,pfM=1.5;const OOS0=ts('2024-09-21');
+  let pfSel=null,pfG=null,pfM=1.5;const OOS0=ts('2024-09-21');
   function pfForm(){const ks=stKeys(),L=SigLock.get();pfSel=(pfSel||ks).filter(k=>ks.includes(k));
+    // 先選策略、再選參數組（子帳戶）；剛帶入框架時，策略照已選的子帳戶推回去
+    const G=stGroups(ks),gk=g=>(G.find(x=>x.g===g)||{keys:[]}).keys;if(!pfG)pfG=G.filter(x=>x.keys.some(k=>pfSel.includes(k))).map(x=>x.g);pfG=pfG.filter(g=>G.some(x=>x.g===g));pfSel=pfSel.filter(k=>pfG.includes(SigLock.gid(k)));
+    const gTxt=()=>pfG.length?(pfG.length===1?SigLock.gname(pfG[0]):`已選 ${pfG.length} 個策略`):'請選擇';
+    const pHTML=()=>`<div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>`+(pfG.length?G.filter(x=>pfG.includes(x.g)).map(x=>(pfG.length>1?`<div class="ccgh">${esc(SigLock.gname(x.g))}</div>`:'')+x.keys.map(k=>`<button type="button" class="ccit${pfSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.setName(k))} <small style="color:var(--muted)">${SigLock.part(k)[1]}・k ${+L[k].kMul>0?+L[k].kMul:1}</small></span><i></i></button>`).join('')).join(''):'<div class="small" style="padding:10px">先選策略</div>');
     const fwHas=FW1.every(f=>ks.some(k=>{const[st,sym]=SigLock.part(k);return st===f[0]&&sym===f[1]&&+L[k].kMul===f[2]}));
-    const txt=()=>pfSel.length?`已選 ${pfSel.length} 個子帳戶`:'請選擇';
+    const txt=()=>pfSel.length?`已選 ${pfSel.length} 組參數`:'請選擇';
     $('#myCmpBox').innerHTML='';$('#ccForm').hidden=false;
     $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
       <p class="small" style="margin:0 0 10px;line-height:1.6">把幾個我的策略當成子帳戶一起跑：資金平均分、不再平衡，每個子帳戶照自己的「倉位倍數」和「回撤降倉」設定。</p>
       ${fwHas?'':`<button class="btn ghost" id="pfFw" type="button" style="width:100%;margin:0 0 10px">＋ 加入策略框架 v1 的 7 個子帳戶</button>`}
-      <div class="field ccrow"><label>子帳戶</label><div class="ccdd"><button type="button" id="pfDdBtn">${esc(txt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
-        <div id="pfMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
-        ${ks.map(k=>`<button type="button" class="ccit${pfSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))} <small style="color:var(--muted)">${SigLock.part(k)[1]}・k ${+L[k].kMul>0?+L[k].kMul:1}</small></span><i></i></button>`).join('')}</div></div></div>
+      <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="pfGBtn">${esc(gTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="pfGMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
+        ${G.map(x=>`<button type="button" class="ccit${pfG.includes(x.g)?' on':''}" data-g="${esc(x.g)}"><span>${esc(SigLock.gname(x.g))} <small style="color:var(--muted)">${x.keys.length} 組</small></span><i></i></button>`).join('')}</div></div></div>
+      <div class="field ccrow"><label>參數</label><div class="ccdd"><button type="button" id="pfDdBtn">${esc(txt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="pfMenu">${pHTML()}</div></div></div>
       <div class="field"><label>整體放大倍數</label><div class="seg" id="pfMul">${[1,1.25,1.5,2].map(v=>`<button type="button" data-v="${v}"${pfM===v?' class="on"':''}>×${v}</button>`).join('')}</div></div>
       <button class="btn" id="pfGo" type="button" style="width:100%;margin-top:6px">開始回測</button></div>`;
-    const M=$('#pfMenu'),sync=()=>{$('#pfDdBtn').firstChild.textContent=txt();M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfSel.includes(b.dataset.k)))};
-    $('#pfDdBtn').onclick=e=>{e.stopPropagation();M.classList.toggle('on')};
-    M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='all')pfSel=ks.slice();else if(b.dataset.a==='none')pfSel=[];else{const k=b.dataset.k;pfSel=pfSel.includes(k)?pfSel.filter(y=>y!==k):[...pfSel,k]}sync()};
-    document.addEventListener('click',()=>M.classList.remove('on'));
+    const M=$('#pfMenu'),GM=$('#pfGMenu'),sync=()=>{$('#pfDdBtn').firstChild.textContent=txt();M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfSel.includes(b.dataset.k)))};
+    const gsync=()=>{GM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfG.includes(b.dataset.g)));$('#pfGBtn').firstChild.textContent=gTxt();M.innerHTML=pHTML();sync()};
+    $('#pfGBtn').onclick=e=>{e.stopPropagation();M.classList.remove('on');GM.classList.toggle('on')};
+    GM.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;
+      if(b.dataset.a==='all'){pfG=G.map(x=>x.g);pfSel=ks.slice()}else if(b.dataset.a==='none'){pfG=[];pfSel=[]}
+      else{const g=b.dataset.g;if(pfG.includes(g)){pfG=pfG.filter(y=>y!==g);pfSel=pfSel.filter(k=>SigLock.gid(k)!==g)}else{pfG=[...pfG,g];pfSel=[...pfSel,...gk(g).filter(k=>!pfSel.includes(k))]}}gsync()};
+    $('#pfDdBtn').onclick=e=>{e.stopPropagation();GM.classList.remove('on');M.classList.toggle('on')};
+    M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b||!b.dataset.a&&!b.dataset.k)return;if(b.dataset.a==='all')pfSel=pfG.flatMap(gk);else if(b.dataset.a==='none')pfSel=[];else{const k=b.dataset.k;pfSel=pfSel.includes(k)?pfSel.filter(y=>y!==k):[...pfSel,k]}sync()};
+    document.addEventListener('click',()=>{M.classList.remove('on');GM.classList.remove('on')});
     $('#pfMul').onclick=e=>{const b=e.target.closest('button');if(!b)return;pfM=+b.dataset.v;$('#pfMul').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
     if($('#pfFw'))$('#pfFw').onclick=()=>{if(Object.keys(L).length+FW1.length>30){alert('我的策略最多 30 組參數，先移除一些');return}const nk=[];
       for(const[st,sym,k,dd,nm]of FW1){const key=SigLock.create(st,sym,'框架・'+nm+' '+sym,SigLock.clean(Object.assign({},BEST[st][sym],{kMul:k,ddCut:dd})));if(key){SigLock.pause(key,true);nk.push(key)}}
-      pfSel=nk;pfM=1.5;SigLock.setEdit(null);window.MyStrat&&MyStrat.count();pfForm()};   // 新增的子帳戶先關通知，要推播再到今日訊號打開
+      pfSel=nk;pfG=null;pfM=1.5;SigLock.setEdit(null);window.MyStrat&&MyStrat.count();pfForm()};   // 新增的子帳戶先關通知，要推播再到今日訊號打開
     $('#pfGo').onclick=pfRun}
   async function pfRun(){if(ccBusy)return;const L=SigLock.get(),ks=pfSel.filter(k=>L[k]);if(ks.length<2){alert('至少選 2 個子帳戶');return}
     ccBusy=true;const gen=++ccGen,box=$('#myCmpBox'),m=pfM;$('#ccForm').hidden=true;
@@ -5602,7 +5650,7 @@ renderCoins();
 setInterval(()=>{if(document.visibilityState==='visible')syncAll()},30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastSync>25000)syncAll()});
 // 選項面板：加標題、遮罩；點遮罩就關閉
-(function(){const T={cvStrat:'在 K 線上標我的策略買賣點（最近兩年，用各自的參數）',cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
+(function(){const T={cvStratG:'在 K 線上標我的策略買賣點（最近兩年）：先選策略',cvStrat:'再選這個策略的參數',cvSym:'選擇標的',cvTf:'K 線週期',cvRange:'跳到時間段',sStrat:'選擇策略',sSym:'標的',sPeriod:'回測期間'};
   const mask=document.createElement('div');mask.id='ddMask';document.querySelector('main').appendChild(mask);
   const title=()=>{document.querySelectorAll('select').forEach(s=>{if(s._dd&&T[s.id])(s._dd._pan||s._dd.querySelector('.ddpanel')).dataset.title=T[s.id]});const ip=document.querySelector('#indPanel');if(ip)ip.dataset.title='指標（開關）'};
   title();setTimeout(title,500);
@@ -5622,7 +5670,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   sh.insertAdjacentHTML('beforeend','<div class="sl">畫線工具</div>');sh.appendChild(T);document.body.appendChild(sh);
   // 筆亮著＝面板開著或正在用某個畫線工具；選了畫線工具或策略就收起面板，讓出圖
   const syncPen=()=>pen.classList.toggle('on',!sh.hidden||!!T.querySelector('[data-tool].on')),open=v=>{sh.hidden=!v;syncPen()};
-  pen.onclick=e=>{e.stopPropagation();open(sh.hidden)};['#cvStrat','#cvRange'].forEach(k=>$(k).addEventListener('change',()=>open(false)));sh.querySelector('.shd button').onclick=()=>open(false);
+  pen.onclick=e=>{e.stopPropagation();open(sh.hidden)};['#cvStrat','#cvRange'].forEach(k=>$(k).addEventListener('change',()=>{if(!window.__cvKeep)open(false)}));sh.querySelector('.shd button').onclick=()=>open(false);
   T.addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b&&!/^(del|clear)$/.test(b.dataset.tool))setTimeout(()=>open(false),0)},true);
   new MutationObserver(syncPen).observe(T,{subtree:true,attributes:true,attributeFilter:['class']});
   new MutationObserver(()=>{if(!$('#chartView').classList.contains('on'))open(false)}).observe($('#chartView'),{attributes:true,attributeFilter:['class']});
