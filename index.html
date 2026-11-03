@@ -3769,6 +3769,8 @@ const SigTab=(()=>{let key='',busy=false;const box=()=>$('#sigBox'),D1=86400;
 window.SigTab=SigTab;
 // ── 開始交易：1. 訊號交易（原今日訊號）／2. 自動交易 ──
 // 自動交易：App 只當遙控器，下單由使用者自己電腦上的「執行器」做（金鑰只在執行器上）。配對資料 botHost＝{u 通道網址, k 配對密鑰, h 主機 id, n 主機名}
+// 模擬盤暫時不能關：開關一直開著，點了只跳「系統開發中」提示；改成 false 就恢復可以切到實盤
+const PAPER_LOCK=true;
 const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/releases/latest',
     PJ='https://raw.githubusercontent.com/ziyaoyan1229-debug/coin-app/data/data/push.json',PURL='https://hexstack-push.hexstack-df20e2.workers.dev';
   const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -4108,7 +4110,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botXc':xf=null;xmsg='';return render();
       case 'botXgo':return exSave();
       case 'botResume':return act('/api/resume',{},'已恢復');
-      case 'botPaper':if(paperOn()){ask={t:'paper'};return render()}bv=null;bg=null;return act('/api/paperonly',{on:true},'已切到模擬盤');
+      case 'botPaper':if(paperOn()){if(PAPER_LOCK)return toast('實盤系統開發中，模擬盤暫時不能關閉');ask={t:'paper'};return render()}bv=null;bg=null;return act('/api/paperonly',{on:true},'已切到模擬盤');
       case 'botBack':bv=null;bg=null;bk=null;render();return scrollTo(0,0);
       case 'botGBack':bg=null;bk=null;return render();
       case 'botKBack':bk=null;return render();
