@@ -919,6 +919,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 :is(#tmBot,.fdbot,#aiChat) code{background:var(--chip);padding:1px 5px;border-radius:5px;font-size:12.5px}
 :is(#tmBot,.fdbot,#aiChat) .pick{max-height:260px;overflow:auto;margin:6px 0}
 :is(#tmBot,.fdbot,#aiChat) .pick label{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+:is(#tmBot,.fdbot,#aiChat) .pick .pps{padding-left:24px}:is(#tmBot,.fdbot,#aiChat) .pick .pps label{font-size:13.5px}
 :is(#tmBot,.fdbot,#aiChat) .pick label input[type=number]{width:70px;margin-left:auto;padding:5px 6px}
 :is(#tmBot,.fdbot,#aiChat) .lg{font-size:13.5px}
 :is(#tmBot,.fdbot,#aiChat) .lg .br{font-size:13.5px}
@@ -1019,13 +1020,13 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
 #myPane .mnow{font-size:13px;line-height:1.6}#myPane .mys .btnrow .btn{font-size:13px}#cmpPane .ccchips{display:flex;flex-wrap:wrap;gap:6px}#cmpPane .ccchips button{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}#cmpPane .ccchips button.on{background:var(--acc);border-color:var(--acc);color:#fff}#cmpSeg{display:flex}#cmpSeg button{flex:1}
 #cmpPane .ccrow{display:flex;align-items:center;justify-content:space-between;gap:10px}#cmpPane .ccrow label{margin:0}
 #cmpPane .ccdd{position:relative;flex:1;max-width:72%;display:flex;justify-content:flex-end}
-:is(#ccDdBtn,#stDdBtn,#stCBtn,#pfDdBtn,#stPBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu).on{display:block}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ccgh{font-size:12px;color:var(--muted);padding:8px 10px 2px;font-weight:700}
-:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
+:is(#ccDdBtn,#stDdBtn,#stCBtn,#pfDdBtn,#stPBtn,#pfGBtn){display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--chip,var(--panel));border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu){position:absolute;right:0;top:calc(100% + 6px);z-index:60;width:230px;max-height:52vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);display:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu).on{display:block}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .cctop{display:flex;gap:6px;padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .cctop button{flex:1;background:none;border:1px solid var(--line);color:var(--acc);border-radius:8px;padding:6px 4px;font:inherit;font-size:12.5px;cursor:pointer}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;cursor:pointer;text-align:left}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit>span:not(.ic){flex:1}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);flex:none}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit.on{background:color-mix(in srgb,var(--acc) 16%,transparent)}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccit.on i{background:var(--acc);border-color:var(--acc);box-shadow:inset 0 0 0 3px var(--panel)}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ccgh{font-size:12px;color:var(--muted);padding:8px 10px 2px;font-weight:700}
+:is(#ccMenu,#stMenu,#stCMenu,#pfMenu,#stPMenu,#pfGMenu) .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;flex:none;overflow:hidden}:is(#ccMenu,#stMenu,#stCMenu,#pfMenu) .ic img{width:100%;height:100%;object-fit:cover;display:block}
 
 #myPane .mtip,#sigBox .mtip{font-size:12.5px;color:var(--muted);margin:0 2px 10px;line-height:1.6}#sigBox .sgc .hd{display:flex;align-items:center;gap:8px}#sigBox .sgc .hd .nm{flex:1;min-width:0}#sigBox .sgc .hd .sgn{color:var(--muted);font-weight:500}
 #sList[hidden],#rlPane[hidden]{display:none!important}#rlPane{padding:12px 12px 24px}#rlPane .rlbar{margin-top:8px}
@@ -4211,9 +4212,13 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
     g.disabled=true;m.textContent='儲存中，測試連線…';
     try{const r=await api('/local/config',o),bad=/^連線失敗/.test(r.test||'');xmsg=r.test||'已儲存';if(bad){if(xf.ex==='bybit')xmsg=netHint(xmsg,xf.tn);m.textContent=xmsg;g.disabled=false;xf.s='';$('#botXs').value='';return}xf=null;toast(xmsg)}
     catch(e){m.textContent=e.message;g.disabled=false;return}refresh()}
+  document.addEventListener('change',e=>{const c=e.target;if(!c.matches||!c.matches('.pick input[data-pg]'))return;const P=c.closest('label').nextElementSibling;if(!P||!P.classList.contains('pps'))return;
+    P.hidden=!c.checked;P.querySelectorAll('input[data-k]:not(:disabled)').forEach(i=>i.checked=c.checked)});
   // 加入策略：從我的策略挑（資金比例平均分），或一鍵帶入策略框架 v1 的 7 個子帳戶（整體 ×1.5，跟組合回測一致）
   function picker(){const L=SigLock.get(),ks=Object.keys(L),have=new Set((S.strategies||[]).map(x=>x.key));
-    return `<div class="pick">${ks.length?ks.map(k=>`<label><input type="checkbox" value="${H_(k)}"${have.has(k)?' disabled checked':''}> <span>${H_(SigLock.name(k))} <small class="sub">${SigLock.part(k)[1]}</small></span></label>`).join(''):'<p class="sub">「我的策略」還沒有策略，到「策略分析 › 我的策略」新增。</p>'}</div>
+    // 先勾策略，底下才展開它的參數組給你勾
+    const G=SigLock.groups();
+    return `<div class="pick">${ks.length?G.map(x=>{const all=x.keys.every(k=>have.has(k));return `<label class="pkg"><input type="checkbox" data-pg${all?' disabled checked':''}> <span>${H_(SigLock.gname(x.g))} <small class="sub">${SigLock.part(x.keys[0])[1]}・${x.keys.length} 組參數</small></span></label><div class="pps"${all?'':' hidden'}>${x.keys.map(k=>`<label><input type="checkbox" data-k value="${H_(k)}"${have.has(k)?' disabled checked':''}> <span>${H_(SigLock.setName(k))}</span></label>`).join('')}</div>`}).join(''):'<p class="sub">「我的策略」還沒有策略，到「策略分析 › 我的策略」新增。</p>'}</div>
       <div class="row2"><button class="bbtn pri" id="botAddGo" type="button">加入勾選的策略</button><button class="bbtn" id="botFw" type="button">一鍵帶入策略框架 v1</button></div>
       <p class="sub" style="margin:2px 0 8px">資金平均分給所有策略；加入後先跑 7 天模擬盤。</p>`}
   function payload(k,alloc){const[st,sym]=SigLock.part(k);return {key:k,name:SigLock.name(k),st,sym,p:Object.assign({},BEST[st]&&BEST[st][sym],SigLock.get()[k]),alloc}}
@@ -4300,7 +4305,7 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botSimSave':{const v=parseFloat($('#botSimSt').value),r=rows().find(x=>x.led===bv);if(!(v>=10))return toast('金額至少 10 USDT');ask={t:'sim',k:r.k,v};return render()}
       case 'botSimDel':{const r=rows().find(x=>x.led===bv);ask={t:'simdel',k:r.k};return render()}
       case 'botAdd':pick=!pick;return render();
-      case 'botAddGo':return addKeys([...b.querySelectorAll('.pick input:checked:not(:disabled)')].map(i=>i.value));
+      case 'botAddGo':return addKeys([...b.querySelectorAll('.pick input[data-k]:checked:not(:disabled)')].map(i=>i.value));
       case 'botFw':return addKeys(fwKeys().filter(k=>!(S.strategies||[]).some(x=>x.key===k)),1.5);
       case 'botStop':if(arm<Date.now()){arm=Date.now()+5000;render();setTimeout(()=>{if(arm&&arm<Date.now()){arm=0;render()}},5200);return}arm=0;return act('/api/stopall',{},'已全部平倉並暫停');
       case 'botSug':return suggest();
@@ -4593,27 +4598,38 @@ const MyStrat=(()=>{const box=()=>$('#myPane'),D1=86400,memo={};let adding=false
     $('#stGo').onclick=stRun}
   // 組合回測（策略框架 v1）：勾幾個我的策略當子帳戶，資金平均分、不再平衡；整體放大＝每個子帳戶的倉位倍數再乘上去
   const FW1=[['my','BTC',1.25,'off','我的系統'],['my','ETH',1,'off','我的系統'],['tur','BTC',0.5,'T1','海龜'],['dense','ETH',0.75,'lin','均線密集'],['dense','BTC',0.35,'off','均線密集'],['poc','ETH',0.35,'off','POC 堆倉'],['poc','BTC',0.35,'off','POC 堆倉']];window.FW1=FW1;
-  let pfSel=null,pfM=1.5;const OOS0=ts('2024-09-21');
+  let pfSel=null,pfG=null,pfM=1.5;const OOS0=ts('2024-09-21');
   function pfForm(){const ks=stKeys(),L=SigLock.get();pfSel=(pfSel||ks).filter(k=>ks.includes(k));
+    // 先選策略、再選參數組（子帳戶）；剛帶入框架時，策略照已選的子帳戶推回去
+    const G=stGroups(ks),gk=g=>(G.find(x=>x.g===g)||{keys:[]}).keys;if(!pfG)pfG=G.filter(x=>x.keys.some(k=>pfSel.includes(k))).map(x=>x.g);pfG=pfG.filter(g=>G.some(x=>x.g===g));pfSel=pfSel.filter(k=>pfG.includes(SigLock.gid(k)));
+    const gTxt=()=>pfG.length?(pfG.length===1?SigLock.gname(pfG[0]):`已選 ${pfG.length} 個策略`):'請選擇';
+    const pHTML=()=>`<div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>`+(pfG.length?G.filter(x=>pfG.includes(x.g)).map(x=>(pfG.length>1?`<div class="ccgh">${esc(SigLock.gname(x.g))}</div>`:'')+x.keys.map(k=>`<button type="button" class="ccit${pfSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.setName(k))} <small style="color:var(--muted)">${SigLock.part(k)[1]}・k ${+L[k].kMul>0?+L[k].kMul:1}</small></span><i></i></button>`).join('')).join(''):'<div class="small" style="padding:10px">先選策略</div>');
     const fwHas=FW1.every(f=>ks.some(k=>{const[st,sym]=SigLock.part(k);return st===f[0]&&sym===f[1]&&+L[k].kMul===f[2]}));
-    const txt=()=>pfSel.length?`已選 ${pfSel.length} 個子帳戶`:'請選擇';
+    const txt=()=>pfSel.length?`已選 ${pfSel.length} 組參數`:'請選擇';
     $('#myCmpBox').innerHTML='';$('#ccForm').hidden=false;
     $('#ccForm').innerHTML=`<div class="card" style="padding:12px 14px;margin-bottom:10px">
       <p class="small" style="margin:0 0 10px;line-height:1.6">把幾個我的策略當成子帳戶一起跑：資金平均分、不再平衡，每個子帳戶照自己的「倉位倍數」和「回撤降倉」設定。</p>
       ${fwHas?'':`<button class="btn ghost" id="pfFw" type="button" style="width:100%;margin:0 0 10px">＋ 加入策略框架 v1 的 7 個子帳戶</button>`}
-      <div class="field ccrow"><label>子帳戶</label><div class="ccdd"><button type="button" id="pfDdBtn">${esc(txt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
-        <div id="pfMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
-        ${ks.map(k=>`<button type="button" class="ccit${pfSel.includes(k)?' on':''}" data-k="${esc(k)}"><span>${esc(SigLock.name(k))} <small style="color:var(--muted)">${SigLock.part(k)[1]}・k ${+L[k].kMul>0?+L[k].kMul:1}</small></span><i></i></button>`).join('')}</div></div></div>
+      <div class="field ccrow"><label>策略</label><div class="ccdd"><button type="button" id="pfGBtn">${esc(gTxt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="pfGMenu"><div class="cctop"><button type="button" data-a="all">全選</button><button type="button" data-a="none">全部取消</button></div>
+        ${G.map(x=>`<button type="button" class="ccit${pfG.includes(x.g)?' on':''}" data-g="${esc(x.g)}"><span>${esc(SigLock.gname(x.g))} <small style="color:var(--muted)">${x.keys.length} 組</small></span><i></i></button>`).join('')}</div></div></div>
+      <div class="field ccrow"><label>參數</label><div class="ccdd"><button type="button" id="pfDdBtn">${esc(txt())}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="pfMenu">${pHTML()}</div></div></div>
       <div class="field"><label>整體放大倍數</label><div class="seg" id="pfMul">${[1,1.25,1.5,2].map(v=>`<button type="button" data-v="${v}"${pfM===v?' class="on"':''}>×${v}</button>`).join('')}</div></div>
       <button class="btn" id="pfGo" type="button" style="width:100%;margin-top:6px">開始回測</button></div>`;
-    const M=$('#pfMenu'),sync=()=>{$('#pfDdBtn').firstChild.textContent=txt();M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfSel.includes(b.dataset.k)))};
-    $('#pfDdBtn').onclick=e=>{e.stopPropagation();M.classList.toggle('on')};
-    M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='all')pfSel=ks.slice();else if(b.dataset.a==='none')pfSel=[];else{const k=b.dataset.k;pfSel=pfSel.includes(k)?pfSel.filter(y=>y!==k):[...pfSel,k]}sync()};
-    document.addEventListener('click',()=>M.classList.remove('on'));
+    const M=$('#pfMenu'),GM=$('#pfGMenu'),sync=()=>{$('#pfDdBtn').firstChild.textContent=txt();M.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfSel.includes(b.dataset.k)))};
+    const gsync=()=>{GM.querySelectorAll('.ccit').forEach(b=>b.classList.toggle('on',pfG.includes(b.dataset.g)));$('#pfGBtn').firstChild.textContent=gTxt();M.innerHTML=pHTML();sync()};
+    $('#pfGBtn').onclick=e=>{e.stopPropagation();M.classList.remove('on');GM.classList.toggle('on')};
+    GM.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;
+      if(b.dataset.a==='all'){pfG=G.map(x=>x.g);pfSel=ks.slice()}else if(b.dataset.a==='none'){pfG=[];pfSel=[]}
+      else{const g=b.dataset.g;if(pfG.includes(g)){pfG=pfG.filter(y=>y!==g);pfSel=pfSel.filter(k=>SigLock.gid(k)!==g)}else{pfG=[...pfG,g];pfSel=[...pfSel,...gk(g).filter(k=>!pfSel.includes(k))]}}gsync()};
+    $('#pfDdBtn').onclick=e=>{e.stopPropagation();GM.classList.remove('on');M.classList.toggle('on')};
+    M.onclick=e=>{e.stopPropagation();const b=e.target.closest('button');if(!b||!b.dataset.a&&!b.dataset.k)return;if(b.dataset.a==='all')pfSel=pfG.flatMap(gk);else if(b.dataset.a==='none')pfSel=[];else{const k=b.dataset.k;pfSel=pfSel.includes(k)?pfSel.filter(y=>y!==k):[...pfSel,k]}sync()};
+    document.addEventListener('click',()=>{M.classList.remove('on');GM.classList.remove('on')});
     $('#pfMul').onclick=e=>{const b=e.target.closest('button');if(!b)return;pfM=+b.dataset.v;$('#pfMul').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
     if($('#pfFw'))$('#pfFw').onclick=()=>{if(Object.keys(L).length+FW1.length>30){alert('我的策略最多 30 組參數，先移除一些');return}const nk=[];
       for(const[st,sym,k,dd,nm]of FW1){const key=SigLock.create(st,sym,'框架・'+nm+' '+sym,SigLock.clean(Object.assign({},BEST[st][sym],{kMul:k,ddCut:dd})));if(key){SigLock.pause(key,true);nk.push(key)}}
-      pfSel=nk;pfM=1.5;SigLock.setEdit(null);window.MyStrat&&MyStrat.count();pfForm()};   // 新增的子帳戶先關通知，要推播再到今日訊號打開
+      pfSel=nk;pfG=null;pfM=1.5;SigLock.setEdit(null);window.MyStrat&&MyStrat.count();pfForm()};   // 新增的子帳戶先關通知，要推播再到今日訊號打開
     $('#pfGo').onclick=pfRun}
   async function pfRun(){if(ccBusy)return;const L=SigLock.get(),ks=pfSel.filter(k=>L[k]);if(ks.length<2){alert('至少選 2 個子帳戶');return}
     ccBusy=true;const gen=++ccGen,box=$('#myCmpBox'),m=pfM;$('#ccForm').hidden=true;
