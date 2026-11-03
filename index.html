@@ -693,6 +693,7 @@ button.bsr{cursor:pointer}.bsr .t{flex:1;min-width:0;display:flex;flex-direction
 .aim{flex:none;display:block}.aim svg{width:100%;height:100%;overflow:visible}
 .sumc .t.aitile{display:flex;align-items:center;gap:8px}.sumc .aitile .aim{width:40px;height:46px}.sumc .aitile .v{color:var(--c);font-family:inherit}
 .ailk{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}.ailk svg{width:10px;height:10px}
+.aidev{align-items:center;text-align:center}.aidev .aim{width:64px;height:74px}.aidev .aidm{display:flex}.aidev .aidm .aim+.aim{margin-left:-14px}.aidev p b{color:var(--c)}
 .aipair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
 /* Forge、Echo 綁在一起：一個橫條，左邊兩個機器人＋名字，右邊說明，點了開同一個視窗 */
 .aimc.aibar{width:100%;margin:0 0 10px;gap:10px}.aibar .aibm{display:flex;flex:none}.aibar .aibm .aim+.aim{margin-left:-10px}.aibar b{flex:none;color:var(--muted);font-size:14.5px;white-space:nowrap}.aibar small{flex:1;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2435,7 +2436,7 @@ ${hex('u')}</svg>`}
       b.innerHTML=a.k==='bridge'?svg(a,id)+`<div class="aw"><div class="an">${a.n}<small>總管</small></div><div class="ar">${a.r.replace(/^總管：/,'')}。不知道該問誰，就問它。</div><span class="ago">點擊開始對話 ›</span></div>`:svg(a,id)+`<div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
       const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:[...b.querySelectorAll('.hl')],hs:[...b.querySelectorAll('.hs')],ly:[...b.querySelectorAll('.ly')],oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
         hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:0};
-      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}if(window.AiChat)AiChat.pick(a.k);else say(a.n+' 還在準備中')};all.push(o)})}
+      b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}dev(a)};all.push(o)})}
   function frame(){const box=document.getElementById('aiBots');if(!box||!box.offsetParent||document.hidden){run=false;return}
     const now=performance.now()/1000,dt=Math.min(.05,now-(last||now));last=now;
     for(const o of all)step(o,now,dt);
@@ -2476,8 +2477,13 @@ ${hex('u')}</svg>`}
     return `<span class="aim" aria-hidden="true">${h}</span>`}
   // 各頁的小圖示：開那個 AI 的獨立對話頁（不跳到 開始交易 › HexAI）
   // data-ai="forge"：只開這隻；"echo|forge,echo"：開 Forge＋Echo 同一個視窗，先停在 Echo
+  // 機器人暫時都還沒開放：點了只跳「系統開發中」小窗，按確定關掉（對話功能的程式留著，之後改回 AiChat.solo／pick 就能開）
+  function dev(a,ks){const B=(ks||[]).length>1?ks.map(k=>AI.find(x=>x.k===k)).filter(Boolean):null;let L=document.getElementById('aiDev');if(!L){L=document.createElement('div');L.id='aiDev';document.body.appendChild(L);
+      L.onclick=e=>{if(e.target.id==='aiDevBg'||e.target.closest('#aiDevOk'))L.innerHTML=''}}
+    L.innerHTML=`<div class="bask" id="aiDevBg"><div class="bsheet aidev" role="dialog" aria-modal="true" aria-labelledby="aiDevT" style="--c:${a.c}">${B?`<span class="aidm">${B.map(x=>mini(x.k)).join('')}</span>`:mini(a.k)}<h3 id="aiDevT">系統開發中</h3><p>${B?B.map(x=>`<b style="color:${x.c}">${x.n}</b>`).join(' &amp; ')+'（想策略、跑回測）':`<b>${a.n}</b>（${a.r.replace(/^[^：]*：/,'')}）`}還在開發中，完成後就能在這裡直接跟它對話。</p><button class="bbtn pri" id="aiDevOk" type="button">確定</button></div></div>`;
+    const b=document.getElementById('aiDevOk');b&&b.focus()}
   const tap=k=>{const[f,l]=String(k).split('|'),ks=(l||f).split(','),r=l?f:ks[0],a=AI.find(x=>x.k===r);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
-    if(window.AiChat)AiChat.solo(r,ks)};
+    dev(a,ks)};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(b){e.stopPropagation();tap(b.dataset.ai)}},true);
   return {start,mini,tap,AI,LOCK}})();window.HexAI=HexAI;
 {const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault');const g=document.getElementById('setAiG');if(g)g.innerHTML=HexAI.mini('guide')}
