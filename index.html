@@ -2663,7 +2663,7 @@ const VIEWS=['chart','sig','strat','news','notify','fund','set','db'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);const n=$('#nav_'+k);n&&n.classList.toggle('on',v===k||k==='set'&&(v==='notify'||v==='db'))});
   if(v==='strat'&&!pChart){initStrat();}
   // 先讓分頁切過去畫出來，各頁的載入晚一點再做，點下去不卡
-  requestAnimationFrame(()=>setTimeout(()=>{if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='db'&&window.DbTab)DbTab.open();if(v==='set')setTab();if(v==='fund')FundTab.open();resizeAll()},20));}
+  requestAnimationFrame(()=>setTimeout(()=>{if(v==='chart'&&window.__cvLazy)__cvLazy();if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='db'&&window.DbTab)DbTab.open();if(v==='set')setTab();if(v==='fund')FundTab.open();resizeAll()},20));}
 // 點下面的分頁：回到那頁的初始狀態（子頁面收起、捲回最上面）
 const navHome=k=>{try{if(k==='sig'){window.SigTab&&SigTab.home();window.BotTab&&BotTab.reset();window.AiChat&&AiChat.home()}if(k==='fund'&&window.FundTab)FundTab.home()}catch(e){}const v=$('#'+k+'View');if(v)v.scrollTop=0;window.scrollTo(0,0)};
 VIEWS.forEach(k=>$('#nav_'+k)&&($('#nav_'+k).onclick=()=>{navHome(k);show(k);history.replaceState(null,'','#'+k)}));
@@ -3348,7 +3348,11 @@ function stratOnChart(B){const lk=$('#cvStrat').value;$('#stratWrap').classList.
     const col=ty==='entry'?(S?css('--down'):css('--up')):ty==='add'?(S?'#f2a0a0':'#7ee2b8'):ty==='stop'||ty==='liq'?css('--down'):'#f5a524';
     return{time:B.T[k]+TZ,position:pos,shape,color:col,text:(M[ty]||['',''])[S?1:0]}}).sort((a,b)=>a.time-b.time))}
 function msg(t){const m=$('#chartMsg');m.style.display=t?'block':'none';m.innerHTML=t||''}
+// 查看價格的 K 線圖沒在畫面上、或開場畫面還在時先不畫（畫一次要好幾百毫秒，會讓開場動畫卡住）：記下來，開場畫面關掉或切到查看價格才補畫
+let cvLazy=null;window.__cvLazy=()=>{if(!cvLazy)return;const f=cvLazy.fit;cvLazy=null;drawChart(f)};
 async function drawChart(fit){
+  if(!$('#chartView').classList.contains('on')||document.getElementById('splash')){cvLazy={fit:!!(fit||cvLazy&&cvLazy.fit)};
+    if(document.getElementById('splash')&&!cvLazy.w){cvLazy.w=1;(function w(){if(document.getElementById('splash'))return setTimeout(w,200);if($('#chartView').classList.contains('on'))window.__cvLazy()})()}return}
   const stk=STKSYM(cvSym);document.querySelectorAll('.stkOnly').forEach(x=>x.style.display=stk&&cvSym!=='MSTU'?'':'none');
   Object.values(xs).forEach(s=>s.setData([]));$('#muStat').style.display='none';cs.setMarkers([]);chart.applyOptions({leftPriceScale:{visible:false,borderColor:css('--line')}});
   if(BTCDSYM(cvSym)){msg('BTC.D（比特幣市佔率）還沒有資料：雲端環境的網路擋掉了資料來源。<br><span class="small">可以從 TradingView 匯出 CRYPTOCAP:BTC.D 日線 CSV 放到 D:\\binance_data，或在專案設定開放網路，我再加進來。</span>');cs.setData([]);vs.setData([]);fs.setData([]);Object.values(ind).forEach(s=>s.setData([]));cvBars=null;drawer1&&drawer1.reload();return}
