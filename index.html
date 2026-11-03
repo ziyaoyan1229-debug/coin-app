@@ -2412,7 +2412,9 @@ const HexAI=(()=>{
   const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   // 揮舞的關鍵格：[秒, 角度]，角度 -1＝往後蓄力到底、1＝揮到最前
   const SWK=[[0,0],[.28,-1],[.42,1],[.56,.45],[.74,-.55],[.88,1],[1.05,.8],[1.6,0]],SWD=1.6;
-  const ACT={look:2.4,turn:2.2,spin:1};
+  const ACT={look:2.4,turn:2.2,spin:1.4};
+  // 球面轉頭：配件掛在球面上的哪個方位（數字＝掛在右側的半徑；'face'＝貼在臉上跟著臉罩動；沒寫＝不跟著轉）
+  const ACCM={forge:62,helm:62,echo:'face'};
   const THINK=new Set();const think=(k,on)=>{if(on)THINK.add(k);else THINK.delete(k)};
   let all=[],run=false,px=null,py=null,last=0,uid=0;
   const say=t=>{let e=document.getElementById('aiToast');if(!e){e=document.createElement('div');e.id='aiToast';e.style.cssText='position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:60;max-width:86vw;text-align:center;transition:opacity .3s';document.body.appendChild(e)}e.textContent=t;e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity=0,1800)};
@@ -2423,22 +2425,22 @@ const HexAI=(()=>{
     return `<svg viewBox="0 0 200 230" role="img" aria-label="${a.n}" data-k="${a.k}"><defs>
 <radialGradient id="g${id}" cx="38%" cy="30%" r="74%"><stop offset="0" stop-color="${a.l}"/><stop offset=".4" stop-color="${a.c}"/><stop offset="1" stop-color="${a.d}"/></radialGradient>
 <radialGradient id="w${id}"><stop offset="0" stop-color="${a.c}" stop-opacity=".55"/><stop offset="1" stop-color="${a.c}" stop-opacity="0"/></radialGradient>
-<pattern id="p${id}" width="14" height="24.2" patternUnits="userSpaceOnUse"><path d="M7 0l7 4v8l-7 4-7-4V4zM0 16.2v8M14 16.2v8" fill="none" stroke="#fff" stroke-width=".7" opacity=".5"/></pattern>
+<pattern class="pt" id="p${id}" width="14" height="24.2" patternUnits="userSpaceOnUse"><path d="M7 0l7 4v8l-7 4-7-4V4zM0 16.2v8M14 16.2v8" fill="none" stroke="#fff" stroke-width=".7" opacity=".5"/></pattern>
 <clipPath id="c${id}"><circle r="56"/></clipPath><clipPath id="t${id}"><rect x="-100" y="-60" width="200" height="60"/></clipPath><clipPath id="u${id}"><rect x="-100" y="0" width="200" height="60"/></clipPath>
 <filter id="e${id}" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <filter id="b${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
 <ellipse class="sh" cx="100" cy="216" rx="44" ry="7" fill="#000" opacity=".4"/>${ring('B')}${hex('t')}
-<g class="bd"><g class="sq"><circle r="86" fill="url(#w${id})"/><circle r="56" fill="url(#g${id})"/>
+<g class="bd"><g class="sq"><circle r="86" fill="url(#w${id})"/>${ACC[a.k]&&ACCM[a.k]?'<g class="accB" opacity="0"><g class="accW">'+ACC[a.k](a)+'</g></g>':''}<circle r="56" fill="url(#g${id})"/>
 <circle r="56" fill="url(#p${id})" clip-path="url(#c${id})" opacity=".18"/><circle r="56" fill="none" stroke="${a.l}" stroke-width="1.4" opacity=".55"/>
 <ellipse cx="-20" cy="-24" rx="15" ry="8" fill="#fff" opacity=".45" transform="rotate(-30 -20 -24)"/>
-<g class="fc"><path d="M-34 -14h68a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10v-10a10 10 0 0 1 10-10z" fill="#0d0820" fill-opacity=".78" stroke="${a.l}" stroke-opacity=".35"/>
-<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g></g>${ACC[a.k]?'<g class="acc">'+ACC[a.k](a)+'</g>':''}</g></g>
+<g clip-path="url(#c${id})"><g class="fc"><path d="M-34 -14h68a10 10 0 0 1 10 10v10a10 10 0 0 1-10 10h-68a10 10 0 0 1-10-10v-10a10 10 0 0 1 10-10z" fill="#0d0820" fill-opacity=".78" stroke="${a.l}" stroke-opacity=".35"/>
+<g class="ey" fill="${a.l}" stroke="${a.l}" stroke-linecap="round" filter="url(#e${id})"><g class="op"><rect x="-23" y="-7" width="13" height="14" rx="4"/><rect x="10" y="-7" width="13" height="14" rx="4"/></g><path class="hp" d="M-23 4l6.5-8 6.5 8M10 4l6.5-8 6.5 8" stroke-width="4" fill="none" style="display:none"/></g>${ACCM[a.k]==='face'&&ACC[a.k]?ACC[a.k](a):''}</g></g>${ACC[a.k]&&ACCM[a.k]!=='face'?'<g class="acc"><g class="accW">'+ACC[a.k](a)+'</g></g>':''}</g></g>
 ${ring('F')}
 ${hex('u')}</svg>`}
   function build(){const box=document.getElementById('aiBots');if(!box||box.childElementCount)return;
     AI.forEach(a=>{const id='hx'+(uid++),b=document.createElement('button');b.type='button';b.className='aibot'+(a.k==='bridge'?' wide':'');b.style.setProperty('--c',a.c);
       b.innerHTML=a.k==='bridge'?svg(a,id)+`<div class="aw"><div class="an">${a.n}<small>總管</small></div><div class="ar">${a.r.replace(/^總管：/,'')}。不知道該問誰，就問它。</div><span class="ago">點擊開始對話 ›</span></div>`:svg(a,id)+`<div class="an">${a.n}</div><div class="ar">${a.r}</div>`;box.appendChild(b);
-      const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:[...b.querySelectorAll('.hl')],hs:[...b.querySelectorAll('.hs')],ly:[...b.querySelectorAll('.ly')],sw:q('.sw'),vs:q('.vs'),va:Math.random()*6,fc:q('.fc'),na:2+Math.random()*4,ns:1+Math.random()*3,k:(b.querySelector('svg[data-k]')||{dataset:{}}).dataset.k,tk:0,oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
+      const q=x=>b.querySelector(x),o={a,b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:[...b.querySelectorAll('.hl')],hs:[...b.querySelectorAll('.hs')],ly:[...b.querySelectorAll('.ly')],sw:q('.sw'),vs:q('.vs'),va:Math.random()*6,fc:q('.fc'),pt:q('.pt'),acF:q('.acc'),acB:q('.accB'),acW:[...b.querySelectorAll('.accW')],na:2+Math.random()*4,ns:1+Math.random()*3,k:(b.querySelector('svg[data-k]')||{dataset:{}}).dataset.k,tk:0,oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
         hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:0};
       b.onclick=()=>{o.joy=performance.now()/1000;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}dev(a)};all.push(o)})}
   function frame(){const box=document.getElementById('aiBots');if(!box||!box.offsetParent||document.hidden){run=false;return}
@@ -2452,11 +2454,13 @@ ${hex('u')}</svg>`}
       o.hv+=((y-6-o.hy)*60-o.hv*9)*dt;o.hy+=o.hv*dt;o.rv+=((rot-o.hr)*60-o.rv*9)*dt;o.hr+=o.rv*dt;
       // 平常隨機的小動作：左看右看（眼睛）、身體左右轉（臉罩移到側面）、轉一圈（整顆球轉 360° 加小跳）
       let ac=null,ap=0;if(!j&&now>o.na){if(!o.ac)o.ac=['look','turn','spin'][Math.floor(Math.random()*3)];ap=(now-o.na)/ACT[o.ac];if(ap>=1){o.ac=null;o.na=now+3+Math.random()*4}else ac=o.ac}
-      let spin=0,fx=0,lk=null;const bell=u=>Math.sin(Math.min(1,Math.max(0,u))*Math.PI);
-      if(ac==='spin'){const e=ap*ap*(3-2*ap);spin=e*360;y-=bell(ap)*14}
-      else if(ac==='turn'){fx=(ap<.5?-1:1)*bell(ap<.5?ap*2:(ap-.5)*2)*18}
+      // 轉頭是繞著直軸轉（yaw）：臉罩沿球面移到側邊並壓扁、表面紋路跟著滾、掛在側邊的配件轉到背後就換成背面那份
+      let th=0,lk=null;const bell=u=>Math.sin(Math.min(1,Math.max(0,u))*Math.PI);
+      if(ac==='spin'){const e=ap*ap*(3-2*ap);th=e*360;y-=bell(ap)*14}
+      else if(ac==='turn'){th=(ap<.5?-1:1)*bell(ap<.5?ap*2:(ap-.5)*2)*42}
       else if(ac==='look'){lk=ap<.15?0:ap<.45?-1:ap<.55?0:ap<.85?1:0}
-      o.bd.setAttribute('transform',`translate(${100+x} ${134+y}) rotate(${rot+spin})`);if(o.fc)o.fc.setAttribute('transform',`translate(${fx.toFixed(1)} 0) scale(${(1-Math.abs(fx)/90).toFixed(3)} 1)`);o.sq.setAttribute('transform',`scale(${sx} ${sy})`);
+      if(o.yaw!=null)th=o.yaw;
+      o.bd.setAttribute('transform',`translate(${100+x} ${134+y}) rotate(${rot})`);yaw(o,th);o.sq.setAttribute('transform',`scale(${sx} ${sy})`);
       // 平常六角形套在身體中間不動；思考中（THINK 有這隻）才上下來回掃
       o.tk+=((THINK.has(o.k)?1:0)-o.tk)*Math.min(1,dt*4);o.tp=(o.tp||0)+dt*2.6*o.tk;const hy=134+(y+Math.sin(o.tp)*58)*o.tk;o.hl.forEach(g=>g.setAttribute('transform',`translate(${100+x*o.tk} ${hy}) rotate(${o.hr*.5*o.tk})`));o.hs.forEach(g=>g.setAttribute('transform',`scale(${1+(pulse-1)*.6*o.tk})`));
       const gap=9+(pulse-1)*70*o.tk;o.ly.forEach((l,i)=>l.setAttribute('transform',`translate(0 ${(1-i%3)*gap})`));o.bm.setAttribute('opacity',.15+.4*Math.max(0,pulse-1)/.07);
@@ -2475,7 +2479,13 @@ ${hex('u')}</svg>`}
       // Vault 盾牌沿著圓環快速繞圈：繞到身體後面時變小變淡
       if(o.vs){o.va+=dt*3.4;const c=Math.cos(o.va)*78,s2=Math.sin(o.va)*24,r=(tilt-rot)*Math.PI/180,bx=c*Math.cos(r)-s2*Math.sin(r),by=c*Math.sin(r)+s2*Math.cos(r),fr=Math.sin(o.va)>0;
         o.vs.setAttribute('transform',`translate(${bx.toFixed(1)} ${by.toFixed(1)}) rotate(${(8+Math.cos(o.va)*14).toFixed(1)}) scale(${fr?.85:.6})`);o.vs.setAttribute('opacity',fr?1:.35)}}}
-  const ctl=(b,q)=>({b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:[...b.querySelectorAll('.hl')],hs:[...b.querySelectorAll('.hs')],ly:[...b.querySelectorAll('.ly')],sw:q('.sw'),vs:q('.vs'),va:Math.random()*6,fc:q('.fc'),na:2+Math.random()*4,ns:1+Math.random()*3,k:(b.querySelector('svg[data-k]')||{dataset:{}}).dataset.k,tk:0,oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
+  function yaw(o,th){const r=th*Math.PI/180,s=Math.sin(r),c=Math.cos(r);
+    if(o.fc){o.fc.setAttribute('transform',`translate(${(52*s).toFixed(1)} 0) scale(${Math.max(.02,c).toFixed(3)} 1)`);o.fc.setAttribute('opacity',c>.06?1:0)}
+    if(o.pt)o.pt.setAttribute('patternTransform',`translate(${(.49*th).toFixed(1)} 0)`);
+    const m=ACCM[o.k];if(typeof m==='number'&&o.acF){const a=Math.PI/2+r,ax=m*Math.sin(a),z=Math.cos(a),sc=.8+.2*(z+1)/2;
+      o.acW.forEach(g=>g.setAttribute('transform',`translate(${(ax-m).toFixed(1)} 0) translate(${m} 36) scale(${sc.toFixed(3)}) translate(${-m} -36)`));
+      o.acF.setAttribute('opacity',z>=-.05?1:0);if(o.acB)o.acB.setAttribute('opacity',z<-.05?.3:0)}}
+  const ctl=(b,q)=>({b,ph:Math.random()*9,bd:q('.bd'),sq:q('.sq'),hl:[...b.querySelectorAll('.hl')],hs:[...b.querySelectorAll('.hs')],ly:[...b.querySelectorAll('.ly')],sw:q('.sw'),vs:q('.vs'),va:Math.random()*6,fc:q('.fc'),pt:q('.pt'),acF:q('.acc'),acB:q('.accB'),acW:[...b.querySelectorAll('.accW')],na:2+Math.random()*4,ns:1+Math.random()*3,k:(b.querySelector('svg[data-k]')||{dataset:{}}).dataset.k,tk:0,oB:q('.oB'),oF:q('.oF'),sB:q('.oB .st'),sF:q('.oF .st'),rg:[...b.querySelectorAll('.rg')],ey:q('.ey'),op:q('.op'),hp:q('.hp'),sh:q('.sh'),bm:q('.bm'),
     hy:0,hv:0,hr:0,rv:0,lx:0,ly2:0,tx:0,ty:0,nx:0,bl:0,nb:1+Math.random()*3,joy:-9});
   function start(){build();if(run||matchMedia('(prefers-reduced-motion:reduce)').matches)return;run=true;last=0;requestAnimationFrame(frame)}
   // 各頁小圖示也跟大圖一樣動（只動畫面上看得到的；開場動畫裡的不算）
@@ -2503,7 +2513,7 @@ ${hex('u')}</svg>`}
   const tap=k=>{const[f,l]=String(k).split('|'),ks=(l||f).split(','),r=l?f:ks[0],a=AI.find(x=>x.k===r);if(!a)return;try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}
     dev(a,ks)};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(b){e.stopPropagation();tap(b.dataset.ai)}},true);
-  return {start,mini,tap,AI,LOCK,think}})();window.HexAI=HexAI;
+  return {start,mini,tap,AI,LOCK,think,all:()=>all}})();window.HexAI=HexAI;
 {const b=document.getElementById('fdAi');if(b)b.innerHTML=HexAI.mini('vault');const g=document.getElementById('setAiG');if(g)g.innerHTML=HexAI.mini('guide')}
 const VIEWS=['chart','sig','strat','news','notify','fund','set','db'];
 function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);const n=$('#nav_'+k);n&&n.classList.toggle('on',v===k||k==='set'&&(v==='notify'||v==='db'))});
