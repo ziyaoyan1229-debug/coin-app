@@ -228,6 +228,27 @@ details.fold>.in{padding:0 14px 12px}
 /* ── 市場分析分頁 ── */
 #newsView{flex-direction:column}
 .snap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fr{padding:10px 12px}.fr .small{font-size:11.5px;color:var(--muted)}
+.fr-bar{display:flex;align-items:center;gap:8px}.fr-bar .chips{padding-bottom:6px;flex:1}.fr-rf{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer;margin-bottom:6px}
+.fr-tw{overflow-x:auto;margin:0 -12px;padding:0 12px;scrollbar-width:thin}
+.fr-t{border-collapse:collapse;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fr-t th{color:var(--muted);font-weight:500;font-size:11px;padding:4px 3px;text-align:right;border-bottom:1px solid var(--line)}
+.fr-t td{padding:7px 3px;text-align:right;border-bottom:1px solid var(--line)}
+.fr-t th:first-child,.fr-t td:first-child{text-align:left;position:sticky;left:0;background:var(--panel);font-weight:700;z-index:1}
+.fr-t tr[data-b]{cursor:pointer}.fr-t tr.on td{background:var(--panel2)}
+.fr-t small{color:var(--muted);font-size:9.5px;margin-left:2px}
+.fr-p{color:var(--up)}.fr-n{color:var(--down)}.fr-na{color:var(--muted)}.fr-mx,.fr-mn{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.fr-w{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.fr-w>span{font-size:12px;background:var(--panel2);border-radius:999px;padding:3px 4px 3px 10px;display:inline-flex;align-items:center;gap:2px}
+.fr-w>span button{border:0;background:none;color:var(--muted);font-size:14px;cursor:pointer;padding:0 5px;line-height:1}
+.fr-add{display:inline-flex;gap:4px}.fr-add input{width:118px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:3px 10px;font-size:12px}.fr-add button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
+.fr-d{border-top:1px solid var(--line);padding-top:10px}
+.fr-dh{display:flex;align-items:baseline;gap:6px;font-size:13px;margin-bottom:6px}.fr-dh span{margin-left:auto;font-size:11px;color:var(--muted)}
+.fr-r{display:grid;grid-template-columns:1.35fr 1fr .85fr 1fr;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px;font-variant-numeric:tabular-nums}
+.fr-r>span:not(:first-child){text-align:right}.fr-r small{display:block;font-size:10.5px;color:var(--muted)}.fr-rh{font-size:11px;color:var(--muted);padding:2px 0}
+.fr-sp{font-size:12px;margin-top:8px;line-height:1.55;color:var(--muted)}.fr-sp b{color:var(--text)}
+.fr-rk{margin-top:2px}.fr-k{display:grid;grid-template-columns:18px auto 1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;font-variant-numeric:tabular-nums}
+.fr-k i{font-style:normal;color:var(--muted);font-size:11px}.fr-k span{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fr-k em{font-style:normal}
+.fr-ft{margin-top:10px;line-height:1.5}
 .snap .card .k{font-size:11.5px;color:var(--muted)}
 .snap .card .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
 .snap .card .s{font-size:11.5px;color:var(--muted);margin-top:2px}
@@ -1068,6 +1089,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
   <div class="sect" id="sumSect"><h2>今日摘要<span class="more" id="sumAt"></span></h2><div class="card sumc" id="sumBox"><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">整理中…</div></div></div></div>
   <div class="sect" id="evSect" style="display:none"><h2>重要事件倒數<span class="more">台灣時間・依市場分析行事曆</span></h2><div class="card evs" id="evBox" data-noi18n></div></div>
   <div class="sect"><h2>市場快照<span class="more">BTC／ETH</span></h2><div class="snap" id="snapBox"></div></div>
+  <div class="sect" id="frSect"><h2>資金費率比較<span class="more" id="frAt">6 家交易所・即時</span></h2><div class="card fr" id="frBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div></div>
   <div class="sect"><h2>市場分析</h2><div class="card ana"><div id="anaBox" data-noi18n><div class="hxl"><i class="hxs"><b></b><b></b><b></b></i><div class="tx">讀取中…</div></div></div>
     <button class="gbtn" id="askBtn" style="display:none">✨ 讓 Claude 依最新資料重新分析</button><div id="askOut" class="ana" style="display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px"></div></div></div>
   <div class="sect"><h2>接下來的重要日程</h2><div class="card" id="calBox" data-noi18n></div></div>
@@ -5685,6 +5707,135 @@ const Legal=(()=>{const ok=()=>{try{return localStorage.getItem('hsLegal')===LEG
   (function wait(){if(ok())return;if(document.getElementById('splash'))return setTimeout(wait,400);gate()})();
   document.addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();read(b.dataset.legal)}});
   return {read,gate,ok}})();window.Legal=Legal;
+</script>
+<script>// ───────── 各交易所即時資金費率（市場分析頁）─────────
+// 只用免費公開介面：先從瀏覽器直連，交易所沒開跨網域（CORS）時改走 HexStack 轉送伺服器（worker/push.js 的 /x，白名單路徑）。
+// 每家整理成 { 幣: { r: 每期費率（小數）, h: 幾小時一期, nt: 下次結算毫秒, mp: 標記價 } }；頁面開著時每 30 秒更新，倒數每秒跳。
+(function(){
+const $=s=>document.querySelector(s),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DEF_PX='https://hexstack-push.hexstack-df20e2.workers.dev',LS='fr_watch',LSM='fr_mode';
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+// 1000PEPE、1MBABYDOGE、kPEPE（Hyperliquid）這類乘數前綴拿掉，各家才對得起來；費率是比例，跟乘數無關
+const base=s=>s.replace(/^(1000000|100000|10000|1000|1M)(?=[A-Z])/,'').replace(/^k(?=[A-Z])/,'');
+const num=x=>{const v=parseFloat(x);return isFinite(v)?v:NaN};
+const slot=h=>{const p=h*36e5;return Math.floor(Date.now()/p)*p+p};  // 沒給下次時間時：UTC 整點對齊推下一期
+async function pxBase(){try{if(window.BotTab&&BotTab.pBase)return (await BotTab.pBase()||DEF_PX).replace(/\/$/,'')}catch(e){}return DEF_PX}
+// GET：直連 → 轉送
+async function get(ex,net,host,path,q){
+  const url=host+path+(q?'?'+q:'');
+  try{const r=await fetch(url,{cache:'no-store'});if(r.ok)return await r.json()}catch(e){}
+  const r=await fetch((await pxBase())+'/x?ex='+ex+'&net='+net+'&path='+encodeURIComponent(path)+'&q='+encodeURIComponent(q||''),{cache:'no-store'});
+  if(!r.ok)throw new Error(ex+' '+r.status);return r.json()}
+
+const EX=[
+ {k:'binance',n:'Binance',s:'BN',async load(){
+   if(!this.fi||Date.now()-this.fiAt>36e5){this.fi=await get('binance','fut','https://fapi.binance.com','/fapi/v1/fundingInfo').catch(()=>this.fi||[]);this.fiAt=Date.now()}
+   const pi=await get('binance','fut','https://fapi.binance.com','/fapi/v1/premiumIndex'),fi=this.fi;
+   const H={};for(const x of fi||[])H[x.symbol]=+x.fundingIntervalHours||8;
+   const o={};for(const x of pi){if(!/USDT$/.test(x.symbol)||!+x.nextFundingTime)continue;const r=num(x.lastFundingRate);if(isNaN(r))continue;
+     o[base(x.symbol.slice(0,-4))]={r,h:H[x.symbol]||8,nt:+x.nextFundingTime,mp:num(x.markPrice)}}return o}},
+ {k:'bybit',n:'Bybit',s:'BY',async load(){
+   const j=await get('bybit','main','https://api.bybit.com','/v5/market/tickers','category=linear'),L=(j.result&&j.result.list)||[];
+   // 間隔：tickers 有 fundingIntervalHour 就用，沒有就查 instruments-info（一小時一次）
+   if(L.length&&L[0].fundingIntervalHour==null&&!(this.iv&&Date.now()-this.ivAt<36e5)){
+     const iv={};let cur='';for(let i=0;i<5;i++){const k=await get('bybit','main','https://api.bybit.com','/v5/market/instruments-info','category=linear&limit=1000'+(cur?'&cursor='+encodeURIComponent(cur):'')).catch(()=>null);
+       if(!k||!k.result)break;for(const x of k.result.list||[])iv[x.symbol]=(+x.fundingInterval||480)/60;cur=k.result.nextPageCursor;if(!cur)break}
+     this.iv=iv;this.ivAt=Date.now()}
+   const o={};for(const x of L){if(!/USDT$/.test(x.symbol))continue;const r=num(x.fundingRate);if(isNaN(r)||!+x.nextFundingTime)continue;
+     const h=+x.fundingIntervalHour||(this.iv&&this.iv[x.symbol])||8;o[base(x.symbol.slice(0,-4))]={r,h,nt:+x.nextFundingTime,mp:num(x.markPrice)}}return o}},
+ {k:'okx',n:'OKX',s:'OK',async load(syms){
+   // OKX 沒有一次拿全部的公開介面：只抓自選和正在看的幣（限速 10 次／2 秒，分批）
+   const o={},one=async b=>{const j=await get('okx','main','https://www.okx.com','/api/v5/public/funding-rate','instId='+b+'-USDT-SWAP').catch(()=>null),x=j&&j.data&&j.data[0];
+     if(!x)return;const r=num(x.fundingRate),nt=+x.fundingTime,nn=+x.nextFundingTime;if(isNaN(r)||!nt)return;
+     const h=nn>nt?Math.round((nn-nt)/36e5):8;o[b]={r,h,nt}};
+   for(let i=0;i<syms.length;i+=5){await Promise.all(syms.slice(i,i+5).map(one));if(i+5<syms.length)await new Promise(s=>setTimeout(s,1100))}return o}},
+ {k:'bitget',n:'Bitget',s:'BG',async load(){
+   const o={};let j=await get('bitget','main','https://api.bitget.com','/api/v2/mix/market/current-fund-rate','productType=USDT-FUTURES').catch(()=>null);
+   if(j&&Array.isArray(j.data)&&j.data.length>1){for(const x of j.data){if(!/USDT$/.test(x.symbol))continue;const r=num(x.fundingRate);if(isNaN(r))continue;const h=+x.fundingRateInterval||8;
+     o[base(x.symbol.slice(0,-4))]={r,h,nt:+x.nextUpdate||slot(h)}}return o}
+   j=await get('bitget','main','https://api.bitget.com','/api/v2/mix/market/tickers','productType=USDT-FUTURES');
+   for(const x of j.data||[]){if(!/USDT$/.test(x.symbol))continue;const r=num(x.fundingRate);if(isNaN(r))continue;o[base(x.symbol.slice(0,-4))]={r,h:8,nt:slot(8),mp:num(x.markPrice)}}return o}},
+ {k:'gate',n:'Gate',s:'GT',async load(){
+   const j=await get('gate','main','https://api.gateio.ws','/api/v4/futures/usdt/contracts'),o={};
+   for(const x of j||[]){if(x.in_delisting||!/_USDT$/.test(x.name))continue;const r=num(x.funding_rate);if(isNaN(r))continue;const h=(+x.funding_interval||28800)/3600;
+     o[base(x.name.slice(0,-5))]={r,h,nt:(+x.funding_next_apply||0)*1000||slot(h),mp:num(x.mark_price)}}return o}},
+ {k:'hl',n:'Hyperliquid',s:'HL',async load(){
+   // 鏈上永續：每小時結算一次，回傳的 funding 就是每小時費率
+   const r=await fetch('https://api.hyperliquid.xyz/info',{method:'POST',headers:{'Content-Type':'application/json'},body:'{"type":"metaAndAssetCtxs"}',cache:'no-store'});
+   if(!r.ok)throw new Error('hl '+r.status);const [m,c]=await r.json(),o={},nt=slot(1);
+   (m.universe||[]).forEach((u,i)=>{const x=c[i];if(!x||u.isDelisted)return;const f=num(x.funding);if(isNaN(f))return;o[base(u.name)]={r:f,h:1,nt,mp:num(x.markPx)}});return o}},
+];
+const D={},ERR={};let at=0,busy=false,timer=0,tick=0,started=false;
+let watch=lsGet(LS,['BTC','ETH','SOL','XRP','DOGE','BNB']),mode=lsGet(LSM,'p'),sel=watch[0]||'BTC',rk='hi';
+const ann=x=>x.r*(8760/x.h)*100;  // 年化 %
+const pct=(v,d)=>(v>0?'+':'')+v.toFixed(d)+'%';
+const val=x=>mode==='a'?pct(ann(x),1):pct(x.r*100,4);
+const cls=v=>v>0?'fr-p':v<0?'fr-n':'';
+const cd=t=>{let s=Math.max(0,Math.round((t-Date.now())/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);s%=60;return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')};
+const hm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+
+async function refresh(){
+  if(busy)return;busy=true;
+  const okx=[...new Set([...watch,sel])].slice(0,20);
+  await Promise.all(EX.map(async e=>{try{const o=await e.load(okx);if(o&&Object.keys(o).length){D[e.k]=o;delete ERR[e.k]}else ERR[e.k]='沒有資料'}catch(x){ERR[e.k]=String(x.message||x)}}));
+  at=Date.now();busy=false;render()}
+
+function table(){
+  const head='<tr><th>幣</th>'+EX.map(e=>`<th title="${e.n}">${e.n==='Hyperliquid'?'HL':e.n}</th>`).join('')+'</tr>';
+  const rows=watch.map(b=>{const xs=EX.map(e=>D[e.k]&&D[e.k][b]),vs=xs.filter(Boolean).map(ann),mx=Math.max(...vs),mn=Math.min(...vs);
+    return `<tr data-b="${esc(b)}" class="${b===sel?'on':''}"><td>${esc(b)}</td>`+xs.map(x=>{if(!x)return '<td class="fr-na">—</td>';const a=ann(x),ex=vs.length>1&&(a===mx?' fr-mx':a===mn?' fr-mn':'');
+      return `<td class="${cls(x.r)}${ex}">${val(x)}${mode==='p'&&x.h!==8?`<small>${x.h}h</small>`:''}</td>`}).join('')+'</tr>'}).join('');
+  return `<div class="fr-tw"><table class="fr-t"><thead>${head}</thead><tbody>${rows}</tbody></table></div>`}
+
+function detail(){
+  const xs=EX.map(e=>({e,x:D[e.k]&&D[e.k][sel]})).filter(o=>o.x).sort((a,b)=>ann(b.x)-ann(a.x));
+  if(!xs.length)return `<div class="fr-d"><div class="small">${busy||!at?'讀取中…':esc(sel)+' 在這 6 家都沒有 USDT 永續合約'}</div></div>`;
+  const hi=xs[0],lo=xs[xs.length-1],sp=ann(hi.x)-ann(lo.x);
+  return `<div class="fr-d"><div class="fr-dh"><b>${esc(sel)}</b> 各交易所比較<span>費率高→低</span></div>`+
+    `<div class="fr-r fr-rh"><span>交易所</span><span>每期</span><span>年化</span><span>下次結算</span></div>`+
+    xs.map(({e,x})=>`<div class="fr-r"><span>${e.n}<small>${x.h} 小時一期</small></span><span class="${cls(x.r)}">${pct(x.r*100,4)}</span><span class="${cls(x.r)}">${pct(ann(x),1)}</span><span><b class="fr-cd" data-t="${x.nt}">${cd(x.nt)}</b><small>${hm(x.nt)}</small></span></div>`).join('')+
+    (xs.length>1?`<div class="fr-sp">最高與最低年化差 <b>${sp.toFixed(1)}%</b>：${hi.e.n} ${pct(ann(hi.x),1)}、${lo.e.n} ${pct(ann(lo.x),1)}。${sp>=10?`理論上在 ${lo.e.n} 做多、${hi.e.n} 做空可兩邊收費率，但要算手續費、價差與爆倉風險。`:''}</div>`:'')+'</div>'}
+
+function rank(){
+  const all=[];for(const e of EX){if(e.k==='okx')continue;const o=D[e.k];if(o)for(const b in o)all.push({b,e,x:o[b]})}
+  let list;
+  if(rk==='sp'){const by={};for(const a of all)(by[a.b]=by[a.b]||[]).push(a);
+    list=Object.values(by).filter(v=>v.length>=2).map(v=>{v.sort((a,b)=>ann(b.x)-ann(a.x));return {b:v[0].b,hi:v[0],lo:v[v.length-1],sp:ann(v[0].x)-ann(v[v.length-1].x)}}).sort((a,b)=>b.sp-a.sp).slice(0,10);
+    return list.map((o,i)=>`<div class="fr-k" data-b="${esc(o.b)}"><i>${i+1}</i><b>${esc(o.b)}</b><span>${o.hi.e.n} <em class="${cls(o.hi.x.r)}">${pct(ann(o.hi.x),0)}</em> ／ ${o.lo.e.n} <em class="${cls(o.lo.x.r)}">${pct(ann(o.lo.x),0)}</em></span><strong>差 ${o.sp.toFixed(0)}%</strong></div>`).join('')}
+  list=all.sort((a,b)=>rk==='hi'?ann(b.x)-ann(a.x):ann(a.x)-ann(b.x)).slice(0,10);
+  return list.map((o,i)=>`<div class="fr-k" data-b="${esc(o.b)}"><i>${i+1}</i><b>${esc(o.b)}</b><span>${o.e.n}・${pct(o.x.r*100,4)}／${o.x.h}h</span><strong class="${cls(o.x.r)}">${pct(ann(o.x),0)}</strong></div>`).join('')}
+
+function render(){
+  const box=$('#frBox');if(!box)return;
+  const bad=EX.filter(e=>ERR[e.k]&&!D[e.k]).map(e=>e.n);
+  const oi=box.querySelector('.fr-add input'),iv=oi?oi.value:'',foc=oi&&document.activeElement===oi;  // 自動更新時不要把正在打的字清掉
+  $('#frAt').textContent=at?'更新 '+new Date(at).toLocaleTimeString('zh-TW',{hour12:false}):'讀取中…';
+  box.innerHTML=`<div class="fr-bar"><div class="chips fr-mode"><button data-m="p" class="${mode==='p'?'on':''}">每期費率</button><button data-m="a" class="${mode==='a'?'on':''}">年化</button></div><button class="fr-rf" type="button" aria-label="重新整理">${busy?'更新中…':'↻'}</button></div>`+
+    table()+
+    `<div class="fr-w">${watch.map(b=>`<span>${esc(b)}<button data-rm="${esc(b)}" aria-label="移除">×</button></span>`).join('')}<form class="fr-add"><input maxlength="12" placeholder="加幣種，如 PEPE" autocapitalize="characters"><button>加入</button></form></div>`+
+    detail()+
+    `<div class="fr-dh" style="margin-top:14px"><b>全市場排行</b><span>年化・不含 OKX</span></div><div class="chips fr-rk"><button data-k="hi" class="${rk==='hi'?'on':''}">費率最高</button><button data-k="lo" class="${rk==='lo'?'on':''}">費率最低</button><button data-k="sp" class="${rk==='sp'?'on':''}">跨所價差最大</button></div><div class="fr-ks">${rank()||'<div class="small">讀取中…</div>'}</div>`+
+    `<div class="small fr-ft">正值＝多單付給空單。每期費率是下次結算的預估值，各家結算間隔不同（Hyperliquid 每小時），比較請看年化。${bad.length?'<br>連不到：'+bad.join('、'):''}</div>`;
+  if(iv||foc){const ni=box.querySelector('.fr-add input');ni.value=iv;if(foc)ni.focus()}}
+
+function wire(){
+  const box=$('#frBox');if(!box||box.dataset.w)return;box.dataset.w=1;
+  box.addEventListener('click',ev=>{const t=ev.target;
+    const m=t.closest('.fr-mode button');if(m){mode=m.dataset.m;lsSet(LSM,mode);render();return}
+    if(t.closest('.fr-rf')){refresh();render();return}
+    const k=t.closest('.fr-rk button');if(k){rk=k.dataset.k;render();return}
+    const rm=t.closest('[data-rm]');if(rm){watch=watch.filter(b=>b!==rm.dataset.rm);lsSet(LS,watch);if(sel===rm.dataset.rm)sel=watch[0]||'BTC';render();return}
+    const r=t.closest('tr[data-b],.fr-k[data-b]');if(r){const b=r.dataset.b,need=!(D.okx&&D.okx[b]);sel=b;render();if(r.classList.contains('fr-k'))box.querySelector('.fr-d').scrollIntoView({block:'nearest',behavior:'smooth'});if(need)refresh()}});
+  box.addEventListener('submit',ev=>{ev.preventDefault();const i=ev.target.querySelector('input'),b=base(i.value.trim().toUpperCase().replace(/[-_\/]?(USDT|USD|PERP|SWAP)$/,'').replace(/[^A-Z0-9]/g,''));
+    if(!b)return;if(!watch.includes(b)){watch.push(b);lsSet(LS,watch)}sel=b;render();refresh()})}
+
+const vis=()=>{const v=$('#newsView');return v&&v.classList.contains('on')&&document.visibilityState==='visible'};
+function loop(){
+  if(vis()){wire();if(!started){started=true;render()}if(Date.now()-at>30000)refresh()}
+  if(vis())document.querySelectorAll('#frBox .fr-cd').forEach(b=>b.textContent=cd(+b.dataset.t))}
+setInterval(loop,1000);document.addEventListener('visibilitychange',loop);
+window.FundRate={refresh,data:D};
+})();
 </script>
 </body>
 </html>
