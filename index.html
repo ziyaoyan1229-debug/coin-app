@@ -341,7 +341,8 @@ details.fold>.in{padding:0 14px 12px}
   .bnav button{flex-direction:row;padding:0 10px;font-size:14px;gap:6px;white-space:nowrap}.bnav button svg{width:18px;height:18px}
   .bnav button.on::before{top:auto;bottom:0;border-radius:3px 3px 0 0;width:60%}
   main{bottom:0}
-  .coin{width:auto;flex:1 1 0}
+  .coin{width:auto;flex:1 1 0;min-width:max-content;grid-template-columns:auto max-content 1fr}.coin .ch{justify-self:end}   /* 名稱不截斷；卡片太多時整列左右滑 */
+  .coin.addc{flex:none;width:64px;min-width:64px}
   #stratView{flex-direction:row;overflow:hidden}
   #stratView .col{overflow:auto}
   #stratView #left{width:300px!important;flex:none;padding-bottom:14px!important}
