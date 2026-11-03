@@ -2423,11 +2423,12 @@ const HexAI=(()=>{
     'dizzy','<path d="M-22 -6l11 12M-11 -6l-11 12M11 -6l11 12M22 -6l-11 12" stroke-width="3.6" fill="none"/>']
     .reduce((h,v,i,A)=>i%2?h+`<g class="ex" data-ex="${A[i-1]}" style="display:none">${v}</g>`:h,'');
   const EXT={sleep:'Z',what:'?',wow:'!',love:'♥'};
+  const MOODS=['wow','love','what','sad','angry','dizzy','wow','love','what'];   // 隨機心情（驚訝、愛心、疑惑出現機率高一點）
   // 球面轉頭：配件掛在球面上的哪個方位（數字＝掛在右側的半徑；'face'＝貼在臉上跟著臉罩動；沒寫＝不跟著轉）
   const ACCM={forge:62,helm:62,echo:'face'};
   const THINK=new Set();const think=(k,on)=>{if(on)THINK.add(k);else THINK.delete(k)};
   // 讓某隻機器人做表情幾秒：emote('forge','wow',3)；'joy' 是原本點一下的開心
-  function emote(k,ex,dur){const now=performance.now()/1000;for(const o of all)if(o.k===k){if(ex==='joy'){o.joy=now;o.em=null}else{o.em=ex;o.emAt=now;o.emEnd=now+(dur||3);o.ac=null}}}
+  function emote(k,ex,dur){const now=performance.now()/1000;for(const o of all)if(o.k===k){if(ex==='joy'){o.joy=now;o.em=null}else{o.em=ex;o.emAt=now;o.emEnd=now+(dur||3);o.ac=null}o.nm=Math.max(o.nm||0,now+(dur||3)+5)}}
   let all=[],run=false,px=null,py=null,last=0,uid=0;
   const say=t=>{let e=document.getElementById('aiToast');if(!e){e=document.createElement('div');e.id='aiToast';e.style.cssText='position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13.5px;z-index:60;max-width:86vw;text-align:center;transition:opacity .3s';document.body.appendChild(e)}e.textContent=t;e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity=0,1800)};
   function svg(a,id){const L=[mix(a.c,'#000000',.18),a.c,mix(a.c,'#ffffff',.55)];
@@ -2465,6 +2466,9 @@ ${hex('u')}</svg>`}
       else{y=Math.sin(t*1.7)*5+Math.sin(t*3.3)*1.6;x=Math.sin(t*.9)*2;rot=Math.sin(t*1.1)*3;sx=1+.025*Math.sin(t*3.4);sy=2-sx}
       o.hv+=((y-6-o.hy)*60-o.hv*9)*dt;o.hy+=o.hv*dt;o.rv+=((rot-o.hr)*60-o.rv*9)*dt;o.hr+=o.rv*dt;
       // 平常隨機的小動作：左看右看（眼睛）、身體左右轉（臉罩移到側面）、轉一圈（整顆球轉 360° 加小跳）
+      // 剛出現在畫面上（或頁面隱藏超過 1.5 秒又回來）：先睡 3–5 秒，醒來後每隔一陣子隨機換一種心情
+      if(o.last==null||now-o.last>1.5){o.em="sleep";o.emAt=now;o.emEnd=now+3+Math.random()*2;o.nm=o.emEnd+2+Math.random()*4;o.na=o.emEnd+1;o.ac=null}o.last=now;
+      if(!o.em&&!j&&now>o.nm){o.em=MOODS[Math.floor(Math.random()*MOODS.length)];o.emAt=now;o.emEnd=now+2.5+Math.random()*2;o.nm=o.emEnd+5+Math.random()*9;o.ac=null}
       // 表情：emote() 設定 o.em 和結束時間；期間眼睛換形狀，身體也有一點反應（驚訝跳一下、生氣抖、暈搖頭、愛心心跳、睡著慢慢沉）
       let em=null,eu=0;if(o.em){if(now<o.emEnd){em=o.em;eu=now-o.emAt}else o.em=null}
       if(em==='wow'){y-=Math.sin(Math.min(1,eu/.5)*Math.PI)*16;if(eu<.5)sy=1+.08*Math.sin(eu/.5*Math.PI)}
@@ -2487,7 +2491,7 @@ ${hex('u')}</svg>`}
       const oa=t*1.2,tilt=-18+Math.sin(t*.5)*14;[o.oB,o.oF].forEach(g=>g.setAttribute('transform',`translate(${100+x} ${134+y}) rotate(${tilt})`));o.rg.forEach(r=>r.setAttribute('stroke-dashoffset',-t*36));
       const cx=Math.cos(oa)*78,cy=Math.sin(oa)*24,f=Math.sin(oa)>0;o.sF.setAttribute('cx',cx);o.sF.setAttribute('cy',cy);o.sF.setAttribute('opacity',f?1:0);o.sB.setAttribute('cx',cx);o.sB.setAttribute('cy',cy);o.sB.setAttribute('opacity',f?0:.6);
       o.sh.setAttribute('rx',44-Math.max(0,-y)*.6);
-      if(now>o.nx){o.tx=(Math.random()-.5)*10;o.ty=(Math.random()-.5)*6;o.nx=now+1.2+Math.random()*2.5}let gx=o.tx,gy=o.ty;if(lk!=null){gx=lk*7;gy=0}
+      if(now>o.nx){o.tx=(Math.random()-.5)*16;o.ty=(Math.random()-.5)*8;o.nx=now+.7+Math.random()*2}let gx=o.tx,gy=o.ty;if(lk!=null){gx=lk*7;gy=0}
       if(px!=null&&lk==null){const r=o.b.getBoundingClientRect(),dx=px-(r.left+r.width/2),dy=py-(r.top+r.height*.45),m=Math.hypot(dx,dy)||1,k=Math.min(1,m/120);gx=dx/m*6*k;gy=dy/m*4.5*k}
       o.lx+=(gx-o.lx)*Math.min(1,dt*10);o.ly2+=(gy-o.ly2)*Math.min(1,dt*10);o.ey.setAttribute('transform',`translate(${o.lx} ${o.ly2})`);
       if(now>o.nb){o.bl=now;o.nb=now+2+Math.random()*3.5}const bp=(now-o.bl)/.16;o.op.setAttribute('transform',`scale(1 ${bp<1?Math.max(.08,Math.abs(Math.cos(bp*Math.PI))):1})`);
