@@ -384,6 +384,104 @@
 "yf": "CRCL"
 },
 {
+"s": "NFLX",
+"name": "Netflix",
+"cat": "美股",
+"src": "yf",
+"yf": "NFLX"
+},
+{
+"s": "AVGO",
+"name": "博通",
+"cat": "美股",
+"src": "yf",
+"yf": "AVGO"
+},
+{
+"s": "ORCL",
+"name": "甲骨文",
+"cat": "美股",
+"src": "yf",
+"yf": "ORCL"
+},
+{
+"s": "MU",
+"name": "美光",
+"cat": "美股",
+"src": "yf",
+"yf": "MU"
+},
+{
+"s": "INTC",
+"name": "英特爾",
+"cat": "美股",
+"src": "yf",
+"yf": "INTC"
+},
+{
+"s": "MRVL",
+"name": "Marvell",
+"cat": "美股",
+"src": "yf",
+"yf": "MRVL"
+},
+{
+"s": "CRWD",
+"name": "CrowdStrike",
+"cat": "美股",
+"src": "yf",
+"yf": "CRWD"
+},
+{
+"s": "GME",
+"name": "GameStop",
+"cat": "美股",
+"src": "yf",
+"yf": "GME"
+},
+{
+"s": "JPM",
+"name": "摩根大通",
+"cat": "美股",
+"src": "yf",
+"yf": "JPM"
+},
+{
+"s": "V",
+"name": "Visa",
+"cat": "美股",
+"src": "yf",
+"yf": "V"
+},
+{
+"s": "LLY",
+"name": "禮來",
+"cat": "美股",
+"src": "yf",
+"yf": "LLY"
+},
+{
+"s": "WMT",
+"name": "沃爾瑪",
+"cat": "美股",
+"src": "yf",
+"yf": "WMT"
+},
+{
+"s": "SPY",
+"name": "S&P 500 ETF",
+"cat": "美股",
+"src": "yf",
+"yf": "SPY"
+},
+{
+"s": "QQQ",
+"name": "Nasdaq 100 ETF",
+"cat": "美股",
+"src": "yf",
+"yf": "QQQ"
+},
+{
 "s": "XAU",
 "name": "黃金",
 "cat": "原物料",
