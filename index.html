@@ -901,8 +901,13 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
   #tmBot .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:0 16px;align-items:start}}
 .aibtn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;border:1px solid var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent);color:var(--acc);font:inherit;font-size:12.5px;font-weight:700;letter-spacing:0;cursor:pointer;line-height:1.4}
 .bttl{display:flex;align-items:center;gap:8px}.bttl .aibtn{font-size:12.5px}
-.cpsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.cpsum b,.cpst b{display:block;font-size:17px;margin-top:2px}
-.cplist{display:grid;gap:10px}.cph{display:flex;align-items:center;gap:10px}.cph>div{flex:1;min-width:0}.cph .bbtn{flex:none;width:auto;padding:0 16px}
+.cptop{display:flex;margin:0 0 8px}.cpseg{display:flex;gap:6px}.cpseg button{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}.cpseg button.on{border-color:var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.cpflt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 10px}.cpflt label{display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:var(--muted);min-width:0}
+.cpflt select{width:100%;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:7px 6px;font:inherit;font-size:13px}
+.cplg{width:38px;height:38px;font-size:13px}.cph .pill{flex:none;margin:0}.cpad{display:block;font-family:ui-monospace,monospace;font-size:11.5px}
+.cpc[data-tr]{cursor:pointer}.cpback{background:none;border:0;color:var(--acc);font:inherit;font-size:15px;font-weight:700;padding:0 2px 10px;cursor:pointer}.cpsubt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:12px 2px 10px;font-size:14px}.cpsubt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}.cpsubt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
+.cpst-btn{flex:none;background:none;border:0;font-size:22px;line-height:1;color:var(--muted);cursor:pointer;padding:2px 2px 2px 4px}.cpst-btn.on{color:#f0b90b}
+.cpst b{display:block;margin-top:2px}.cplist{display:grid;gap:10px}.cph{display:flex;align-items:center;gap:10px}.cph>div{flex:1;min-width:0}.cph .bbtn{flex:none;width:auto;padding:0 16px}
 .cpav{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc)}
 .cpst{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);text-align:center}.cpst b{font-size:15px}
 .cpset .br{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.cpset .br:last-child{border:0}
@@ -1180,16 +1185,16 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
     <div class="foot">HexAI 跑在你電腦上的 HexStack，只做分析和建議，不會下單、不會改設定。<br>內容僅供參考，非投資建議</div></div>
   <div id="tmCopy" hidden>
     <div class="sect"><h2>跟單機器人<button type="button" class="aibtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>HexAI</button><span class="more"><span class="pill">即將推出</span></span></h2>
-    <p class="sub" style="margin:0 2px 10px">挑一位交易員或一組策略，機器人照著他的進出場幫你下單。功能還在設計中，以下是介面預覽。</p>
-    <div class="card cpsum"><div><span class="sub">跟單中</span><b>0</b></div><div><span class="sub">跟單資金</span><b>— USDT</b></div><div><span class="sub">累計損益</span><b>—</b></div></div></div>
-    <div class="sect"><h2>熱門跟單對象<span class="more">近 30 天</span></h2><div class="cplist">
-      <div class="card cpc"><div class="cph"><i class="cpav">A</i><div><b>交易員 A</b><div class="sub">BTC・ETH 永續</div></div><button type="button" class="bbtn" disabled>跟單</button></div><div class="cpst"><div><span class="sub">報酬率</span><b>—</b></div><div><span class="sub">勝率</span><b>—</b></div><div><span class="sub">最大回撤</span><b>—</b></div><div><span class="sub">跟單人數</span><b>—</b></div></div></div>
-      <div class="card cpc"><div class="cph"><i class="cpav">B</i><div><b>交易員 B</b><div class="sub">多幣種現貨</div></div><button type="button" class="bbtn" disabled>跟單</button></div><div class="cpst"><div><span class="sub">報酬率</span><b>—</b></div><div><span class="sub">勝率</span><b>—</b></div><div><span class="sub">最大回撤</span><b>—</b></div><div><span class="sub">跟單人數</span><b>—</b></div></div></div>
-    </div></div>
-    <div class="sect"><h2>跟單設定</h2><div class="card cpset">
-      <div class="br"><span>每筆跟單金額</span><b>— USDT</b></div><div class="br"><span>跟單比例</span><b>—</b></div><div class="br"><span>單筆停損</span><b>—</b></div><div class="br"><span>下單交易所</span><b>—</b></div>
-    </div></div>
-    <div class="foot">跟單機器人還在設計中，目前不會下單。<br>內容僅供參考，非投資建議</div></div>
+    <div id="cpHome"><div class="cptop"><div class="seg cpseg" id="cpSeg"><button type="button" data-v="all" class="on">全部</button><button type="button" data-v="fav">★ 我的</button></div></div>
+    <div class="cpflt" id="cpFlt">
+      <label><span>交易所</span><select data-f="ex"><option value="">全部</option><option value="binance">Binance</option><option value="okx">OKX</option><option value="hl">Hyperliquid</option></select></label>
+      <label><span>資金規模</span><select data-f="size"><option value="">全部</option><option value="s">10 萬 U 以下</option><option value="m">10～100 萬 U</option><option value="l">100 萬 U 以上</option></select></label>
+      <label><span>交易頻率</span><select data-f="freq"><option value="">全部</option><option value="h">每天多筆</option><option value="m">每週幾筆</option><option value="l">偶爾才交易</option></select></label>
+    </div>
+    <div class="cplist" id="cpList"></div>
+    <p class="sub" style="margin:8px 2px 0;font-size:12.5px">名單由 Aton 追蹤。資金規模、交易頻率、績效資料還沒接上，篩選先只對交易所有效。</p></div>
+    <div id="cpDetail" hidden></div></div>
+    <div class="foot">目前只能看交易員紀錄和操作通知，不會幫你下單。<br>內容僅供參考，非投資建議</div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
   <div class="foot">HexBOT 自動交易由你自己電腦上的 HexStack 電腦版下單，App 只負責看和控制；交易所金鑰只存在電腦上。<br>內容僅供參考，非投資建議</div></div>
 </div></section>
@@ -2665,7 +2670,7 @@ function show(v){VIEWS.forEach(k=>{$('#'+k+'View').classList.toggle('on',v===k);
   // 先讓分頁切過去畫出來，各頁的載入晚一點再做，點下去不卡
   requestAnimationFrame(()=>setTimeout(()=>{if(v==='chart'&&window.__cvLazy)__cvLazy();if(v==='news'&&window.NewsTab)NewsTab.open();if(v==='sig'){SigTab.open();window.BotTab&&BotTab.open()}else window.BotTab&&BotTab.hide();if(v==='notify')NotifyTab.open();if(v==='db'&&window.DbTab)DbTab.open();if(v==='set')setTab();if(v==='fund')FundTab.open();resizeAll()},20));}
 // 點下面的分頁：回到那頁的初始狀態（子頁面收起、捲回最上面）
-const navHome=k=>{try{if(k==='sig'){window.SigTab&&SigTab.home();window.BotTab&&BotTab.reset();window.AiChat&&AiChat.home()}if(k==='fund'&&window.FundTab)FundTab.home()}catch(e){}const v=$('#'+k+'View');if(v)v.scrollTop=0;window.scrollTo(0,0)};
+const navHome=k=>{try{if(k==='sig'){window.SigTab&&SigTab.home();window.BotTab&&BotTab.reset();window.AiChat&&AiChat.home();window.CopyTab&&CopyTab.home()}if(k==='fund'&&window.FundTab)FundTab.home()}catch(e){}const v=$('#'+k+'View');if(v)v.scrollTop=0;window.scrollTo(0,0)};
 VIEWS.forEach(k=>$('#nav_'+k)&&($('#nav_'+k).onclick=()=>{navHome(k);show(k);history.replaceState(null,'','#'+k)}));
 $('#dbBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};$('#setDb').onclick=()=>{show('db');history.replaceState(null,'','#db')};
 $('#setNotify').onclick=()=>{show('notify');history.replaceState(null,'','#notify')};$('#ntBack').onclick=()=>{show('set');history.replaceState(null,'','#set')};
@@ -4333,13 +4338,54 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
       case 'botSug':return suggest();
       case 'botLimGo':{const o={},lo=S.limitsOff||{};for(const k of ['maxPosPct','maxLev','dayLossPct','maxDDPct']){if(lo[k])continue;const v=parseFloat($('#lim_'+k).value);if(!(v>0))return toast('上限要填大於 0 的數字');o[k]=v}draft=null;return act('/api/limits',o,'已儲存')}
       case 'botPush':return toast(await linkPush()?'已綁定，主機離線或每日報告會推播到這台':'這台還沒開通知，先到「設定 › 通知」打開')}}}
-  function mode(m,quiet){if(m==='bot'&&BOT_LOCK){if(!quiet)toast('HexBOT 自動交易暫時鎖住，之後再開放');m='sig'}W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';$('#tmCopy').hidden=m!=='copy';if(m==='ai'){setTimeout(()=>HexAI.start(),0);window.AiChat&&AiChat.open()}
+  function mode(m,quiet){if(m==='bot'&&BOT_LOCK){if(!quiet)toast('HexBOT 自動交易暫時鎖住，之後再開放');m='sig'}W('tMode',m);$('#tMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#tmSig').hidden=m!=='sig';$('#tmBot').hidden=m!=='bot';$('#tmAi').hidden=m!=='ai';$('#tmCopy').hidden=m!=='copy';if(m==='copy')window.CopyTab&&CopyTab.open();if(m==='ai'){setTimeout(()=>HexAI.start(),0);window.AiChat&&AiChat.open()}
     vis=m==='bot';if(vis){render();refresh();loop()}else clearTimeout(timer)}
   $('#tMode').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)mode(b.dataset.m)};
   // HexAI 不在上方分頁：各區標題旁的「HexAI」按鍵打開
   $('#sigView').addEventListener('click',e=>{if(e.target.closest('.aibtn'))mode('ai')});
   return {onKeys:()=>new Set(S?(S.strategies||[]).filter(x=>isOn(x)&&x.key).map(x=>String(x.key).split('@')[0]):[]),reset(){bv=bg=bk=bd=bs=ask=null;xf=null;pick=false;if(tab!=='ov'){tab='ov';W('botTab','ov')}vis&&S&&render()},lims:()=>S&&S.limits,refresh:()=>host()&&refresh(),open(){mode(J('tMode','bot'),1)},hide(){vis=false;clearTimeout(timer)},pre:()=>host()?refresh():null,fromHash,mode,api,paired:()=>!!host()||tryPair(),pBase,logCard,revList}})();
 window.BotTab=BotTab;
+// ── 開始交易 › 跟單機器人（介面）：Aton 追蹤的交易員名單；★ 我的、交易所／資金規模／交易頻率篩選 ──
+const CopyTab=(()=>{
+  // ex：binance／okx／hl（Hyperliquid 鏈上錢包）；size、freq 還沒有資料（null＝不受篩選影響）；soon＝Aton 還沒開始通知
+  const T=[
+    {id:'bn-aoying',ex:'binance',n:'熬鷹資本',t:'Binance 帶單員'},
+    {id:'bn-xingchen',ex:'binance',n:'Btc星辰',t:'Binance 帶單員'},
+    {id:'hl-bobby',ex:'hl',n:'BobbyBigSize',t:'Hyperliquid 錢包',a:'0x7fda…17d1'},
+    {id:'hl-silk',ex:'hl',n:'SilkBtc',t:'Hyperliquid 錢包',a:'0x880a…311c'},
+    {id:'okx-xiaoyao',ex:'okx',n:'Xiaoyao Lee',t:'OKX 帶單員',soon:1},
+    {id:'okx-frog',ex:'okx',n:'Shallow-Pair-Frog',t:'OKX 帶單員',soon:1},
+    {id:'okx-1491',ex:'okx',n:'1491',t:'OKX 帶單員',soon:1}];
+  const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  const F={seg:'all',ex:'',size:'',freq:''};
+  const HL='<span class="fdlg cplg" style="background:#072723;color:#97fce4">HL</span>';
+  const logo=x=>x.ex==='hl'?HL:window.FundTab&&FundTab.lg?FundTab.lg(x.ex,'cplg'):'';
+  const stats=()=>'<div class="cpst"><div><span class="sub">報酬率</span><b>—</b></div><div><span class="sub">勝率</span><b>—</b></div><div><span class="sub">資金規模</span><b>—</b></div><div><span class="sub">交易頻率</span><b>—</b></div></div>';
+  let cur=null,dtab='log';
+  const star=(x,st)=>`<button type="button" class="cpst-btn${st.has(x.id)?' on':''}" data-id="${x.id}" aria-label="加到我的" aria-pressed="${st.has(x.id)}">${st.has(x.id)?'★':'☆'}</button>`;
+  // 點進交易員：交易紀錄／操作通知（Aton 追蹤到的開倉、加倉、減倉、平倉）
+  function detail(){const d=document.getElementById('cpDetail'),h=document.getElementById('cpHome');const x=T.find(t=>t.id===cur);h.hidden=!!x;d.hidden=!x;if(!x)return render();const st=new Set(J('cpStar',[]));
+    const empty=x.soon?'Aton 的 OKX 追蹤程式寫好後才會開始記錄':dtab==='log'?'還沒有交易紀錄，Aton 的資料接上後會出現在這裡':'還沒有操作通知。交易員開倉、加倉、減倉、平倉時，會在這裡和推播通知你';
+    d.innerHTML=`<button type="button" class="cpback" id="cpBack">‹ 全部交易員</button>
+      <div class="card cpc"><div class="cph">${logo(x)}<div><b>${x.n}</b><div class="sub">${x.t}${x.a?`<span class="cpad">${x.a}</span>`:''}</div></div>${x.soon?'<span class="pill">準備中</span>':'<span class="pill p-ok">追蹤中</span>'}${star(x,st)}</div>${stats()}</div>
+      <div class="subt cpsubt"><button type="button" data-d="log"${dtab==='log'?' class="on"':''}>交易紀錄</button><button type="button" data-d="ntf"${dtab==='ntf'?' class="on"':''}>操作通知</button></div>
+      <div class="card sub" style="text-align:center;padding:22px 14px">${empty}</div>`}
+  function render(){const box=document.getElementById('cpList');if(!box)return;const st=new Set(J('cpStar',[]));
+    const L=T.filter(x=>(F.seg!=='fav'||st.has(x.id))&&(!F.ex||x.ex===F.ex)&&(!F.size||x.size==null||x.size===F.size)&&(!F.freq||x.freq==null||x.freq===F.freq));
+    box.innerHTML=L.length?L.map(x=>`<div class="card cpc" role="button" tabindex="0" data-tr="${x.id}"><div class="cph">${logo(x)}<div><b>${x.n}</b><div class="sub">${x.t}${x.a?`<span class="cpad">${x.a}</span>`:''}</div></div>
+      ${x.soon?'<span class="pill">準備中</span>':'<span class="pill p-ok">追蹤中</span>'}${star(x,st)}</div>
+      ${stats()}</div>`).join('')
+      :`<div class="card sub" style="text-align:center;padding:18px">${F.seg==='fav'&&!st.size?'還沒有加星號的交易員，點交易員右上角的 ☆ 加進來':'沒有符合篩選的交易員'}</div>`}
+  function bind(){const v=document.getElementById('tmCopy');if(!v||v._b)return;v._b=1;
+    v.addEventListener('click',e=>{const s=e.target.closest('#cpSeg button');if(s){F.seg=s.dataset.v;v.querySelectorAll('#cpSeg button').forEach(b=>b.classList.toggle('on',b===s));return render()}
+      const b=e.target.closest('.cpst-btn');if(b){const st=new Set(J('cpStar',[]));st.has(b.dataset.id)?st.delete(b.dataset.id):st.add(b.dataset.id);W('cpStar',[...st]);return cur?detail():render()}
+      if(e.target.closest('#cpBack')){cur=null;return detail()}
+      const t=e.target.closest('[data-d]');if(t){dtab=t.dataset.d;return detail()}
+      const c=e.target.closest('[data-tr]');if(c){cur=c.dataset.tr;dtab='log';detail();window.scrollTo(0,0)}});
+    v.addEventListener('keydown',e=>{const c=e.key==='Enter'&&e.target.closest('[data-tr]');if(c){cur=c.dataset.tr;dtab='log';detail()}});
+    v.addEventListener('change',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f){F[f]=e.target.value;render()}})}
+  return {open(){bind();detail()},home(){cur=null;detail()}}})();
+window.CopyTab=CopyTab;
 // ───────── HexAI 對話（策略顧問）：問題送到配對的執行器（/api/ai/*），執行器呼叫模型和工具；這裡只顯示對話、工具步驟和模型設定 ─────────
 const AI_BUILD=164;   // 需要的執行器版號（executor/hexbot.js BUILD），比這個舊就提醒
 const AiChat=(()=>{
