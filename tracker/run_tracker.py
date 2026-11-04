@@ -132,6 +132,7 @@ def fetch_fills(addr, since, max_pages=6):
 def parse_added(added):
     if not added:
         return 0
+    added = added.strip().replace("T", " ").rstrip("Z").strip()  # 也接受 ISO 格式（2026-11-05T03:00Z）
     for fmt, n in (("%Y-%m-%d %H:%M", 16), ("%Y-%m-%d", 10)):
         try:
             return int(datetime.strptime(added[:n], fmt).replace(tzinfo=timezone.utc).timestamp() * 1000)
@@ -299,9 +300,10 @@ def main():
                                      entry=p.get("entryPx"), mark=round(mark, 6), upnl=round(up, 2), lev_type=lev.get("type"), lev_set=lev.get("value"),
                                      liq=liq, liq_dist=round(dist, 4) if dist is not None else "", margin=p.get("marginUsed"),
                                      funding_since_open=(p.get("cumFunding") or {}).get("sinceOpen")))
-                c = cons.setdefault(coin, {"long": 0.0, "short": 0.0, "nl": 0, "ns": 0})
-                if szi > 0: c["long"] += ntl; c["nl"] += 1
-                else: c["short"] += ntl; c["ns"] += 1
+                if r.get("grade", "") != "對照":  # 群體共識只算候選人，不算隨機對照組
+                    c = cons.setdefault(coin, {"long": 0.0, "short": 0.0, "nl": 0, "ns": 0})
+                    if szi > 0: c["long"] += ntl; c["nl"] += 1
+                    else: c["short"] += ntl; c["ns"] += 1
                 if dist is not None and dist < 0.05:
                     alerts.append(f"- {T} ⚠️ 離強平價 < 5%：{label} {coin} {'多' if szi>0 else '空'} 名目 {ntl:,.0f}，距離 {dist:.1%}")
         gross = long_n + short_n
@@ -338,7 +340,7 @@ def main():
             liq = fl.get("liquidation")
             fill_rows.append(dict(time=iso(fl["time"]), ms=fl["time"], addr=addr, label=label, coin=fl["coin"], dir=fl.get("dir"), side=fl.get("side"),
                                   px=fl["px"], sz=fl["sz"], closedPnl=fl.get("closedPnl"), fee=fl.get("fee"), crossed=fl.get("crossed"),
-                                  liquidation=1 if liq else 0, hash=fl.get("hash")))
+                                  liquidation=("self" if str(liq.get("liquidatedUser", "")).lower() == addr else "counterparty") if liq else "", hash=fl.get("hash")))
             lf = max(lf, int(fl["time"]))
             if liq and str(liq.get("liquidatedUser", "")).lower() == addr:
                 alerts.append(f"- {T} ❗ 被強平：{label} {fl['coin']} {fl.get('sz')} @ {fl['px']}")
@@ -391,7 +393,7 @@ def main():
             alerts.append(f"- {T} 追蹤以來最大回撤達 {lvl}%：{x['label']} {x['addr']}（{float(x['mdd']):.0%}）")
             ma[x["addr"]] = lvl
     with open(os.path.join(out, "forward.csv"), "w", newline="", encoding="utf-8") as f:
-        H_FW = ["addr", "label", "mode", "added", "days", "twr", "twr_perp", "btc", "excess", "mdd", "mdd_perp", "n_pts", "gaps", "av_total_now"]
+        H_FW = ["addr", "label", "grade", "mode", "added", "days", "twr", "twr_perp", "btc", "excess", "mdd", "mdd_perp", "n_pts", "gaps", "av_total_now"]
         w = csv.DictWriter(f, fieldnames=H_FW); w.writeheader(); [w.writerow(x) for x in fw]
     if alerts:
         with open(os.path.join(out, "alerts.md"), "a", encoding="utf-8") as f:
@@ -442,7 +444,7 @@ def forward(wl, out, btc_now, st):
         with open(sp, encoding="utf-8") as f:
             xs = list(csv.DictReader(f))
         if len(xs) < 2:
-            res.append(dict(addr=addr, label=r.get("label", ""), added=added, days=round((now_ms() - t_add) / 86400_000, 1) if t_add else "",
+            res.append(dict(addr=addr, label=r.get("label", ""), grade=r.get("grade", ""), added=added, days=round((now_ms() - t_add) / 86400_000, 1) if t_add else "",
                             twr="", twr_perp="", btc="", excess="", mdd="", mdd_perp="", n_pts=len(xs), gaps=0,
                             av_total_now=st.get("last", {}).get(addr, {}).get("av_total", "")))
             continue
@@ -460,7 +462,7 @@ def forward(wl, out, btc_now, st):
         mode = st.get("last", {}).get(addr, {}).get("mode", "")
         if mode in ("unifiedAccount", "portfolioMargin"):  # 合約帳戶不是獨立保證金池 → 合約帳戶分母不適用
             twr_p, mdd_p = None, None
-        res.append(dict(addr=addr, label=r.get("label", ""), added=added, days=round((now_ms() - t_add) / 86400_000, 1) if t_add else "",
+        res.append(dict(addr=addr, label=r.get("label", ""), grade=r.get("grade", ""), added=added, days=round((now_ms() - t_add) / 86400_000, 1) if t_add else "",
                         twr=round(twr, 4), twr_perp=round(twr_p, 4) if twr_p is not None else "", btc=round(btc_r, 4) if btc_r != "" else "", mode=mode,
                         excess=round(twr - btc_r, 4) if btc_r != "" else "", mdd=round(mdd, 4), mdd_perp=round(mdd_p, 4) if mdd_p is not None else "", n_pts=len(xs),
                         gaps=sum(int(x.get("gap") or 0) for x in xs),
@@ -476,6 +478,20 @@ def write_summary(out, T, eq_rows, ev_rows, cons_rows, fw, alerts, nerr, n):
     L += ["", "## 本次部位變化（前 20 大）", "", "| 交易員 | 幣 | 變化 | 名目變化 |", "|---|---|---|---|"]
     for e in sorted([e for e in ev_rows if e["event"] != "初始"], key=lambda x: -abs(x["ntl_change"]))[:20]:
         L.append(f"| {e['label'] or e['addr'][:10]} | {e['coin']} | {e['event']} | {e['ntl_change']:,.0f} |")
+    # 名單 vs 隨機對照組（選人有沒有用）
+    def med(v):
+        v = sorted(v); n = len(v)
+        return (v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2) if n else None
+    groups = [("名單（乙＋丙）", lambda g: g in ("甲", "乙", "丙")), ("乙", lambda g: g == "乙"), ("丙", lambda g: g == "丙"), ("隨機對照組", lambda g: g == "對照")]
+    L += ["", "## 名單 vs 隨機對照組", "",
+          "對照組＝同一個候選宇宙隨機抽的帳戶（見 README）。名單要同時贏同期 BTC 和對照組中位數，才算選人有用。", "",
+          "| 組 | 人數（有前瞻報酬） | TWR 中位數 | 超額 BTC 中位數 | 贏 BTC 比例 |", "|---|---|---|---|---|"]
+    for nm, fn in groups:
+        xs = [x for x in fw if fn(x.get("grade", "")) and x["twr"] != ""]
+        if not xs:
+            continue
+        ex = [x["excess"] for x in xs if x["excess"] != ""]
+        L.append(f"| {nm} | {len(xs)} | {med([x['twr'] for x in xs]):+.1%} | " + (f"{med(ex):+.1%}" if ex else "—") + " | " + (f"{sum(1 for e in ex if e > 0) / len(ex):.0%}" if ex else "—") + " |")
     L += ["", "## 前瞻績效（自加入名單起；TWR 已扣入出金）", "",
           "分子都是合約損益（不含現貨漲跌）；全帳戶分母＝Hyperliquid 算的總權益。合約帳戶分母只對 default／disabled 模式有意義（獨立保證金池），統一帳戶標「—」。", "",
           "| 交易員 | 加入 | 天數 | TWR（全帳戶） | TWR（合約帳戶） | 同期 BTC | 超額（全帳戶） | 超額（合約帳戶） | 最大回撤（全帳戶／合約帳戶） |", "|---|---|---|---|---|---|---|---|---|"]
