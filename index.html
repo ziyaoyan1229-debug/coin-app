@@ -906,6 +906,8 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 .cpflt select{width:100%;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:7px 6px;font:inherit;font-size:13px}
 .cplg{width:38px;height:38px;font-size:13px}.cph .pill{flex:none;margin:0}.cpad{display:block;font-family:ui-monospace,monospace;font-size:11.5px}
 .cpc[data-tr]{cursor:pointer}.cpback{background:none;border:0;color:var(--acc);font:inherit;font-size:15px;font-weight:700;padding:0 2px 10px;cursor:pointer}.cpsubt{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:12px 2px 10px;font-size:14px}.cpsubt button{background:none;border:0;padding:6px 0 9px;color:var(--muted);font:inherit;cursor:pointer}.cpsubt button.on{color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
+#cpDetail>.card{margin-bottom:10px}
+.cpop{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.cpop:last-child{border:0}.cpopr{text-align:right;font-variant-numeric:tabular-nums;font-size:13.5px}.cpopr .pos,.cpopr .neg{font-size:12.5px}
 .cpst-btn{flex:none;background:none;border:0;font-size:22px;line-height:1;color:var(--muted);cursor:pointer;padding:2px 2px 2px 4px}.cpst-btn.on{color:#f0b90b}
 .cpst b{display:block;margin-top:2px}.cplist{display:grid;gap:10px}.cph{display:flex;align-items:center;gap:10px}.cph>div{flex:1;min-width:0}.cph .bbtn{flex:none;width:auto;padding:0 16px}
 .cpav{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc)}
@@ -1192,7 +1194,7 @@ window.HXup=function(root,t,f){var h=root&&root.querySelector('.hxl');if(!h||(f!
       <label><span>交易頻率</span><select data-f="freq"><option value="">全部</option><option value="h">每天多筆</option><option value="m">每週幾筆</option><option value="l">偶爾才交易</option></select></label>
     </div>
     <div class="cplist" id="cpList"></div>
-    <p class="sub" style="margin:8px 2px 0;font-size:12.5px">名單由 Aton 追蹤。資金規模、交易頻率、績效資料還沒接上，篩選先只對交易所有效。</p></div>
+    <p class="sub" style="margin:8px 2px 0;font-size:12.5px">Hyperliquid 錢包由手機直接抓，每分鐘更新；Binance、OKX 要等伺服器接上。資金規模、交易頻率篩選目前只對 Hyperliquid 有效。</p></div>
     <div id="cpDetail" hidden></div></div>
     <div class="foot">目前只能看交易員紀錄和操作通知，不會幫你下單。<br>內容僅供參考，非投資建議</div></div>
   <div id="tmBot" hidden><div id="botBox"></div>
@@ -4347,35 +4349,79 @@ const BotTab=(()=>{const RL='https://github.com/ziyaoyan1229-debug/coin-app/rele
 window.BotTab=BotTab;
 // ── 開始交易 › 跟單機器人（介面）：Aton 追蹤的交易員名單；★ 我的、交易所／資金規模／交易頻率篩選 ──
 const CopyTab=(()=>{
-  // ex：binance／okx／hl（Hyperliquid 鏈上錢包）；size、freq 還沒有資料（null＝不受篩選影響）；soon＝Aton 還沒開始通知
+  // ex：binance／okx／hl（Hyperliquid 鏈上錢包）。Hyperliquid 的 API 允許網頁直接呼叫，手機直接抓；
+  // Binance（portfolioId）、OKX（uniqueCode）的帶單資料瀏覽器會擋，之後由伺服器抓（soon＝還沒接上）
   const T=[
-    {id:'bn-aoying',ex:'binance',n:'熬鷹資本',t:'Binance 帶單員'},
-    {id:'bn-xingchen',ex:'binance',n:'Btc星辰',t:'Binance 帶單員'},
-    {id:'hl-bobby',ex:'hl',n:'BobbyBigSize',t:'Hyperliquid 錢包',a:'0x7fda…17d1'},
-    {id:'hl-silk',ex:'hl',n:'SilkBtc',t:'Hyperliquid 錢包',a:'0x880a…311c'},
-    {id:'okx-xiaoyao',ex:'okx',n:'Xiaoyao Lee',t:'OKX 帶單員',soon:1},
-    {id:'okx-frog',ex:'okx',n:'Shallow-Pair-Frog',t:'OKX 帶單員',soon:1},
-    {id:'okx-1491',ex:'okx',n:'1491',t:'OKX 帶單員',soon:1}];
+    {id:'bn-aoying',ex:'binance',n:'熬鷹資本',t:'Binance 帶單員',pid:'5075281354358777856',soon:1},
+    {id:'bn-xingchen',ex:'binance',n:'Btc星辰',t:'Binance 帶單員',pid:'4751838302089254401',soon:1},
+    {id:'hl-bobby',ex:'hl',n:'BobbyBigSize',t:'Hyperliquid 錢包',addr:'0x7fdafde5cfb5465924316eced2d3715494c517d1'},
+    {id:'hl-silk',ex:'hl',n:'SilkBtc',t:'Hyperliquid 錢包',addr:'0x880ac484a1743862989a441d6d867238c7aa311c'},
+    {id:'okx-xiaoyao',ex:'okx',n:'Xiaoyao Lee',t:'OKX 帶單員',uc:'94FC2CF4A047C10E',soon:1},
+    {id:'okx-frog',ex:'okx',n:'Shallow-Pair-Frog',t:'OKX 帶單員',uc:'35F888C7BB441B2B',soon:1},
+    {id:'okx-1491',ex:'okx',n:'1491',t:'OKX 帶單員',uc:'4B048A62B1198464',soon:1,hidePos:1}];
   const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  const H_=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const F={seg:'all',ex:'',size:'',freq:''};
   // Hyperliquid 標誌：@web3icons/core（MIT）networks/background/hyper-evm
   const HL='<span class="fdlg fdsvg cplg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#072723" d="M24 0H0v24h24z"/><path fill="#50D2C1" d="M20 11.942a9 9 0 0 1-.8 3.795c-.772 1.72-2.62 3.127-4.309 1.63-1.377-1.22-1.632-3.698-3.695-4.06-2.729-.333-2.795 2.854-4.578 3.214-1.987.407-2.646-2.96-2.617-4.488.03-1.529.433-3.678 2.16-3.678 1.987 0 2.121 3.031 4.644 2.867 2.498-.172 2.542-3.325 4.174-4.675 1.408-1.166 3.065-.311 3.894 1.093.769 1.298 1.107 2.822 1.124 4.302z"/></svg></span>';
   const logo=x=>x.ex==='hl'?HL:window.FundTab&&FundTab.lg?FundTab.lg(x.ex,'cplg'):'';
-  const stats=()=>'<div class="cpst"><div><span class="sub">報酬率</span><b>—</b></div><div><span class="sub">勝率</span><b>—</b></div><div><span class="sub">資金規模</span><b>—</b></div><div><span class="sub">交易頻率</span><b>—</b></div></div>';
+  const short=a=>a?a.slice(0,6)+'…'+a.slice(-4):'';
+  const num=(v,d=2)=>v==null||!isFinite(v)?'—':(+v).toLocaleString('en-US',{maximumFractionDigits:d});
+  const usd=v=>v==null||!isFinite(v)?'—':Math.abs(v)>=1e6?'$'+(v/1e6).toFixed(2)+'M':Math.abs(v)>=1e3?'$'+(v/1e3).toFixed(1)+'K':'$'+v.toFixed(0);
+  const sgn=v=>v>0?'pos':v<0?'neg':'';
+  const pct=v=>v==null||!isFinite(v)?'—':(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(1)+'%';
+  const md=t=>{const d=new Date(t+8*3600e3);return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`};
+  // ── Hyperliquid：clearinghouseState（持倉、權益）、userFills（最近 2000 筆成交）、portfolio（30 天損益）──
+  const D={},HLU='https://api.hyperliquid.xyz/info';
+  const post=b=>fetch(HLU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b),cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Hyperliquid 回應 '+r.status);return r.json()});
+  // 成交 → 操作：同一幣、同方向、前後相隔 5 分鐘內的成交合成一筆；看成交前的倉位分開倉／加倉／減倉／平倉
+  function ops(fills){const f=[...fills].sort((a,b)=>a.time-b.time),out=[];
+    for(const x of f){const sz=+x.sz,px=+x.px,st=+x.startPosition||0,dir=x.dir||'',last=out[out.length-1];
+      if(last&&last.coin===x.coin&&last.dir===dir&&x.time-last.t1<300e3){last.sz+=sz;last.nt+=sz*px;last.pnl+=+x.closedPnl||0;last.t1=x.time;last.end=st+(x.side==='B'?sz:-sz);continue}
+      out.push({coin:x.coin,dir,sz,nt:sz*px,pnl:+x.closedPnl||0,t0:x.time,t1:x.time,start:st,end:st+(x.side==='B'?sz:-sz)})}
+    return out.reverse().map(o=>{const long=/Long/.test(o.dir)&&!/>/.test(o.dir),short=/Short/.test(o.dir)&&!/>/.test(o.dir),side=long?'多':short?'空':'';
+      let k;if(/Long > Short/.test(o.dir))k='多翻空';else if(/Short > Long/.test(o.dir))k='空翻多';
+      else if(/^Open/.test(o.dir))k=(Math.abs(o.start)<1e-12?'開':'加')+side;
+      else if(/^Close/.test(o.dir))k=(Math.abs(o.end)<1e-9?'平':'減')+side;
+      else k=o.dir==='Buy'?'買進':o.dir==='Sell'?'賣出':o.dir||'成交';
+      return Object.assign(o,{k,px:o.sz?o.nt/o.sz:0,cls:/開|加|買/.test(k)?'pos':/平|減|賣/.test(k)?'neg':''})})}
+  async function loadHL(x){const d=D[x.id]||(D[x.id]={});if(d.busy||d.t&&Date.now()-d.t<60e3)return;d.busy=1;
+    try{const [st,fills,pf]=await Promise.all([post({type:'clearinghouseState',user:x.addr}),post({type:'userFills',user:x.addr}),post({type:'portfolio',user:x.addr}).catch(()=>null)]);
+      const eq=+(st&&st.marginSummary&&st.marginSummary.accountValue)||0,pos=(st&&st.assetPositions||[]).map(p=>p.position).filter(p=>p&&+p.szi);
+      const O=ops(fills||[]),now=Date.now(),m30=O.filter(o=>o.t1>now-30*864e5),cl=m30.filter(o=>/平|減|翻/.test(o.k)&&o.pnl),w7=O.filter(o=>o.t1>now-7*864e5).length;
+      let ret=null;const mo=pf&&(pf.find(p=>p[0]==='month')||[])[1];
+      if(mo&&mo.pnlHistory&&mo.pnlHistory.length&&mo.accountValueHistory&&mo.accountValueHistory.length){const p=+mo.pnlHistory[mo.pnlHistory.length-1][1],a0=+mo.accountValueHistory[0][1];if(a0>0)ret=p/a0*100}
+      Object.assign(d,{t:now,err:'',eq,pos,ops:O,ret,win:cl.length?cl.filter(o=>o.pnl>0).length/cl.length*100:null,perDay:w7/7,
+        size:eq<1e5?'s':eq<1e6?'m':'l',freq:w7>=14?'h':w7>=1?'m':'l'})}
+    catch(e){d.err=e.message||'抓不到資料';d.t=Date.now()}d.busy=0;if(vis())cur?detail():render()}
+  const vis=()=>{const v=document.getElementById('tmCopy');return v&&!v.hidden&&!document.hidden};
+  let timer=0;function loop(){clearTimeout(timer);T.filter(x=>x.ex==='hl').forEach(loadHL);timer=setTimeout(()=>{if(vis())loop()},60e3)}
+  document.addEventListener('visibilitychange',()=>{if(vis())loop()});
+  const sizeOf=x=>D[x.id]&&D[x.id].t&&!D[x.id].err?D[x.id].size:null,freqOf=x=>D[x.id]&&D[x.id].t&&!D[x.id].err?D[x.id].freq:null;
+  const fq=v=>v==null?'—':v>=1?'每天 '+v.toFixed(v>=10?0:1)+' 筆':v>0?'每週 '+Math.round(v*7)+' 筆':'這週沒交易';
+  function stats(x){const d=D[x.id]||{},ok=d.t&&!d.err;
+    return `<div class="cpst"><div><span class="sub">30 天報酬</span><b class="${ok?sgn(d.ret):''}">${ok?pct(d.ret):'—'}</b></div><div><span class="sub">30 天勝率</span><b>${ok&&d.win!=null?d.win.toFixed(0)+'%':'—'}</b></div><div><span class="sub">資金規模</span><b>${ok?usd(d.eq):'—'}</b></div><div><span class="sub">交易頻率</span><b>${ok?fq(d.perDay):'—'}</b></div></div>`}
+  const pill=x=>{const d=D[x.id]||{};return x.soon?'<span class="pill">準備中</span>':d.err?'<span class="pill p-bad">連不上</span>':'<span class="pill p-ok">追蹤中</span>'};
   let cur=null,dtab='log';
   const star=(x,st)=>`<button type="button" class="cpst-btn${st.has(x.id)?' on':''}" data-id="${x.id}" aria-label="加到我的" aria-pressed="${st.has(x.id)}">${st.has(x.id)?'★':'☆'}</button>`;
-  // 點進交易員：交易紀錄／操作通知（Aton 追蹤到的開倉、加倉、減倉、平倉）
-  function detail(){const d=document.getElementById('cpDetail'),h=document.getElementById('cpHome');const x=T.find(t=>t.id===cur);h.hidden=!!x;d.hidden=!x;if(!x)return render();const st=new Set(J('cpStar',[]));
-    const empty=x.soon?'Aton 的 OKX 追蹤程式寫好後才會開始記錄':dtab==='log'?'還沒有交易紀錄，Aton 的資料接上後會出現在這裡':'還沒有操作通知。交易員開倉、加倉、減倉、平倉時，會在這裡和推播通知你';
+  const head=(x,st)=>`<div class="cph">${logo(x)}<div><b>${x.n}</b><div class="sub">${x.t}${x.addr?`<span class="cpad">${short(x.addr)}</span>`:''}</div></div>${pill(x)}${star(x,st)}</div>`;
+  const opRow=o=>`<div class="cpop"><div><b class="${o.cls}">${o.k}</b> <b>${H_(o.coin)}</b><div class="sub">${md(o.t1)}</div></div><div class="cpopr">${num(o.sz,4)} @ ${num(o.px,o.px<1?6:2)}${o.pnl?`<div class="${sgn(o.pnl)}">已實現 ${o.pnl>0?'+':'−'}${usd(Math.abs(o.pnl)).slice(1)}</div>`:''}</div></div>`;
+  function hlBody(x){const d=D[x.id]||{};if(!d.t)return '<div class="card sub" style="text-align:center;padding:22px 14px">讀取中…</div>';
+    if(d.err)return `<div class="card sub" style="text-align:center;padding:22px 14px">抓不到 Hyperliquid 的資料：${H_(d.err)}<br>一分鐘後會再試</div>`;
+    if(dtab==='log'){const P=d.pos.length?d.pos.map(p=>{const s=+p.szi,u=+p.unrealizedPnl;return `<div class="cpop"><div><b class="${s>0?'pos':'neg'}">${s>0?'多':'空'}</b> <b>${H_(p.coin)}</b><div class="sub">${p.leverage&&p.leverage.value?p.leverage.value+' 倍・':''}開倉均價 ${num(+p.entryPx,4)}</div></div><div class="cpopr">${num(Math.abs(s),4)}・${usd(+p.positionValue)}<div class="${sgn(u)}">未實現 ${u>0?'+':u<0?'−':''}${usd(Math.abs(u)).slice(1)}</div></div></div>`}).join(''):'<div class="sub" style="padding:8px 0">目前沒有持倉</div>';
+      const C=d.ops.filter(o=>o.pnl).slice(0,30);
+      return `<div class="card"><div class="bh">目前持倉</div>${P}</div><div class="card"><div class="bh">最近平倉</div>${C.length?C.map(opRow).join(''):'<div class="sub" style="padding:8px 0">最近沒有平倉紀錄</div>'}</div>`}
+    const O=d.ops.slice(0,50);
+    return `<div class="card">${O.length?O.map(opRow).join(''):'<div class="sub" style="padding:8px 0">最近沒有操作</div>'}</div><p class="sub" style="margin:6px 2px 0;font-size:12.5px">App 開著時每分鐘更新一次。App 關掉時的推播，要等伺服器那邊接上。</p>`}
+  // 點進交易員：交易紀錄（持倉、平倉）／操作通知（開倉、加倉、減倉、平倉）
+  function detail(){const d=document.getElementById('cpDetail'),h=document.getElementById('cpHome');if(!d||!h)return;const x=T.find(t=>t.id===cur);h.hidden=!!x;d.hidden=!x;if(!x)return render();const st=new Set(J('cpStar',[]));
+    const body=x.ex==='hl'?hlBody(x):`<div class="card sub" style="text-align:center;padding:22px 14px">${x.ex==='okx'?'OKX':'Binance'} 的帶單資料瀏覽器抓不到，要等伺服器那邊接上才會有紀錄${x.hidePos?'。<br>這位交易員在 OKX 隱藏了持倉，之後也只看得到平倉歷史':''}</div>`;
     d.innerHTML=`<button type="button" class="cpback" id="cpBack">‹ 全部交易員</button>
-      <div class="card cpc"><div class="cph">${logo(x)}<div><b>${x.n}</b><div class="sub">${x.t}${x.a?`<span class="cpad">${x.a}</span>`:''}</div></div>${x.soon?'<span class="pill">準備中</span>':'<span class="pill p-ok">追蹤中</span>'}${star(x,st)}</div>${stats()}</div>
-      <div class="subt cpsubt"><button type="button" data-d="log"${dtab==='log'?' class="on"':''}>交易紀錄</button><button type="button" data-d="ntf"${dtab==='ntf'?' class="on"':''}>操作通知</button></div>
-      <div class="card sub" style="text-align:center;padding:22px 14px">${empty}</div>`}
+      <div class="card cpc">${head(x,st)}${stats(x)}</div>
+      <div class="subt cpsubt"><button type="button" data-d="log"${dtab==='log'?' class="on"':''}>交易紀錄</button><button type="button" data-d="ntf"${dtab==='ntf'?' class="on"':''}>操作通知</button></div>${body}`}
   function render(){const box=document.getElementById('cpList');if(!box)return;const st=new Set(J('cpStar',[]));
-    const L=T.filter(x=>(F.seg!=='fav'||st.has(x.id))&&(!F.ex||x.ex===F.ex)&&(!F.size||x.size==null||x.size===F.size)&&(!F.freq||x.freq==null||x.freq===F.freq));
-    box.innerHTML=L.length?L.map(x=>`<div class="card cpc" role="button" tabindex="0" data-tr="${x.id}"><div class="cph">${logo(x)}<div><b>${x.n}</b><div class="sub">${x.t}${x.a?`<span class="cpad">${x.a}</span>`:''}</div></div>
-      ${x.soon?'<span class="pill">準備中</span>':'<span class="pill p-ok">追蹤中</span>'}${star(x,st)}</div>
-      ${stats()}</div>`).join('')
+    const L=T.filter(x=>{const sz=sizeOf(x),fr=freqOf(x);return (F.seg!=='fav'||st.has(x.id))&&(!F.ex||x.ex===F.ex)&&(!F.size||sz==null||sz===F.size)&&(!F.freq||fr==null||fr===F.freq)});
+    box.innerHTML=L.length?L.map(x=>`<div class="card cpc" role="button" tabindex="0" data-tr="${x.id}">${head(x,st)}${stats(x)}</div>`).join('')
       :`<div class="card sub" style="text-align:center;padding:18px">${F.seg==='fav'&&!st.size?'還沒有加星號的交易員，點交易員右上角的 ☆ 加進來':'沒有符合篩選的交易員'}</div>`}
   function bind(){const v=document.getElementById('tmCopy');if(!v||v._b)return;v._b=1;
     v.addEventListener('click',e=>{const s=e.target.closest('#cpSeg button');if(s){F.seg=s.dataset.v;v.querySelectorAll('#cpSeg button').forEach(b=>b.classList.toggle('on',b===s));return render()}
@@ -4385,7 +4431,7 @@ const CopyTab=(()=>{
       const c=e.target.closest('[data-tr]');if(c){cur=c.dataset.tr;dtab='log';detail();window.scrollTo(0,0)}});
     v.addEventListener('keydown',e=>{const c=e.key==='Enter'&&e.target.closest('[data-tr]');if(c){cur=c.dataset.tr;dtab='log';detail()}});
     v.addEventListener('change',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f){F[f]=e.target.value;render()}})}
-  return {open(){bind();detail()},home(){cur=null;detail()}}})();
+  return {open(){bind();detail();loop()},home(){cur=null;detail()}}})();
 window.CopyTab=CopyTab;
 // ───────── HexAI 對話（策略顧問）：問題送到配對的執行器（/api/ai/*），執行器呼叫模型和工具；這裡只顯示對話、工具步驟和模型設定 ─────────
 const AI_BUILD=164;   // 需要的執行器版號（executor/hexbot.js BUILD），比這個舊就提醒
