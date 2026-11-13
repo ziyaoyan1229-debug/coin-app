@@ -980,11 +980,13 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 </style><div class="hx"><i></i><i></i><i></i></div><div class="nm">HexStack</div><div class="bar"><i id="spBar"></i></div><div class="pct" id="spPct">0%</div>
 <script>(function(){var t0=Date.now(),done=0,want=0;
 // 進度條：tv＝實際載入進度，畫面上的 dv 從進度條出現（1.1 秒）起最快 0.9 秒跑完 0→100，不會一出現就是 100%；跑到 100 才關掉開場畫面
-var tv=0,dv=-1,T1=t0+1100,DUR=900;function tick(){var cap=Math.max(0,Math.min(100,(Date.now()-T1)/DUR*100)),v=Math.floor(Math.min(tv,cap));
+// 等待下一個載入節點時不停在原地：從目前 tv 慢慢往下一段上限（載入程式時 68、等雲端同步時 99）逼近，越接近越慢，畫面上的數字平滑追上
+var tv=0,tvAt=t0,dv=-1,sv=0,T1=t0+1100,DUR=900;function tick(){var now=Date.now(),cap=Math.max(0,Math.min(100,(now-T1)/DUR*100)),ceil=tv<70?68:99.4,
+goal=tv>=100?100:Math.max(tv,tv+(ceil-tv)*(1-Math.exp(-(now-tvAt)/2500)));goal=Math.min(goal,cap);if(goal>sv)sv=Math.min(goal,sv+Math.max(.4,(goal-sv)*.18));var v=Math.floor(sv);
 if(v!==dv){dv=v;var b=document.getElementById('spBar'),t=document.getElementById('spPct');if(b)b.style.width=v+'%';if(t&&!t.dataset.upd)t.textContent=v+'%'}
 if(want&&dv>=100&&(window.__hsSwUpd&&Date.now()-__hsSwUpd<12000||!window.__hsAnimDone&&Date.now()-t0<12000)){requestAnimationFrame(tick);return}if(want&&dv>=100){var el=document.getElementById('splash');if(el){if(window.__hsUpdGate&&__hsUpdGate(el))return;if(window.__hsNeedLogin&&__hsNeedLogin()){__hsSplashLogin(el);return}el.className='out';setTimeout(function(){el.remove()},400)}return}requestAnimationFrame(tick)}requestAnimationFrame(tick);
 function hide(){if(done)return;done=1;tv=100;want=1}
-window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
+window.__prog=function(v){v=Math.min(100,v);if(v>tv){tv=v;tvAt=Date.now()}};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 <script>
 // 開場動畫：三層 logo 一層層落下疊好、之後持續輪流浮動（登入畫面停留時也一直動）（三個 div 的 CSS 動畫，交給 GPU 合成，載入程式時不會卡）。__hsAnimDone＝播完；開場畫面要等資料載完而且動畫播完才關
 (function(){window.__hsAnimDone=false;setTimeout(function(){window.__hsAnimDone=true},matchMedia('(prefers-reduced-motion:reduce)').matches?0:2350)})();
