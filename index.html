@@ -968,7 +968,7 @@ try{var t=localStorage.getItem('theme3');if(localStorage.getItem('autoNight')!==
 <div id="splash"><style>
 #splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle at 50% 40%,#3a1d7a,#160b34 70%);transition:opacity .35s}
 #splash.out{opacity:0;pointer-events:none}
-#splash .hx{position:relative;width:132px;height:132px}#splash .hx i{position:absolute;left:16px;width:100px;height:50px;background:center/contain no-repeat;will-change:transform;opacity:0;transform:translateY(-34px);animation:slDrop .42s cubic-bezier(.2,.9,.3,1.25) forwards,slBob 1.3s ease-in-out 1}
+#splash .hx{position:relative;width:132px;height:132px}#splash .hx i{position:absolute;left:16px;width:100px;height:50px;background:center/contain no-repeat;will-change:transform;opacity:0;transform:translateY(-34px);animation:slDrop .42s cubic-bezier(.2,.9,.3,1.25) forwards,slBob 1.3s ease-in-out infinite}
 #splash .hx i:nth-child(1){top:66px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpolygon points='94,25 72,46 28,46 6,25 28,4 72,4' fill='%239468e8' fill-opacity='.26' stroke='%239468e8' stroke-width='5.6' stroke-opacity='.75' stroke-linejoin='round'/%3E%3C/svg%3E");animation-delay:.1s,.52s}
 #splash .hx i:nth-child(2){top:44px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpolygon points='94,25 72,46 28,46 6,25 28,4 72,4' fill='%23d8b6ff' fill-opacity='.32' stroke='%23d8b6ff' stroke-width='5.6' stroke-opacity='.9' stroke-linejoin='round'/%3E%3C/svg%3E");animation-delay:.35s,.77s}
 #splash .hx i:nth-child(3){top:22px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpolygon points='94,25 72,46 28,46 6,25 28,4 72,4' fill='%23f6cf6a' fill-opacity='.35' stroke='%23f6cf6a' stroke-width='5.6' stroke-linejoin='round'/%3E%3C/svg%3E");animation-delay:.6s,1.02s}
@@ -986,7 +986,7 @@ if(want&&dv>=100&&(window.__hsSwUpd&&Date.now()-__hsSwUpd<12000||!window.__hsAni
 function hide(){if(done)return;done=1;tv=100;want=1}
 window.__prog=function(v){tv=Math.max(tv,Math.min(100,v))};window.__boot=[];addEventListener('load',function(){__prog(70);var B=window.__boot,k=0;Promise.all(B.map(function(p){return Promise.race([Promise.resolve(p).catch(function(){}),new Promise(function(r){setTimeout(r,6000)})]).then(function(){k++;__prog(70+30*k/B.length)})})).then(hide)});setTimeout(hide,15000)})();</script></div>
 <script>
-// 開場動畫：三層 logo 一層層落下疊好、輪流浮動一輪就停（三個 div 的 CSS 動畫，交給 GPU 合成，載入程式時不會卡）。__hsAnimDone＝播完；開場畫面要等資料載完而且動畫播完才關
+// 開場動畫：三層 logo 一層層落下疊好、之後持續輪流浮動（登入畫面停留時也一直動）（三個 div 的 CSS 動畫，交給 GPU 合成，載入程式時不會卡）。__hsAnimDone＝播完；開場畫面要等資料載完而且動畫播完才關
 (function(){window.__hsAnimDone=false;setTimeout(function(){window.__hsAnimDone=true},matchMedia('(prefers-reduced-motion:reduce)').matches?0:2350)})();
 </script>
 <script>
